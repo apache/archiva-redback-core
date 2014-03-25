@@ -25,7 +25,7 @@ import org.apache.archiva.redback.common.ldap.connection.LdapConnectionFactory;
 import org.apache.archiva.redback.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.apache.archiva.redback.policy.encoders.SHA1PasswordEncoder;
-import org.fest.assertions.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -298,7 +298,7 @@ public class TestLdapRoleMapper
 
         log.info( "allGroups: {}", allGroups );
 
-        Assertions.assertThat( allGroups ).isNotNull().isNotEmpty().contains( "archiva-admin",
+        assertThat( allGroups ).isNotNull().isNotEmpty().contains( "archiva-admin",
                                                                               "internal-repo-manager" );
     }
 
@@ -310,11 +310,11 @@ public class TestLdapRoleMapper
 
         log.info( "users for archiva-admin: {}", users );
 
-        Assertions.assertThat( users ).isNotNull().isNotEmpty().hasSize( 2 ).contains( "admin", "user.7" );
+        assertThat( users ).isNotNull().isNotEmpty().hasSize( 2 ).contains( "admin", "user.7" );
 
         users = ldapRoleMapper.getGroupsMember( "internal-repo-observer", getDirContext() );
 
-        Assertions.assertThat( users ).isNotNull().isNotEmpty().hasSize( 3 ).contains( "admin", "user.7", "user.8" );
+        assertThat( users ).isNotNull().isNotEmpty().hasSize( 3 ).contains( "admin", "user.7", "user.8" );
     }
 
     @Test
@@ -325,17 +325,17 @@ public class TestLdapRoleMapper
 
         log.info( "groups for admin: {}", groups );
 
-        Assertions.assertThat( groups ).isNotNull().isNotEmpty().hasSize( 3 ).contains( "archiva-admin",
+        assertThat( groups ).isNotNull().isNotEmpty().hasSize( 3 ).contains( "archiva-admin",
                                                                                         "internal-repo-manager",
                                                                                         "internal-repo-observer" );
 
         groups = ldapRoleMapper.getGroups( "user.8", getDirContext() );
 
-        Assertions.assertThat( groups ).isNotNull().isNotEmpty().hasSize( 1 ).contains( "internal-repo-observer" );
+        assertThat( groups ).isNotNull().isNotEmpty().hasSize( 1 ).contains( "internal-repo-observer" );
 
         groups = ldapRoleMapper.getGroups( "user.7", getDirContext() );
 
-        Assertions.assertThat( groups ).isNotNull().isNotEmpty().hasSize( 2 ).contains( "archiva-admin",
+        assertThat( groups ).isNotNull().isNotEmpty().hasSize( 2 ).contains( "archiva-admin",
                                                                                         "internal-repo-observer" );
     }
 
@@ -347,7 +347,7 @@ public class TestLdapRoleMapper
 
         log.info( "roles for admin: {}", roles );
 
-        Assertions.assertThat( roles ).isNotNull().isNotEmpty().hasSize( 3 ).contains( "Archiva System Administrator",
+        assertThat( roles ).isNotNull().isNotEmpty().hasSize( 3 ).contains( "Archiva System Administrator",
                                                                                        "Internal Repo Manager",
                                                                                        "Internal Repo Observer" );
 
@@ -355,14 +355,14 @@ public class TestLdapRoleMapper
 
         log.info( "roles for user.7: {}", roles );
 
-        Assertions.assertThat( roles ).isNotNull().isNotEmpty().hasSize( 2 ).contains( "Archiva System Administrator",
+        assertThat( roles ).isNotNull().isNotEmpty().hasSize( 2 ).contains( "Archiva System Administrator",
                                                                                        "Internal Repo Observer" );
 
         roles = ldapRoleMapper.getRoles( "user.8", getDirContext(), roleNames );
 
         log.info( "roles for user.8: {}", roles );
 
-        Assertions.assertThat( roles ).isNotNull().isNotEmpty().hasSize( 1 ).contains( "Internal Repo Observer" );
+        assertThat( roles ).isNotNull().isNotEmpty().hasSize( 1 ).contains( "Internal Repo Observer" );
 
     }
 
