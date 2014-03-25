@@ -791,6 +791,7 @@
             <exclude>.site-content/**</exclude>
             <exclude>.java-version</exclude>
             <exclude>patch.diff</exclude>
+            <exclude>.repository</exclude>
           </excludes>
         </configuration>
         <executions>
