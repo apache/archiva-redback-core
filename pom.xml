@@ -57,9 +57,9 @@
   </modules>
 
   <scm>
-    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/redback-core.git</connection>
-    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/redback-core.git</developerConnection>
-    <url>https://github.com/apache/redback-core</url>
+    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/archiva-redback-core.git</connection>
+    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/archiva-redback-core.git</developerConnection>
+    <url>https://github.com/apache/archiva-redback-core</url>
   </scm>
 
   <distributionManagement>
