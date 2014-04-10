@@ -57,10 +57,9 @@
   </modules>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/archiva/redback/redback-core/trunk/</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/archiva/redback/redback-core/trunk/
-    </developerConnection>
-    <url>http://svn.apache.org/viewvc/archiva/redback/redback-core/trunk/</url>
+    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/redback-core.git</connection>
+    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/redback-core.git</developerConnection>
+    <url>https://github.com/apache/redback-core</url>
   </scm>
 
   <distributionManagement>
