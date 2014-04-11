@@ -96,7 +96,7 @@ public class AuthenticationResult
     {
         if ( authenticationFailureCauses == null )
         {
-            this.authenticationFailureCauses = new ArrayList<>();
+            this.authenticationFailureCauses = new ArrayList<AuthenticationFailureCause>();
         }
         return authenticationFailureCauses;
     }

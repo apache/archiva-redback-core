@@ -671,6 +671,16 @@
   <build>
     <pluginManagement>
       <plugins>
+        <!-- due to issue with bcel using 1.7 as target doesn't work -->
+        <!-- http://jira.codehaus.org/browse/MRM-1827  -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.6</source>
+            <target>1.6</target>
+          </configuration>
+        </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>jpox-maven-plugin</artifactId>
