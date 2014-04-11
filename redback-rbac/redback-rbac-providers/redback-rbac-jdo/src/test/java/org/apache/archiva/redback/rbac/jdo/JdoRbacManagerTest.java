@@ -20,14 +20,15 @@ package org.apache.archiva.redback.rbac.jdo;
  */
 
 import net.sf.ehcache.CacheManager;
-import org.apache.archiva.redback.components.jdo.DefaultConfigurableJdoFactory;
-import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.common.jdo.test.StoreManagerDebug;
+import org.apache.archiva.redback.components.jdo.DefaultConfigurableJdoFactory;
 import org.apache.archiva.redback.rbac.RBACManager;
+import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.tests.AbstractRbacManagerTestCase;
 import org.jpox.AbstractPersistenceManagerFactory;
 import org.jpox.SchemaTool;
 import org.junit.Before;
+import org.springframework.test.annotation.DirtiesContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -37,33 +38,31 @@ import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
-import org.springframework.test.annotation.DirtiesContext;
 
 /**
  * JdoRbacManagerTest:
  *
  * @author Jesse McConnell <jmcconnell@apache.org>
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
- *
  */
-@DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class JdoRbacManagerTest
     extends AbstractRbacManagerTestCase
 {
     private StoreManagerDebug storeManager;
 
     @Inject
-    @Named( value = "jdoFactory#users" )
+    @Named(value = "jdoFactory#users")
     DefaultConfigurableJdoFactory jdoFactory;
 
     @Inject
-    @Named( value = "rbacManager#jdo" )
+    @Named(value = "rbacManager#jdo")
     RBACManager rbacManager;
 
     public static int EVENTCOUNT = 2;
-    
+
     @Override
-    public void assertEventCount() 
+    public void assertEventCount()
     {
         assertEquals( EVENTCOUNT, eventTracker.initCount );
     }
@@ -128,8 +127,6 @@ public class JdoRbacManagerTest
         URL[] jdoFileUrls =
             new URL[]{ getClass().getResource( "/org/apache/archiva/redback/rbac/jdo/package.jdo" ) }; //$NON-NLS-1$
 
-
-
         if ( ( jdoFileUrls == null ) || ( jdoFileUrls[0] == null ) )
         {
             fail( "Unable to process test " + getName() + " - missing package.jdo." );
@@ -177,6 +174,7 @@ public class JdoRbacManagerTest
     public void testGetAssignedPermissionsDeep()
         throws RbacManagerException
     {
+        this.clearCache();
         super.testGetAssignedPermissionsDeep();
         int counter = storeManager.counter();
         /* without Level 2 cache: 26 queries */
@@ -195,10 +193,7 @@ public class JdoRbacManagerTest
     public void testLargeApplicationInit()
         throws RbacManagerException
     {
-        for (String cacheName : CacheManager.getInstance().getCacheNames())
-        {
-            CacheManager.getInstance().getCache( cacheName ).removeAll();
-        }
+        this.clearCache();
         super.testLargeApplicationInit();
     }
 
@@ -206,10 +201,7 @@ public class JdoRbacManagerTest
     public void testGetRolesDeep()
         throws RbacManagerException
     {
-        for (String cacheName : CacheManager.getInstance().getCacheNames())
-        {
-            CacheManager.getInstance().getCache( cacheName ).removeAll();
-        }
+        this.clearCache();
         super.testGetRolesDeep();
     }
 
@@ -218,9 +210,18 @@ public class JdoRbacManagerTest
     public void testStoreInitialization()
         throws Exception
     {
+        this.clearCache();
         rbacManager.eraseDatabase();
         eventTracker.rbacInit( true );
         super.testStoreInitialization();
         assertEquals( EVENTCOUNT, eventTracker.initCount );
+    }
+
+    protected void clearCache()
+    {
+        for ( String cacheName : CacheManager.getInstance().getCacheNames() )
+        {
+            CacheManager.getInstance().getCache( cacheName ).removeAll();
+        }
     }
 }
