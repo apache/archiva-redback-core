@@ -17,16 +17,17 @@ package org.apache.archiva.redback.tests;
  */
 
 import junit.framework.TestCase;
+import net.sf.ehcache.CacheManager;
 import org.apache.archiva.redback.rbac.Operation;
+import org.apache.archiva.redback.rbac.Permission;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
+import org.apache.archiva.redback.rbac.RbacPermanentException;
 import org.apache.archiva.redback.rbac.Resource;
 import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.rbac.UserAssignment;
-import org.apache.archiva.redback.rbac.Permission;
-import org.apache.archiva.redback.rbac.RbacPermanentException;
 import org.apache.archiva.redback.tests.utils.RBACDefaults;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -39,15 +40,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.test.annotation.DirtiesContext;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * AbstractRbacManagerTestCase
  *
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  */
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration( locations = { "classpath*:/META-INF/spring-context.xml", "classpath*:/spring-context.xml" } )
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath*:/META-INF/spring-context.xml", "classpath*:/spring-context.xml" })
 public abstract class AbstractRbacManagerTestCase
     extends TestCase
 {
@@ -158,6 +159,7 @@ public abstract class AbstractRbacManagerTestCase
     public void testStoreInitialization()
         throws Exception
     {
+
         assertNotNull( rbacManager );
 
         Role role = getAdminRole();
@@ -680,8 +682,7 @@ public abstract class AbstractRbacManagerTestCase
         assignment = manager.saveUserAssignment( assignment );
 
         assertThat( assignment.getRoleNames() ).isNotNull().isNotEmpty().hasSize( 3 );
-        assertThat( manager.getAllUserAssignments() ).isNotNull().isNotEmpty().hasSize(
-            incAssignements( 1 ) );
+        assertThat( manager.getAllUserAssignments() ).isNotNull().isNotEmpty().hasSize( incAssignements( 1 ) );
 
         assertThat( manager.getAllRoles() ).isNotNull().isNotEmpty().hasSize( 3 );
 
@@ -727,8 +728,7 @@ public abstract class AbstractRbacManagerTestCase
         assignment.addRoleName( roleName );
         manager.saveUserAssignment( assignment );
 
-        assertThat( manager.getAllUserAssignments() ).isNotNull().isNotEmpty().hasSize(
-            incAssignements( 1 ) );
+        assertThat( manager.getAllUserAssignments() ).isNotNull().isNotEmpty().hasSize( incAssignements( 1 ) );
         assertThat( manager.getAllRoles() ).isNotNull().isNotEmpty().hasSize( 3 );
         assertThat( manager.getAllPermissions() ).isNotNull().isNotEmpty().hasSize( 3 );
 
@@ -839,7 +839,9 @@ public abstract class AbstractRbacManagerTestCase
     public void testGetAssignedPermissionsDeep()
         throws RbacManagerException
     {
+        this.clearCache();
         assertNotNull( rbacManager );
+        rbacManager.eraseDatabase();
         rbacDefaults.createDefaults();
 
         // Setup User / Assignment with 1 role.
@@ -850,8 +852,11 @@ public abstract class AbstractRbacManagerTestCase
         rbacManager.saveUserAssignment( assignment );
 
         assertEquals( incAssignements( 1 ), rbacManager.getAllUserAssignments().size() );
-        assertEquals( 6, rbacManager.getAllPermissions().size() );
-        assertEquals( 4, rbacManager.getAllRoles().size() );
+        List<Permission> permissions = rbacManager.getAllPermissions();
+        Assertions.assertThat( permissions ).isNotNull().isNotEmpty().hasSize( 6 );
+
+        List<Role> roles = rbacManager.getAllRoles();
+        Assertions.assertThat( roles ).isNotNull().isNotEmpty().hasSize( 4 );
 
         afterSetup();
 
@@ -986,7 +991,8 @@ public abstract class AbstractRbacManagerTestCase
     }
 
     @Test
-    public void testInitialize() throws Exception
+    public void testInitialize()
+        throws Exception
     {
         rbacManager.initialize();
     }
@@ -997,5 +1003,13 @@ public abstract class AbstractRbacManagerTestCase
     protected void afterSetup()
     {
         // do nothing
+    }
+
+    protected void clearCache()
+    {
+        for ( String cacheName : CacheManager.getInstance().getCacheNames() )
+        {
+            CacheManager.getInstance().getCache( cacheName ).removeAll();
+        }
     }
 }

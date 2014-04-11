@@ -19,8 +19,8 @@ package org.apache.archiva.redback.tests;
  * under the License.
  */
 
-import org.apache.archiva.redback.rbac.RBACManagerListener;
 import org.apache.archiva.redback.rbac.Permission;
+import org.apache.archiva.redback.rbac.RBACManagerListener;
 import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.rbac.UserAssignment;
 import org.slf4j.Logger;
@@ -33,7 +33,6 @@ import java.util.List;
  * RbacManagerEventTracker
  *
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
- *
  */
 public class RbacManagerEventTracker
     implements RBACManagerListener
@@ -57,6 +56,17 @@ public class RbacManagerEventTracker
         log( "Init - freshdb: " + freshdb );
         initCount++;
         lastDbFreshness = Boolean.valueOf( freshdb );
+    }
+
+    public void clear()
+    {
+        this.addedRoleNames = new ArrayList<String>();
+
+        this.removedRoleNames = new ArrayList<String>();
+
+        this.addedPermissionNames = new ArrayList<String>();
+
+        this.removedPermissionNames = new ArrayList<String>();
     }
 
     public void rbacPermissionRemoved( Permission permission )

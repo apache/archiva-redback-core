@@ -19,14 +19,14 @@ package org.apache.archiva.redback.rbac.ldap;
  * under the License.
  */
 
-import net.sf.ehcache.CacheManager;
 import org.apache.archiva.redback.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.apache.archiva.redback.policy.encoders.SHA1PasswordEncoder;
-import org.apache.archiva.redback.rbac.RBACManager;
-import org.apache.archiva.redback.rbac.ldap.LdapRbacManager;
+import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.tests.AbstractRbacManagerTestCase;
+import org.junit.After;
 import org.junit.Before;
+import org.springframework.test.annotation.DirtiesContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -40,14 +40,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.springframework.test.annotation.DirtiesContext;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,12 +76,14 @@ public class LdapRbacManagerTest
         throws Exception
     {
         super.setUp();
-        CacheManager.getInstance().clearAll();
+        this.clearCache();
         setRbacManager( rbacManager );
 
         assertTrue( getRbacManager() instanceof LdapRbacManager );
 
         rbacManager.setWritableLdap( true );
+
+        rbacManager.getRbacImpl().eraseDatabase();
 
         passwordEncoder = new SHA1PasswordEncoder();
 
@@ -125,9 +121,6 @@ public class LdapRbacManagerTest
 
         apacheDs.getAdminContext().createSubcontext( suffix, attributes );
 
-        //makeUsers();
-
-        //createGroups();
     }
 
     @After
@@ -270,8 +263,12 @@ public class LdapRbacManagerTest
     public void testStoreInitialization()
         throws Exception
     {
-        CacheManager.getInstance().clearAll();
-        //rbacManager.eraseDatabase();
+        this.clearCache();
+        for ( Role role : rbacManager.getAllRoles() )
+        {
+            rbacManager.removeRole( role );
+        }
+        eventTracker.clear();
         super.testStoreInitialization();
     }
 

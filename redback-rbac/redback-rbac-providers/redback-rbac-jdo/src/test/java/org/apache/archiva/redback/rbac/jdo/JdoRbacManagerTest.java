@@ -19,7 +19,6 @@ package org.apache.archiva.redback.rbac.jdo;
  * under the License.
  */
 
-import net.sf.ehcache.CacheManager;
 import org.apache.archiva.redback.common.jdo.test.StoreManagerDebug;
 import org.apache.archiva.redback.components.jdo.DefaultConfigurableJdoFactory;
 import org.apache.archiva.redback.rbac.RBACManager;
@@ -174,7 +173,6 @@ public class JdoRbacManagerTest
     public void testGetAssignedPermissionsDeep()
         throws RbacManagerException
     {
-        this.clearCache();
         super.testGetAssignedPermissionsDeep();
         int counter = storeManager.counter();
         /* without Level 2 cache: 26 queries */
@@ -217,11 +215,5 @@ public class JdoRbacManagerTest
         assertEquals( EVENTCOUNT, eventTracker.initCount );
     }
 
-    protected void clearCache()
-    {
-        for ( String cacheName : CacheManager.getInstance().getCacheNames() )
-        {
-            CacheManager.getInstance().getCache( cacheName ).removeAll();
-        }
-    }
+
 }
