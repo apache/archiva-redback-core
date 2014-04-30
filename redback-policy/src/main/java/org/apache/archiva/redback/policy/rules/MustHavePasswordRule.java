@@ -21,6 +21,8 @@ import org.apache.archiva.redback.policy.PasswordRuleViolations;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.users.User;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -30,11 +32,13 @@ import javax.annotation.PostConstruct;
  *
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  */
-@Service("passwordRule#must-have")
+@Service( "passwordRule#must-have" )
 public class MustHavePasswordRule
     extends AbstractPasswordRule
 {
     public static final String MISSING_PASSWORD_VIOLATION = "user.password.violation.missing";
+
+    private final Logger logger = LoggerFactory.getLogger( getClass() );
 
     public void setUserSecurityPolicy( UserSecurityPolicy policy )
     {
@@ -53,5 +57,6 @@ public class MustHavePasswordRule
     public void initialize()
     {
         enabled = config.getBoolean( UserConfigurationKeys.POLICY_PASSWORD_RULE_MUSTHAVE_ENABLED );
+        logger.debug( "{} enabled: {}", UserConfigurationKeys.POLICY_PASSWORD_RULE_MUSTHAVE_ENABLED, enabled );
     }
 }
