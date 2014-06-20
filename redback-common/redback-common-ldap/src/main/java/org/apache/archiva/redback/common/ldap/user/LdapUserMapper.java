@@ -41,49 +41,22 @@ import java.util.Date;
 public class LdapUserMapper
     implements UserMapper
 {
-    /**
-     *
-     */
     String emailAttribute = "mail";
 
-    /**
-     *
-     */
     String fullNameAttribute = "givenName";
 
-    /**
-     *
-     */
     String passwordAttribute = "userPassword";
 
-    /**
-     *
-     */
     String userIdAttribute = "cn";
 
-    /**
-     *
-     */
     String distinguishedNameAttribute = "distinguishedName";
 
-    /**
-     *
-     */
     String userBaseDn;
 
-    /**
-     *
-     */
     String userObjectClass = "inetOrgPerson";
 
-    /**
-     *
-     */
     String userFilter;
 
-    /**
-     *
-     */
     int maxResultCount = 0;
 
     @Inject
