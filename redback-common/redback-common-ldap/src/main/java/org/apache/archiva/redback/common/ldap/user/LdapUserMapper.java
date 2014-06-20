@@ -76,7 +76,7 @@ public class LdapUserMapper
                                                    userConf.getConcatenatedList( "ldap.config.base.dn", userBaseDn ) );
         userObjectClass =
             userConf.getString( UserConfigurationKeys.LDAP_MAPPER_USER_ATTRIBUTE_OBJECT_CLASS, userObjectClass );
-        userFilter = userConf.getString( UserConfigurationKeys.LDAP_MAPPER_USER_ATTRIBUTE_FILTER, userFilter );
+        userFilter = userConf.getConcatenatedList( UserConfigurationKeys.LDAP_MAPPER_USER_ATTRIBUTE_FILTER, userFilter );
         maxResultCount = userConf.getInt( UserConfigurationKeys.LDAP_MAX_RESULT_COUNT, maxResultCount );
     }
 
