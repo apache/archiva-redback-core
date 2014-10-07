@@ -78,6 +78,8 @@ public class LdapUserMapper
             userConf.getString( UserConfigurationKeys.LDAP_MAPPER_USER_ATTRIBUTE_OBJECT_CLASS, userObjectClass );
         userFilter = userConf.getConcatenatedList( UserConfigurationKeys.LDAP_MAPPER_USER_ATTRIBUTE_FILTER, userFilter );
         maxResultCount = userConf.getInt( UserConfigurationKeys.LDAP_MAX_RESULT_COUNT, maxResultCount );
+
+        distinguishedNameAttribute = userConf.getString( UserConfigurationKeys.LDAP_DN_ATTRIBUTE, distinguishedNameAttribute );
     }
 
     public Attributes getCreationAttributes( User user, boolean encodePasswordIfChanged )

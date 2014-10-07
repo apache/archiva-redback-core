@@ -97,6 +97,8 @@ public class DefaultLdapRoleMapper
 
     private boolean useDefaultRoleName = false;
 
+    private String dnAttr = "dn";
+
     /**
      * possible to user cn=beer or uid=beer or sn=beer etc
      * so make it configurable
@@ -123,6 +125,8 @@ public class DefaultLdapRoleMapper
         this.userIdAttribute = userConf.getString( UserConfigurationKeys.LDAP_USER_ID_ATTRIBUTE, this.userIdAttribute );
 
         this.ldapGroupMember = userConf.getString( UserConfigurationKeys.LDAP_GROUPS_MEMBER, this.ldapGroupMember );
+
+        this.dnAttr = userConf.getString( UserConfigurationKeys.LDAP_DN_ATTRIBUTE, this.dnAttr );
     }
 
     public List<String> getAllGroups( DirContext context )
@@ -346,7 +350,7 @@ public class DefaultLdapRoleMapper
 
             searchControls.setDerefLinkFlag( true );
             searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            String dn = null;
+            String groupEntry = null;
             try
             {
                 //try to look the user up
@@ -354,10 +358,10 @@ public class DefaultLdapRoleMapper
                 if ( user instanceof LdapUser )
                 {
                     LdapUser ldapUser = LdapUser.class.cast( user );
-                    Attribute dnAttribute = ldapUser.getOriginalAttributes().get( "distinguishedName" );
+                    Attribute dnAttribute = ldapUser.getOriginalAttributes().get( getLdapDnAttribute() );
                     if ( dnAttribute != null )
                     {
-                        dn = String.class.cast( dnAttribute.get() );
+                        groupEntry = String.class.cast( dnAttribute.get() );
                     }
 
                 }
@@ -370,17 +374,25 @@ public class DefaultLdapRoleMapper
             {
                 log.warn( "Failed to look up user {}. Computing distinguished name manually", username, e );
             }
-            if ( dn == null )
+            if ( groupEntry == null )
             {
-                //failed to look up the user directly
+                //failed to look up the user's groupEntry directly
                 StringBuilder builder = new StringBuilder();
-                builder.append( this.userIdAttribute ).append( "=" ).append( username ).append( "," ).append(
-                    getBaseDn() );
-                dn = builder.toString();
+                String posixGroup = "posixGroup";
+                if (posixGroup.equals(getLdapGroupClass()))
+                {
+                    builder.append( username );
+                }
+                else
+                {
+                    builder.append( this.userIdAttribute ).append( "=" ).append( username ).append( "," ).append(
+                        getBaseDn() );
+                }
+                groupEntry = builder.toString();
             }
             String filter =
                 new StringBuilder().append( "(&" ).append( "(objectClass=" + getLdapGroupClass() + ")" ).append(
-                    "(" ).append( getLdapGroupMember() ).append( "=" ).append( dn ).append( ")" ).append(
+                    "(" ).append( getLdapGroupMember() ).append( "=" ).append( groupEntry ).append( ")" ).append(
                     ")" ).toString();
 
             log.debug( "filter: {}", filter );
@@ -420,7 +432,7 @@ public class DefaultLdapRoleMapper
                     userGroups.add( groupName );
 
                 }
-                else if ( allMembers.contains( dn ) )
+                else if ( allMembers.contains( groupEntry ) )
                 {
                     String groupName = searchResult.getName();
                     // cn=blabla we only want bla bla
@@ -500,6 +512,10 @@ public class DefaultLdapRoleMapper
         return this.ldapGroupClass;
     }
 
+    public String getLdapDnAttribute()
+    {
+        return this.dnAttr;
+    }
 
     public boolean saveRole( String roleName, DirContext context )
         throws MappingException

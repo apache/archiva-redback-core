@@ -74,6 +74,8 @@ public interface UserConfigurationKeys
 
     String LDAP_AUTHENTICATION_METHOD = "ldap.config.authentication.method";
 
+    String LDAP_DN_ATTRIBUTE = "ldap.config.dn";
+
     String LDAP_BASEDN = "ldap.config.base.dn";
 
     String LDAP_BINDDN = "ldap.config.bind.dn";
