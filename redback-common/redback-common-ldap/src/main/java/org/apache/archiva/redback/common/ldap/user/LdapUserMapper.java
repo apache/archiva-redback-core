@@ -37,7 +37,7 @@ import java.util.Date;
 /**
  * @author <a href="jesse@codehaus.org"> jesse
  */
-@Service("userMapper#ldap")
+@Service( "userMapper#ldap" )
 public class LdapUserMapper
     implements UserMapper
 {
@@ -60,7 +60,7 @@ public class LdapUserMapper
     int maxResultCount = 0;
 
     @Inject
-    @Named(value = "userConfiguration#default")
+    @Named( value = "userConfiguration#default" )
     private UserConfiguration userConf;
 
     @PostConstruct
@@ -76,10 +76,12 @@ public class LdapUserMapper
                                                    userConf.getConcatenatedList( "ldap.config.base.dn", userBaseDn ) );
         userObjectClass =
             userConf.getString( UserConfigurationKeys.LDAP_MAPPER_USER_ATTRIBUTE_OBJECT_CLASS, userObjectClass );
-        userFilter = userConf.getConcatenatedList( UserConfigurationKeys.LDAP_MAPPER_USER_ATTRIBUTE_FILTER, userFilter );
+        userFilter =
+            userConf.getConcatenatedList( UserConfigurationKeys.LDAP_MAPPER_USER_ATTRIBUTE_FILTER, userFilter );
         maxResultCount = userConf.getInt( UserConfigurationKeys.LDAP_MAX_RESULT_COUNT, maxResultCount );
 
-        distinguishedNameAttribute = userConf.getString( UserConfigurationKeys.LDAP_DN_ATTRIBUTE, distinguishedNameAttribute );
+        distinguishedNameAttribute =
+            userConf.getString( UserConfigurationKeys.LDAP_DN_ATTRIBUTE, distinguishedNameAttribute );
     }
 
     public Attributes getCreationAttributes( User user, boolean encodePasswordIfChanged )
@@ -127,14 +129,15 @@ public class LdapUserMapper
         return distinguishedNameAttribute;
     }
 
-    public void setDistinguishedNameAttribute(String distinguishedNameAttribute)
+    public void setDistinguishedNameAttribute( String distinguishedNameAttribute )
     {
         this.distinguishedNameAttribute = distinguishedNameAttribute;
     }
 
     public String[] getUserAttributeNames()
     {
-        return new String[]{ emailAttribute, fullNameAttribute, passwordAttribute, userIdAttribute, distinguishedNameAttribute };
+        return new String[]{ emailAttribute, fullNameAttribute, passwordAttribute, userIdAttribute,
+            distinguishedNameAttribute };
     }
 
     public int getMaxResultCount()
@@ -292,8 +295,8 @@ public class LdapUserMapper
 
     public String[] getReturningAttributes()
     {
-        return new String[]{ getUserIdAttribute(), getEmailAttribute(), getFullNameAttribute(),
-            getPasswordAttribute(), getDistinguishedNameAttribute() };
+        return new String[]{ getUserIdAttribute(), getEmailAttribute(), getFullNameAttribute(), getPasswordAttribute(),
+            getDistinguishedNameAttribute() };
     }
 
     public UserConfiguration getUserConf()

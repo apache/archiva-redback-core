@@ -379,7 +379,7 @@ public class DefaultLdapRoleMapper
                 //failed to look up the user's groupEntry directly
                 StringBuilder builder = new StringBuilder();
                 String posixGroup = "posixGroup";
-                if (posixGroup.equals(getLdapGroupClass()))
+                if ( posixGroup.equals( getLdapGroupClass() ) )
                 {
                     builder.append( username );
                 }
