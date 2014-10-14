@@ -30,7 +30,7 @@
   <artifactId>redback</artifactId>
   <version>2.3-SNAPSHOT</version>
 
-  <packaging>pom</packaging>
+  <packaging>poms</packaging>
   <name>Apache Archiva Redback</name>
 
   <url>http://archiva.apache.org/redback/core</url>
