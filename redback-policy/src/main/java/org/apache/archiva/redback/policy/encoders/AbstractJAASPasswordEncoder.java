@@ -22,7 +22,7 @@ import org.apache.archiva.redback.users.Messages;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -30,7 +30,6 @@ import java.security.NoSuchAlgorithmException;
  * Abstract Password Encoder that uses the {@link MessageDigest} from JAAS.
  *
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
- *
  */
 public class AbstractJAASPasswordEncoder
     implements PasswordEncoder
@@ -69,7 +68,7 @@ public class AbstractJAASPasswordEncoder
                 // Conforming to acegi password encoding standards for compatibility
                 precode += "{" + salt + "}";
             }
-            md.update( precode.getBytes( "UTF-8" ) ); //$NON-NLS-1$
+            md.update( precode.getBytes( Charset.forName( "UTF-8" ) ) );
 
             byte raw[] = md.digest();
             Base64 base64 = new Base64( 0, new byte[0] );
@@ -78,12 +77,7 @@ public class AbstractJAASPasswordEncoder
         catch ( NoSuchAlgorithmException e )
         {
             throw new PasswordEncodingException(
-                Messages.getString( "password.encoder.no.such.algoritm", this.algorithm ), e ); //$NON-NLS-1$
-        }
-        catch ( UnsupportedEncodingException e )
-        {
-            throw new PasswordEncodingException( Messages.getString( "password.encoder.unsupported.encoding" ),
-                                                 e ); //$NON-NLS-1$
+                Messages.getString( "password.encoder.no.such.algoritm", this.algorithm ), e );
         }
     }
 
