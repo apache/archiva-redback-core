@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.archiva</groupId>
     <artifactId>archiva-parent</artifactId>
-    <version>14</version>
+    <version>15-SNAPSHOT</version>
   </parent>
 
   <groupId>org.apache.archiva.redback</groupId>
@@ -704,11 +704,6 @@
             <tryUpdate>true</tryUpdate>
             <pubScmUrl>scm:svn:https://svn.apache.org/repos/asf/archiva/site-content/redback/core</pubScmUrl>
           </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.8</version>
         </plugin>
         <plugin>
           <groupId>org.apache.archiva.redback.components.modello</groupId>
