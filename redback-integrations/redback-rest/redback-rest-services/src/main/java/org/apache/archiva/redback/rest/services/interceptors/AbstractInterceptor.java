@@ -34,7 +34,7 @@ import java.lang.reflect.Method;
  * @author Olivier Lamy
  * @since 1.3
  */
-public class AbstractInterceptor
+public abstract class AbstractInterceptor
 {
 
     private Logger log = LoggerFactory.getLogger( getClass() );
