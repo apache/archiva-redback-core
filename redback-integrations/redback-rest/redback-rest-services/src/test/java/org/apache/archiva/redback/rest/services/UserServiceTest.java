@@ -29,15 +29,16 @@ import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
 import org.apache.archiva.redback.rest.services.mock.ServicesAssert;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
-import org.apache.cxf.jaxrs.client.ServerWebApplicationException;
 import org.apache.cxf.jaxrs.client.WebClient;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.MediaType;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -69,7 +70,7 @@ public class UserServiceTest
         assertFalse( users.isEmpty() );
     }
 
-    @Test( expected = ServerWebApplicationException.class )
+    @Test( expected = ForbiddenException.class )
     public void getUsersWithoutAuthz()
         throws Exception
     {
@@ -78,9 +79,9 @@ public class UserServiceTest
         {
             userService.getUsers();
         }
-        catch ( ServerWebApplicationException e )
+        catch ( ForbiddenException e )
         {
-            assertEquals( 403, e.getStatus() );
+            assertEquals( 403, e.getResponse().getStatus() );
             throw e;
         }
 
@@ -95,9 +96,10 @@ public class UserServiceTest
         {
             getFakeCreateAdminService().testAuthzWithoutKarmasNeededButAuthz();
         }
-        catch ( ServerWebApplicationException e )
+        catch ( ForbiddenException e )
         {
-            assertEquals( 403, e.getStatus() );
+            assertEquals( 403, e.getResponse().getStatus() );
+            throw e;
         }
     }
 
@@ -115,9 +117,10 @@ public class UserServiceTest
             assertTrue( service.testAuthzWithoutKarmasNeededButAuthz().booleanValue() );
 
         }
-        catch ( ServerWebApplicationException e )
+        catch ( ForbiddenException e )
         {
-            assertEquals( 403, e.getStatus() );
+            assertEquals( 403, e.getResponse().getStatus() );
+            throw e;
         }
     }
 

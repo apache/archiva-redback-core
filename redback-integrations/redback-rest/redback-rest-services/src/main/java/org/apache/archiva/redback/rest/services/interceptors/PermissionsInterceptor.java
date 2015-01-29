@@ -26,8 +26,7 @@ import org.apache.archiva.redback.integration.filter.authentication.basic.HttpBa
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.ext.RequestHandler;
-import org.apache.cxf.jaxrs.model.ClassResourceInfo;
+import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,30 +35,36 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.Provider;
 
 /**
  * @author Olivier Lamy
  * @since 1.3
  */
-@Service ("permissionInterceptor#rest")
+@Service( "permissionInterceptor#rest" )
+@Provider
 public class PermissionsInterceptor
     extends AbstractInterceptor
-    implements RequestHandler
+    implements ContainerRequestFilter
 {
 
     @Inject
-    @Named (value = "securitySystem")
+    @Named( value = "securitySystem" )
     private SecuritySystem securitySystem;
 
     @Inject
-    @Named (value = "httpAuthenticator#basic")
+    @Named( value = "httpAuthenticator#basic" )
     private HttpBasicAuthentication httpAuthenticator;
 
     private Logger log = LoggerFactory.getLogger( getClass() );
 
-    public Response handleRequest( Message message, ClassResourceInfo classResourceInfo )
+    public void filter( ContainerRequestContext containerRequestContext )
     {
+        Message message = JAXRSUtils.getCurrentMessage();
+
         RedbackAuthorization redbackAuthorization = getRedbackAuthorization( message );
 
         if ( redbackAuthorization != null )
@@ -67,7 +72,7 @@ public class PermissionsInterceptor
             if ( redbackAuthorization.noRestriction() )
             {
                 // we are fine this services is marked as non restrictive acces
-                return null;
+                return;
             }
             String[] permissions = redbackAuthorization.permissions();
             //olamy: no value is an array with an empty String
@@ -92,7 +97,7 @@ public class PermissionsInterceptor
                                                                   ? null
                                                                   : redbackAuthorization.resource() ) )
                             {
-                                return null;
+                                return;
                             }
                             else
                             {
@@ -103,14 +108,18 @@ public class PermissionsInterceptor
                         catch ( AuthorizationException e )
                         {
                             log.debug( e.getMessage(), e );
-                            return Response.status( Response.Status.FORBIDDEN ).build();
+                            containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                            return;
                         }
                     }
 
                 }
                 else
                 {
-                    log.debug( "user {} not authenticated", session.getUser().getUsername() );
+                    if ( session != null && session.getUser() != null )
+                    {
+                        log.debug( "user {} not authenticated", session.getUser().getUsername() );
+                    }
                 }
             }
             else
@@ -118,15 +127,16 @@ public class PermissionsInterceptor
                 if ( redbackAuthorization.noPermission() )
                 {
                     log.debug( "path {} doesn't need special permission", message.get( Message.REQUEST_URI ) );
-                    return null;
+                    return;
                 }
-                return Response.status( Response.Status.FORBIDDEN ).build();
+                containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                return;
             }
         }
         log.warn( "http path {} doesn't contain any informations regarding permissions ",
                   message.get( Message.REQUEST_URI ) );
         // here we failed to authenticate so 403 as there is no detail on karma for this
         // it must be marked as it's exposed
-        return Response.status( Response.Status.FORBIDDEN ).build();
+        containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
     }
 }

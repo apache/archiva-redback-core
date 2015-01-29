@@ -18,15 +18,15 @@ package org.apache.archiva.redback.rest.services;
  * under the License.
  */
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.client.ServerWebApplicationException;
 import org.apache.archiva.redback.rest.api.model.ApplicationRoles;
 import org.apache.archiva.redback.rest.api.model.Role;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.apache.archiva.redback.rest.api.services.UserService;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
+import javax.ws.rs.ForbiddenException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +47,7 @@ public class RoleManagementServiceTest
         assertFalse( getRoleManagementService( authorizationHeader ).roleExists( "foo" ) );
     }
 
-    @Test( expected = ServerWebApplicationException.class )
+    @Test( expected = ForbiddenException.class )
     public void roleExistBadAuthz()
         throws Exception
     {
@@ -55,9 +55,9 @@ public class RoleManagementServiceTest
         {
             assertTrue( getRoleManagementService( null ).roleExists( "guest" ) );
         }
-        catch ( ServerWebApplicationException e )
+        catch ( ForbiddenException e )
         {
-            assertEquals( 403, e.getStatus() );
+            assertEquals( 403, e.getResponse().getStatus() );
             throw e;
         }
     }
@@ -85,9 +85,10 @@ public class RoleManagementServiceTest
                 getUserService( encode( "toto", "foo123" ) ).getUsers();
                 fail( "should fail with 403" );
             }
-            catch ( ServerWebApplicationException e )
+            catch ( ForbiddenException e )
             {
-                assertEquals( 403, e.getStatus() );
+                assertEquals( 403, e.getResponse().getStatus() );
+
 
             }
 
@@ -192,7 +193,6 @@ public class RoleManagementServiceTest
         throws Exception
     {
         RoleManagementService roleManagementService = getRoleManagementService( authorizationHeader );
-
 
         List<Role> allRoles = roleManagementService.getAllRoles();
 
