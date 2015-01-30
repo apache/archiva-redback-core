@@ -62,6 +62,11 @@ public abstract class AbstractRestServicesTest
     public String authorizationHeader = getAdminAuthzHeader();
 
 
+    public long getTimeout()
+    {
+        return Long.getLong( "rest.test.timeout", 1000000 );
+    }
+
     public static String encode( String uid, String password )
     {
         return "Basic " + Base64Utility.encode( ( uid + ":" + password ).getBytes() );
@@ -159,7 +164,7 @@ public abstract class AbstractRestServicesTest
                                        UserService.class, Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
         // time out for debuging purpose
-        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( 100000 );
+        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );
 
         if ( authzHeader != null )
         {
@@ -180,7 +185,7 @@ public abstract class AbstractRestServicesTest
                                        Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
         // for debuging purpose
-        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( 100000 );
+        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );
 
         if ( authzHeader != null )
         {
@@ -200,7 +205,7 @@ public abstract class AbstractRestServicesTest
                                        LoginService.class, Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
         // for debuging purpose
-        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( 100000 );
+        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );
 
         if ( authzHeader != null )
         {
@@ -222,7 +227,7 @@ public abstract class AbstractRestServicesTest
                                        Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
         // for debuging purpose
-        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( 100000 );
+        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );
 
         if ( authzHeader != null )
         {

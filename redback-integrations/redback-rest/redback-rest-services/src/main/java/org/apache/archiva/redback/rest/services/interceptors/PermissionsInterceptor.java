@@ -19,10 +19,13 @@ package org.apache.archiva.redback.rest.services.interceptors;
  * under the License.
  */
 
+import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
 import org.apache.archiva.redback.authorization.AuthorizationException;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.filter.authentication.basic.HttpBasicAuthentication;
+import org.apache.archiva.redback.policy.AccountLockedException;
+import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.commons.lang.StringUtils;
@@ -71,7 +74,7 @@ public class PermissionsInterceptor
         {
             if ( redbackAuthorization.noRestriction() )
             {
-                // we are fine this services is marked as non restrictive acces
+                // we are fine this services is marked as non restrictive access
                 return;
             }
             String[] permissions = redbackAuthorization.permissions();
@@ -80,8 +83,32 @@ public class PermissionsInterceptor
                 permissions[0] ) ) )
             {
                 HttpServletRequest request = getHttpServletRequest( message );
-                SecuritySession session = httpAuthenticator.getSecuritySession( request.getSession() );
+                SecuritySession securitySession = httpAuthenticator.getSecuritySession( request.getSession( true ) );
                 AuthenticationResult authenticationResult = message.get( AuthenticationResult.class );
+
+                if ( authenticationResult == null )
+                {
+                    try
+                    {
+                        authenticationResult = httpAuthenticator.getAuthenticationResult( request, getHttpServletResponse( message ) );
+                    }
+                    catch ( AuthenticationException e )
+                    {
+                        log.debug( "failed to authenticate for path {}", message.get( Message.REQUEST_URI ) );
+                        containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                    }
+                    catch ( AccountLockedException e )
+                    {
+                        log.debug( "account locked for path {}", message.get( Message.REQUEST_URI ) );
+                        containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                    }
+                    catch ( MustChangePasswordException e )
+                    {
+                        log.debug( "must change password for path {}", message.get( Message.REQUEST_URI ) );
+                        containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                    }
+                }
+
                 if ( authenticationResult != null && authenticationResult.isAuthenticated() )
                 {
                     for ( String permission : permissions )
@@ -92,7 +119,7 @@ public class PermissionsInterceptor
                         }
                         try
                         {
-                            if ( securitySystem.isAuthorized( session, permission,
+                            if ( securitySystem.isAuthorized( securitySession, permission,
                                                               StringUtils.isBlank( redbackAuthorization.resource() )
                                                                   ? null
                                                                   : redbackAuthorization.resource() ) )
@@ -101,8 +128,12 @@ public class PermissionsInterceptor
                             }
                             else
                             {
-                                log.debug( "user {} not authorized for permission {}", session.getUser().getUsername(),
-                                           permission );
+                                if ( securitySession != null && securitySession.getUser() != null )
+                                {
+                                    log.debug( "user {} not authorized for permission {}", //
+                                               securitySession.getUser().getUsername(), //
+                                               permission );
+                                }
                             }
                         }
                         catch ( AuthorizationException e )
@@ -116,9 +147,9 @@ public class PermissionsInterceptor
                 }
                 else
                 {
-                    if ( session != null && session.getUser() != null )
+                    if ( securitySession != null && securitySession.getUser() != null )
                     {
-                        log.debug( "user {} not authenticated", session.getUser().getUsername() );
+                        log.debug( "user {} not authenticated", securitySession.getUser().getUsername() );
                     }
                 }
             }

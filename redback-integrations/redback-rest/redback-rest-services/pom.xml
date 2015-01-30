@@ -32,7 +32,8 @@
   <name>Redback :: Integration :: REST :: Services</name>
 
   <properties>
-    <tomcatVersion>7.0.54</tomcatVersion>
+    <tomcatVersion>7.0.57</tomcatVersion>
+    <rest.test.timeout>1000000</rest.test.timeout>
   </properties>
 
   <dependencies>
@@ -276,6 +277,7 @@
             <redback.jdbc.url>${redbackTestJdbcUrl}</redback.jdbc.url>
             <redback.jdbc.driver.name>${redbackTestJdbcDriver}</redback.jdbc.driver.name>
             <ldapPort>${ldapPort}</ldapPort>
+            <rest.test.timeout>${rest.test.timeout}</rest.test.timeout>
           </systemPropertyVariables>
         </configuration>
       </plugin>

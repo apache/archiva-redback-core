@@ -156,29 +156,23 @@ public class AuthenticationInterceptor
         catch ( UserNotFoundException e )
         {
             log.debug( "UserNotFoundException for path {}", message.get( Message.REQUEST_URI ) );
-            containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
         }
         catch ( AccountLockedException e )
         {
             log.debug( "account locked for path {}", message.get( Message.REQUEST_URI ) );
-            containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
-
         }
         catch ( MustChangePasswordException e )
         {
             log.debug( "must change password for path {}", message.get( Message.REQUEST_URI ) );
-            containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
-
         }
         catch ( AuthenticationException e )
         {
             log.debug( "failed to authenticate for path {}", message.get( Message.REQUEST_URI ) );
-            containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
         }
         catch ( UserManagerException e )
         {
             log.debug( "UserManagerException: {} for path", e.getMessage(), message.get( Message.REQUEST_URI ) );
-            containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
         }
+        containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
     }
 }
