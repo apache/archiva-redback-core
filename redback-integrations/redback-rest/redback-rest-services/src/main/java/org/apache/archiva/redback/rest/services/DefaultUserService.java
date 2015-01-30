@@ -80,7 +80,7 @@ public class DefaultUserService
     implements UserService
 {
 
-    private Logger log = LoggerFactory.getLogger( getClass() );
+    private final Logger log = LoggerFactory.getLogger( getClass() );
 
     private static final String VALID_USERNAME_CHARS = "[a-zA-Z_0-9\\-.@]*";
 

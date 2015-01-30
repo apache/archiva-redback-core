@@ -19,9 +19,9 @@ package org.apache.archiva.redback.rest.services.interceptors;
  * under the License.
  */
 
+import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.message.Message;
-import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +65,14 @@ public abstract class AbstractInterceptor
 
         Method method = operationResourceInfo.getAnnotatedMethod();
 
-        log.debug( " method name {}", method == null ? "null" : method.getName() );
         RedbackAuthorization redbackAuthorization = method.getAnnotation( RedbackAuthorization.class );
+
+        log.debug( "class {}, resourceClass {}, method {}, redbackAuthorization {}", //
+                   operationResourceInfo.getClassResourceInfo().getServiceClass(), //
+                   operationResourceInfo.getClassResourceInfo().getResourceClass(), //
+                   method, //
+                   redbackAuthorization );
+
         return redbackAuthorization;
     }
 }

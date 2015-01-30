@@ -66,6 +66,7 @@ public class PermissionsInterceptor
 
     public void filter( ContainerRequestContext containerRequestContext )
     {
+
         Message message = JAXRSUtils.getCurrentMessage();
 
         RedbackAuthorization redbackAuthorization = getRedbackAuthorization( message );
@@ -79,8 +80,8 @@ public class PermissionsInterceptor
             }
             String[] permissions = redbackAuthorization.permissions();
             //olamy: no value is an array with an empty String
-            if ( permissions != null && permissions.length > 0 && !( permissions.length == 1 && StringUtils.isEmpty(
-                permissions[0] ) ) )
+            if ( permissions != null && permissions.length > 0 //
+                && !( permissions.length == 1 && StringUtils.isEmpty( permissions[0] ) ) )
             {
                 HttpServletRequest request = getHttpServletRequest( message );
                 SecuritySession securitySession = httpAuthenticator.getSecuritySession( request.getSession( true ) );
@@ -90,7 +91,8 @@ public class PermissionsInterceptor
                 {
                     try
                     {
-                        authenticationResult = httpAuthenticator.getAuthenticationResult( request, getHttpServletResponse( message ) );
+                        authenticationResult =
+                            httpAuthenticator.getAuthenticationResult( request, getHttpServletResponse( message ) );
                     }
                     catch ( AuthenticationException e )
                     {
@@ -139,10 +141,11 @@ public class PermissionsInterceptor
                         catch ( AuthorizationException e )
                         {
                             log.debug( e.getMessage(), e );
-                            containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
-                            return;
+
                         }
                     }
+                    containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                    return;
 
                 }
                 else
@@ -165,10 +168,12 @@ public class PermissionsInterceptor
                 return;
             }
         }
-        log.warn( "http path {} doesn't contain any informations regarding permissions ",
+
+        log.warn( "http path {} doesn't contain any informations regarding permissions ", //
                   message.get( Message.REQUEST_URI ) );
         // here we failed to authenticate so 403 as there is no detail on karma for this
         // it must be marked as it's exposed
         containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+
     }
 }
