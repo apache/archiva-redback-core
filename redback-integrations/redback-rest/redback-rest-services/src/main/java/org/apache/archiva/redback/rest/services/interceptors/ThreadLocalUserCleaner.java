@@ -32,17 +32,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.Provider;
 
 /**
  * @author Olivier Lamy
  * @since 1.4
  */
 @Service( "threadLocalUserCleaner#rest" )
+@Provider
 public class ThreadLocalUserCleaner
     extends AbstractPhaseInterceptor<Message>
     implements PhaseInterceptor<Message>
 {
-    private Logger log = LoggerFactory.getLogger( getClass() );
+    private final Logger log = LoggerFactory.getLogger( getClass() );
 
     public ThreadLocalUserCleaner( String phase )
     {

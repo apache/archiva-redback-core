@@ -26,7 +26,8 @@ import org.apache.cxf.message.Message;
  * @author Olivier Lamy
  * @since 1.3
  */
-public class DebugJAXRSInInterceptor extends JAXRSInInterceptor
+public class DebugJAXRSInInterceptor
+    extends JAXRSInInterceptor
 {
     @Override
     public void handleMessage( Message message )

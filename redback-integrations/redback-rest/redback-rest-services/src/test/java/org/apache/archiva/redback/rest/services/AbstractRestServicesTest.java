@@ -41,6 +41,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.web.context.ContextLoaderListener;
 
 import javax.ws.rs.core.MediaType;
@@ -97,6 +98,10 @@ public abstract class AbstractRestServicesTest
     public void startServer()
         throws Exception
     {
+
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+
+        SLF4JBridgeHandler.install();
 
         tomcat = new Tomcat();
         tomcat.setBaseDir( System.getProperty( "java.io.tmpdir" ) );

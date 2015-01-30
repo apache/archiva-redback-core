@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
 public abstract class AbstractInterceptor
 {
 
-    private Logger log = LoggerFactory.getLogger( getClass() );
+    private final Logger log = LoggerFactory.getLogger( getClass() );
 
     @Context
     private HttpServletRequest httpServletRequest;

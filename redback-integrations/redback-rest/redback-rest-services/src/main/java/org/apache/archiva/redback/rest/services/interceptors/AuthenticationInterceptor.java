@@ -71,7 +71,7 @@ public class AuthenticationInterceptor
     @Named(value = "httpAuthenticator#basic")
     private HttpBasicAuthentication httpAuthenticator;
 
-    private Logger log = LoggerFactory.getLogger( getClass() );
+    private final Logger log = LoggerFactory.getLogger( getClass() );
 
     public void filter( ContainerRequestContext containerRequestContext )
     {

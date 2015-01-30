@@ -176,6 +176,19 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j2Version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <scope>test</scope>
@@ -237,7 +250,7 @@
               org.apache.archiva.redback.users;version=${project.version},
               org.apache.commons.io;version="[1.4,2)",
               org.apache.commons.lang;version="[2.6,3)",
-              org.apache.cxf*;version="[3.0.3)",
+              org.apache.cxf*;version="[3.0.3,4)",
               com.fasterxml.jackson.databind;version="[2.2,3)",
               org.codehaus.plexus.util;version="[3,4)",
               org.springframework*;version="[3,4)",
