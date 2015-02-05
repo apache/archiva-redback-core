@@ -75,7 +75,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-@Service("userService#rest")
+@Service( "userService#rest" )
 public class DefaultUserService
     implements UserService
 {
@@ -89,7 +89,7 @@ public class DefaultUserService
     private SecuritySystem securitySystem;
 
     @Inject
-    @Named(value = "userConfiguration#default")
+    @Named( value = "userConfiguration#default" )
     private UserConfiguration config;
 
     @Inject
@@ -99,28 +99,28 @@ public class DefaultUserService
      * cache used for user assignments
      */
     @Inject
-    @Named(value = "cache#userAssignments")
+    @Named( value = "cache#userAssignments" )
     private Cache userAssignmentsCache;
 
     /**
      * cache used for user permissions
      */
     @Inject
-    @Named(value = "cache#userPermissions")
+    @Named( value = "cache#userPermissions" )
     private Cache userPermissionsCache;
 
     /**
      * Cache used for users
      */
     @Inject
-    @Named(value = "cache#users")
+    @Named( value = "cache#users" )
     private Cache usersCache;
 
     @Inject
     private Mailer mailer;
 
     @Inject
-    @Named(value = "rbacManager#default")
+    @Named( value = "rbacManager#default" )
     private RBACManager rbacManager;
 
     private HttpAuthenticator httpAuthenticator;
@@ -132,9 +132,9 @@ public class DefaultUserService
     private HttpServletRequest httpServletRequest;
 
     @Inject
-    public DefaultUserService( @Named(value = "userManager#default") UserManager userManager,
+    public DefaultUserService( @Named( value = "userManager#default" ) UserManager userManager,
                                SecuritySystem securitySystem,
-                               @Named("httpAuthenticator#basic") HttpAuthenticator httpAuthenticator )
+                               @Named( "httpAuthenticator#basic" ) HttpAuthenticator httpAuthenticator )
     {
         this.userManager = userManager;
         this.securitySystem = securitySystem;
@@ -306,6 +306,7 @@ public class DefaultUserService
         RedbackRequestInformation redbackRequestInformation = RedbackAuthenticationThreadLocal.get();
         if ( redbackRequestInformation == null || redbackRequestInformation.getUser() == null )
         {
+            log.warn( "RedbackRequestInformation from ThreadLocal is null" );
             throw new RedbackServiceException( new ErrorMessage( "you must be logged to update your profile" ),
                                                Response.Status.FORBIDDEN.getStatusCode() );
         }
@@ -789,6 +790,10 @@ public class DefaultUserService
         {
             userName = redbackRequestInformation.getUser().getUsername();
         }
+        else
+        {
+            log.warn( "RedbackRequestInformation from ThreadLocal is null" );
+        }
 
         return getUserPermissions( userName );
     }
@@ -801,6 +806,10 @@ public class DefaultUserService
         if ( redbackRequestInformation != null && redbackRequestInformation.getUser() != null )
         {
             userName = redbackRequestInformation.getUser().getUsername();
+        }
+        else
+        {
+            log.warn( "RedbackRequestInformation from ThreadLocal is null" );
         }
 
         return getUserOperations( userName );
