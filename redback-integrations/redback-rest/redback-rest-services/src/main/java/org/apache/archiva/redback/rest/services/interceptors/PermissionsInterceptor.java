@@ -136,12 +136,7 @@ public class PermissionsInterceptor
                                 securitySystem.authorize( authenticationResult.getUser(), permission, //
                                                           StringUtils.isBlank( redbackAuthorization.resource() ) //
                                                               ? null : redbackAuthorization.resource() );
-                            /*
-                            if ( securitySystem.isAuthorized( securitySession, permission, //
-                                                              StringUtils.isBlank( redbackAuthorization.resource() ) //
-                                                                  ? null : redbackAuthorization.resource() ) )
-                                                                  */
-                            if ( authenticationResult != null && authorizationResult.isAuthorized() )
+                             if ( authenticationResult != null && authorizationResult.isAuthorized() )
                             {
                                 log.debug( "isAuthorized for permission {}", permission );
                                 return;

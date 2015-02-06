@@ -74,6 +74,14 @@ public interface SecuritySystem
     AuthorizationResult authorize( SecuritySession session, String permission, String resource )
         throws AuthorizationException;
 
+    /**
+     * @since 2.3
+     * @param user
+     * @param permission
+     * @param resource
+     * @return
+     * @throws AuthorizationException
+     */
     AuthorizationResult authorize( User user, String permission, String resource )
         throws AuthorizationException;
 
