@@ -21,7 +21,7 @@
 
   <appenders>
     <Console name="console" target="SYSTEM_OUT">
-      <PatternLayout pattern="%highlight{%d{HH:mm:ss.SSS} [%L] [%t] %-5level %logger{36} - %msg%n}" />
+      <PatternLayout pattern="%highlight{%d{HH:mm:ss.SSS} [%L] [%t] %-5level %logger{3} - %msg%n}" />
     </Console>
   </appenders>
 
@@ -32,6 +32,7 @@
     <logger name="org.apache.archiva.redback.components.cache" level="error"/>
     <logger name="org.apache.archiva.redback.rest.services.interceptors" level="debug"/>
     <logger name="org.apache.archiva.redback.rest.services" level="debug"/>
+    <logger name="org.apache.catalina" level="off" />
     <logger name="JPOX" level="ERROR"/>
     <root level="info">
       <appender-ref ref="console"/>

@@ -19,13 +19,6 @@ package org.apache.archiva.redback.system;
  * under the License.
  */
 
-import org.apache.archiva.redback.keys.KeyManager;
-import org.apache.archiva.redback.policy.AccountLockedException;
-import org.apache.archiva.redback.policy.UserSecurityPolicy;
-import org.apache.archiva.redback.users.User;
-import org.apache.archiva.redback.users.UserManager;
-import org.apache.archiva.redback.users.UserManagerException;
-import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.archiva.redback.authentication.AuthenticationDataSource;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationManager;
@@ -34,7 +27,14 @@ import org.apache.archiva.redback.authorization.AuthorizationDataSource;
 import org.apache.archiva.redback.authorization.AuthorizationException;
 import org.apache.archiva.redback.authorization.AuthorizationResult;
 import org.apache.archiva.redback.authorization.Authorizer;
+import org.apache.archiva.redback.keys.KeyManager;
+import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
+import org.apache.archiva.redback.policy.UserSecurityPolicy;
+import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserManager;
+import org.apache.archiva.redback.users.UserManagerException;
+import org.apache.archiva.redback.users.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -47,7 +47,7 @@ import javax.inject.Named;
  *
  * @author: Jesse McConnell <jesse@codehaus.org>
  */
-@Service("securitySystem")
+@Service( "securitySystem" )
 public class DefaultSecuritySystem
     implements SecuritySystem
 {
@@ -57,15 +57,15 @@ public class DefaultSecuritySystem
     private AuthenticationManager authnManager;
 
     @Inject
-    @Named(value = "authorizer#default")
+    @Named( value = "authorizer#default" )
     private Authorizer authorizer;
 
     @Inject
-    @Named(value = "userManager#default")
+    @Named( value = "userManager#default" )
     private UserManager userManager;
 
     @Inject
-    @Named(value = "keyManager#cached")
+    @Named( value = "keyManager#cached" )
     private KeyManager keyManager;
 
     @Inject
@@ -92,7 +92,6 @@ public class DefaultSecuritySystem
      * @throws UserNotFoundException
      * @throws MustChangePasswordException
      * @throws org.apache.archiva.redback.policy.AccountLockedException
-     *
      * @throws MustChangePasswordException
      */
     public SecuritySession authenticate( AuthenticationDataSource source )
@@ -166,6 +165,24 @@ public class DefaultSecuritySystem
             {
                 source = new AuthorizationDataSource( user.getUsername(), user, permission, resource );
             }
+        }
+
+        if ( source == null )
+        {
+            source = new AuthorizationDataSource( null, null, permission, resource );
+        }
+
+        return authorizer.isAuthorized( source );
+    }
+
+    public AuthorizationResult authorize( User user, String permission, String resource )
+        throws AuthorizationException
+    {
+        AuthorizationDataSource source = null;
+
+        if ( user != null )
+        {
+            source = new AuthorizationDataSource( user.getUsername(), user, permission, resource );
         }
 
         if ( source == null )
@@ -287,4 +304,5 @@ public class DefaultSecuritySystem
     {
         return userManager.isReadOnly();
     }
+
 }

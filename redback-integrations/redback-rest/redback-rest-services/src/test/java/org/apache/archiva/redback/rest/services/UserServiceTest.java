@@ -25,6 +25,7 @@ import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.UserRegistrationRequest;
+import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
 import org.apache.archiva.redback.rest.services.mock.ServicesAssert;
@@ -178,7 +179,7 @@ public class UserServiceTest
         }
         finally
         {
-            getUserService( authorizationHeader ).deleteUser( "toto" );
+            deleteUserQuietly( "toto" );
         }
 
     }
@@ -237,7 +238,7 @@ public class UserServiceTest
         }
         finally
         {
-            getUserService( authorizationHeader ).deleteUser( "toto" );
+            deleteUserQuietly( "toto" );
         }
 
     }
@@ -307,9 +308,21 @@ public class UserServiceTest
         }
         finally
         {
-            getUserService( authorizationHeader ).deleteUser( "toto" );
+            deleteUserQuietly( "toto" );
         }
 
+    }
+
+    private void deleteUserQuietly( String userName )
+    {
+        try
+        {
+            getUserService( authorizationHeader ).deleteUser( userName );
+        }
+        catch ( Exception e )
+        {
+            log.warn( "ignore fail to delete user " + e.getMessage(), e );
+        }
     }
 
     @Test

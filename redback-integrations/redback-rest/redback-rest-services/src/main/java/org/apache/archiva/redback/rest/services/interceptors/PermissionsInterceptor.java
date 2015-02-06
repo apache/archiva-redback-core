@@ -22,6 +22,7 @@ package org.apache.archiva.redback.rest.services.interceptors;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
 import org.apache.archiva.redback.authorization.AuthorizationException;
+import org.apache.archiva.redback.authorization.AuthorizationResult;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.filter.authentication.basic.HttpBasicAuthentication;
 import org.apache.archiva.redback.policy.AccountLockedException;
@@ -75,6 +76,7 @@ public class PermissionsInterceptor
         {
             if ( redbackAuthorization.noRestriction() )
             {
+                log.debug( "redbackAuthorization.noRestriction() so skip permission check" );
                 // we are fine this services is marked as non restrictive access
                 return;
             }
@@ -84,8 +86,10 @@ public class PermissionsInterceptor
                 && !( permissions.length == 1 && StringUtils.isEmpty( permissions[0] ) ) )
             {
                 HttpServletRequest request = getHttpServletRequest( message );
-                SecuritySession securitySession = httpAuthenticator.getSecuritySession( request.getSession( true ) );
+                SecuritySession securitySession = httpAuthenticator.getSecuritySession( request.getSession() );
                 AuthenticationResult authenticationResult = message.get( AuthenticationResult.class );
+
+                log.debug( "authenticationResult from message: {}", authenticationResult );
 
                 if ( authenticationResult == null )
                 {
@@ -93,39 +97,53 @@ public class PermissionsInterceptor
                     {
                         authenticationResult =
                             httpAuthenticator.getAuthenticationResult( request, getHttpServletResponse( message ) );
+
+                        log.debug( "authenticationResult from request: {}", authenticationResult );
                     }
                     catch ( AuthenticationException e )
                     {
                         log.debug( "failed to authenticate for path {}", message.get( Message.REQUEST_URI ) );
                         containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                        return;
                     }
                     catch ( AccountLockedException e )
                     {
                         log.debug( "account locked for path {}", message.get( Message.REQUEST_URI ) );
                         containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                        return;
                     }
                     catch ( MustChangePasswordException e )
                     {
                         log.debug( "must change password for path {}", message.get( Message.REQUEST_URI ) );
                         containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                        return;
                     }
                 }
 
                 if ( authenticationResult != null && authenticationResult.isAuthenticated() )
                 {
+                    message.put( AuthenticationResult.class, authenticationResult );
                     for ( String permission : permissions )
                     {
+                        log.debug( "check permission: {} with securitySession {}", permission, securitySession );
                         if ( StringUtils.isBlank( permission ) )
                         {
                             continue;
                         }
                         try
                         {
-                            if ( securitySystem.isAuthorized( securitySession, permission,
-                                                              StringUtils.isBlank( redbackAuthorization.resource() )
-                                                                  ? null
-                                                                  : redbackAuthorization.resource() ) )
+                            AuthorizationResult authorizationResult =
+                                securitySystem.authorize( authenticationResult.getUser(), permission, //
+                                                          StringUtils.isBlank( redbackAuthorization.resource() ) //
+                                                              ? null : redbackAuthorization.resource() );
+                            /*
+                            if ( securitySystem.isAuthorized( securitySession, permission, //
+                                                              StringUtils.isBlank( redbackAuthorization.resource() ) //
+                                                                  ? null : redbackAuthorization.resource() ) )
+                                                                  */
+                            if ( authenticationResult != null && authorizationResult.isAuthorized() )
                             {
+                                log.debug( "isAuthorized for permission {}", permission );
                                 return;
                             }
                             else
@@ -140,13 +158,12 @@ public class PermissionsInterceptor
                         }
                         catch ( AuthorizationException e )
                         {
-                            log.debug( e.getMessage(), e );
-
+                            log.debug( " AuthorizationException " + e.getMessage() //
+                                           + " checking permission " + permission, e );
+                            containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                            return;
                         }
                     }
-                    containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
-                    return;
-
                 }
                 else
                 {

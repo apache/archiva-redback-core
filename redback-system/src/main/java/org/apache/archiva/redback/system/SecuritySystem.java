@@ -22,6 +22,7 @@ package org.apache.archiva.redback.system;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
+import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.archiva.redback.authentication.AuthenticationDataSource;
@@ -71,6 +72,9 @@ public interface SecuritySystem
      * @throws AuthorizationException
      */
     AuthorizationResult authorize( SecuritySession session, String permission, String resource )
+        throws AuthorizationException;
+
+    AuthorizationResult authorize( User user, String permission, String resource )
         throws AuthorizationException;
 
     boolean isAuthorized( SecuritySession session, String permission, String resource )

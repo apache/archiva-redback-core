@@ -19,8 +19,8 @@ package org.apache.archiva.redback.system;
  * under the License.
  */
 
-import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
+import org.apache.archiva.redback.users.User;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
@@ -73,5 +73,15 @@ public class DefaultSecuritySession
     public boolean isAuthenticated()
     {
         return ( ( user != null ) && authenticated );
+    }
+
+    @Override
+    public String toString()
+    {
+        return "DefaultSecuritySession{" +
+            "authenticationResult=" + authenticationResult +
+            ", user=" + user +
+            ", authenticated=" + authenticated +
+            '}';
     }
 }
