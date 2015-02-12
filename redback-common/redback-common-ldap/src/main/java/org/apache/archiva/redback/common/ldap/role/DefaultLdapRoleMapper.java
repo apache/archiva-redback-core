@@ -48,6 +48,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.Rdn;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -390,6 +391,9 @@ public class DefaultLdapRoleMapper
                 }
                 groupEntry = builder.toString();
             }
+
+            groupEntry = Rdn.escapeValue(groupEntry);
+
             String filter =
                 new StringBuilder().append( "(&" ).append( "(objectClass=" + getLdapGroupClass() + ")" ).append(
                     "(" ).append( getLdapGroupMember() ).append( "=" ).append( groupEntry ).append( ")" ).append(
