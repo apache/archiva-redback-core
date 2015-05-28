@@ -392,11 +392,9 @@ public class DefaultLdapRoleMapper
                 groupEntry = builder.toString();
             }
 
-            groupEntry = Rdn.escapeValue(groupEntry);
-
             String filter =
                 new StringBuilder().append( "(&" ).append( "(objectClass=" + getLdapGroupClass() + ")" ).append(
-                    "(" ).append( getLdapGroupMember() ).append( "=" ).append( groupEntry ).append( ")" ).append(
+                    "(" ).append( getLdapGroupMember() ).append( "=" ).append( Rdn.escapeValue(groupEntry) ).append( ")" ).append(
                     ")" ).toString();
 
             log.debug( "filter: {}", filter );
