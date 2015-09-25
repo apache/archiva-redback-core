@@ -808,6 +808,7 @@
             <exclude>.java-version</exclude>
             <exclude>patch.diff</exclude>
             <exclude>.repository</exclude>
+            <exclude>.travis.yml</exclude>
           </excludes>
         </configuration>
         <executions>
