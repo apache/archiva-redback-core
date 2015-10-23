@@ -151,7 +151,7 @@ public class DefaultLdapRoleMapper
 
             if ( !StringUtils.isEmpty( this.groupFilter ) )
             {
-                filter = "&(" + filter + ")(" + this.groupFilter + ")";
+                filter = "(&(" + filter + ")(" + this.groupFilter + "))";
             }
 
             namingEnumeration = context.search( getGroupsDn(), filter, searchControls );
