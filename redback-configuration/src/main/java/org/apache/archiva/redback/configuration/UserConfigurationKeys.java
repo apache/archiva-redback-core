@@ -84,6 +84,8 @@ public interface UserConfigurationKeys
 
     String LDAP_GROUPS_BASEDN = "ldap.config.groups.base.dn";
 
+    String LDAP_GROUPS_FILTER = "ldap.config.groups.filter";
+
     String LDAP_GROUPS_MEMBER = "ldap.config.groups.member";
 
     String LDAP_GROUPS_ROLE_START_KEY = "ldap.config.groups.role.";

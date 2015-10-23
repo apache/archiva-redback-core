@@ -92,6 +92,8 @@ public class DefaultLdapRoleMapper
 
     private String groupsDn;
 
+    private String groupFilter;
+
     private String baseDn;
 
     private String ldapGroupMember = "uniquemember";
@@ -120,6 +122,8 @@ public class DefaultLdapRoleMapper
             this.groupsDn = this.baseDn;
         }
 
+        this.groupFilter = userConf.getString( UserConfigurationKeys.LDAP_GROUPS_FILTER, this.groupFilter );
+
         this.useDefaultRoleName =
             userConf.getBoolean( UserConfigurationKeys.LDAP_GROUPS_USE_ROLENAME, this.useDefaultRoleName );
 
@@ -144,6 +148,11 @@ public class DefaultLdapRoleMapper
             searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
             String filter = "objectClass=" + getLdapGroupClass();
+
+            if ( !StringUtils.isEmpty( this.groupFilter ) )
+            {
+                filter = "&(" + filter + ")(" + this.groupFilter + ")";
+            }
 
             namingEnumeration = context.search( getGroupsDn(), filter, searchControls );
 
