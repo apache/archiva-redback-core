@@ -62,8 +62,8 @@ import org.springframework.stereotype.Service;
 /**
  * JDO implementation of the data management tool.
  *
- * @todo do we really need JDO specifics here? Could optimize by going straight to JDOFactory
- * @todo check whether this current method logs everything unnecessarily.
+ * TODO do we really need JDO specifics here? Could optimize by going straight to JDOFactory
+ * TODO check whether this current method logs everything unnecessarily.
  */
 @Service("dataManagementTool#jdo")
 public class JdoDataManagementTool

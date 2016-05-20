@@ -34,7 +34,7 @@ import javax.inject.Named;
 /**
  * MemoryAuthenticatorTest:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "classpath*:/META-INF/spring-context.xml", "classpath*:/spring-context.xml" } )

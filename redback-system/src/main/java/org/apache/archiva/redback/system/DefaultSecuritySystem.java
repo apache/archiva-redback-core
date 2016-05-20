@@ -45,7 +45,7 @@ import javax.inject.Named;
 /**
  * DefaultSecuritySystem:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @Service( "securitySystem" )
 public class DefaultSecuritySystem
@@ -80,10 +80,10 @@ public class DefaultSecuritySystem
      * if the result is authentic then pull the user object from the user
      * manager and add it to the session.  If the result is false return the result in
      * an authenticated session and a null user object.
-     * <p/>
+     *
      * in the event of a successful authentication and a lack of corresponding user in the
      * usermanager return a null user as well
-     * <p/>
+     *
      * //todo should this last case create a user in the usermanager?
      *
      * @param source

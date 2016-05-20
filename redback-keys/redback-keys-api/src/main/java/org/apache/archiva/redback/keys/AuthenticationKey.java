@@ -41,7 +41,7 @@ public interface AuthenticationKey
 
     /**
      * A String representation of what the purpose of existence is for this key.
-     * <p/>
+     *
      * Examples: "selfservice password reset", "inter system communications", "remember me"
      *
      * @return

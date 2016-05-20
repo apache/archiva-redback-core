@@ -27,7 +27,7 @@ import org.apache.archiva.redback.configuration.UserConfiguration;
 /**
  * Base class for cookie settings. These will only differ by their configuration keys.
  *
- * @todo not sure if having the domain and path in the general configuration is a good idea - this is probably something
+ * TODO not sure if having the domain and path in the general configuration is a good idea - this is probably something
  * customised once for all cookies and applications. Should it be in a sharead configuration file, under a sharead key,
  * or perhaps even configured at the application server level? (ie, in Naming).
  */

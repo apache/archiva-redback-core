@@ -26,7 +26,7 @@ import org.apache.archiva.redback.authorization.Authorizer;
 import org.springframework.stereotype.Service;
 
 /**
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
   */
 @Service("authorizer#memory")
 public class MemoryAuthorizer

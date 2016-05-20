@@ -30,7 +30,7 @@ import java.util.TreeMap;
 
 /**
  * This class contains the configuration for a ldap connection.
- * <p/>
+ *
  * Properties of a ldap connection:
  * <ul>
  * <li>Hostname - String, required.

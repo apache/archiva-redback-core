@@ -39,7 +39,7 @@ public interface User
 
     /**
      * Gets the User Name for this user.
-     * <p/>
+     *
      * This field is required, and should never be empty.
      *
      * @return the user name.
@@ -48,7 +48,7 @@ public interface User
 
     /**
      * Sets the User Name for this user.
-     * <p/>
+     *
      * This field is required, and should never be empty.
      *
      * @param name the user name.
@@ -57,7 +57,7 @@ public interface User
 
     /**
      * Gets the Full Name for this user.
-     * <p/>
+     *
      * This field is required, and should never be empty.
      *
      * @return the full name.
@@ -66,7 +66,7 @@ public interface User
 
     /**
      * Sets the Full Name for this user.
-     * <p/>
+     *
      * This field is required, and should never be empty.
      *
      * @param name the full name.
@@ -75,7 +75,7 @@ public interface User
 
     /**
      * Gets the email address for this user.
-     * <p/>
+     *
      * This field is required, and should never be empty.
      *
      * @return the email address.
@@ -84,7 +84,7 @@ public interface User
 
     /**
      * Sets the email address for this user.
-     * <p/>
+     *
      * This field is required, and should never be empty.
      *
      * @param address the email address.
@@ -98,7 +98,7 @@ public interface User
     /**
      * Gets the Raw (unencoded) Password.
      * Used only on password change requests.
-     * <p/>
+     *
      * <p>
      * <b>Notes for User Providers</b>
      * </p>
@@ -137,7 +137,7 @@ public interface User
 
     /**
      * Sets the Encoded Password.
-     * <p/>
+     *
      * This field is populated by the {@link UserManager} process.
      *
      * @param encodedPassword
@@ -146,7 +146,7 @@ public interface User
 
     /**
      * Gets the Date of the Last Password Change.
-     * <p/>
+     *
      * Used by password management policies to enforce password expiration rules.
      *
      * @return the date of the last password change.
@@ -155,7 +155,7 @@ public interface User
 
     /**
      * Sets the Last Password Change Date.
-     * <p/>
+     *
      * This field is populated by the {@link UserManager} process.
      *
      * @param passwordChangeDate the date that the last password change occured.
@@ -164,7 +164,7 @@ public interface User
 
     /**
      * Gets the list of previous password (in encoded format).
-     * <p/>
+     *
      * Used by password management policies to enforce password reuse rules.
      *
      * @return the list of {@link String} objects.  Represents previous passwords (in encoded format).
@@ -191,14 +191,14 @@ public interface User
 
     /**
      * Gets the flag indicating if this user is a permanent user or not.
-     * <p/>
+     *
      * Usually Root / Admin / Guest users are flagged as such.
      */
     boolean isPermanent();
 
     /**
      * Sets the permanent flag for this user.
-     * <p/>
+     *
      * Users such as Root / Admin / Guest are typically flagged as permanent.
      *
      * @param permanent true if permanent.
@@ -207,7 +207,7 @@ public interface User
 
     /**
      * Determines if this user account is locked from use or not.
-     * <p/>
+     *
      * This state is set from an administrative point of view, or due to
      * excessive failed login attempts.
      *

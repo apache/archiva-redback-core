@@ -52,12 +52,11 @@ public interface RoleManagementService
 
     /**
      * removes a role corresponding to the role Id that was manufactured with the given resource
-     * <p/>
+     *
      * it also removes any user assignments for that role
      *
      * @param templateId
      * @param resource
-     * @throws Exception
      */
     @Path( "removeTemplatedRole" )
     @GET
@@ -71,13 +70,12 @@ public interface RoleManagementService
     /**
      * allows for a role coming from a template to be renamed effectively swapping out the bits of it that
      * were labeled with the oldResource with the newResource
-     * <p/>
+     *
      * it also manages any user assignments for that role
      *
      * @param templateId
      * @param oldResource
      * @param newResource
-     * @throws Exception
      */
     @Path( "updateRole" )
     @GET
@@ -93,7 +91,6 @@ public interface RoleManagementService
      *
      * @param roleId
      * @param principal
-     * @throws Exception
      */
     @Path( "assignRole" )
     @GET
@@ -107,7 +104,7 @@ public interface RoleManagementService
      *
      * @param roleName
      * @param principal
-     * @throws Exception
+     * @throws RedbackServiceException
      */
     @Path( "assignRoleByName" )
     @GET
@@ -118,7 +115,7 @@ public interface RoleManagementService
 
     /**
      * Assigns the templated role indicated by the templateId
-     * <p/>
+     *
      * fails if the templated role has not been created
      *
      * @param templateId
@@ -139,7 +136,7 @@ public interface RoleManagementService
      *
      * @param roleId
      * @param principal
-     * @throws Exception
+     * @throws RedbackServiceException
      */
     @Path( "unassignRole" )
     @GET
@@ -153,7 +150,7 @@ public interface RoleManagementService
      *
      * @param roleName
      * @param principal
-     * @throws Exception
+     * @throws RedbackServiceException
      */
     @Path( "unassignRoleByName" )
     @GET
@@ -167,7 +164,7 @@ public interface RoleManagementService
      *
      * @param roleId
      * @return
-     * @throws Exception
+     * @throws RedbackServiceException
      */
     @Path( "roleExists" )
     @GET
@@ -182,7 +179,7 @@ public interface RoleManagementService
      * @param templateId
      * @param resource
      * @return
-     * @throws Exception
+     * @throws RedbackServiceException
      */
     @Path( "templatedRoleExists" )
     @GET
@@ -198,7 +195,7 @@ public interface RoleManagementService
      *
      * @param templateId the templated role
      * @param resource   the resource to verify
-     * @throws Exception
+     * @throws RedbackServiceException
      */
     @Path( "verifyTemplatedRole" )
     @GET

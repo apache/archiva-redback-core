@@ -48,7 +48,7 @@ import java.util.List;
 /**
  * DefaultRoleTemplateProcessor: inserts the components of a template into the rbac manager
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @Service("roleTemplateProcessor")
 public class DefaultRoleTemplateProcessor

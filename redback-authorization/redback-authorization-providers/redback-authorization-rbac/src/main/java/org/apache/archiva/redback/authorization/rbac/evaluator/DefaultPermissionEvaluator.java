@@ -31,11 +31,11 @@ import javax.inject.Named;
 
 /**
  * DefaultPermissionEvaluator:
- * <p/>
+ *
  * Currently only one expression is available for evaluation, ${username} will be replaced with the username
  * of the person making the authorization check
  *
- * @author Jesse McConnell <jesse@codehaus.org>
+ * @author Jesse McConnell
  */
 @Service("permissionEvaluator")
 public class DefaultPermissionEvaluator

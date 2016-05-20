@@ -26,8 +26,8 @@ import org.apache.archiva.redback.authorization.AuthorizationResult;
 /**
  * Authorizer:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
- * @todo chain of command rule processing
+ * @author: Jesse McConnell
+ * TODO chain of command rule processing
  */
 public interface Authorizer
 {

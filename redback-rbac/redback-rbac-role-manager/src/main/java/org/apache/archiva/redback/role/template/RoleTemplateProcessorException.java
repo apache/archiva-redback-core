@@ -22,7 +22,7 @@ package org.apache.archiva.redback.role.template;
 /**
  * RoleProfileException:
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  *
  */
 public class RoleTemplateProcessorException

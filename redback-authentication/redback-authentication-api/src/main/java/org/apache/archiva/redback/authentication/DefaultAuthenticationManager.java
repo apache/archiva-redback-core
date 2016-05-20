@@ -41,12 +41,12 @@ import java.util.Map;
 /**
  * DefaultAuthenticationManager: the goal of the authentication manager is to act as a conduit for
  * authentication requests into different authentication schemes
- * <p/>
+ *
  * For example, the default implementation can be configured with any number of authenticators and will
  * sequentially try them for an authenticated result.  This allows you to have the standard user/pass
  * auth procedure followed by authentication based on a known key for 'remember me' type functionality.
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @Service("authenticationManager")
 public class DefaultAuthenticationManager

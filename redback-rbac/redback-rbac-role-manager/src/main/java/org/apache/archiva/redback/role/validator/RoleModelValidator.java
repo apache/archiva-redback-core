@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * RoleModelValidator:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  *
  */
 public interface RoleModelValidator

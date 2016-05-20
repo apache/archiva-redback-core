@@ -49,7 +49,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author <a href="jesse@codehaus.org"> jesse
+ * @author  jesse
  */
 @Service("userManager#ldap")
 public class LdapUserManager

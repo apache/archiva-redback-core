@@ -24,7 +24,7 @@ import java.util.List;
  * User Security Policy Settings.
  *
  *
- * @todo roll password management into it's own object.
+ * TODO roll password management into it's own object.
  */
 public interface UserSecurityPolicy
 {
@@ -125,7 +125,7 @@ public interface UserSecurityPolicy
 
     /**
      * Enable the policies or not.
-     * <p/>
+     *
      * Useful in code when application startup or application init is being performed.
      *
      * @param enabled true if enabled.
@@ -167,11 +167,11 @@ public interface UserSecurityPolicy
 
     /**
      * Extension Point - Change the password of a user.
-     * <p/>
+     *
      * This method does not check if a user is allowed to change his/her password.
      * Any kind of authorization checks for password change allowed on guest or
      * anonymous users needs to occur before calling this method.
-     * <p/>
+     *
      * This method does not persist the newly changed user password.
      * That will require a call to {@link org.apache.archiva.redback.users.UserManager#updateUser(User)}.
      *

@@ -30,7 +30,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.inject.Inject;
 
 /**
- * @author: Maria Odea Ching <oching@apache.org>
+ * @author: Maria Odea Ching
  * @version
  */
 @RunWith( SpringJUnit4ClassRunner.class )

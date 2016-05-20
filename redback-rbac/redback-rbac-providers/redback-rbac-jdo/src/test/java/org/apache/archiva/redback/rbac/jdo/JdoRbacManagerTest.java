@@ -41,7 +41,7 @@ import java.util.Properties;
 /**
  * JdoRbacManagerTest:
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  */
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)

@@ -29,7 +29,7 @@ import javax.inject.Named;
 /**
  * RoleManagerTest:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 public class RoleManagerTest
     extends AbstractRoleManagerTest

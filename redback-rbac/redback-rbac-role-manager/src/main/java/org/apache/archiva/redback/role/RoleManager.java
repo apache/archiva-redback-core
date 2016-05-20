@@ -26,7 +26,7 @@ import java.net.URL;
 /**
  * RoleProfileManager:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  *
  */
 public interface RoleManager
@@ -58,7 +58,7 @@ public interface RoleManager
 
     /**
      * removes a role corresponding to the role Id that was manufactured with the given resource
-     * <p/>
+     *
      * it also removes any user assignments for that role
      *
      * @param templateId
@@ -72,7 +72,7 @@ public interface RoleManager
     /**
      * allows for a role coming from a template to be renamed effectively swapping out the bits of it that
      * were labeled with the oldResource with the newResource
-     * <p/>
+     *
      * it also manages any user assignments for that role
      *
      * @param templateId
@@ -106,7 +106,7 @@ public interface RoleManager
 
     /**
      * Assigns the templated role indicated by the templateId
-     * <p/>
+     *
      * fails if the templated role has not been created
      *
      * @param templateId

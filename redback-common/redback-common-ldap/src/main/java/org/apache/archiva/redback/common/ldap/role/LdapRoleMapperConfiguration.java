@@ -31,7 +31,7 @@ import java.util.Map;
 public interface LdapRoleMapperConfiguration
 {
     /**
-     * add mapping ldap group <-> redback roles
+     * add mapping ldap group to redback roles
      *
      * @param roles     list of Role names
      * @param ldapGroup ldap group

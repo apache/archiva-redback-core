@@ -22,7 +22,7 @@ package org.apache.archiva.redback.role;
 /**
  * RoleProfileException:
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  *
  */
 public class RoleManagerException

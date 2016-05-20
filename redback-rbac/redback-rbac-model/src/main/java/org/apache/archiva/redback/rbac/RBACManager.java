@@ -27,9 +27,9 @@ import java.util.Set;
 /**
  * RBACManager
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
- * @todo expand on javadoc
+ * TODO expand on javadoc
  */
 public interface RBACManager
 {
@@ -46,7 +46,7 @@ public interface RBACManager
     /**
      * Creates an implementation specific {@link Role}, or return an existing {@link Role}, depending
      * on the provided <code>name</code> parameter.
-     * <p/>
+     *
      * Note: Be sure to use {@link #saveRole(Role)} in order to persist any changes to the Role.
      *
      * @param name the name.
@@ -128,7 +128,7 @@ public interface RBACManager
     /**
      * Creates an implementation specific {@link Permission}, or return an existing {@link Permission}, depending
      * on the provided <code>name</code> parameter.
-     * <p/>
+     *
      * Note: Be sure to use {@link #savePermission(Permission)} in order to persist any changes to the Role.
      *
      * @param name the name.
@@ -141,7 +141,7 @@ public interface RBACManager
     /**
      * Creates an implementation specific {@link Permission} with specified {@link Operation},
      * and {@link Resource} identifiers.
-     * <p/>
+     *
      * Note: Be sure to use {@link #savePermission(Permission)} in order to persist any changes to the Role.
      *
      * @param name               the name.
@@ -158,7 +158,6 @@ public interface RBACManager
      *
      * @param name the name to test for.
      * @return true if permission exists.
-     * @throws RbacManagerException
      */
     boolean permissionExists( String name );
 
@@ -186,7 +185,7 @@ public interface RBACManager
     /**
      * Creates an implementation specific {@link Operation}, or return an existing {@link Operation}, depending
      * on the provided <code>name</code> parameter.
-     * <p/>
+     *
      * Note: Be sure to use {@link #saveOperation(Operation)} in order to persist any changes to the Role.
      *
      * @param name the name.
@@ -230,7 +229,7 @@ public interface RBACManager
     /**
      * Creates an implementation specific {@link Resource}, or return an existing {@link Resource}, depending
      * on the provided <code>identifier</code> parameter.
-     * <p/>
+     *
      * Note: Be sure to use {@link #saveResource(Resource)} in order to persist any changes to the Role.
      *
      * @param identifier the identifier.
@@ -266,7 +265,7 @@ public interface RBACManager
     /**
      * Creates an implementation specific {@link UserAssignment}, or return an existing {@link UserAssignment},
      * depending on the provided <code>identifier</code> parameter.
-     * <p/>
+     *
      * Note: Be sure to use {@link #saveUserAssignment(UserAssignment)} in order to persist any changes to the Role.
      *
      * @param principal the principal reference to the user.
@@ -325,7 +324,7 @@ public interface RBACManager
 
     /**
      * returns the active roles for a given principal
-     * <p/>
+     *
      * NOTE: roles that are returned might have have roles themselves, if
      * you just want all permissions then use {@link #getAssignedPermissions(String principal)}
      *

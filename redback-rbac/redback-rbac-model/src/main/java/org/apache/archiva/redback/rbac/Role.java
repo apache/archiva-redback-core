@@ -20,16 +20,16 @@ import java.util.List;
 
 /**
  * Role
- * <p/>
+ *
  * A role is assignable to a user and effectively grants that user all of the
  * permissions that are present in that role.  A role can also contain other roles
  * which add the permissions in those roles to the available permissions for authorization.
- * <p/>
+ *
  * A role can contain any number of permissions
  * A role can contain any number of other roles
  * A role can be assigned to any number of users
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  *
  */
@@ -69,7 +69,7 @@ public interface Role
 
     /**
      * Get the name.
-     * <p/>
+     *
      * NOTE: This field is considered the Primary Key for this object.
      */
     String getName();
@@ -114,7 +114,7 @@ public interface Role
 
     /**
      * Set Name
-     * <p/>
+     *
      * NOTE: This field is considered the Primary Key for this object.
      *
      * @param name

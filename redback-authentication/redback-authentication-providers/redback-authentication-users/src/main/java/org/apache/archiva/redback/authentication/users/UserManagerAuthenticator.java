@@ -73,9 +73,9 @@ public class UserManagerAuthenticator
     /**
      * @throws org.apache.archiva.redback.policy.AccountLockedException
      *
+     * @throws AuthenticationException
+     * @throws AccountLockedException
      * @throws MustChangePasswordException
-     * @throws MustChangePasswordException
-     * @throws PolicyViolationException
      * @see org.apache.archiva.redback.authentication.Authenticator#authenticate(org.apache.archiva.redback.authentication.AuthenticationDataSource)
      */
     public AuthenticationResult authenticate( AuthenticationDataSource ds )

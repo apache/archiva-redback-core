@@ -40,7 +40,7 @@ import java.io.File;
 /**
  * RoleProfileTest:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  *
  */
 @RunWith( SpringJUnit4ClassRunner.class )

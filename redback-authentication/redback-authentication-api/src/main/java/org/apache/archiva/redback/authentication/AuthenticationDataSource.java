@@ -21,7 +21,7 @@ package org.apache.archiva.redback.authentication;
 
 /**
  * Just a tag to indicate that the implementing class is an AuthenticationDataSource.
- * <p/>
+ *
  * todo which this back to an interface and use the mojo style expression evaluation to populate the particular required fields
  *
  *

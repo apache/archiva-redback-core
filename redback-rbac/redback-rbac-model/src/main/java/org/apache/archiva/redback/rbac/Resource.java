@@ -31,7 +31,7 @@ package org.apache.archiva.redback.rbac;
  * wildcards can be used on the resource definition to streamline the assigning of
  * permissions for _large_ sets of things.
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  *
  */

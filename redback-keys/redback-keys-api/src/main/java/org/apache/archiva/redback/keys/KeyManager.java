@@ -40,7 +40,7 @@ public interface KeyManager
 
     /**
      * Attempt to find a specific key in the store.
-     * <p/>
+     *
      * NOTE: Implementations of this interface should never return an expired key.
      *
      * @param key the key to find.

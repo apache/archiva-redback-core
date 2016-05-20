@@ -18,13 +18,13 @@ package org.apache.archiva.redback.rbac;
 
 /**
  * Permission
- * <p/>
+ *
  * A permission is the wrapper for an operation and a resource effectively saying
  * that the operation is authorized for that resource.
- * <p/>
+ *
  * P(Operation, Resource)
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  *
  */
@@ -38,7 +38,7 @@ public interface Permission
 
     /**
      * Get the short name of the permission.
-     * <p/>
+     *
      * NOTE: This field is considered the Primary Key for this object.
      *
      * @return the short name for this permission.
@@ -52,7 +52,7 @@ public interface Permission
 
     /**
      * This is the resource associated with this permission.
-     * <p/>
+     *
      * Implementors must always supply a Resource.
      *
      * @return the Resource.

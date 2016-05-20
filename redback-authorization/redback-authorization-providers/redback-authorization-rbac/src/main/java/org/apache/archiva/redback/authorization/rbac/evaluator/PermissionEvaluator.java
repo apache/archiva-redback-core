@@ -25,7 +25,7 @@ import org.apache.archiva.redback.rbac.Permission;
 /**
  * PermissionEvaluator:
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  *
  */
 public interface PermissionEvaluator

@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * DefaultRoleModelValidator: validates completeness of the model
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  *
  */
 @Service( "roleModelValidator" )
@@ -430,7 +430,7 @@ public class DefaultRoleModelValidator
      * We are not allowed to have cycles between template either, this method is to detect and
      * raise a red flag when that happens.  Templates are a bit more complex since they have both
      * child and parent roles, as well as runtime parent and child templates
-     * <p/>
+     *
      * the id should be sufficient to test cycles here even though in runtime the id's do not need to be
      * unique since it is the binding of a namePrefix and a resource that makes them unique
      *

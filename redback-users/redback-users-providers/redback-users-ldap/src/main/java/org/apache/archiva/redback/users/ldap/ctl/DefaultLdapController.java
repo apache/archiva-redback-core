@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
- * @author <a href="jesse@codehaus.org"> jesse
+ * @author  jesse
  */
 @Service
 public class DefaultLdapController

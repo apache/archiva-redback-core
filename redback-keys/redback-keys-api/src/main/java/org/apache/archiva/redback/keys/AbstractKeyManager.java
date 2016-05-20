@@ -102,7 +102,7 @@ public abstract class AbstractKeyManager
     /**
      * Tests the key to see if it is expired or not.
      * 
-     * If the key is expired, a call to {@link #removeExpiredKey(AuthenticationKey)} is issued,
+     * If the key is expired, a call to {@link #deleteKey(AuthenticationKey)} is issued,
      * and a {@link KeyNotFoundException} is thrown.
      * 
      * @param authkey the key to test.

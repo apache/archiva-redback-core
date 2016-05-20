@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 /**
  * MemoryAuthenticator:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @Service("authenticator#memory")
 public class MemoryAuthenticator

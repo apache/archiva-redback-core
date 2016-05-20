@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * RoleModelUtils:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  *
  */
 public class RoleModelUtils

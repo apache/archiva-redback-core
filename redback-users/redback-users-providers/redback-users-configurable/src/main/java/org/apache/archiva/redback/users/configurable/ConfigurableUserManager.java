@@ -33,7 +33,7 @@ import javax.inject.Named;
 import java.util.List;
 
 /**
- * @author <a href="jesse@codehaus.org"> jesse
+ * @author  jesse
  */
 @Service( "userManager#configurable" )
 public class ConfigurableUserManager

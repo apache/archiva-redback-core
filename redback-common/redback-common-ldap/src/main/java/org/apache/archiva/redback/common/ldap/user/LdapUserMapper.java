@@ -35,7 +35,7 @@ import javax.naming.directory.BasicAttributes;
 import java.util.Date;
 
 /**
- * @author <a href="jesse@codehaus.org"> jesse
+ * @author Jesse
  */
 @Service( "userMapper#ldap" )
 public class LdapUserMapper

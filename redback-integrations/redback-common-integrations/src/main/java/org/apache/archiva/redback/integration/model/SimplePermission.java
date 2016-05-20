@@ -22,7 +22,7 @@ package org.apache.archiva.redback.integration.model;
 /**
  * SimplePermission - this is a placeholder for information passed back
  * and forth between the Action and the Client.
- * <p/>
+ *
  * We intentionally do not hook up the actual object to prevent
  * creative injection of fields and values by the untrusted client.
  *

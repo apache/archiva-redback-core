@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * jaxrs fail to return List<String> so use this contains for rest services returning that
+ * jaxrs fail to return List {@link String} so use this contains for rest services returning that
  *
  * @author Olivier Lamy
  * @since 2.1

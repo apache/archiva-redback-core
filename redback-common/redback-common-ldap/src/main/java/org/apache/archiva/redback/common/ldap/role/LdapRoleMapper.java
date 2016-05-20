@@ -46,7 +46,7 @@ public interface LdapRoleMapper
      * read all ldap groups then map to corresponding role (if no mapping found group is ignored)
      *
      * @return all roles
-     * @throws Exception
+     * @throws MappingException
      */
     List<String> getAllRoles( DirContext context )
         throws MappingException;

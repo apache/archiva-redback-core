@@ -22,7 +22,7 @@ package org.apache.archiva.redback.authorization;
 /**
  * AuthorizationResult: wrapper object for results from the authorization system
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 public class AuthorizationResult
 {

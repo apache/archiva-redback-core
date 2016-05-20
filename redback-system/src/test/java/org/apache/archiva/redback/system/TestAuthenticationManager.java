@@ -32,7 +32,7 @@ import javax.inject.Inject;
 /**
  * TestAuthenticationManager:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  *
  */
 @RunWith( SpringJUnit4ClassRunner.class )

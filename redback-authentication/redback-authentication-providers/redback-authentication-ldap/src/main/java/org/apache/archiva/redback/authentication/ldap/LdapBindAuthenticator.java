@@ -49,7 +49,7 @@ import javax.naming.directory.SearchResult;
 /**
  * LdapBindAuthenticator:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @Service( "authenticator#ldap" )
 public class LdapBindAuthenticator

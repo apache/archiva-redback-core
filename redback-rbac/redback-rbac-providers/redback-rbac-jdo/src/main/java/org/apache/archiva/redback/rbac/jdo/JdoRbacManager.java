@@ -45,7 +45,7 @@ import java.util.List;
  * JdoRbacManager:
  *
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  *
  */
 @Service( "rbacManager#jdo" )
@@ -67,14 +67,13 @@ public class JdoRbacManager
 
     /**
      * Creates an implementation specific {@link Role}.
-     * <p/>
+     *
      * Note: this method does not add the {@link Role} to the underlying store.
      * a call to {@link #saveRole(Role)} is required to track the role created with this
      * method call.
      *
      * @param name the name.
      * @return the new {@link Role} object with an empty (non-null) {@link Role#getChildRoleNames()} object.
-     * @throws RbacManagerException
      */
     public Role createRole( String name )
     {
@@ -205,7 +204,7 @@ public class JdoRbacManager
 
     /**
      * Creates an implementation specific {@link Permission}.
-     * <p/>
+     *
      * Note: this method does not add the {@link Permission} to the underlying store.
      * a call to {@link #savePermission(Permission)} is required to track the permission created
      * with this method call.
@@ -237,7 +236,7 @@ public class JdoRbacManager
     /**
      * Creates an implementation specific {@link Permission} with specified {@link Operation},
      * and {@link Resource} identifiers.
-     * <p/>
+     *
      * Note: this method does not add the Permission, Operation, or Resource to the underlying store.
      * a call to {@link #savePermission(Permission)} is required to track the permission, operation,
      * or resource created with this method call.
@@ -338,7 +337,7 @@ public class JdoRbacManager
 
     /**
      * Creates an implementation specific {@link Operation}.
-     * <p/>
+     *
      * Note: this method does not add the {@link Operation} to the underlying store.
      * a call to {@link #saveOperation(Operation)} is required to track the operation created
      * with this method call.
@@ -421,7 +420,7 @@ public class JdoRbacManager
 
     /**
      * Creates an implementation specific {@link Resource}.
-     * <p/>
+     *
      * Note: this method does not add the {@link Resource} to the underlying store.
      * a call to {@link #saveResource(Resource)} is required to track the resource created
      * with this method call.
@@ -507,14 +506,13 @@ public class JdoRbacManager
 
     /**
      * Creates an implementation specific {@link UserAssignment}.
-     * <p/>
+     *
      * Note: this method does not add the {@link UserAssignment} to the underlying store.
      * a call to {@link #saveUserAssignment(UserAssignment)} is required to track the user
      * assignment created with this method call.
      *
      * @param principal the principal reference to the user.
      * @return the new UserAssignment with an empty (non-null) {@link UserAssignment#getRoleNames()} object.
-     * @throws RbacManagerException
      */
     public UserAssignment createUserAssignment( String principal )
     {

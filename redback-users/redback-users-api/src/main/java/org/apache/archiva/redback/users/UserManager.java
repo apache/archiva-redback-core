@@ -64,7 +64,7 @@ public interface UserManager
     /**
      * Factory method to create new User Objects based on provider specific
      * implementation.
-     * <p/>
+     *
      * User objects created this way do not exist in the provider's underlying
      * data store until a call to {@link #addUser(User)} is made.
      *

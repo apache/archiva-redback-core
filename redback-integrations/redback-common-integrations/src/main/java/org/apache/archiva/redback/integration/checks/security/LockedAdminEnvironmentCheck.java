@@ -41,7 +41,7 @@ import java.util.List;
  * LockedAdminEnvironmentCheck: checks if accounts marked as system administrator are locked
  * and unlocks them on startup.
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @Service( "environmentCheck#locked-admin-check" )
 public class LockedAdminEnvironmentCheck

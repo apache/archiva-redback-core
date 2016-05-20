@@ -35,9 +35,9 @@ import java.io.IOException;
 
 /**
  * HttpDigestAuthenticationFilter.
- * <p/>
+ *
  * Uses RFC 2617 and RFC 2069 to perform Digest authentication against the incoming client.
- * <p/>
+ *
  * <ul>
  * <li><a href="http://www.faqs.org/rfcs/rfc2617.html">RFC 2617</a> - HTTP Authentication: Basic and Digest Access Authentication</li>
  * <li><a href="http://www.faqs.org/rfcs/rfc2069.html">RFC 2069</a> - An Extension to HTTP : Digest Access Authentication</li>

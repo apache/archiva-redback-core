@@ -29,7 +29,7 @@ import javax.inject.Named;
 /**
  * DefaultLdapCacheService
  *
- * @author: Maria Odea Ching <oching@apache.org>
+ * @author: Maria Odea Ching
  * @version
  */
 @Service

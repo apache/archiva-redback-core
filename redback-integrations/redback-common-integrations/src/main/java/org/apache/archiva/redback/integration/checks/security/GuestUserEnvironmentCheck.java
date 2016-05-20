@@ -39,7 +39,7 @@ import java.util.List;
 /**
  * RequiredRolesEnvironmentCheck:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @Service("environmentCheck#guest-user-check")
 public class GuestUserEnvironmentCheck

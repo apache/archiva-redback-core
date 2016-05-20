@@ -34,7 +34,7 @@ import org.jpox.store.rdbms.RDBMSManager;
 /**
  * A extension to JPOX store manager that allows counting the SQL queries
  * 
- * @author Carlos Sanchez <a href="mailto:carlos@apache.org">
+ * @author Carlos Sanchez
  */
 public class StoreManagerDebug
     extends RDBMSManager

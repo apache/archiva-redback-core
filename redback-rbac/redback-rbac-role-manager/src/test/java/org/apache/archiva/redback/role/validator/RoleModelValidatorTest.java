@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * RoleModelMergerTest:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  *
  */
 @RunWith( SpringJUnit4ClassRunner.class )

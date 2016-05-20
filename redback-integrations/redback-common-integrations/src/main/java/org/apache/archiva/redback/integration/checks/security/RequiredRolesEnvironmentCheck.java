@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
  * required roles of the redback-xwork-integration artifact exist to be
  * assigned.
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  *
  */
 @Service("environmentCheck#required-roles")

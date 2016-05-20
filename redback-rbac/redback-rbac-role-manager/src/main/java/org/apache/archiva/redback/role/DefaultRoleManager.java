@@ -57,7 +57,7 @@ import java.util.Map;
 /**
  * RoleProfileManager:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @Service("roleManager")
 public class DefaultRoleManager
@@ -228,7 +228,7 @@ public class DefaultRoleManager
 
     /**
      * update the role from templateId from oldResource to newResource
-     * <p/>
+     *
      * NOTE: this requires removal and creation of the role since the jdo store does not tolerate renaming
      * because of the use of the name as an identifier
      */

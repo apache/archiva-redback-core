@@ -22,7 +22,7 @@ package org.apache.archiva.redback.authorization;
 /**
  * EntityAuthenticationException.java
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 public class NotAuthorizedException
     extends Exception

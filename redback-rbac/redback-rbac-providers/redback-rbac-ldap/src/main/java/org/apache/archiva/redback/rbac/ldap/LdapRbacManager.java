@@ -472,22 +472,21 @@ public class LdapRbacManager
         return this.rbacImpl.getParentRoles( role );
     }
 
-    /**
-     public Collection<Role> getEffectivelyAssignedRoles( String username )
-     throws RbacManagerException
-     {
-     // TODO here !!
-     return this.rbacImpl.getEffectivelyAssignedRoles( username );
-     }**/
+    //
+    // public Collection<Role> getEffectivelyAssignedRoles( String username )
+    // throws RbacManagerException
+    // {
+    // TODO here !!
+    // return this.rbacImpl.getEffectivelyAssignedRoles( username );
+    // }
 
-    /**
-     * public Collection<Role> getEffectivelyUnassignedRoles( String username )
-     * throws RbacManagerException
-     * {
-     * // TODO here !!
-     * return this.rbacImpl.getEffectivelyUnassignedRoles( username );
-     * }*
-     */
+    //public Collection<Role> getEffectivelyUnassignedRoles( String username )
+    //throws RbacManagerException
+    //{
+    // TODO here !!
+    // return this.rbacImpl.getEffectivelyUnassignedRoles( username );
+    // }
+
 
     public Set<Role> getEffectiveRoles( Role role )
         throws RbacManagerException

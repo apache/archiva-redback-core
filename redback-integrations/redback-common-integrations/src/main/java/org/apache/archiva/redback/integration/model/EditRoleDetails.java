@@ -24,10 +24,10 @@ import org.apache.archiva.redback.rbac.Role;
 
 /**
  * EditRoleDetails - Existing user Role Details.
- * <p/>
+ *
  * This is a placeholder for information passed back
  * and forth between the Action and the Client.
- * <p/>
+ *
  * We intentionally do not hook up the actual object to prevent
  * creative injection of fields and values by the untrusted client.
  *

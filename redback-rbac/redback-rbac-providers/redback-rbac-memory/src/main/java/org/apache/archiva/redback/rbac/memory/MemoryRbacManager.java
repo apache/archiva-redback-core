@@ -43,10 +43,10 @@ import java.util.Map;
 
 /**
  * MemoryRbacManager: a very quick and dirty implementation of a rbac store
- * <p/>
+ *
  * WARNING: not for actual usage, its not sound - jesse
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  *
  */

@@ -42,7 +42,7 @@ import java.io.IOException;
 /**
  * RoleProfileTest:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  *
  */
 @RunWith( SpringJUnit4ClassRunner.class )
@@ -126,7 +126,7 @@ public class RoleModelProcessorTest
     }
 
     /**
-     * @todo there are other things that are not synced - role descriptions, removal of operations, etc.
+     * TODO there are other things that are not synced - role descriptions, removal of operations, etc.
      */
     @Test
     public void testSyncPermissionsOnUpgrade()

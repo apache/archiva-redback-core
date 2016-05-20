@@ -25,7 +25,7 @@ import org.apache.archiva.redback.role.model.RedbackRoleModel;
 /**
  * RoleModelValidator:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 public interface RoleTemplateProcessor
 {

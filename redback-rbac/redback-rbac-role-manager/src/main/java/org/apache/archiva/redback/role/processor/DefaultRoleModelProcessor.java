@@ -51,7 +51,7 @@ import java.util.Set;
 /**
  * DefaultRoleModelProcessor: inserts the components of the model that can be populated into the rbac manager
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @Service( "roleModelProcessor" )
 public class DefaultRoleModelProcessor

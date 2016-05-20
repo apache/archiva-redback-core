@@ -77,7 +77,6 @@ public class User
     /**
      * as we can user multiple userManagers implementation we must track from which one this one comes.
      * @since 2.1
-     * @return userManager id
      */
     private String userManagerId;
 

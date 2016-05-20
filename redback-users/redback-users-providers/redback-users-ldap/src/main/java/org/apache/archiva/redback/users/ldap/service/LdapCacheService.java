@@ -26,7 +26,7 @@ import org.apache.archiva.redback.common.ldap.user.LdapUser;
  *
  * Service that manages the LDAP caches: LDAP connections and LDAP users
  *
- * @author: Maria Odea Ching <oching@apache.org>
+ * @author: Maria Odea Ching
  * @version
  */
 public interface LdapCacheService

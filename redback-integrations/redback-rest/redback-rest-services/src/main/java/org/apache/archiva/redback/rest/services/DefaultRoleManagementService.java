@@ -873,7 +873,7 @@ public class DefaultRoleManagementService
      *
      * @param roleList
      * @return
-     * @throws org.apache.archiva.redback.rbac.RbacManagerException
+     * @throws RedbackServiceException
      *
      */
     protected List<org.apache.archiva.redback.rbac.Role> filterRolesForCurrentUserAccess(

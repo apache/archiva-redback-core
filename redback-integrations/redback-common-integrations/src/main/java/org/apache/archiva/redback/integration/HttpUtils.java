@@ -33,17 +33,16 @@ public class HttpUtils
 {
     /**
      * Convert typical complex header into properties.
-     * <p/>
-     * <p/>
+     *
+     *
      * Example:
-     * </p>
-     * <p/>
+     *
      * <code>
      * realm="Somewhere Over The Rainbow", domain="kansas.co.us", nonce="65743ABCF"
      * </code>
-     * <p/>
+     *
      * <p>becomes</p>
-     * <p/>
+     *
      * <code>
      * Map ( "realm",  "Somewhere Over The Rainbox" )
      * Map ( "domain", "kansas.co.us" )

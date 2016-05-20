@@ -18,12 +18,12 @@ package org.apache.archiva.redback.rbac;
 
 /**
  * Operation
- * <p/>
+ *
  * In RBAC the operation is an action or functionality that can be linked with a
  * particular resource into an assignable Permission.  Operations don't exist outside
  * Permissions.
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  *
  */
@@ -40,9 +40,9 @@ public interface Operation
 
     /**
      * name of the operation that is used in the act of authorization
-     * <p/>
+     *
      * 'modify-foo', 'change-password'
-     * <p/>
+     *
      * NOTE: This field is considered the Primary Key for this object.
      *
      * @return the name of the operation.
@@ -56,9 +56,9 @@ public interface Operation
 
     /**
      * Set name of the operation that is used in the act of authorization
-     * <p/>
+     *
      * 'modify-foo', 'change-password'
-     * <p/>
+     *
      * NOTE: This field is considered the Primary Key for this object.
      *
      * @param name

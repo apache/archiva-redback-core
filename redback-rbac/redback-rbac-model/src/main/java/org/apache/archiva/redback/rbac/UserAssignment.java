@@ -24,10 +24,10 @@ import java.util.List;
  * 
  * This is the many to many mapping object needed by persistence stores.
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  *
- * @todo expand on javadoc
+ * TODO expand on javadoc
  */
 public interface UserAssignment
 {

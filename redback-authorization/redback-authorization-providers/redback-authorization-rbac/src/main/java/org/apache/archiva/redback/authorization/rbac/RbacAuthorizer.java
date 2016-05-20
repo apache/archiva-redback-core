@@ -46,7 +46,7 @@ import java.util.Map;
 /**
  * RbacAuthorizer:
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  */
 @Service("authorizer#rbac")
 public class RbacAuthorizer

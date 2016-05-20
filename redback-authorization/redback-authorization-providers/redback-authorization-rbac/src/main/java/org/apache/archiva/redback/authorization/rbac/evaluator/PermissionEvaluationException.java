@@ -22,7 +22,7 @@ package org.apache.archiva.redback.authorization.rbac.evaluator;
 /**
  * PermissionEvaluationException:
  *
- * @author Jesse McConnell <jmcconnell@apache.org>
+ * @author Jesse McConnell
  *
  */
 public class PermissionEvaluationException

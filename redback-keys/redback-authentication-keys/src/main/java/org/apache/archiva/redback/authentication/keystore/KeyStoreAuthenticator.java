@@ -44,7 +44,7 @@ import javax.annotation.Resource;
 /**
  * KeyStoreAuthenticator:
  *
- * @author: Jesse McConnell <jesse@codehaus.org>
+ * @author: Jesse McConnell
  */
 @Service("authenticator#keystore")
 public class KeyStoreAuthenticator
