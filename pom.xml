@@ -101,7 +101,6 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
-
     <repository>
       <id>apache.snapshots</id>
       <url>https://repository.apache.org/content/groups/snapshots-group</url>
@@ -112,7 +111,6 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
-
   </repositories>
 
   <pluginRepositories>
@@ -682,20 +680,26 @@
   <build>
     <pluginManagement>
       <plugins>
-        <!-- due to issue with bcel using 1.7 as target doesn't work -->
-        <!-- http://jira.codehaus.org/browse/MRM-1827  -->
+        <!-- https://issues.apache.org/jira/browse/MRM-1827  -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>1.7</source>
+            <target>1.7</target>
           </configuration>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>jpox-maven-plugin</artifactId>
           <version>1.1.7</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.bcel</groupId>
+              <artifactId>bcel</artifactId>
+              <version>6.0</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.codehaus.modello</groupId>
