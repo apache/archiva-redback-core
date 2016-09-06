@@ -96,7 +96,7 @@ public class DefaultLdapRoleMapper
 
     private String baseDn;
 
-    private String ldapGroupMember = "uniquemember";
+    private String ldapGroupMember = "uniqueMember";
 
     private boolean useDefaultRoleName = false;
 
