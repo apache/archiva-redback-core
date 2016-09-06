@@ -809,6 +809,8 @@
             <exclude>patch.diff</exclude>
             <exclude>.repository</exclude>
             <exclude>.travis.yml</exclude>
+            <!-- Netbeans files -->
+            <exclude>nb-configuration.xml</exclude>
           </excludes>
         </configuration>
         <executions>
