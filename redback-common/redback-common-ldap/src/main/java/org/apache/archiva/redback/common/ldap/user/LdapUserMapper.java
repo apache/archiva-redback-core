@@ -295,7 +295,7 @@ public class LdapUserMapper
 
     public String[] getReturningAttributes()
     {
-        return new String[]{ getUserIdAttribute(), getEmailAttribute(), getFullNameAttribute(), getPasswordAttribute(),
+        return new String[]{ "objectClass", getUserIdAttribute(), getEmailAttribute(), getFullNameAttribute(), getPasswordAttribute(),
             getDistinguishedNameAttribute() };
     }
 
