@@ -17,3 +17,4 @@ redback-integrations/redback-struts2/redback-struts2-example/overlays/
 .DS_Store
 .site-content
 .java-version
+nb-configuration.xml
