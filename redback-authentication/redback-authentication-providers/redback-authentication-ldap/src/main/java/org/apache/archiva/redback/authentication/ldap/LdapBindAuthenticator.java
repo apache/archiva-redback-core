@@ -122,18 +122,25 @@ public class LdapBindAuthenticator
 
                 results = context.search( mapper.getUserBaseDn(), filter, ctls );
 
-                log.debug( "Found user '{}': {}", source.getUsername(), results.hasMoreElements() );
+                boolean moreElements = results.hasMoreElements();
 
-                if ( results.hasMoreElements() )
+                log.debug( "Found user '{}': {}", source.getUsername(), moreElements );
+
+                if ( moreElements )
                 {
-                    SearchResult result = results.nextElement();
+                    try {
+                        SearchResult result = results.nextElement();
 
-                    userDn = result.getNameInNamespace();
+                        userDn = result.getNameInNamespace();
 
-                    log.debug( "Adding userDn {} for user {} to the cache..", userDn, source.getUsername() );
+                        log.debug("Adding userDn {} for user {} to the cache..", userDn, source.getUsername());
 
-                    // REDBACK-289/MRM-1488 cache the ldap user's userDn to lessen calls to ldap server
-                    ldapCacheService.addLdapUserDn( source.getUsername(), userDn );
+                        // REDBACK-289/MRM-1488 cache the ldap user's userDn to lessen calls to ldap server
+                        ldapCacheService.addLdapUserDn(source.getUsername(), userDn);
+                    } catch (Exception e) {
+                        log.error("Error occured on LDAP result retrieval: {}, {}", userDn, e.getMessage());
+                        return new AuthenticationResult( false, source.getUsername(), e);
+                    }
                 }
                 else
                 {
