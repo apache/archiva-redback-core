@@ -78,6 +78,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <gpg.useagent>true</gpg.useagent>
     <cxf.version>3.0.3</cxf.version>
+    <openjpa.version>2.4.1</openjpa.version>
+
     <!--
     <redbackTestJdbcUrl>jdbc:derby:memory:users-test;create=true</redbackTestJdbcUrl>
     <redbackTestJdbcDriver>org.apache.derby.jdbc.EmbeddedDriver</redbackTestJdbcDriver>
@@ -298,6 +300,16 @@
         <groupId>org.apache.archiva.redback</groupId>
         <artifactId>redback-integrations-security</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.archiva.redback</groupId>
+        <artifactId>redback-common-jpa</artifactId>
+        <version>2.5-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.archiva.redback</groupId>
+        <artifactId>redback-users-jpa</artifactId>
+        <version>2.5-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -930,7 +942,7 @@
                   <descriptorRefs>
                     <descriptorRef>${sourceReleaseAssemblyDescriptor}</descriptorRef>
                   </descriptorRefs>
-                  <tarLongFileFormat>gnu</tarLongFileFormat>
+                  <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
               </execution>
             </executions>
