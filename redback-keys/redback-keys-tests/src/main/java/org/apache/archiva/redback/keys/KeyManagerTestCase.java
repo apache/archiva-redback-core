@@ -17,10 +17,6 @@ package org.apache.archiva.redback.keys;
  */
 
 import junit.framework.TestCase;
-import org.apache.archiva.redback.keys.AuthenticationKey;
-import org.apache.archiva.redback.keys.KeyManager;
-import org.apache.archiva.redback.keys.KeyManagerException;
-import org.apache.archiva.redback.keys.KeyNotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
