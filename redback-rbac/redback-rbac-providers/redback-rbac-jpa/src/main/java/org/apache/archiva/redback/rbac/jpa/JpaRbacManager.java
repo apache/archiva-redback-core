@@ -425,6 +425,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
             em.remove(ua);
         }
         em.getTransaction().commit();
+        em.clear();
 
 
     }

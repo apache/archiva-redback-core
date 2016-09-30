@@ -21,7 +21,14 @@ package org.apache.archiva.redback.rbac.jpa.model;
 
 import org.apache.archiva.redback.rbac.AbstractUserAssignment;
 
-import javax.persistence.*;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OrderColumn;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +46,9 @@ public class JpaUserAssignment extends AbstractUserAssignment implements Seriali
     private String principal;
     @ElementCollection
     @Column(name="STRING_ELE")
+    @OrderColumn(name="INTEGER_IDX")
     @CollectionTable(
-            name="SECURITY_USERASSIGNMENT_MAP",
+            name="SECURITY_USERASSIGNMENT_ROLENAMES",
             joinColumns = {
                     @JoinColumn(name = "PRINCIPAL_OID", referencedColumnName = "PRINCIPAL")
             }

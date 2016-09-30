@@ -21,6 +21,7 @@ package org.apache.archiva.redback.rbac.jpa.model;
 
 import org.apache.archiva.redback.rbac.AbstractRole;
 import org.apache.archiva.redback.rbac.Permission;
+import org.springframework.core.annotation.Order;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -46,6 +47,7 @@ public class JpaRole extends AbstractRole implements Serializable {
     @Column(name="PERMANENT")
     private boolean permanent;
     @ManyToMany(cascade = CascadeType.PERSIST)
+    @OrderColumn(name="INTEGER_IDX")
     @JoinTable(
             name="SECURITY_ROLE_PERMISSION_MAP",
             joinColumns={ @JoinColumn(name="NAME_OID", referencedColumnName="NAME") },
@@ -56,6 +58,7 @@ public class JpaRole extends AbstractRole implements Serializable {
     List<JpaPermission> permissions = new ArrayList<JpaPermission>();
 
     @ElementCollection
+    @OrderColumn(name="INTEGER_IDX")
     @CollectionTable(
             name="SECURITY_ROLE_CHILDROLE_MAP",
             joinColumns = {
