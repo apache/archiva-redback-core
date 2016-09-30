@@ -75,7 +75,6 @@ public class JpaUserManager extends AbstractUserManager {
 
     @Override
     public User createUser(String username, String fullName, String emailAddress) throws UserManagerException {
-
         JpaUser user = new JpaUser();
         user.setUsername(username);
         user.setFullName(fullName);
@@ -270,6 +269,27 @@ public class JpaUserManager extends AbstractUserManager {
 
     @Override
     public void addUserUnchecked(User user) throws UserManagerException {
+        log.info("addUserUnchecked "+user.getUsername());
+        if ( !( user instanceof JpaUser ) )
+        {
+            throw new UserManagerException( "Unable to Add User. User object " + user.getClass().getName() +
+                    " is not an instance of " + JpaUser.class.getName() );
+        }
+
+        if ( org.codehaus.plexus.util.StringUtils.isEmpty( user.getUsername() ) )
+        {
+            throw new IllegalStateException(
+                    Messages.getString( "user.manager.cannot.add.user.without.username" ) ); //$NON-NLS-1$
+        }
+
+        em.getTransaction().begin();
+        TypedQuery<JpaUser> q = em.createQuery("SELECT u FROM JpaUser u", JpaUser.class);
+        for (JpaUser u : q.getResultList()) {
+            log.info("USER FOUND: "+u.getUsername());
+        }
+        log.info("NEW USER "+user.getUsername());
+        em.persist((JpaUser)user);
+        em.getTransaction().commit();
 
     }
 
@@ -277,9 +297,16 @@ public class JpaUserManager extends AbstractUserManager {
     public void eraseDatabase() {
         EntityManager em = getEm();
         em.getTransaction().begin();
-        Query q = em.createQuery("DELETE FROM JpaUser u");
-        q.executeUpdate();
+        TypedQuery<JpaUser> q = em.createQuery("SELECT u FROM JpaUser u", JpaUser.class);
+        for (JpaUser u : q.getResultList()) {
+            u.getPreviousEncodedPasswords().clear();
+        }
+        em.flush();
+        Query qd = em.createQuery("DELETE FROM JpaUser u");
+        qd.executeUpdate();
         em.getTransaction().commit();
+        em.clear();
+
     }
 
     @Override
@@ -298,7 +325,7 @@ public class JpaUserManager extends AbstractUserManager {
 
     @Override
     public String getDescriptionKey() {
-        return null;
+        return "archiva.redback.usermanager.jpa";
     }
 
 

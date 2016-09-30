@@ -65,7 +65,6 @@ public class JpaUserManagerTest extends AbstractUserManagerTestCase {
         is.close();
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("redback-jpa",props);
 
-        log.info("test setup");
         jpaUserManager.setEntityManager(emf.createEntityManager());
         super.setUserManager(jpaUserManager);
         assertNotNull(jpaUserManager);

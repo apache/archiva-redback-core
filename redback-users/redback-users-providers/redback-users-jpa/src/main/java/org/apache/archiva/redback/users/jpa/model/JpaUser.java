@@ -19,9 +19,13 @@ package org.apache.archiva.redback.users.jpa.model;
  * under the License.
  */
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,21 +39,38 @@ import java.util.List;
 public class JpaUser implements org.apache.archiva.redback.users.User {
 
     @Id
+    @Column(name="USERNAME")
     private String username;
-
+    @Column(name="FULL_NAME")
     private String fullName;
+    @Column(name="EMAIL")
     private String email;
+    @Column(name="ENCODED_PASSWORD")
     private String encodedPassword;
+    @Column(name="LAST_PASSWORD_CHANGE")
     private Date lastPasswordChange;
     @ElementCollection
+    @OrderColumn(name="INTEGER_IDX")
+    @Column(name="STRING_ELE")
+    @CollectionTable(name="JDOUSER_PREVIOUSENCODEDPASSWORDS",
+            joinColumns = @JoinColumn(name = "USERNAME_OID", referencedColumnName = "USERNAME")
+    )
     private List<String> previousEncodedPasswords = new ArrayList<String>();
+    @Column(name="PERMANENT")
     private boolean permanent;
+    @Column(name="LOCKED")
     private boolean locked;
+    @Column(name="PASSWORD_CHANGE_REQUIRED")
     private boolean passwordChangeRequired;
+    @Column(name="VALIDATED")
     private boolean validated;
+    @Column(name="COUNT_FAILED_LOGIN_ATTEMPTS")
     private int countFailedLoginAttempts;
+    @Column(name="ACCOUNT_CREATION_DATE")
     private Date accountCreationDate;
+    @Column(name="LAST_LOGIN_DATE")
     private Date lastLoginDate;
+    @Column(name="USER_PASSSWORD")
     private String rawPassword;
 
 
