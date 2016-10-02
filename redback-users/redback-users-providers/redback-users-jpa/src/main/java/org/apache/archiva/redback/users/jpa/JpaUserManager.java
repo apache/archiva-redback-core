@@ -329,6 +329,8 @@ public class JpaUserManager extends AbstractUserManager {
     }
 
 
-
-
+    @Override
+    public boolean isFinalImplementation() {
+        return true;
+    }
 }

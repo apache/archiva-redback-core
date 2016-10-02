@@ -449,5 +449,8 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return em;
     }
 
-
+    @Override
+    public boolean isFinalImplementation() {
+        return true;
+    }
 }
