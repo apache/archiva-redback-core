@@ -38,4 +38,6 @@ public interface Authenticator
         throws AccountLockedException, AuthenticationException, MustChangePasswordException;
 
     void initialize() throws AuthenticationException;
+
+    boolean isValid();
 }

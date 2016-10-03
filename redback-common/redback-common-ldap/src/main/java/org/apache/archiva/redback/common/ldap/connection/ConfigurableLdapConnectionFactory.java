@@ -21,6 +21,8 @@ package org.apache.archiva.redback.common.ldap.connection;
 
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -41,6 +43,8 @@ public class ConfigurableLdapConnectionFactory
     implements LdapConnectionFactory
 {
 
+    private final Logger log = LoggerFactory.getLogger(ConfigurableLdapConnectionFactory.class);
+
     private String hostname;
 
     private int port;
@@ -60,6 +64,8 @@ public class ConfigurableLdapConnectionFactory
     private Properties extraProperties;
 
     private LdapConnectionConfiguration ldapConnectionConfiguration;
+
+    private boolean valid = false;
 
 
     @Inject
@@ -90,10 +96,11 @@ public class ConfigurableLdapConnectionFactory
             ldapConnectionConfiguration.setAuthenticationMethod(
                 userConf.getString( UserConfigurationKeys.LDAP_AUTHENTICATION_METHOD, authenticationMethod ) );
             ldapConnectionConfiguration.setExtraProperties( extraProperties );
+            valid = true;
         }
         catch ( InvalidNameException e )
         {
-            throw new RuntimeException( "Error while initializing connection factory.", e );
+            log.error("Error during initialization of LdapConnectionFactory "+e.getMessage(),e);
         }
     }
 
@@ -265,5 +272,9 @@ public class ConfigurableLdapConnectionFactory
     public void setUserConf( UserConfiguration userConf )
     {
         this.userConf = userConf;
+    }
+
+    public boolean isValid() {
+        return valid;
     }
 }
