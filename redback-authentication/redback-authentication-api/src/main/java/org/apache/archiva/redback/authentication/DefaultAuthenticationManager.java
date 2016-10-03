@@ -92,7 +92,7 @@ public class DefaultAuthenticationManager
         List<AuthenticationFailureCause> authnResultErrors = new ArrayList<AuthenticationFailureCause>();
         for ( Authenticator authenticator : authenticators )
         {
-            if ( authenticator.supportsDataSource( source ) )
+            if ( authenticator.isValid() && authenticator.supportsDataSource( source ) )
             {
                 AuthenticationResult authResult = authenticator.authenticate( source );
                 List<AuthenticationFailureCause> authenticationFailureCauses =

@@ -51,4 +51,6 @@ public interface LdapConnectionFactory
 
     void initialize();
 
+    public boolean isValid();
+
 }

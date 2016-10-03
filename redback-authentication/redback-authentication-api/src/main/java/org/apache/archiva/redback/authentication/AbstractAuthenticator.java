@@ -24,9 +24,15 @@ package org.apache.archiva.redback.authentication;
 public abstract class AbstractAuthenticator
     implements Authenticator
 {
+    protected boolean valid = false;
+
     public void initialize()
         throws AuthenticationException
     {
-        // no op
+        valid = true;
+    }
+
+    public boolean isValid() {
+        return valid;
     }
 }

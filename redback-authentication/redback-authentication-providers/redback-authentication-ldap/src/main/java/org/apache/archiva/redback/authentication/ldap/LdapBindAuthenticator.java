@@ -208,4 +208,9 @@ public class LdapBindAuthenticator
             log.warn( "skip exception closing naming search result {}", e.getMessage() );
         }
     }
+
+    @Override
+    public boolean isValid() {
+        return connectionFactory.isValid();
+    }
 }
