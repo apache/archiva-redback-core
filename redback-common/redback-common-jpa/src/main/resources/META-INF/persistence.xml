@@ -20,7 +20,7 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
     <persistence-unit name="redback-jpa">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <jta-data-source>java:comp/env/jdbc/redbackjpa</jta-data-source>
+        <non-jta-data-source>java:comp/env/jdbc/redbackjpa</non-jta-data-source>
         <class>org.apache.archiva.redback.users.jpa.model.JpaUser</class>
         <class>org.apache.archiva.redback.rbac.jpa.model.JpaOperation</class>
         <class>org.apache.archiva.redback.rbac.jpa.model.JpaResource</class>
@@ -28,9 +28,11 @@
         <class>org.apache.archiva.redback.rbac.jpa.model.JpaRole</class>
         <class>org.apache.archiva.redback.rbac.jpa.model.JpaUserAssignment</class>
         <properties>
-            <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)" />
+          <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+          <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)" />
             <property name="openjpa.jdbc.MappingDefaults"
                       value="ForeignKeyDeleteAction=restrict,JoinForeignKeyDeleteAction=restrict"/>
+            <property name="openjpa.Log" value="DefaultLevel=TRACE, Runtime=TRACE, Tool=INFO"/>
         </properties>
     </persistence-unit>
 </persistence>
