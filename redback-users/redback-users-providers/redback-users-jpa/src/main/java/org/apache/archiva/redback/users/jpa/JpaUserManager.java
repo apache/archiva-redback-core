@@ -23,12 +23,14 @@ import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.users.*;
 import org.apache.archiva.redback.users.jpa.model.JpaUser;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -102,6 +104,7 @@ public class JpaUserManager extends AbstractUserManager {
         return q.getResultList();
     }
 
+    @Transactional
     @Override
     public User addUser(User user) throws UserManagerException {
         EntityManager em = getEm();
@@ -133,12 +136,14 @@ public class JpaUserManager extends AbstractUserManager {
         {
             user.setPasswordChangeRequired( true );
         }
-        em.getTransaction().begin();
+        if (user.getLastPasswordChange()==null) {
+            user.setLastPasswordChange(new Date());
+        }
         em.persist((JpaUser)user);
-        em.getTransaction().commit();
         return user;
     }
 
+    @Transactional
     @Override
     public User updateUser(User user) throws UserNotFoundException, UserManagerException {
         return updateUser(user, false);
@@ -254,6 +259,7 @@ public class JpaUserManager extends AbstractUserManager {
 
 
 
+    @Transactional
     @Override
     public void deleteUser(String username) throws UserNotFoundException, UserManagerException {
         final EntityManager em = getEm();
@@ -261,12 +267,11 @@ public class JpaUserManager extends AbstractUserManager {
         if (u.isPermanent()) {
             throw new PermanentUserException("User "+username+" cannot be deleted");
         }
-        em.getTransaction().begin();
         em.remove(u);
-        em.getTransaction().commit();
         fireUserManagerUserRemoved(u);
     }
 
+    @Transactional
     @Override
     public void addUserUnchecked(User user) throws UserManagerException {
         log.info("addUserUnchecked "+user.getUsername());
@@ -282,21 +287,19 @@ public class JpaUserManager extends AbstractUserManager {
                     Messages.getString( "user.manager.cannot.add.user.without.username" ) ); //$NON-NLS-1$
         }
 
-        em.getTransaction().begin();
         TypedQuery<JpaUser> q = em.createQuery("SELECT u FROM JpaUser u", JpaUser.class);
         for (JpaUser u : q.getResultList()) {
             log.info("USER FOUND: "+u.getUsername());
         }
         log.info("NEW USER "+user.getUsername());
         em.persist((JpaUser)user);
-        em.getTransaction().commit();
 
     }
 
+    @Transactional
     @Override
     public void eraseDatabase() {
         EntityManager em = getEm();
-        em.getTransaction().begin();
         TypedQuery<JpaUser> q = em.createQuery("SELECT u FROM JpaUser u", JpaUser.class);
         for (JpaUser u : q.getResultList()) {
             u.getPreviousEncodedPasswords().clear();
@@ -304,23 +307,27 @@ public class JpaUserManager extends AbstractUserManager {
         em.flush();
         Query qd = em.createQuery("DELETE FROM JpaUser u");
         qd.executeUpdate();
-        em.getTransaction().commit();
         em.clear();
 
     }
 
+    @Transactional
     @Override
     public User updateUser(User user, boolean passwordChangeRequired) throws UserNotFoundException, UserManagerException {
+        if ( !( user instanceof JpaUser ) )
+        {
+            throw new UserManagerException( "Unable to update user. User object " + user.getClass().getName() +
+                    " is not an instance of " + JpaUser.class.getName() );
+        }
         if ( StringUtils.isNotEmpty( user.getPassword() ) )
         {
             userSecurityPolicy.extensionChangePassword( user, passwordChangeRequired );
         }
+        JpaUser jpaUser = (JpaUser) user;
         final EntityManager em = getEm();
-        em.getTransaction().begin();
-        em.persist((JpaUser)user);
-        em.getTransaction().commit();
-        fireUserManagerUserUpdated(user);
-        return user;
+        jpaUser = em.merge(jpaUser);
+        fireUserManagerUserUpdated(jpaUser);
+        return jpaUser;
     }
 
     @Override

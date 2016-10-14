@@ -131,7 +131,7 @@ public class JpaUser implements org.apache.archiva.redback.users.User {
 
     @Override
     public void setLastPasswordChange(Date passwordChangeDate) {
-        this.lastPasswordChange = lastPasswordChange;
+        this.lastPasswordChange = passwordChangeDate;
     }
 
     @Override
@@ -222,6 +222,6 @@ public class JpaUser implements org.apache.archiva.redback.users.User {
 
     @Override
     public String getUserManagerId() {
-        return null;
+        return "jpa";
     }
 }

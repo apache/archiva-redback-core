@@ -53,6 +53,11 @@
       <artifactId>openjpa</artifactId>
       <version>${openjpa.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>${springVersion}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.hsqldb</groupId>

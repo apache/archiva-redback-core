@@ -32,7 +32,7 @@
           <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)" />
             <property name="openjpa.jdbc.MappingDefaults"
                       value="ForeignKeyDeleteAction=restrict,JoinForeignKeyDeleteAction=restrict"/>
-            <property name="openjpa.Log" value="DefaultLevel=TRACE, Runtime=TRACE, Tool=INFO"/>
+            <property name="openjpa.Log" value="DefaultLevel=TRACE, Runtime=TRACE, Tool=INFO, SQL=TRACE"/>
         </properties>
     </persistence-unit>
 </persistence>
