@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 /**
@@ -58,6 +59,11 @@ public class KeyStoreAuthenticator
 
     @Resource(name = "userManager#default")
     private UserManager userManager;
+
+    @PostConstruct
+    private void init() {
+        super.valid=true;
+    }
 
     public String getId()
     {

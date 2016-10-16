@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
@@ -67,6 +68,11 @@ public class UserManagerAuthenticator
     public String getId()
     {
         return "UserManagerAuthenticator";
+    }
+
+    @PostConstruct
+    private void init() {
+        super.valid = true;
     }
 
 
