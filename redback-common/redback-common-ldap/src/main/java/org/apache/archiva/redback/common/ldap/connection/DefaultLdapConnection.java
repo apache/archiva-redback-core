@@ -19,7 +19,6 @@ package org.apache.archiva.redback.common.ldap.connection;
  * under the License.
  */
 
-import com.sun.jndi.ldap.LdapCtxFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +31,7 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
+import javax.naming.spi.NamingManager;
 
 /**
  * The configuration for a connection will not change.
@@ -43,15 +43,6 @@ public class DefaultLdapConnection
     implements LdapConnection
 {
 
-    private static LdapCtxFactory ctxFactory;// = new LdapCtxFactory();
-
-
-    static
-    {
-        initCtxFactory();
-    }
-
-
     private Logger log = LoggerFactory.getLogger( getClass() );
 
     private LdapConnectionConfiguration config;
@@ -59,11 +50,6 @@ public class DefaultLdapConnection
     private DirContext context;
 
     private List<Rdn> baseDnRdns;
-
-    private static void initCtxFactory()
-    {
-        ctxFactory = new LdapCtxFactory();
-    }
 
     public DefaultLdapConnection( LdapConnectionConfiguration config, Rdn subRdn )
         throws LdapException
@@ -92,7 +78,7 @@ public class DefaultLdapConnection
 
         try
         {
-            context = (DirContext) ctxFactory.getInitialContext( e );
+            context = (DirContext) NamingManager.getInitialContext( e );
         }
         catch ( NamingException ex )
         {
@@ -121,7 +107,7 @@ public class DefaultLdapConnection
 
         try
         {
-            context = (DirContext) ctxFactory.getInitialContext( e );
+            context = (DirContext) NamingManager.getInitialContext( e );
         }
         catch ( NamingException ex )
         {
