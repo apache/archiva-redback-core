@@ -23,6 +23,7 @@ import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.users.*;
 import org.apache.archiva.redback.users.jpa.model.JpaUser;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
@@ -37,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Created by martin on 20.09.16.
  */
-@org.springframework.stereotype.Service("userManager#jpa")
+@Service("userManager#jpa")
 public class JpaUserManager extends AbstractUserManager {
 
 

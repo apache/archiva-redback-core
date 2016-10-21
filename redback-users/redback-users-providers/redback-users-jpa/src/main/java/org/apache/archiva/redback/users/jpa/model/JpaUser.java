@@ -23,6 +23,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OrderColumn;
@@ -49,7 +50,7 @@ public class JpaUser implements org.apache.archiva.redback.users.User {
     private String encodedPassword;
     @Column(name="LAST_PASSWORD_CHANGE")
     private Date lastPasswordChange;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @OrderColumn(name="INTEGER_IDX")
     @Column(name="STRING_ELE")
     @CollectionTable(name="JDOUSER_PREVIOUSENCODEDPASSWORDS",
@@ -136,18 +137,28 @@ public class JpaUser implements org.apache.archiva.redback.users.User {
 
     @Override
     public List<String> getPreviousEncodedPasswords() {
+        if (previousEncodedPasswords==null) {
+            setPreviousEncodedPasswords(new ArrayList<String>());
+        }
+        assert previousEncodedPasswords != null;
         return previousEncodedPasswords;
     }
 
     @Override
     public void setPreviousEncodedPasswords(List<String> encodedPasswordList) {
-        this.previousEncodedPasswords.clear();
-        this.previousEncodedPasswords.addAll(encodedPasswordList);
+        if (previousEncodedPasswords==null) {
+            previousEncodedPasswords = new ArrayList<String>();
+        }
+        previousEncodedPasswords.clear();
+        previousEncodedPasswords.addAll(encodedPasswordList);
     }
 
     @Override
     public void addPreviousEncodedPassword(String encodedPassword) {
-        this.previousEncodedPasswords.add(encodedPassword);
+        if (previousEncodedPasswords==null) {
+            previousEncodedPasswords = new ArrayList<String>();
+        }
+        previousEncodedPasswords.add(encodedPassword);
     }
 
     @Override
@@ -223,5 +234,22 @@ public class JpaUser implements org.apache.archiva.redback.users.User {
     @Override
     public String getUserManagerId() {
         return "jpa";
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JpaUser jpaUser = (JpaUser) o;
+
+        return username.equals(jpaUser.username);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return username.hashCode();
     }
 }

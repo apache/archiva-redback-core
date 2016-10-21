@@ -20,10 +20,12 @@ package org.apache.archiva.redback.rbac.jpa;
  */
 
 import org.apache.archiva.redback.common.jdo.test.StoreManagerDebug;
+import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.tests.AbstractRbacManagerTestCase;
 import org.junit.Before;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -39,13 +41,15 @@ import java.util.Properties;
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  */
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Transactional
 public class JpaRbacManagerTest
     extends AbstractRbacManagerTestCase
 {
 
     @Inject
     @Named(value = "rbacManager#jpa")
-    JpaRbacManager rbacManager;
+    RBACManager rbacManager;
+
 
     public static int EVENTCOUNT = 2;
 
@@ -64,15 +68,15 @@ public class JpaRbacManagerTest
     {
 
         super.setUp();
-        Properties props = new Properties();
-        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("test.properties");
-        assert is!=null;
-        props.load(is);
-        is.close();
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("redback-jpa",props);
-
+//        Properties props = new Properties();
+//        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("test.properties");
+//        assert is!=null;
+//        props.load(is);
+//        is.close();
+//        EntityManagerFactory emf = Persistence.createEntityManagerFactory("redback-jpa",props);
+//
         log.info("test setup");
-        rbacManager.setEntityManager(emf.createEntityManager());
+        // rbacManager.setEntityManager(emf.createEntityManager());
         super.setRbacManager(rbacManager);
         assertNotNull(rbacManager);
         log.info("injected rbac manager "+rbacManager);

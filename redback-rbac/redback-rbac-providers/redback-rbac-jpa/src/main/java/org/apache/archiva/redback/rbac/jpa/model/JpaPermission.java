@@ -41,13 +41,13 @@ public class JpaPermission implements Permission,Serializable {
     private String description;
     @Column(name="PERMANENT")
     private boolean permanent;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name="OPERATION_NAME_OID",
             referencedColumnName = "NAME"
     )
     private JpaOperation operation;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name="RESOURCE_IDENTIFIER_OID",
             referencedColumnName = "IDENTIFIER"

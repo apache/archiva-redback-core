@@ -23,6 +23,7 @@ import org.apache.archiva.redback.rbac.*;
 import org.apache.archiva.redback.rbac.jpa.model.*;
 import org.apache.openjpa.persistence.Type;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -59,21 +60,26 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return role;
     }
 
+    @Transactional
     @Override
     public Role saveRole(Role role) throws RbacObjectInvalidException, RbacManagerException {
         RBACObjectAssertions.assertValid( role );
         final EntityManager em = getEm();
-        em.getTransaction().begin();
-        em.persist(role);
-
-        em.getTransaction().commit();
-        fireRbacRoleSaved(role);
-        for (Permission perm : role.getPermissions()) {
+        Role mergedRole = em.merge(role);
+        fireRbacRoleSaved(mergedRole);
+        for (Permission perm : mergedRole.getPermissions()) {
             fireRbacPermissionSaved(perm);
         }
-        return role;
+        return mergedRole;
     }
 
+    @Transactional
+    @Override
+    public void addChildRole(Role role, Role childRole) throws RbacObjectInvalidException, RbacManagerException {
+        super.addChildRole(role, childRole);
+    }
+
+    @Transactional
     @Override
     public void saveRoles(Collection<Role> roles) throws RbacObjectInvalidException, RbacManagerException {
         if ( roles == null )
@@ -83,16 +89,16 @@ public class JpaRbacManager extends AbstractRBACManager  {
         }
 
         final EntityManager em = getEm();
-        em.getTransaction().begin();
+        List<Role> merged = new ArrayList<Role>();
         for (Role role : roles ) {
             RBACObjectAssertions.assertValid(role);
-            em.persist(role);
+            merged.add(em.merge(role));
         }
-        em.getTransaction().commit();
-        for (Role role : roles) {
+        for (Role role : merged) {
             fireRbacRoleSaved(role);
         }
     }
+
 
     @Override
     public Role getRole(String roleName) throws RbacObjectNotFoundException, RbacManagerException {
@@ -109,6 +115,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return q.getResultList();
     }
 
+    @Transactional
     @Override
     public void removeRole(Role role) throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException {
         RBACObjectAssertions.assertValid(role);
@@ -120,14 +127,12 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacPermanentException( "Unable to delete permanent role [" + role.getName() + "]" );
         }
         final EntityManager em = getEm();
-        em.getTransaction().begin();
         JpaRole myRole = em.find(JpaRole.class, role.getName());
         if (myRole == null) {
             throw new RbacObjectNotFoundException("Role not found "+role.getName());
         }
         myRole.setPermissions(new ArrayList<Permission>());
         em.remove(myRole);
-        em.getTransaction().commit();
         fireRbacRoleRemoved(myRole);
     }
 
@@ -159,6 +164,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return permission;
     }
 
+    @Transactional
     @Override
     public Permission savePermission(Permission permission) throws RbacObjectInvalidException, RbacManagerException {
         RBACObjectAssertions.assertValid(permission);
@@ -166,11 +172,9 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacObjectInvalidException("The permission object ist not instance of JpaPermission");
         }
         final EntityManager em = getEm();
-        em.getTransaction().begin();
-        em.persist(permission);
-        em.getTransaction().commit();
-        fireRbacPermissionSaved(permission);
-        return permission;
+        Permission savedPermission = em.merge(permission);
+        fireRbacPermissionSaved(savedPermission);
+        return savedPermission;
     }
 
     @Override
@@ -192,6 +196,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return (List<Permission>)(List<?>)q.getResultList();
     }
 
+    @Transactional
     @Override
     public void removePermission(Permission permission) throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException {
         RBACObjectAssertions.assertValid(permission);
@@ -203,13 +208,11 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacPermanentException( "Unable to delete permanent permission [" + permission.getName() + "]" );
         }
         final EntityManager em = getEm();
-        em.getTransaction().begin();
-        Permission p = em.find(JpaPermission.class, permission.getName());
+        JpaPermission p = em.find(JpaPermission.class, permission.getName());
         if (p == null) {
             throw new RbacObjectNotFoundException("Permission " + permission.getName() + " not found");
         }
         em.remove(p);
-        em.getTransaction().commit();
         fireRbacPermissionRemoved(p);
     }
 
@@ -220,6 +223,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return op;
     }
 
+    @Transactional
     @Override
     public Operation saveOperation(Operation operation) throws RbacObjectInvalidException, RbacManagerException {
         RBACObjectAssertions.assertValid(operation);
@@ -227,10 +231,8 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacObjectInvalidException("Operation is not JpaOperation object");
         }
         final EntityManager em = getEm();
-        em.getTransaction().begin();
-        em.persist(operation);
-        em.getTransaction().commit();
-        return operation;
+        Operation savedOperation = em.merge(operation);
+        return savedOperation;
     }
 
     @Override
@@ -250,6 +252,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return q.getResultList();
     }
 
+    @Transactional
     @Override
     public void removeOperation(Operation operation) throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException {
         RBACObjectAssertions.assertValid(operation);
@@ -261,14 +264,11 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacPermanentException( "Unable to delete permanent operation [" + operation.getName() + "]" );
         }
         final EntityManager em = getEm();
-        em.getTransaction().begin();
-        Operation op = em.find(JpaOperation.class, operation.getName());
+        JpaOperation op = em.find(JpaOperation.class, operation.getName());
         if (op==null) {
             throw new RbacObjectNotFoundException("Operation not found "+operation.getName());
         }
         em.remove(op);
-        em.getTransaction().commit();
-
     }
 
     @Override
@@ -278,6 +278,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return resource;
     }
 
+    @Transactional
     @Override
     public Resource saveResource(Resource resource) throws RbacObjectInvalidException, RbacManagerException {
         RBACObjectAssertions.assertValid(resource);
@@ -285,10 +286,17 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacObjectInvalidException("Resource is not JpaResource");
         }
         final EntityManager em = getEm();
-        em.getTransaction().begin();
-        em.persist(resource);
-        em.getTransaction().commit();
-        return resource;
+        Resource savedResource = em.merge(resource);
+        return savedResource;
+    }
+
+    // Overriding to add the transactional attribute here
+    @Transactional
+    @Override
+    public Resource getGlobalResource()
+            throws RbacManagerException
+    {
+        return super.getGlobalResource();
     }
 
     @Override
@@ -308,6 +316,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return (List<Resource>)(List<?>)q.getResultList();
     }
 
+    @Transactional
     @Override
     public void removeResource(Resource resource) throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException {
         RBACObjectAssertions.assertValid(resource);
@@ -318,13 +327,11 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacObjectInvalidException("Unable to delete permanent resource ["+resource.getIdentifier()+ "]");
         }
         final EntityManager em = getEm();
-        em.getTransaction().begin();
-        Resource res = em.find(JpaResource.class, resource.getIdentifier());
+        JpaResource res = em.find(JpaResource.class, resource.getIdentifier());
         if (res==null) {
             throw new RbacObjectNotFoundException("Resource "+resource.getIdentifier()+" not found");
         }
         em.remove(res);
-        em.getTransaction().commit();
     }
 
     @Override
@@ -334,6 +341,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return ua;
     }
 
+    @Transactional
     @Override
     public UserAssignment saveUserAssignment(UserAssignment userAssignment) throws RbacObjectInvalidException, RbacManagerException {
         RBACObjectAssertions.assertValid(userAssignment);
@@ -341,11 +349,9 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacObjectInvalidException("Cannto save object that is not JpaUserAssignment");
         }
         final EntityManager em = getEm();
-        em.getTransaction().begin();
-        em.persist(userAssignment);
-        em.getTransaction().commit();
-        fireRbacUserAssignmentSaved(userAssignment);
-        return userAssignment;
+        UserAssignment savedAssignment = em.merge(userAssignment);
+        fireRbacUserAssignmentSaved(savedAssignment);
+        return savedAssignment;
     }
 
     @Override
@@ -373,6 +379,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         return q.getResultList();
     }
 
+    @Transactional
     @Override
     public void removeUserAssignment(UserAssignment userAssignment) throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException {
         RBACObjectAssertions.assertValid(userAssignment);
@@ -380,22 +387,20 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacObjectInvalidException("Cannot remove permanent object "+userAssignment.getPrincipal());
         }
         final EntityManager em = getEm();
-        em.getTransaction().begin();
-        UserAssignment ua = em.find(UserAssignment.class, userAssignment.getPrincipal());
+        JpaUserAssignment ua = em.find(JpaUserAssignment.class, userAssignment.getPrincipal());
         if (ua==null) {
             throw new RbacObjectNotFoundException("User assignment not found "+userAssignment.getPrincipal());
         }
         em.remove(ua);
-        em.getTransaction().commit();
         fireRbacUserAssignmentRemoved(userAssignment);
     }
 
+    @Transactional
     @Override
     public void eraseDatabase() {
         final EntityManager em = getEm();
         // Deletion is a bit tricky, because the JPA bulk delete queries do not cascade
         // or keep foreign keys into account. 
-        em.getTransaction().begin();
         TypedQuery<JpaPermission> tqp = em.createQuery("SELECT r FROM JpaPermission r",JpaPermission.class);
         for(JpaPermission p : tqp.getResultList()) {
             p.setOperation(null);
@@ -424,9 +429,8 @@ public class JpaRbacManager extends AbstractRBACManager  {
         for(JpaUserAssignment ua : tqu.getResultList()) {
             em.remove(ua);
         }
-        em.getTransaction().commit();
+        em.flush();
         em.clear();
-
 
     }
 

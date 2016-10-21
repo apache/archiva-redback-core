@@ -22,11 +22,22 @@ package org.apache.archiva.redback.users.jpa;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
+import org.apache.archiva.redback.users.UserManagerException;
+import org.apache.archiva.redback.users.UserNotFoundException;
+import org.apache.archiva.redback.users.jpa.model.JpaUser;
 import org.apache.archiva.redback.users.provider.test.AbstractUserManagerTestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -40,14 +51,17 @@ import java.util.Properties;
 /**
  * Created by martin on 21.09.16.
  */
-
+@Transactional
 public class JpaUserManagerTest extends AbstractUserManagerTestCase {
 
     Log log = LogFactory.getLog(JpaUserManagerTest.class);
 
     @Inject
     @Named("userManager#jpa")
-    JpaUserManager jpaUserManager;
+    UserManager jpaUserManager;
+
+    @Inject
+    EntityManagerFactory entityManagerFactory;
 
 
     @Inject
@@ -58,26 +72,18 @@ public class JpaUserManagerTest extends AbstractUserManagerTestCase {
     public void setUp() throws Exception {
 
         super.setUp();
-        Properties props = new Properties();
-        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("test.properties");
-        assert is!=null;
-        props.load(is);
-        is.close();
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("redback-jpa",props);
-
-        jpaUserManager.setEntityManager(emf.createEntityManager());
-        super.setUserManager(jpaUserManager);
         assertNotNull(jpaUserManager);
+        super.setUserManager(jpaUserManager);
         log.info("injected usermanager "+jpaUserManager);
 
-    // create the factory defined by the "openjpa" entity-manager entry
-  
     }
 
     @Test
     public void testInit() {
+        assertNotNull(jpaUserManager);
         jpaUserManager.initialize();
     }
+
 
 
 

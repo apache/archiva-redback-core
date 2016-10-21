@@ -46,7 +46,7 @@ public class JpaRole extends AbstractRole implements Serializable {
     private boolean assignable;
     @Column(name="PERMANENT")
     private boolean permanent;
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderColumn(name="INTEGER_IDX")
     @JoinTable(
             name="SECURITY_ROLE_PERMISSION_MAP",
@@ -57,7 +57,7 @@ public class JpaRole extends AbstractRole implements Serializable {
     )
     List<JpaPermission> permissions = new ArrayList<JpaPermission>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @OrderColumn(name="INTEGER_IDX")
     @CollectionTable(
             name="SECURITY_ROLE_CHILDROLE_MAP",

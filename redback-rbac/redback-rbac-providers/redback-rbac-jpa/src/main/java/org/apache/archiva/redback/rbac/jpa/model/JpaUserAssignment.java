@@ -25,6 +25,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OrderColumn;
@@ -44,7 +45,7 @@ public class JpaUserAssignment extends AbstractUserAssignment implements Seriali
     @Id
     @Column(name="PRINCIPAL")
     private String principal;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Column(name="STRING_ELE")
     @OrderColumn(name="INTEGER_IDX")
     @CollectionTable(
