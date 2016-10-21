@@ -62,6 +62,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-users-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-users-tests</artifactId>
       <scope>test</scope>
     </dependency>

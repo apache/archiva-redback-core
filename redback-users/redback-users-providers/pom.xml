@@ -39,6 +39,6 @@
     <module>redback-users-jdo</module>
     <module>redback-users-ldap</module>
     <module>redback-users-configurable</module>
-      <module>redback-users-jpa</module>
+    <module>redback-users-jpa</module>
   </modules>
 </project>
