@@ -341,4 +341,12 @@ public class JpaUserManager extends AbstractUserManager {
     public boolean isFinalImplementation() {
         return true;
     }
+
+
+    // Override to add transactional annotation
+    @Transactional
+    @Override
+    public User createGuestUser() throws UserManagerException {
+        return super.createGuestUser();
+    }
 }
