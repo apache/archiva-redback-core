@@ -23,10 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * KeyManagerTestCase
@@ -115,11 +112,14 @@ public class KeyManagerTestCase
         assertEquals( "bar", created2.getForPrincipal() );
         assertEquals( "Something", created2.getPurpose() );
 
-        List<AuthenticationKey> keys = getKeyManager().getAllKeys();
+        System.out.println("foo key "+created1.getKey());
+        System.out.println("bar key "+created2.getKey());
+        List<AuthenticationKey> keys = new ArrayList(getKeyManager().getAllKeys());
         Collections.sort( keys, new Comparator<AuthenticationKey>()
         {
             public int compare( AuthenticationKey key1, AuthenticationKey key2 )
             {
+                System.out.println("Compare "+key2.getForPrincipal()+key2.getKey()+" - "+key1.getForPrincipal()+key1.getKey());
                 return key2.getForPrincipal().compareTo( key1.getForPrincipal() );
             }
         } );

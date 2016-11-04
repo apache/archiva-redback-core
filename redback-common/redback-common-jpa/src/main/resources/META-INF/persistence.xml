@@ -27,6 +27,7 @@
         <class>org.apache.archiva.redback.rbac.jpa.model.JpaPermission</class>
         <class>org.apache.archiva.redback.rbac.jpa.model.JpaRole</class>
         <class>org.apache.archiva.redback.rbac.jpa.model.JpaUserAssignment</class>
+        <class>org.apache.archiva.redback.keys.jpa.model.JpaAuthenticationKey</class>
         <properties>
           <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
           <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)" />

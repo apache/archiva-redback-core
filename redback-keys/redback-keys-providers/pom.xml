@@ -31,5 +31,6 @@
     <module>redback-keys-jdo</module>
     <module>redback-keys-memory</module>
     <module>redback-keys-cached</module>
+      <module>redback-keys-jpa</module>
   </modules>
 </project>

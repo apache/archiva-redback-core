@@ -26,6 +26,7 @@
     <class>org.apache.archiva.redback.rbac.jpa.model.JpaPermission</class>
     <class>org.apache.archiva.redback.rbac.jpa.model.JpaRole</class>
     <class>org.apache.archiva.redback.rbac.jpa.model.JpaUserAssignment</class>
+    <class>org.apache.archiva.redback.keys.jpa.model.JpaAuthenticationKey</class>
     <properties>
       <property name="openjpa.ConnectionURL" value="jdbc:hsqldb:mem:redback_database"/>
       <property name="openjpa.ConnectionDriverName" value="org.hsqldb.jdbcDriver"/>
