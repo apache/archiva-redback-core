@@ -49,7 +49,10 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Created by martin on 21.09.16.
+ *
+ * Test for the JPA User Manager
+ *
+ * @author <a href="mailto:martin_s@apache.org">Martin Stockhammer</a>
  */
 @Transactional
 public class JpaUserManagerTest extends AbstractUserManagerTestCase {
