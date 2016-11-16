@@ -37,9 +37,9 @@ public class JpaResource implements Resource, Serializable {
     @Id
     @Column(name="IDENTIFIER")
     private String identifier;
-    @Column(name="PATTERN")
+    @Column(name="PATTERN", nullable = false)
     private boolean pattern;
-    @Column(name="PERMANENT")
+    @Column(name="PERMANENT", nullable = false)
     private boolean permanent;
 
 

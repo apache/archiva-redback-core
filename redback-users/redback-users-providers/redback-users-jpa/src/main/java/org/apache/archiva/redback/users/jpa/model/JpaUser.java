@@ -51,21 +51,21 @@ public class JpaUser implements org.apache.archiva.redback.users.User {
     @Column(name="LAST_PASSWORD_CHANGE")
     private Date lastPasswordChange;
     @ElementCollection(fetch = FetchType.EAGER)
-    @OrderColumn(name="INTEGER_IDX")
+    @OrderColumn(name="INTEGER_IDX", nullable = false)
     @Column(name="STRING_ELE")
     @CollectionTable(name="JDOUSER_PREVIOUSENCODEDPASSWORDS",
-            joinColumns = @JoinColumn(name = "USERNAME_OID", referencedColumnName = "USERNAME")
+            joinColumns = @JoinColumn(name = "USERNAME_OID", nullable = false, referencedColumnName = "USERNAME")
     )
     private List<String> previousEncodedPasswords = new ArrayList<String>();
-    @Column(name="PERMANENT")
+    @Column(name="PERMANENT", nullable = false)
     private boolean permanent;
-    @Column(name="LOCKED")
+    @Column(name="LOCKED", nullable = false)
     private boolean locked;
-    @Column(name="PASSWORD_CHANGE_REQUIRED")
+    @Column(name="PASSWORD_CHANGE_REQUIRED", nullable = false)
     private boolean passwordChangeRequired;
-    @Column(name="VALIDATED")
+    @Column(name="VALIDATED", nullable = false)
     private boolean validated;
-    @Column(name="COUNT_FAILED_LOGIN_ATTEMPTS")
+    @Column(name="COUNT_FAILED_LOGIN_ATTEMPTS",nullable = false)
     private int countFailedLoginAttempts;
     @Column(name="ACCOUNT_CREATION_DATE")
     private Date accountCreationDate;

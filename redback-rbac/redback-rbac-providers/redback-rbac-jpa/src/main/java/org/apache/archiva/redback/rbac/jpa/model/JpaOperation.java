@@ -39,7 +39,7 @@ public class JpaOperation implements Operation, Serializable {
     private String name;
     @Column(name="DESCRIPTION")
     private String description;
-    @Column(name="PERMANENT")
+    @Column(name="PERMANENT", nullable = false)
     private boolean permanent;
 
 

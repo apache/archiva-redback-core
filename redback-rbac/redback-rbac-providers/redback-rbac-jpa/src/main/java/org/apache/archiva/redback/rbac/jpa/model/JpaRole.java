@@ -42,15 +42,15 @@ public class JpaRole extends AbstractRole implements Serializable {
     private String name;
     @Column(name="DESCRIPTION")
     private String description;
-    @Column(name="ASSIGNABLE")
+    @Column(name="ASSIGNABLE",nullable = false)
     private boolean assignable;
-    @Column(name="PERMANENT")
+    @Column(name="PERMANENT", nullable = false)
     private boolean permanent;
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @OrderColumn(name="INTEGER_IDX")
+    @OrderColumn(name="INTEGER_IDX", nullable = false)
     @JoinTable(
             name="SECURITY_ROLE_PERMISSION_MAP",
-            joinColumns={ @JoinColumn(name="NAME_OID", referencedColumnName="NAME") },
+            joinColumns={ @JoinColumn(name="NAME_OID", referencedColumnName="NAME", nullable = false) },
             inverseJoinColumns = {
                     @JoinColumn(name="NAME_EID",referencedColumnName = "NAME")
             }
@@ -58,11 +58,12 @@ public class JpaRole extends AbstractRole implements Serializable {
     List<JpaPermission> permissions = new ArrayList<JpaPermission>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @OrderColumn(name="INTEGER_IDX")
+    @OrderColumn(name="INTEGER_IDX",nullable = false)
+    @Column(name="STRING_ELE")
     @CollectionTable(
             name="SECURITY_ROLE_CHILDROLE_MAP",
             joinColumns = {
-                    @JoinColumn(name="NAME_OID",referencedColumnName = "NAME")
+                    @JoinColumn(name="NAME_OID",referencedColumnName = "NAME", nullable = false)
             }
     )
     List<String> childRoleNames = new ArrayList<String>();

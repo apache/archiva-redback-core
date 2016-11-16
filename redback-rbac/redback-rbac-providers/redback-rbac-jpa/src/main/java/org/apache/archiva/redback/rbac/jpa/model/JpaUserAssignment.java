@@ -20,6 +20,7 @@ package org.apache.archiva.redback.rbac.jpa.model;
  */
 
 import org.apache.archiva.redback.rbac.AbstractUserAssignment;
+import org.apache.archiva.redback.rbac.UserAssignment;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -32,6 +33,7 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,7 +41,7 @@ import java.util.List;
  */
 @Entity
 @Table(name="SECURITY_USER_ASSIGNMENTS")
-public class JpaUserAssignment extends AbstractUserAssignment implements Serializable {
+public class JpaUserAssignment extends AbstractUserAssignment implements UserAssignment,Serializable {
 
 
     @Id
@@ -47,16 +49,19 @@ public class JpaUserAssignment extends AbstractUserAssignment implements Seriali
     private String principal;
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name="STRING_ELE")
-    @OrderColumn(name="INTEGER_IDX")
+    @OrderColumn(name="INTEGER_IDX", nullable = false)
     @CollectionTable(
             name="SECURITY_USERASSIGNMENT_ROLENAMES",
             joinColumns = {
-                    @JoinColumn(name = "PRINCIPAL_OID", referencedColumnName = "PRINCIPAL")
+                    @JoinColumn(name = "PRINCIPAL_OID", referencedColumnName = "PRINCIPAL", nullable = false)
             }
     )
     private List<String> roleNames = new ArrayList<String>();
-    @Column(name="PERMANENT")
+    @Column(name="PERMANENT", nullable = false)
     private boolean permanent = false;
+
+    @Column(name="LAST_UPDATED")
+    private Date timestamp;
 
     @Override
     public String getPrincipal() {
@@ -103,4 +108,14 @@ public class JpaUserAssignment extends AbstractUserAssignment implements Seriali
     public int hashCode() {
         return principal.hashCode();
     }
+
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
 }
