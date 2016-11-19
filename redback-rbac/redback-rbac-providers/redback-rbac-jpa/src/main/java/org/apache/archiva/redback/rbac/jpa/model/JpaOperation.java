@@ -40,7 +40,7 @@ public class JpaOperation implements Operation, Serializable {
     @Column(name="DESCRIPTION")
     private String description;
     @Column(name="PERMANENT", nullable = false)
-    private boolean permanent;
+    private Boolean permanent = false;
 
 
     @Override

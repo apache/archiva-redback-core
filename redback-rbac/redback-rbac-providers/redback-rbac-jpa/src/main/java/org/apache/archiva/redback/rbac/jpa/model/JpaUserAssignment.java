@@ -58,7 +58,7 @@ public class JpaUserAssignment extends AbstractUserAssignment implements UserAss
     )
     private List<String> roleNames = new ArrayList<String>();
     @Column(name="PERMANENT", nullable = false)
-    private boolean permanent = false;
+    private Boolean permanent = false;
 
     @Column(name="LAST_UPDATED")
     private Date timestamp;

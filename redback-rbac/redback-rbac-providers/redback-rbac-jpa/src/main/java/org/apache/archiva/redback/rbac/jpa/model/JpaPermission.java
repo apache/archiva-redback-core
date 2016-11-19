@@ -40,7 +40,7 @@ public class JpaPermission implements Permission,Serializable {
     @Column(name="DESCRIPTION")
     private String description;
     @Column(name="PERMANENT", nullable = false)
-    private boolean permanent;
+    private Boolean permanent = false;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(
             name="OPERATION_NAME_OID",

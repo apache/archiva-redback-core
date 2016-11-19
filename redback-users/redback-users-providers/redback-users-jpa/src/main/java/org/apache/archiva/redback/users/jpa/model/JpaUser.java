@@ -19,6 +19,9 @@ package org.apache.archiva.redback.users.jpa.model;
  * under the License.
  */
 
+import org.apache.openjpa.persistence.ExternalValues;
+import org.apache.openjpa.persistence.Type;
+
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -26,6 +29,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.ArrayList;
@@ -52,26 +56,26 @@ public class JpaUser implements org.apache.archiva.redback.users.User {
     private Date lastPasswordChange;
     @ElementCollection(fetch = FetchType.EAGER)
     @OrderColumn(name="INTEGER_IDX", nullable = false)
-    @Column(name="STRING_ELE")
+    @Column(name="STRING_ELE", nullable = false)
     @CollectionTable(name="JDOUSER_PREVIOUSENCODEDPASSWORDS",
             joinColumns = @JoinColumn(name = "USERNAME_OID", nullable = false, referencedColumnName = "USERNAME")
     )
     private List<String> previousEncodedPasswords = new ArrayList<String>();
     @Column(name="PERMANENT", nullable = false)
-    private boolean permanent;
+    private Boolean permanent = false;
     @Column(name="LOCKED", nullable = false)
-    private boolean locked;
+    private Boolean locked = false;
     @Column(name="PASSWORD_CHANGE_REQUIRED", nullable = false)
-    private boolean passwordChangeRequired;
+    private Boolean passwordChangeRequired = false;
     @Column(name="VALIDATED", nullable = false)
-    private boolean validated;
+    private Boolean validated = false;
     @Column(name="COUNT_FAILED_LOGIN_ATTEMPTS",nullable = false)
-    private int countFailedLoginAttempts;
+    private int countFailedLoginAttempts = 0;
     @Column(name="ACCOUNT_CREATION_DATE")
     private Date accountCreationDate;
     @Column(name="LAST_LOGIN_DATE")
     private Date lastLoginDate;
-    @Column(name="USER_PASSSWORD")
+    @Column(name="USER_PASSWORD")
     private String rawPassword;
 
 

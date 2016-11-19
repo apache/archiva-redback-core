@@ -43,9 +43,9 @@ public class JpaRole extends AbstractRole implements Serializable {
     @Column(name="DESCRIPTION")
     private String description;
     @Column(name="ASSIGNABLE",nullable = false)
-    private boolean assignable;
+    private Boolean assignable = false;
     @Column(name="PERMANENT", nullable = false)
-    private boolean permanent;
+    private Boolean permanent = false;
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderColumn(name="INTEGER_IDX", nullable = false)
     @JoinTable(
