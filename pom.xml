@@ -317,11 +317,6 @@
         <version>2.5-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.archiva.redback</groupId>
-        <artifactId>redback-users-jpa</artifactId>
-        <version>2.5-SNAPSHOT</version>
-      </dependency>
-      <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>servlet-api</artifactId>
         <version>2.5</version>
