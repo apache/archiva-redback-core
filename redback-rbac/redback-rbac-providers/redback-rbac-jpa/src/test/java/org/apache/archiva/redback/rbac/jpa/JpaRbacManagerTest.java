@@ -19,7 +19,6 @@ package org.apache.archiva.redback.rbac.jpa;
  * under the License.
  */
 
-import org.apache.archiva.redback.common.jdo.test.StoreManagerDebug;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.tests.AbstractRbacManagerTestCase;

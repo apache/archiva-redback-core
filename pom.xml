@@ -148,11 +148,6 @@
       </dependency>
       <dependency>
         <groupId>org.apache.archiva.redback</groupId>
-        <artifactId>redback-common-jdo</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.archiva.redback</groupId>
         <artifactId>redback-common-ldap</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -183,7 +178,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.archiva.redback</groupId>
-        <artifactId>redback-keys-jdo</artifactId>
+        <artifactId>redback-keys-jpa</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -214,11 +209,6 @@
       <dependency>
         <groupId>org.apache.archiva.redback</groupId>
         <artifactId>redback-users-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.archiva.redback</groupId>
-        <artifactId>redback-users-jdo</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -274,11 +264,6 @@
       <dependency>
         <groupId>org.apache.archiva.redback</groupId>
         <artifactId>redback-rbac-cached</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.archiva.redback</groupId>
-        <artifactId>redback-rbac-jdo</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -831,6 +816,7 @@
             <exclude>build-number.txt</exclude>
             <!-- IntelliJ IDEA files -->
             <exclude>.idea/**</exclude>
+            <exclude>**/*.iml</exclude>
             <!-- Eclipse files -->
             <exclude>.project</exclude>
             <exclude>.classpath</exclude>

@@ -20,7 +20,7 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
     <persistence-unit name="redback-jpa">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <non-jta-data-source>java:comp/env/jdbc/redbackjpa</non-jta-data-source>
+        <non-jta-data-source>java:comp/env/jdbc/users</non-jta-data-source>
         <class>org.apache.archiva.redback.users.jpa.model.JpaUser</class>
         <class>org.apache.archiva.redback.rbac.jpa.model.JpaOperation</class>
         <class>org.apache.archiva.redback.rbac.jpa.model.JpaResource</class>
@@ -31,10 +31,10 @@
         <properties>
           <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
           <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)" />
-            <property name="openjpa.jdbc.MappingDefaults"
+          <property name="openjpa.jdbc.MappingDefaults"
                       value="ForeignKeyDeleteAction=restrict,JoinForeignKeyDeleteAction=restrict"/>
-            <property name="openjpa.Log" value="DefaultLevel=TRACE, Runtime=TRACE, Tool=INFO, SQL=TRACE"/>
-           <property name="openjpa.jdbc.DBDictionary" value="(disableSchemaFactoryColumnTypeErrors=true,BitTypeName=CHAR(1),BooleanTypeName=CHAR(1),BooleanRepresentation=STRING_YN)"/>
+          <property name="openjpa.Log" value="DefaultLevel=TRACE, Runtime=TRACE, Tool=INFO, SQL=TRACE"/>
+          <property name="openjpa.jdbc.DBDictionary" value="(disableSchemaFactoryColumnTypeErrors=true,BitTypeName=CHAR(1),BooleanTypeName=CHAR(1),BooleanRepresentation=STRING_YN)"/>
         </properties>
     </persistence-unit>
 </persistence>

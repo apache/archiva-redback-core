@@ -43,7 +43,7 @@ public class CachedKeyManager
     implements KeyManager
 {
     @Inject
-    @Named(value = "keyManager#jdo")
+    @Named(value = "keyManager#jpa")
     private KeyManager keyImpl;
 
     @Inject

@@ -31,6 +31,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -75,6 +76,18 @@ public class JpaRbacManager extends AbstractRBACManager  {
 
     @Transactional
     @Override
+    public Map<String, List<Permission>> getAssignedPermissionMap(String principal) throws RbacManagerException {
+        return super.getAssignedPermissionMap(principal);
+    }
+
+    @Transactional
+    @Override
+    public Map<String, Role> getChildRoles(Role role) throws RbacManagerException {
+        return super.getChildRoles(role);
+    }
+
+    @Transactional
+    @Override
     public void addChildRole(Role role, Role childRole) throws RbacObjectInvalidException, RbacManagerException {
         super.addChildRole(role, childRole);
     }
@@ -105,7 +118,14 @@ public class JpaRbacManager extends AbstractRBACManager  {
         final EntityManager em = getEm();
         TypedQuery<JpaRole> q = em.createQuery("SELECT r FROM JpaRole  r WHERE r.name = :rolename", JpaRole.class);
         q.setParameter("rolename",roleName);
-        return q.getSingleResult();
+        Role role;
+        try {
+            role = q.getSingleResult();
+        } catch (NoResultException ex) {
+            log.warn("Role {0} not found", roleName);
+            throw new RbacObjectNotFoundException("Role not found "+roleName);
+        }
+        return role;
     }
 
     @Override

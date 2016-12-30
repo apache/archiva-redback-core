@@ -36,11 +36,11 @@ public class FakeCreateAdminServiceImpl
     implements FakeCreateAdminService
 {
     @Inject
-    @Named( value = "rbacManager#jdo" )
+    @Named( value = "rbacManager#jpa" )
     private RBACManager rbacManager;
 
     @Inject
-    @Named( value = "userManager#jdo" )
+    @Named( value = "userManager#jpa" )
     private UserManager userManager;
 
     @Inject

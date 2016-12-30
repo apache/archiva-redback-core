@@ -45,12 +45,16 @@
       <artifactId>spring-cache-ehcache</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-configuration</artifactId>
+    </dependency>
+    <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
     </dependency>    
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-keys-jdo</artifactId>
+      <artifactId>redback-keys-jpa</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>

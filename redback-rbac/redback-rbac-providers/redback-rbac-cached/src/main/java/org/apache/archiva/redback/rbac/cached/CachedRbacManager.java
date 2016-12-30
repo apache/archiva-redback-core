@@ -54,7 +54,7 @@ public class CachedRbacManager
     private Logger log = LoggerFactory.getLogger( getClass() );
 
     @Inject
-    @Named( value = "rbacManager#jdo" )
+    @Named( value = "rbacManager#jpa" )
     private RBACManager rbacImpl;
 
     @Inject

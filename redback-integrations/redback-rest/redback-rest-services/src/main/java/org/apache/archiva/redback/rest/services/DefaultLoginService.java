@@ -26,7 +26,7 @@ import org.apache.archiva.redback.authentication.PasswordBasedAuthenticationData
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.keys.KeyManager;
-import org.apache.archiva.redback.keys.jdo.JdoAuthenticationKey;
+import org.apache.archiva.redback.keys.jpa.model.JpaAuthenticationKey;
 import org.apache.archiva.redback.keys.memory.MemoryAuthenticationKey;
 import org.apache.archiva.redback.keys.memory.MemoryKeyManager;
 import org.apache.archiva.redback.policy.AccountLockedException;
@@ -96,7 +96,7 @@ public class DefaultLoginService
         }
         else
         {
-            key = new JdoAuthenticationKey();
+            key = new JpaAuthenticationKey();
         }
 
         key.setKey( providedKey );
