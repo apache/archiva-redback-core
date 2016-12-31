@@ -73,7 +73,7 @@
   <properties>
     <springVersion>4.2.1.RELEASE</springVersion>
     <slf4jVersion>1.7.12</slf4jVersion>
-    <log4j2Version>2.3</log4j2Version>
+    <log4j2Version>2.7</log4j2Version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <gpg.useagent>true</gpg.useagent>
@@ -736,6 +736,11 @@
           <groupId>org.apache.archiva.redback.components.modello</groupId>
           <artifactId>jpox-modello-maven-plugin</artifactId>
           <version>1.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.openjpa</groupId>
+          <artifactId>openjpa-maven-plugin</artifactId>
+          <version>${openjpa.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
