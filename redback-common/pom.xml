@@ -29,7 +29,6 @@
   <name>Redback :: Commons</name>
   <packaging>pom</packaging>
   <modules>
-    <module>redback-common-jdo</module>
     <module>redback-common-ldap</module>
     <module>redback-common-test-resources</module>
     <module>redback-common-jpa</module>
