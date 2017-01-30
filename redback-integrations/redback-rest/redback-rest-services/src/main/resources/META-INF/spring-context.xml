@@ -65,6 +65,7 @@
       <ref bean="permissionInterceptor#rest"/>
       <ref bean="redbackServiceExceptionMapper"/>
       <ref bean="passwordRuleViolationExceptionMapper"/>
+      <ref bean="requestValidationInterceptor#rest" />
     </jaxrs:providers>
    </jaxrs:server>
 

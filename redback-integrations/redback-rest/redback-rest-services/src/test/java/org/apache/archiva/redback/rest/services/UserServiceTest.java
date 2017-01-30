@@ -93,6 +93,9 @@ public class UserServiceTest
         throws Exception
     {
 
+        UserService userService = getUserService();
+        WebClient.client( userService ).header( "Origin", "http://localhost/myrequest");
+
         try
         {
             getFakeCreateAdminService().testAuthzWithoutKarmasNeededButAuthz();
