@@ -161,6 +161,7 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
     private boolean checkSourceRequestHeader(final URL targetUrl, final HttpServletRequest request) {
         boolean headerFound=false;
         String origin = request.getHeader(ORIGIN);
+        int targetPort = getPort(targetUrl);
         if (origin!=null) {
             try {
                 URL originUrl = new URL(origin);
@@ -175,7 +176,6 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
                     return false;
                 }
                 int originPort = getPort(originUrl);
-                int targetPort = getPort(targetUrl);
                 if (targetPort != originPort) {
                     log.warn("Origin Header Port does not match originUrl={}, targetUrl={}",originUrl,targetUrl);
                     return false;
@@ -193,6 +193,11 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
                 log.debug("Referer Header URL found: {}",refererUrl);
                 if (!targetUrl.getHost().equals(refererUrl.getHost())) {
                     log.warn("Referer Header Host does not match refererUrl={}, targetUrl={}",refererUrl,targetUrl);
+                    return false;
+                }
+                int refererPort = getPort(refererUrl);
+                if (targetPort != refererPort) {
+                    log.warn("Referer Header Port does not match refererUrl={}, targetUrl={}",refererUrl,targetUrl);
                     return false;
                 }
             } catch (MalformedURLException ex) {
