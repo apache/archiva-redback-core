@@ -22,7 +22,9 @@ package org.apache.archiva.redback.rest.services;
 import org.apache.archiva.redback.authentication.AuthenticationConstants;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationFailureCause;
+import org.apache.archiva.redback.authentication.EncryptionFailedException;
 import org.apache.archiva.redback.authentication.PasswordBasedAuthenticationDataSource;
+import org.apache.archiva.redback.authentication.TokenManager;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.keys.KeyManager;
@@ -74,6 +76,9 @@ public class DefaultLoginService
 
     @Context
     private HttpServletRequest httpServletRequest;
+
+    // validation token lifetime: 3 hours
+    long tokenLifetime = 1000*3600*3;
 
     @Inject
     public DefaultLoginService( SecuritySystem securitySystem,
@@ -149,6 +154,13 @@ public class DefaultLoginService
                 }
                 User restUser = buildRestUser( user );
                 restUser.setReadOnly( securitySystem.userManagerReadOnly() );
+                // validationToken only set during login
+                try {
+                    restUser.setValidationToken(securitySystem.getTokenManager().encryptToken(user.getUsername(), tokenLifetime));
+                } catch (EncryptionFailedException e) {
+                    log.error("Validation token could not be created "+e.getMessage());
+                }
+
                 // here create an http session
                 httpAuthenticator.authenticate( authDataSource, httpServletRequest.getSession( true ) );
                 return restUser;

@@ -19,10 +19,12 @@ package org.apache.archiva.redback.system;
  * under the License.
  */
 
+import com.sun.javafx.fxml.expression.Expression;
 import org.apache.archiva.redback.authentication.AuthenticationDataSource;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationManager;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
+import org.apache.archiva.redback.authentication.TokenManager;
 import org.apache.archiva.redback.authorization.AuthorizationDataSource;
 import org.apache.archiva.redback.authorization.AuthorizationException;
 import org.apache.archiva.redback.authorization.AuthorizationResult;
@@ -67,6 +69,10 @@ public class DefaultSecuritySystem
     @Inject
     @Named( value = "keyManager#cached" )
     private KeyManager keyManager;
+
+    @Inject
+    @Named( value = "tokenManager#default")
+    private TokenManager tokenManager;
 
     @Inject
     private UserSecurityPolicy policy;
@@ -303,6 +309,15 @@ public class DefaultSecuritySystem
     public boolean userManagerReadOnly()
     {
         return userManager.isReadOnly();
+    }
+
+    @Override
+    public TokenManager getTokenManager() {
+        return tokenManager;
+    }
+
+    public void setTokenManager(TokenManager tokenManager) {
+        this.tokenManager = tokenManager;
     }
 
 }

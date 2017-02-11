@@ -30,5 +30,7 @@
   <context:annotation-config />
   <context:component-scan 
     base-package="org.apache.archiva.redback.authentication"/>
- 
+
+  <alias name="tokenManager#jce" alias="tokenManager#default" />
+
 </beans>

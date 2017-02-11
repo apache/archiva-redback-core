@@ -80,6 +80,14 @@ public class User
      */
     private String userManagerId;
 
+    /**
+     * for request validation
+     *
+     * @since 2.2
+     */
+    private String validationToken;
+
+
     public User()
     {
         // no op
@@ -270,6 +278,14 @@ public class User
     public void setUserManagerId( String userManagerId )
     {
         this.userManagerId = userManagerId;
+    }
+
+    public String getValidationToken() {
+        return validationToken;
+    }
+
+    public void setValidationToken(String validationToken) {
+        this.validationToken = validationToken;
     }
 
     @Override

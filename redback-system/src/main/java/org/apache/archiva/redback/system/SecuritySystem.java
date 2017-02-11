@@ -19,6 +19,7 @@ package org.apache.archiva.redback.system;
  * under the License.
  */
 
+import org.apache.archiva.redback.authentication.TokenManager;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
@@ -111,5 +112,12 @@ public interface SecuritySystem
      * @since 2.1
      */
     boolean userManagerReadOnly();
+
+    /**
+     * Returns the token manager implementation.
+     *
+     * @since 2.2
+     */
+    TokenManager getTokenManager();
 }
 
