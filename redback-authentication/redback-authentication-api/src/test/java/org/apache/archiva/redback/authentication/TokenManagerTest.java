@@ -27,6 +27,7 @@ import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
@@ -48,7 +49,7 @@ public class TokenManagerTest {
     public void encryptToken() throws Exception {
         TokenManager tokenManager = new TokenManager();
         tokenManager.initialize();
-        assertEquals(tokenManager.getAlgorithm(),"AES/ECB/PKCS5Padding");
+        assertEquals(tokenManager.getAlgorithm(),"AES/CBC/PKCS5Padding");
         assertEquals(tokenManager.getKeySize(), -1);
         String token = tokenManager.encryptToken("testuser01",1000);
         assertNotNull(token);
@@ -131,7 +132,7 @@ public class TokenManagerTest {
         tokenManager.setKeySize(56);
         tokenManager.initialize();
         byte[] data = { 1, 5, 12, 18, 124, 44, 88, -28, -44};
-        byte[] token = tokenManager.doEncrypt(data);
+        byte[] token = tokenManager.doEncrypt(data, new SecureRandom().nextLong());
         assertNotNull(token);
         byte[] tokenData = tokenManager.doDecrypt(token);
         assertNotNull(tokenData);
@@ -141,7 +142,7 @@ public class TokenManagerTest {
         tokenManager.setAlgorithm("AES/CBC/NoPadding");
         tokenManager.setKeySize(128);
         tokenManager.initialize();
-        token = tokenManager.doEncrypt(data);
+        token = tokenManager.doEncrypt(data, new SecureRandom().nextLong());
         assertNotNull(token);
         // Without padding the decrypted value is a multiple of the block size.
         tokenData = Arrays.copyOf(tokenManager.doDecrypt(token), data.length);

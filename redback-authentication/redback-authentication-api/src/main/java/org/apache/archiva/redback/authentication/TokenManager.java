@@ -20,6 +20,7 @@ package org.apache.archiva.redback.authentication;
  */
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -57,12 +58,12 @@ import java.util.Arrays;
 @Service("tokenManager#jce")
 public class TokenManager {
 
-    private static final SecureRandom rd = new SecureRandom();
+    private final ThreadLocal<SecureRandom> rd = new ThreadLocal<SecureRandom>();
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private String algorithm = "AES/ECB/PKCS5Padding";
+    private String algorithm = "AES/CBC/PKCS5Padding";
     private int keySize = -1;
-    private Cipher deCipher;
-    private Cipher enCipher;
+    private int ivSize = -1;
+    private SecretKey secretKey;
 
     boolean paddingUsed = true;
 
@@ -71,8 +72,8 @@ public class TokenManager {
     public void initialize() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, EncryptionFailedException, InvalidAlgorithmParameterException {
         log.debug("Initializing key for token generator");
         try {
-            enCipher = Cipher.getInstance(algorithm);
-            deCipher = Cipher.getInstance(algorithm);
+            rd.set(new SecureRandom());
+            Cipher enCipher = Cipher.getInstance(algorithm);
             String[] keyAlg = enCipher.getAlgorithm().split("/");
             if (keyAlg.length<1) {
                 throw new EncryptionFailedException("Initialization of key failed. Not algorithm found.");
@@ -85,14 +86,14 @@ public class TokenManager {
             if (keyAlg.length==3 && keyAlg[2].equals("NoPadding")) {
                 paddingUsed=false;
             }
-            SecretKey secretKey = keyGen.generateKey();
+            this.secretKey = keyGen.generateKey();
             enCipher.init(Cipher.ENCRYPT_MODE, secretKey);
             // We have to provide the IV depending on the algorithm used
             // CBC needs an IV, ECB not.
             if (enCipher.getIV()==null) {
-                deCipher.init(Cipher.DECRYPT_MODE, secretKey);
+                ivSize=-1;
             } else {
-                deCipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(enCipher.getIV()));
+                ivSize=enCipher.getIV().length;
             }
         } catch (NoSuchAlgorithmException e) {
             log.error("Error occurred during key initialization. Requested algorithm not available. "+e.getMessage());
@@ -103,14 +104,9 @@ public class TokenManager {
         } catch (InvalidKeyException e) {
             log.error("The key is not valid.");
             throw e;
-        } catch (InvalidAlgorithmParameterException e) {
-            log.error("Invalid encryption parameters.");
-            throw e;
         }
     }
 
-
-    @SuppressWarnings("SameParameterValue")
     public String encryptToken(String user, long lifetime) throws EncryptionFailedException {
         return encryptToken(new SimpleTokenData(user, lifetime, createNonce()));
     }
@@ -126,6 +122,18 @@ public class TokenManager {
             throw new EncryptionFailedException(e);
         } catch (IllegalBlockSizeException e) {
             log.error("Block size invalid");
+            throw new EncryptionFailedException(e);
+        } catch (NoSuchPaddingException e) {
+            log.error("Padding not available "+algorithm);
+            throw new EncryptionFailedException(e);
+        } catch (InvalidKeyException e) {
+            log.error("Bad encryption key");
+            throw new EncryptionFailedException(e);
+        } catch (NoSuchAlgorithmException e) {
+            log.error("Bad encryption algorithm "+algorithm);
+            throw new EncryptionFailedException(e);
+        } catch (InvalidAlgorithmParameterException e) {
+            log.error("Invalid encryption parameters");
             throw new EncryptionFailedException(e);
         }
     }
@@ -145,29 +153,63 @@ public class TokenManager {
         } catch (IllegalBlockSizeException ex) {
             log.error("The encrypted token has the wrong block size.");
             throw new InvalidTokenException(ex);
+        } catch (NoSuchPaddingException e) {
+            log.error("Padding not available "+algorithm);
+            throw new InvalidTokenException(e);
+        } catch (InvalidKeyException e) {
+            log.error("Invalid decryption key");
+            throw new InvalidTokenException(e);
+        } catch (NoSuchAlgorithmException e) {
+            log.error("Encryption algorithm not available "+algorithm);
+            throw new InvalidTokenException(e);
+        } catch (InvalidAlgorithmParameterException e) {
+            log.error("Invalid encryption parameters");
+            throw new InvalidTokenException(e);
         }
     }
 
     private long createNonce() {
-        return rd.nextLong();
+        if (rd.get()==null) {
+            rd.set(new SecureRandom());
+        }
+        return rd.get().nextLong();
     }
 
-    protected byte[] encrypt(TokenData info) throws IOException, BadPaddingException, IllegalBlockSizeException {
-        return doEncrypt(convertToByteArray(info));
+    protected byte[] encrypt(TokenData info) throws IOException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
+        return doEncrypt(convertToByteArray(info), info.getNonce());
     }
 
-    protected byte[] doEncrypt(byte[] data) throws BadPaddingException, IllegalBlockSizeException {
+    private byte[] getIv(long nonce) {
+        byte[] iv = new byte[ivSize];
+        SecureRandom sr = getRandomGenerator();
+        sr.setSeed(nonce);
+        sr.nextBytes(iv);
+        return iv;
+    }
+
+    protected byte[] doEncrypt(byte[] data, long nonce) throws BadPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
+        Cipher cipher = getEnCipher();
         byte[] encData;
-        if (!paddingUsed && (data.length % enCipher.getBlockSize())!=0) {
-            int blocks = data.length / enCipher.getBlockSize();
-            encData = Arrays.copyOf(data, enCipher.getBlockSize()*(blocks+1));
+        byte[] iv;
+        if (ivSize>0) {
+            iv = getIv(nonce);
+            cipher.init(Cipher.ENCRYPT_MODE,this.secretKey,new IvParameterSpec(iv));
+        } else {
+            iv = new byte[0];
+            cipher.init(Cipher.ENCRYPT_MODE,this.secretKey);
+        }
+        if (!paddingUsed && (data.length % cipher.getBlockSize())!=0) {
+            int blocks = data.length / cipher.getBlockSize();
+            encData = Arrays.copyOf(data, cipher.getBlockSize()*(blocks+1));
         } else {
             encData = data;
         }
-        return enCipher.doFinal(encData);
+        byte[] encrypted = cipher.doFinal(encData);
+        // prepending the iv to the token
+        return ArrayUtils.addAll(iv,encrypted);
     }
 
-    protected TokenData decrypt(byte[] token) throws BadPaddingException, IllegalBlockSizeException, IOException, ClassNotFoundException {
+    protected TokenData decrypt(byte[] token) throws BadPaddingException, IllegalBlockSizeException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException {
         Object result = convertFromByteArray(doDecrypt(token));
         if (!(result instanceof TokenData)) {
             throw new InvalidClassException("No TokenData found in decrypted token");
@@ -175,8 +217,31 @@ public class TokenManager {
         return (TokenData)result;
     }
 
-    protected byte[] doDecrypt(byte[] encryptedData) throws BadPaddingException, IllegalBlockSizeException {
-        return deCipher.doFinal(encryptedData);
+    protected byte[] doDecrypt(byte[] encryptedData) throws BadPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException {
+        Cipher cipher = getDeCipher();
+        if (ivSize>0) {
+            byte[] iv = Arrays.copyOfRange(encryptedData,0,ivSize);
+            cipher.init(Cipher.DECRYPT_MODE,this.secretKey,new IvParameterSpec(iv));
+            return cipher.doFinal(encryptedData,ivSize,encryptedData.length-ivSize);
+        } else {
+            cipher.init(Cipher.DECRYPT_MODE,this.secretKey);
+            return cipher.doFinal(encryptedData);
+        }
+    }
+
+    private SecureRandom getRandomGenerator() {
+        if (rd.get()==null) {
+            rd.set(new SecureRandom());
+        }
+        return rd.get();
+    }
+
+    private Cipher getEnCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+        return Cipher.getInstance(algorithm);
+    }
+
+    private Cipher getDeCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+        return Cipher.getInstance(algorithm);
     }
 
     private String encode(byte[] token) {
