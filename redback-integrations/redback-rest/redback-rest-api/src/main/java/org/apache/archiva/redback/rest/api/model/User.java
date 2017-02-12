@@ -308,6 +308,7 @@ public class User
             ", assignedRoles=" + assignedRoles +
             ", readOnly=" + readOnly +
             ", userManagerId='" + userManagerId + '\'' +
+            ", validationToken='" + validationToken + '\'' +
             '}';
     }
 
