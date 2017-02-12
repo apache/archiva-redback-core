@@ -20,10 +20,12 @@ package org.apache.archiva.redback.rest.services;
 
 
 import junit.framework.TestCase;
+import org.apache.archiva.redback.authentication.TokenManager;
 import org.apache.archiva.redback.configuration.UserConfigurationException;
 import org.apache.archiva.redback.rest.services.interceptors.RequestValidationInterceptor;
 import org.apache.archiva.redback.rest.services.mock.MockContainerRequestContext;
 import org.apache.archiva.redback.rest.services.mock.MockUserConfiguration;
+import org.apache.archiva.redback.system.SecuritySystem;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -36,7 +38,7 @@ import java.io.IOException;
 /**
  * Created by Martin Stockhammer on 21.01.17.
  *
- * Unit Test for RequestValidationInterceptor.
+ * Unit Test for RequestValidationInterceptor. The unit tests are all without token validation.
  *
  */
 @RunWith(JUnit4.class)
@@ -46,7 +48,9 @@ public class RequestValidationInterceptorTest extends TestCase {
 
     @Test
     public void validateRequestWithoutHeader() throws UserConfigurationException, IOException {
+        TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
+        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest();
         interceptor.setHttpRequest(request);
@@ -58,7 +62,9 @@ public class RequestValidationInterceptorTest extends TestCase {
 
     @Test
     public void validateRequestWithOrigin() throws UserConfigurationException, IOException {
+        TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
+        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test.archiva.org");
@@ -72,7 +78,9 @@ public class RequestValidationInterceptorTest extends TestCase {
 
     @Test
     public void validateRequestWithBadOrigin() throws UserConfigurationException, IOException {
+        TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
+        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test.archiva.org");
@@ -86,7 +94,9 @@ public class RequestValidationInterceptorTest extends TestCase {
 
     @Test
     public void validateRequestWithReferer() throws UserConfigurationException, IOException {
+        TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
+        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test.archiva.org");
@@ -100,7 +110,9 @@ public class RequestValidationInterceptorTest extends TestCase {
 
     @Test
     public void validateRequestWithBadReferer() throws UserConfigurationException, IOException {
+        TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
+        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test.archiva.org");
@@ -114,7 +126,9 @@ public class RequestValidationInterceptorTest extends TestCase {
 
     @Test
     public void validateRequestWithOriginAndReferer() throws UserConfigurationException, IOException {
+        TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
+        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test.archiva.org");
@@ -132,6 +146,8 @@ public class RequestValidationInterceptorTest extends TestCase {
     public void validateRequestWithOriginAndStaticUrl() throws UserConfigurationException, IOException {
         MockUserConfiguration cfg = new MockUserConfiguration();
         cfg.addValue("rest.baseUrl","http://test.archiva.org");
+        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        TokenManager tm = new TokenManager();
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test4.archiva.org");
@@ -147,6 +163,8 @@ public class RequestValidationInterceptorTest extends TestCase {
     public void validateRequestWithBadOriginAndStaticUrl() throws UserConfigurationException, IOException {
         MockUserConfiguration cfg = new MockUserConfiguration();
         cfg.addValue("rest.baseUrl","http://mytest.archiva.org");
+        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        TokenManager tm = new TokenManager();
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("mytest.archiva.org");

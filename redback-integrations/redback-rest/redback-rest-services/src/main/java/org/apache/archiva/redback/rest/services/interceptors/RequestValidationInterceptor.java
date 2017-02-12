@@ -19,7 +19,17 @@ package org.apache.archiva.redback.rest.services.interceptors;
  */
 
 
+import org.apache.archiva.redback.authentication.AuthenticationException;
+import org.apache.archiva.redback.authentication.AuthenticationResult;
+import org.apache.archiva.redback.authentication.InvalidTokenException;
+import org.apache.archiva.redback.authentication.TokenData;
+import org.apache.archiva.redback.authentication.TokenManager;
+import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.configuration.UserConfiguration;
+import org.apache.archiva.redback.integration.filter.authentication.basic.HttpBasicAuthentication;
+import org.apache.archiva.redback.policy.AccountLockedException;
+import org.apache.archiva.redback.policy.MustChangePasswordException;
+import org.apache.archiva.redback.users.User;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
@@ -60,21 +70,32 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
 
     private static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
     private static final String X_FORWARDED_HOST = "X-Forwarded-Host";
+    private static final String X_XSRF_TOKEN = "X-XSRF-TOKEN";
     private static final String ORIGIN = "Origin";
     private static final String REFERER = "Referer";
-    private static final String CFG_REST_BASE_URL = "rest.baseUrl";
-    private static final String CFG_REST_CSRF_ABSENTORIGIN_DENY = "rest.csrffilter.absentorigin.deny";
-    private static final String CFG_REST_CSRF_ENABLED = "rest.csrffilter.enabled";
+    public static final String CFG_REST_BASE_URL = "rest.baseUrl";
+    public static final String CFG_REST_CSRF_ABSENTORIGIN_DENY = "rest.csrffilter.absentorigin.deny";
+    public static final String CFG_REST_CSRF_ENABLED = "rest.csrffilter.enabled";
+    public static final String CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION = "rest.csrffilter.disableTokenValidation";
 
     private final Logger log = LoggerFactory.getLogger( getClass() );
 
     private boolean enabled = true;
+    private boolean checkToken = true;
     private boolean useStaticUrl = false;
     private boolean denyAbsentHeaders = true;
     private URL baseUrl;
     private HttpServletRequest httpRequest = null;
 
     private UserConfiguration config;
+
+    @Inject
+    @Named( value = "httpAuthenticator#basic" )
+    private HttpBasicAuthentication httpAuthenticator;
+
+    @Inject
+    @Named( value = "tokenManager#default")
+    TokenManager tokenManager;
 
     @Inject
     public RequestValidationInterceptor(@Named( value = "userConfiguration#default" )
@@ -100,6 +121,7 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
         if (!enabled) {
             log.info("CSRF Filter is disabled by configuration");
         }
+        checkToken = !config.getBoolean(CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION, false);
     }
 
     @Override
@@ -110,12 +132,58 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
             if (targetUrl == null) {
                 log.error("Could not verify target URL.");
                 containerRequestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                return;
             }
             if (!checkSourceRequestHeader(targetUrl, request)) {
                 log.warn("HTTP Header check failed. Assuming CSRF attack.");
                 containerRequestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                return;
+            }
+
+            if (checkToken) {
+                checkValidationToken(containerRequestContext, request);
             }
         }
+    }
+
+    private void checkValidationToken(ContainerRequestContext containerRequestContext, HttpServletRequest request) {
+        Message message = JAXRSUtils.getCurrentMessage();
+        RedbackAuthorization redbackAuthorization = getRedbackAuthorization(message);
+        // We check only services that are restricted
+        if (!redbackAuthorization.noRestriction()) {
+            String tokenString = request.getHeader(X_XSRF_TOKEN);
+            if (tokenString==null || tokenString.length()==0) {
+                log.warn("No validation token header found: {}",X_XSRF_TOKEN);
+                containerRequestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                return;
+            }
+
+            try {
+                TokenData td = tokenManager.decryptToken(tokenString);
+                AuthenticationResult auth = getAuthenticationResult(message, request);
+                if (auth==null) {
+                    log.error("Not authentication data found");
+                    containerRequestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                    return;
+                }
+                User loggedIn = auth.getUser();
+                if (loggedIn==null) {
+                    log.error("User not logged in");
+                    containerRequestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                    return;
+                }
+                String username = loggedIn.getUsername();
+                if (!td.isValid() || !td.getUser().equals(username)) {
+                    log.error("Invalid data in validation token header {} for user {}: isValid={}, username={}",
+                            X_XSRF_TOKEN, username, td.isValid(), td.getUser());
+                    containerRequestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                }
+            } catch (InvalidTokenException e) {
+                log.error("Token validation failed {}", e.getMessage());
+                containerRequestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+            }
+        }
+        log.debug("Token validated");
     }
 
     private HttpServletRequest getRequest() {
@@ -214,5 +282,34 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
 
     public void setHttpRequest(HttpServletRequest request) {
         this.httpRequest = request;
+    }
+
+    private AuthenticationResult getAuthenticationResult(Message message, HttpServletRequest request) {
+        AuthenticationResult authenticationResult = message.get(AuthenticationResult.class);
+
+        log.debug("authenticationResult from message: {}", authenticationResult);
+        if ( authenticationResult == null )
+        {
+            try
+            {
+                authenticationResult =
+                        httpAuthenticator.getAuthenticationResult( request, getHttpServletResponse( message ) );
+
+                log.debug( "authenticationResult from request: {}", authenticationResult );
+            }
+            catch ( AuthenticationException e )
+            {
+                log.debug( "failed to authenticate for path {}", message.get( Message.REQUEST_URI ) );
+            }
+            catch ( AccountLockedException e )
+            {
+                log.debug( "account locked for path {}", message.get( Message.REQUEST_URI ) );
+            }
+            catch ( MustChangePasswordException e )
+            {
+                log.debug( "must change password for path {}", message.get( Message.REQUEST_URI ) );
+            }
+        }
+        return authenticationResult;
     }
 }
