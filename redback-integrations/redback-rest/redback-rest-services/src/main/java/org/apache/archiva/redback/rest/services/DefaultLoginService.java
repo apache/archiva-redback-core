@@ -141,12 +141,15 @@ public class DefaultLoginService
         String userName = loginRequest.getUsername(), password = loginRequest.getPassword();
         PasswordBasedAuthenticationDataSource authDataSource =
             new PasswordBasedAuthenticationDataSource( userName, password );
+        log.debug("Login for {}",userName);
         try
         {
             SecuritySession securitySession = securitySystem.authenticate( authDataSource );
+            log.debug("Security session {}", securitySession);
             if ( securitySession.getAuthenticationResult().isAuthenticated() )
             {
                 org.apache.archiva.redback.users.User user = securitySession.getUser();
+                log.debug("user {} authenticated", user.getUsername());
                 if ( !user.isValidated() )
                 {
                     log.info( "user {} not validated", user.getUsername() );
@@ -156,7 +159,10 @@ public class DefaultLoginService
                 restUser.setReadOnly( securitySystem.userManagerReadOnly() );
                 // validationToken only set during login
                 try {
-                    restUser.setValidationToken(securitySystem.getTokenManager().encryptToken(user.getUsername(), tokenLifetime));
+                    String validationToken = securitySystem.getTokenManager().encryptToken(user.getUsername(), tokenLifetime);
+                    restUser.setValidationToken(validationToken);
+                    log.debug("Validation Token set {}",validationToken);
+
                 } catch (EncryptionFailedException e) {
                     log.error("Validation token could not be created "+e.getMessage());
                 }
