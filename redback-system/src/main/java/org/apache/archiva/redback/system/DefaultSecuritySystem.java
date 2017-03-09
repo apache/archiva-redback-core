@@ -19,7 +19,6 @@ package org.apache.archiva.redback.system;
  * under the License.
  */
 
-import com.sun.javafx.fxml.expression.Expression;
 import org.apache.archiva.redback.authentication.AuthenticationDataSource;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationManager;
