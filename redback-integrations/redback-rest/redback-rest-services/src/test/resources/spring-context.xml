@@ -23,24 +23,26 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-  <bean name="userConfiguration#default" class="org.apache.archiva.redback.configuration.DefaultUserConfiguration"
-      init-method="initialize">
-    <property name="configs">
-      <list>
-        <value>src/test/resources/security.properties</value>
-      </list>
-    </property>
-
-    <property name="registry" ref="registry#commons-configuration"/>
-
-  </bean>
-
-  <bean name="registry#commons-configuration" class="org.apache.archiva.redback.components.registry.commons.CommonsConfigurationRegistry"
-      init-method="initialize">
-
-  </bean>
 
   <alias name="userConfiguration#redback" alias="userConfiguration#default"/>
+
+
+  <bean name="commons-configuration" class="org.apache.archiva.redback.components.registry.commons.CommonsConfigurationRegistry"
+      init-method="initialize">
+    <property name="properties">
+      <value>
+        <![CDATA[
+        <configuration>
+          <system/>
+          <properties fileName="${basedir}/src/test/resources/security.properties" config-optional="true"
+                      config-at="org.apache.archiva.redback"/>
+        </configuration>
+        ]]>
+      </value>
+    </property>
+  </bean>
+
+
 
   <alias name="authorizer#rbac" alias="authorizer#default"/>
 

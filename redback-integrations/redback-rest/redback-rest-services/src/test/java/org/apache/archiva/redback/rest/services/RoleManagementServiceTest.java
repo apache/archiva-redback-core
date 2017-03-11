@@ -25,6 +25,9 @@ import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.ws.rs.ForbiddenException;
 import java.util.Arrays;
@@ -34,6 +37,9 @@ import java.util.List;
 /**
  * @author Olivier Lamy
  */
+@RunWith( SpringJUnit4ClassRunner.class )
+@ContextConfiguration(
+        locations = { "classpath:/spring-context.xml" } )
 public class RoleManagementServiceTest
     extends AbstractRestServicesTest
 {

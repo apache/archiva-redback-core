@@ -32,6 +32,9 @@ import org.apache.archiva.redback.rest.services.mock.ServicesAssert;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.MediaType;
@@ -45,6 +48,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Olivier Lamy
  */
+@RunWith( SpringJUnit4ClassRunner.class )
+@ContextConfiguration(
+        locations = { "classpath:/spring-context.xml" } )
 public class UserServiceTest
     extends AbstractRestServicesTest
 {

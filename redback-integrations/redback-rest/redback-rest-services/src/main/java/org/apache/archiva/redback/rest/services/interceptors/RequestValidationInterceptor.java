@@ -122,6 +122,9 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
             log.info("CSRF Filter is disabled by configuration");
         }
         checkToken = !config.getBoolean(CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION, false);
+        if (!checkToken) {
+            log.info("CSRF Token validation is disabled by configuration");
+        }
     }
 
     @Override

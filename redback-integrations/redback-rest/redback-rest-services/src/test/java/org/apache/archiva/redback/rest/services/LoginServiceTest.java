@@ -23,10 +23,16 @@ import org.apache.archiva.redback.rest.api.model.LoginRequest;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.services.UserService;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author Olivier Lamy
  */
+@RunWith( SpringJUnit4ClassRunner.class )
+@ContextConfiguration(
+        locations = { "classpath:/spring-context.xml" } )
 public class LoginServiceTest
     extends AbstractRestServicesTest
 {
