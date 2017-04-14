@@ -504,6 +504,11 @@ public class DefaultUserService
         {
             return Boolean.FALSE;
         }
+        log.debug("Creating admin admin user '{}'", adminUser.getUsername());
+        if (!RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME.equals(adminUser.getUsername())) {
+            log.error("Wrong admin user name {}", adminUser.getUsername());
+            throw new RedbackServiceException(new ErrorMessage("admin.wrongUsername"));
+        }
 
         try
         {
