@@ -239,16 +239,22 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
                 headerFound=true;
                 log.debug("Origin Header URL found: {}", originUrl);
                 if (!targetUrl.getProtocol().equals(originUrl.getProtocol())) {
-                    log.warn("Origin Header Protocol does not match originUrl={}, targetUrl={}",  originUrl, targetUrl);
+                    log.warn("Origin Header Protocol does not match originUrl={}, targetUrl={}", //
+                             originUrl.getProtocol(), //
+                             targetUrl.getProtocol());
                     return false;
                 }
                 if (!targetUrl.getHost().equals(originUrl.getHost())) {
-                    log.warn("Origin Header Host does not match originUrl={}, targetUrl={}",originUrl,targetUrl);
+                    log.warn("Origin Header Host does not match originUrl='{}', targetUrl='{}'",
+                             originUrl.getProtocol(), //
+                             targetUrl.getProtocol());
                     return false;
                 }
                 int originPort = getPort(originUrl);
                 if (targetPort != originPort) {
-                    log.warn("Origin Header Port does not match originUrl={}, targetUrl={}",originUrl,targetUrl);
+                    log.warn("Origin Header Port does not match originUrl={}, targetUrl={}",
+                             originUrl.getPort(),
+                             targetUrl.getPort());
                     return false;
                 }
             } catch (MalformedURLException ex) {
@@ -263,12 +269,16 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
                 headerFound=true;
                 log.debug("Referer Header URL found: {}",refererUrl);
                 if (!targetUrl.getHost().equals(refererUrl.getHost())) {
-                    log.warn("Referer Header Host does not match refererUrl={}, targetUrl={}",refererUrl,targetUrl);
+                    log.warn("Referer Header Host does not match refererUrl='{}', targetUrl='{}'", //
+                             refererUrl.getHost(), //
+                             targetUrl.getHost());
                     return false;
                 }
                 int refererPort = getPort(refererUrl);
                 if (targetPort != refererPort) {
-                    log.warn("Referer Header Port does not match refererUrl={}, targetUrl={}",refererUrl,targetUrl);
+                    log.warn("Referer Header Port does not match refererUrl={}, targetUrl={}", //
+                             refererUrl.getPort(),
+                             targetUrl.getPort());
                     return false;
                 }
             } catch (MalformedURLException ex) {
