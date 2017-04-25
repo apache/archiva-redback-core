@@ -22,17 +22,18 @@ package org.apache.archiva.redback.rest.services;
 import junit.framework.TestCase;
 import org.apache.archiva.redback.authentication.TokenManager;
 import org.apache.archiva.redback.configuration.UserConfigurationException;
+import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.rest.services.interceptors.RequestValidationInterceptor;
 import org.apache.archiva.redback.rest.services.mock.MockContainerRequestContext;
 import org.apache.archiva.redback.rest.services.mock.MockUserConfiguration;
-import org.apache.archiva.redback.system.SecuritySystem;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -50,7 +51,7 @@ public class RequestValidationInterceptorTest extends TestCase {
     public void validateRequestWithoutHeader() throws UserConfigurationException, IOException {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest();
         interceptor.setHttpRequest(request);
@@ -64,7 +65,7 @@ public class RequestValidationInterceptorTest extends TestCase {
     public void validateRequestWithOrigin() throws UserConfigurationException, IOException {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test.archiva.org");
@@ -80,7 +81,7 @@ public class RequestValidationInterceptorTest extends TestCase {
     public void validateRequestWithBadOrigin() throws UserConfigurationException, IOException {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test.archiva.org");
@@ -96,7 +97,7 @@ public class RequestValidationInterceptorTest extends TestCase {
     public void validateRequestWithReferer() throws UserConfigurationException, IOException {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test.archiva.org");
@@ -112,7 +113,7 @@ public class RequestValidationInterceptorTest extends TestCase {
     public void validateRequestWithBadReferer() throws UserConfigurationException, IOException {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test.archiva.org");
@@ -128,7 +129,7 @@ public class RequestValidationInterceptorTest extends TestCase {
     public void validateRequestWithOriginAndReferer() throws UserConfigurationException, IOException {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
         request.setServerName("test.archiva.org");
@@ -145,8 +146,10 @@ public class RequestValidationInterceptorTest extends TestCase {
     @Test
     public void validateRequestWithOriginAndStaticUrl() throws UserConfigurationException, IOException {
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue("rest.baseUrl","http://test.archiva.org");
-        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        List<String> urls = new ArrayList<String>();
+        urls.add("http://test.archiva.org");
+        cfg.addList("rest.baseUrl",urls);
+        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         TokenManager tm = new TokenManager();
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
@@ -162,8 +165,10 @@ public class RequestValidationInterceptorTest extends TestCase {
     @Test
     public void validateRequestWithBadOriginAndStaticUrl() throws UserConfigurationException, IOException {
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue("rest.baseUrl","http://mytest.archiva.org");
-        cfg.addValue(RequestValidationInterceptor.CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        List<String> urls = new ArrayList<String>();
+        urls.add("http://mytest.archiva.org");
+        cfg.addList("rest.baseUrl",urls);
+        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
         TokenManager tm = new TokenManager();
         RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
         MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
@@ -176,5 +181,26 @@ public class RequestValidationInterceptorTest extends TestCase {
         assertTrue(ctx.isAborted());
     }
 
+
+    @Test
+    public void validateRequestWithOriginListAndStaticUrl() throws UserConfigurationException, IOException {
+        MockUserConfiguration cfg = new MockUserConfiguration();
+        List<String> urls = new ArrayList<String>();
+        urls.add("http://mytest.archiva.org");
+        urls.add("http://mytest2.archiva.org");
+        urls.add("http://test.archiva.org");
+        cfg.addList("rest.baseUrl",urls);
+        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        TokenManager tm = new TokenManager();
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
+        MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
+        request.setServerName("mytest.archiva.org");
+        request.addHeader("Origin","http://test.archiva.org/myservlet");
+        interceptor.setHttpRequest(request);
+        interceptor.init();
+        MockContainerRequestContext ctx = new MockContainerRequestContext();
+        interceptor.filter(ctx);
+        assertFalse(ctx.isAborted());
+    }
 
 }

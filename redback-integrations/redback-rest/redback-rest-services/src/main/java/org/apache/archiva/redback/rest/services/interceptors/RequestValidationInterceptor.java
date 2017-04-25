@@ -26,6 +26,7 @@ import org.apache.archiva.redback.authentication.TokenData;
 import org.apache.archiva.redback.authentication.TokenManager;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.configuration.UserConfiguration;
+import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.integration.filter.authentication.basic.HttpBasicAuthentication;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
@@ -47,6 +48,8 @@ import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Martin Stockhammer on 19.01.17.
@@ -73,10 +76,8 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
     private static final String X_XSRF_TOKEN = "X-XSRF-TOKEN";
     private static final String ORIGIN = "Origin";
     private static final String REFERER = "Referer";
-    public static final String CFG_REST_BASE_URL = "rest.baseUrl";
-    public static final String CFG_REST_CSRF_ABSENTORIGIN_DENY = "rest.csrffilter.absentorigin.deny";
-    public static final String CFG_REST_CSRF_ENABLED = "rest.csrffilter.enabled";
-    public static final String CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION = "rest.csrffilter.disableTokenValidation";
+    private static final int DEFAULT_HTTP = 80;
+    private static final int DEFAULT_HTTPS = 443;
 
     private final Logger log = LoggerFactory.getLogger( getClass() );
 
@@ -84,10 +85,8 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
     private boolean checkToken = true;
     private boolean useStaticUrl = false;
     private boolean denyAbsentHeaders = true;
-    private URL baseUrl;
+    private List<URL> baseUrl = new ArrayList<URL>();
     private HttpServletRequest httpRequest = null;
-
-    private UserConfiguration config;
 
     @Inject
     @Named( value = "httpAuthenticator#basic" )
@@ -97,31 +96,197 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
     @Named( value = "tokenManager#default")
     TokenManager tokenManager;
 
+    private UserConfiguration config;
+    
+    private class HeaderValidationInfo {
+
+        final static int UNKNOWN = -1;
+        final static int OK = 0;
+        final static int F_REFERER_HOST = 1;
+        final static int F_REFERER_PORT = 2;
+        final static int F_ORIGIN_HOST = 8;
+        final static int F_ORIGIN_PORT = 16;
+        final static int F_ORIGIN_PROTOCOL = 32;
+        boolean headerFound = false;
+
+        URL targetUrl;
+        URL originUrl;
+        URL refererUrl;
+        
+        String targetHost;
+        String originHost;
+        String refererHost;
+        
+        int targetPort;
+        int originPort;
+        int refererPort;
+
+        int status = UNKNOWN;
+        
+        public HeaderValidationInfo(URL targetUrl) {
+            setTargetUrl(targetUrl);
+        }
+
+        public URL getTargetUrl() {
+            return targetUrl;
+        }
+
+        public void setTargetUrl(URL targetUrl) {
+            this.targetUrl = targetUrl;
+            this.targetHost=getHost(targetUrl);
+            this.targetPort=getPort(targetUrl);
+        }
+
+        public URL getOriginUrl() {
+            return originUrl;
+        }
+
+        public void setOriginUrl(URL originUrl) {
+            this.originUrl=originUrl;
+            this.originHost=getHost(originUrl);
+            this.originPort=getPort(originUrl);
+            checkOrigin();
+            this.headerFound=true;
+        }
+
+        public URL getRefererUrl() {
+            return refererUrl;
+        }
+
+        public void setRefererUrl(URL refererUrl) {
+            this.refererUrl=refererUrl;
+            this.refererHost=getHost(refererUrl);
+            this.refererPort=getPort(refererUrl);
+            checkReferer();
+            this.headerFound=true;
+        }
+
+        public String getTargetHost() {
+            return targetHost;
+        }
+
+        public void setTargetHost(String targetHost) {
+            this.targetHost = targetHost;
+        }
+
+        public String getOriginHost() {
+            return originHost;
+        }
+
+        public void setOriginHost(String originHost) {
+            this.originHost = originHost;
+        }
+
+        public String getRefererHost() {
+            return refererHost;
+        }
+
+        public void setRefererHost(String refererHost) {
+            this.refererHost = refererHost;
+        }
+
+        public int getTargetPort() {
+            return targetPort;
+        }
+
+        public void setTargetPort(int targetPort) {
+            this.targetPort = targetPort;
+        }
+
+        public int getOriginPort() {
+            return originPort;
+        }
+
+        public void setOriginPort(int originPort) {
+            this.originPort = originPort;
+        }
+
+        public int getRefererPort() {
+            return refererPort;
+        }
+
+        public void setRefererPort(int refererPort) {
+            this.refererPort = refererPort;
+        }
+
+        public void setStatus(int status) {
+            this.status |= status;
+        }
+
+        public int getStatus() {
+            return this.status;
+        }
+
+        // Origin check for Protocol, Host, Port
+        public void checkOrigin() {
+            if (this.getStatus()==UNKNOWN) {
+                this.status=OK;
+            }
+            if (!targetUrl.getProtocol().equals(originUrl.getProtocol())) {
+                setStatus(F_ORIGIN_PROTOCOL);
+            }
+            if (!targetHost.equals(originHost)) {
+                setStatus(F_ORIGIN_HOST);
+            }
+            if (targetPort!=originPort) {
+                setStatus(F_ORIGIN_PORT);
+            }
+        }
+
+        // Referer check only for Host, Port
+        public void checkReferer() {
+            if (this.getStatus()==UNKNOWN) {
+                this.status=OK;
+            }
+            if (!targetHost.equals(refererHost)) {
+                setStatus(F_REFERER_HOST);
+            }
+            if (targetPort!=refererPort) {
+                setStatus(F_REFERER_PORT);
+            }
+        }
+
+        public boolean hasOriginError() {
+            return (status & (F_ORIGIN_PROTOCOL | F_ORIGIN_HOST | F_ORIGIN_PORT)) > 0;
+        }
+
+        public boolean hasRefererError() {
+            return (status & (F_REFERER_HOST | F_REFERER_PORT )) > 0;
+        }
+
+        @Override
+        public String toString() {
+            return "Stat="+status+", target="+targetUrl+", origin="+originUrl+", referer="+refererUrl;
+        }
+    }
+
     @Inject
-    public RequestValidationInterceptor(@Named( value = "userConfiguration#default" )
-                                                        UserConfiguration config) {
+    public RequestValidationInterceptor(
+            @Named(value = "userConfiguration#default") UserConfiguration config) {
         this.config = config;
     }
 
     @PostConstruct
     public void init() {
-        String baseUrlStr = config.getString(CFG_REST_BASE_URL, "");
-        if (!"".equals(baseUrlStr.trim())) {
-            try {
-                baseUrl = new URL(baseUrlStr);
-                useStaticUrl = true;
-            } catch (MalformedURLException ex) {
-                log.error("Configured baseUrl (rest.baseUrl={}) is invalid. Message: {}", baseUrlStr, ex.getMessage());
+        List<String> baseUrlList = config.getList(UserConfigurationKeys.REST_BASE_URL);
+        if (baseUrlList!=null) {
+            for (String baseUrlStr : baseUrlList) {
+                if (!"".equals(baseUrlStr.trim())) {
+                    try {
+                        baseUrl.add(new URL(baseUrlStr));
+                        useStaticUrl = true;
+                    } catch (MalformedURLException ex) {
+                        log.error("Configured baseUrl (rest.baseUrl={}) is invalid. Message: {}", baseUrlStr, ex.getMessage());
+                    }
+                }
             }
-        } else {
-            useStaticUrl = false;
         }
-        denyAbsentHeaders = config.getBoolean(CFG_REST_CSRF_ABSENTORIGIN_DENY,true);
-        enabled = config.getBoolean(CFG_REST_CSRF_ENABLED,true);
+        denyAbsentHeaders = config.getBoolean(UserConfigurationKeys.REST_CSRF_ABSENTORIGIN_DENY,true);
+        enabled = config.getBoolean(UserConfigurationKeys.REST_CSRF_ENABLED,true);
         if (!enabled) {
             log.info("CSRF Filter is disabled by configuration");
         }
-        checkToken = !config.getBoolean(CFG_REST_CSRF_DISABLE_TOKEN_VALIDATION, false);
+        checkToken = !config.getBoolean(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, false);
         if (!checkToken) {
             log.info("CSRF Token validation is disabled by configuration");
         }
@@ -131,24 +296,62 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
     public void filter(ContainerRequestContext containerRequestContext) throws IOException {
         if (enabled) {
             HttpServletRequest request = getRequest();
-            URL targetUrl = getTargetUrl(request);
-            if (targetUrl == null) {
+            List<URL> targetUrls = getTargetUrl(request);
+            if (targetUrls == null) {
                 log.error("Could not verify target URL.");
                 containerRequestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
                 return;
             }
-            if (!checkSourceRequestHeader(targetUrl, request)) {
-                log.warn("HTTP Header check failed. Assuming CSRF attack.");
+            List<HeaderValidationInfo> validationInfos = new ArrayList<HeaderValidationInfo>();
+            boolean targetMatch=false;
+            boolean noHeader = true;
+            for(URL targetUrl : targetUrls) {
+                log.trace("Checking against target URL: {}", targetUrl);
+                HeaderValidationInfo info = checkSourceRequestHeader(new HeaderValidationInfo(targetUrl), request);
+                // We need only one match
+                noHeader = noHeader && info.getStatus()==info.UNKNOWN;
+                if (info.getStatus()==info.OK) {
+                    targetMatch=true;
+                    break;
+                } else {
+                    validationInfos.add(info);
+                }
+            }
+            if (noHeader && denyAbsentHeaders) {
+                log.warn("Request denied. No Origin or Referer header found and {}=true", UserConfigurationKeys.REST_CSRF_ABSENTORIGIN_DENY);
                 containerRequestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
                 return;
             }
-
+            if (!targetMatch) {
+                log.warn("HTTP Header check failed. Assuming CSRF attack.");
+                for(HeaderValidationInfo info : validationInfos) {
+                    if (info.hasOriginError()) {
+                        log.warn("Origin Header does not match: originUrl={}, targetUrl={}. Matches: Host={}, Port={}, Protocol={}",
+                                info.originUrl, info.targetUrl, (info.getStatus()&info.F_ORIGIN_HOST)==0,
+                                (info.getStatus()&info.F_ORIGIN_PORT)==0, (info.getStatus()&info.F_ORIGIN_PROTOCOL)==0);
+                    }
+                    if (info.hasRefererError()) {
+                        log.warn("Referer Header does not match: refererUrl={}, targetUrl={}. Matches: Host={}, Port={}",
+                                info.refererUrl, info.targetUrl, (info.getStatus()&info.F_REFERER_HOST)==0,
+                                (info.getStatus()&info.F_REFERER_PORT)==0);
+                    }
+                }
+                containerRequestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                return;
+            }
             if (checkToken) {
                 checkValidationToken(containerRequestContext, request);
             }
         }
     }
 
+    /**
+     * Checks the request for a validation token header. It takes the encrypted token, decrypts it
+     * and compares the user information from the token to the logged in user.
+     *
+     * @param containerRequestContext
+     * @param request
+     */
     private void checkValidationToken(ContainerRequestContext containerRequestContext, HttpServletRequest request) {
         Message message = JAXRSUtils.getCurrentMessage();
         RedbackAuthorization redbackAuthorization = getRedbackAuthorization(message);
@@ -198,13 +401,15 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
         }
     }
 
-    private URL getTargetUrl(HttpServletRequest request) {
+    private List<URL> getTargetUrl(HttpServletRequest request) {
         if (useStaticUrl) {
             return baseUrl;
         } else {
+            List<URL> urls = new ArrayList<URL>();
             URL requestUrl;
             try {
                 requestUrl = new URL(request.getRequestURL().toString());
+                urls.add(requestUrl);
             } catch (MalformedURLException ex) {
                 log.error("Bad Request URL {}, Message: {}", request.getRequestURL(), ex.getMessage());
                 return null;
@@ -216,81 +421,52 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
             }
             if (xforwarded!=null) {
                 try {
-                    return new URL(xforwardedProto+"://"+xforwarded);
+                    urls.add(new URL(xforwardedProto+"://"+xforwarded));
                 } catch (MalformedURLException ex) {
                     log.warn("X-Forwarded-Host Header is malformed: {}", ex.getMessage());
                 }
             }
-            return requestUrl;
+            return urls;
         }
     }
 
     private int getPort(final URL url) {
-        return url.getPort() > 0 ? url.getPort() : url.getDefaultPort();
+        return url.getPort() > 0 ? url.getPort() : ("https".equals(url.getProtocol()) ? DEFAULT_HTTPS : DEFAULT_HTTP);
     }
 
-    private boolean checkSourceRequestHeader(final URL targetUrl, final HttpServletRequest request) {
-        boolean headerFound=false;
+    private String getHost(final URL url) {
+        return url.getHost().trim().toLowerCase();
+    }
+
+    /**
+     * Checks the validation headers. First the Origin header is checked, if this fails
+     * or is absent, the referer header is checked.
+     *
+     * @param info The info object that must be populated with the targetURL
+     * @param request The HTTP request object
+     * @return A info object with updated status information
+     */
+    private HeaderValidationInfo checkSourceRequestHeader(final HeaderValidationInfo info, final HttpServletRequest request) {
         String origin = request.getHeader(ORIGIN);
-        int targetPort = getPort(targetUrl);
         if (origin!=null) {
             try {
-                URL originUrl = new URL(origin);
-                headerFound=true;
-                log.debug("Origin Header URL found: {}", originUrl);
-                if (!targetUrl.getProtocol().equals(originUrl.getProtocol())) {
-                    log.warn("Origin Header Protocol does not match originUrl={}, targetUrl={}", //
-                             originUrl.getProtocol(), //
-                             targetUrl.getProtocol());
-                    return false;
-                }
-                if (!targetUrl.getHost().equals(originUrl.getHost())) {
-                    log.warn("Origin Header Host does not match originUrl='{}', targetUrl='{}'",
-                             originUrl.getProtocol(), //
-                             targetUrl.getProtocol());
-                    return false;
-                }
-                int originPort = getPort(originUrl);
-                if (targetPort != originPort) {
-                    log.warn("Origin Header Port does not match originUrl={}, targetUrl={}",
-                             originUrl.getPort(),
-                             targetUrl.getPort());
-                    return false;
-                }
-            } catch (MalformedURLException ex) {
-                log.warn("Bad URL in Origin HTTP-Header: {}. Message: {}",origin, ex.getMessage());
-                return false;
+                info.setOriginUrl(new URL(origin));
+            } catch (MalformedURLException e) {
+                log.warn("Bad origin header found: {}", origin);
             }
         }
-        String referer = request.getHeader(REFERER);
-        if (referer!=null) {
-            try {
-                URL refererUrl = new URL(referer);
-                headerFound=true;
-                log.debug("Referer Header URL found: {}",refererUrl);
-                if (!targetUrl.getHost().equals(refererUrl.getHost())) {
-                    log.warn("Referer Header Host does not match refererUrl='{}', targetUrl='{}'", //
-                             refererUrl.getHost(), //
-                             targetUrl.getHost());
-                    return false;
+        // Check referer if Origin header dos not match or is not available
+        if (info.getStatus()!=info.OK) {
+            String referer = request.getHeader(REFERER);
+            if (referer != null) {
+                try {
+                    info.setRefererUrl(new URL(referer));
+                } catch (MalformedURLException ex) {
+                    log.warn("Bad URL in Referer HTTP-Header: {}, Message: {}", referer, ex.getMessage());
                 }
-                int refererPort = getPort(refererUrl);
-                if (targetPort != refererPort) {
-                    log.warn("Referer Header Port does not match refererUrl={}, targetUrl={}", //
-                             refererUrl.getPort(),
-                             targetUrl.getPort());
-                    return false;
-                }
-            } catch (MalformedURLException ex) {
-                log.warn("Bad URL in Referer HTTP-Header: {}, Message: {}", referer, ex.getMessage());
-                return false;
             }
         }
-        if (!headerFound && denyAbsentHeaders) {
-            log.warn("Neither Origin nor Referer header found. Request is denied.");
-            return false;
-        }
-        return true;
+        return info;
     }
 
     public void setHttpRequest(HttpServletRequest request) {

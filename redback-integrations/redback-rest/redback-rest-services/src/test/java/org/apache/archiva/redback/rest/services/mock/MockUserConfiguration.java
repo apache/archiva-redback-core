@@ -34,11 +34,15 @@ import java.util.Map;
  */
 public class MockUserConfiguration implements UserConfiguration {
 
-    private Map<String, String> values = new java.util.HashMap<String,String>();
+    private Map<String, Object> values = new java.util.HashMap<String,Object>();
 
     @SuppressWarnings("SameParameterValue")
     public void addValue(String key, String value) {
         values.put(key,value);
+    }
+
+    public void addList(String key, List<String> listValue) {
+        values.put(key, listValue);
     }
 
     @Override
@@ -48,13 +52,13 @@ public class MockUserConfiguration implements UserConfiguration {
 
     @Override
     public String getString(String key) {
-        return values.get(key);
+        return values.get(key).toString();
     }
 
     @Override
     public String getString(String key, String defaultValue) {
         if (values.containsKey(key)) {
-            return values.get(key);
+            return values.get(key).toString();
         } else {
             return defaultValue;
         }
@@ -68,7 +72,7 @@ public class MockUserConfiguration implements UserConfiguration {
     @Override
     public int getInt(String key, int defaultValue) {
         if (values.containsKey(key)) {
-            return Integer.parseInt(values.get(key));
+            return Integer.parseInt(values.get(key).toString());
         } else {
             return defaultValue;
         }
@@ -82,7 +86,7 @@ public class MockUserConfiguration implements UserConfiguration {
     @Override
     public boolean getBoolean(String key, boolean defaultValue) {
         if (values.containsKey(key)) {
-            return Boolean.parseBoolean(values.get(key));
+            return Boolean.parseBoolean(values.get(key).toString());
         } else {
             return defaultValue;
         }
@@ -90,7 +94,12 @@ public class MockUserConfiguration implements UserConfiguration {
 
     @Override
     public List<String> getList(String key) {
-        return null;
+        Object value = values.get(key);
+        if (value!=null && value instanceof List) {
+            return (List)value;
+        } else {
+            return null;
+        }
     }
 
     @Override

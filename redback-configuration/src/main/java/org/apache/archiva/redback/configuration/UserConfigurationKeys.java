@@ -162,4 +162,11 @@ public interface UserConfigurationKeys
 
     String POLICY_PASSWORD_RULE_NOWHITTESPACE_ENABLED = "security.policy.password.rule.nowhitespace.enabled";
 
+    String REST_BASE_URL = "rest.baseUrl";
+
+    String REST_CSRF_ABSENTORIGIN_DENY = "rest.csrffilter.absentorigin.deny";
+
+    String REST_CSRF_ENABLED = "rest.csrffilter.enabled";
+
+    String REST_CSRF_DISABLE_TOKEN_VALIDATION = "rest.csrffilter.disableTokenValidation";
 }
