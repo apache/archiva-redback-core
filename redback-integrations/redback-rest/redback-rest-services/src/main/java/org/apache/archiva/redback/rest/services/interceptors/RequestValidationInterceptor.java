@@ -285,10 +285,14 @@ public class RequestValidationInterceptor extends AbstractInterceptor implements
         enabled = config.getBoolean(UserConfigurationKeys.REST_CSRF_ENABLED,true);
         if (!enabled) {
             log.info("CSRF Filter is disabled by configuration");
+        } else {
+            log.info("CSRF Filter is enable");
         }
         checkToken = !config.getBoolean(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, false);
         if (!checkToken) {
             log.info("CSRF Token validation is disabled by configuration");
+        } else {
+            log.info("CSRF Token validation is enable");
         }
     }
 
