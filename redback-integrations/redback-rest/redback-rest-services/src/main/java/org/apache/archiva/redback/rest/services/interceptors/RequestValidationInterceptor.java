@@ -31,6 +31,7 @@ import org.apache.archiva.redback.integration.filter.authentication.basic.HttpBa
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.users.User;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
@@ -343,7 +344,7 @@ public class RequestValidationInterceptor
                     catch ( MalformedURLException ex )
                     {
                         log.error( "Configured baseUrl (rest.baseUrl={}) is invalid. Message: {}", baseUrlStr,
-                                   ex.getMessage() );
+                            ex.getMessage() );
                     }
                 }
             }
@@ -405,7 +406,7 @@ public class RequestValidationInterceptor
             if ( noHeader && denyAbsentHeaders )
             {
                 log.warn( "Request denied. No Origin or Referer header found and {}=true",
-                          UserConfigurationKeys.REST_CSRF_ABSENTORIGIN_DENY );
+                    UserConfigurationKeys.REST_CSRF_ABSENTORIGIN_DENY );
                 containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
                 return;
             }
@@ -483,7 +484,7 @@ public class RequestValidationInterceptor
                 if ( !td.isValid() || !td.getUser().equals( username ) )
                 {
                     log.error( "Invalid data in validation token header {} for user {}: isValid={}, username={}",
-                               X_XSRF_TOKEN, username, td.isValid(), td.getUser() );
+                        X_XSRF_TOKEN, username, td.isValid(), td.getUser() );
                     containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
                 }
             }
@@ -535,15 +536,22 @@ public class RequestValidationInterceptor
             {
                 xforwardedProto = requestUrl.getProtocol();
             }
-            if ( xforwarded != null )
+
+            if ( xforwarded != null && !StringUtils.isEmpty( xforwarded ) )
             {
-                try
+                // X-Forwarded-Host header may contain multiple hosts if there is
+                // more than one proxy between the client and the server
+                String[] forwardedList = xforwarded.split( "\\s*,\\s*" );
+                for ( String hostname : forwardedList )
                 {
-                    urls.add( new URL( xforwardedProto + "://" + xforwarded ) );
-                }
-                catch ( MalformedURLException ex )
-                {
-                    log.warn( "X-Forwarded-Host Header is malformed: {}", ex.getMessage() );
+                    try
+                    {
+                        urls.add( new URL( xforwardedProto + "://" + hostname ) );
+                    }
+                    catch ( MalformedURLException ex )
+                    {
+                        log.warn( "X-Forwarded-Host Header is malformed: {}", ex.getMessage() );
+                    }
                 }
             }
             return urls;

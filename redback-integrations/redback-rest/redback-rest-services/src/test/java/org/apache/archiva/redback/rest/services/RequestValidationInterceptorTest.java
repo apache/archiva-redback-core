@@ -38,169 +38,234 @@ import java.util.List;
 
 /**
  * Created by Martin Stockhammer on 21.01.17.
- *
+ * <p>
  * Unit Test for RequestValidationInterceptor. The unit tests are all without token validation.
- *
  */
-@RunWith(JUnit4.class)
-public class RequestValidationInterceptorTest extends TestCase {
-
+@RunWith( JUnit4.class )
+public class RequestValidationInterceptorTest extends TestCase
+{
 
 
     @Test
-    public void validateRequestWithoutHeader() throws UserConfigurationException, IOException {
+    public void validateRequestWithoutHeader() throws UserConfigurationException, IOException
+    {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
-        RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
         MockHttpServletRequest request = new MockHttpServletRequest();
-        interceptor.setHttpRequest(request);
+        interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
-        interceptor.filter(ctx);
-        assertTrue(ctx.isAborted());
+        interceptor.filter( ctx );
+        assertTrue( ctx.isAborted() );
     }
 
     @Test
-    public void validateRequestWithOrigin() throws UserConfigurationException, IOException {
+    public void validateRequestWithOrigin() throws UserConfigurationException, IOException
+    {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
-        RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
-        MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
-        request.setServerName("test.archiva.org");
-        request.addHeader("Origin","http://test.archiva.org/myservlet");
-        interceptor.setHttpRequest(request);
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "test.archiva.org" );
+        request.addHeader( "Origin", "http://test.archiva.org/myservlet" );
+        interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
-        interceptor.filter(ctx);
-        assertFalse(ctx.isAborted());
+        interceptor.filter( ctx );
+        assertFalse( ctx.isAborted() );
     }
 
     @Test
-    public void validateRequestWithBadOrigin() throws UserConfigurationException, IOException {
+    public void validateRequestWithBadOrigin() throws UserConfigurationException, IOException
+    {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
-        RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
-        MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
-        request.setServerName("test.archiva.org");
-        request.addHeader("Origin","http://test2.archiva.org/myservlet");
-        interceptor.setHttpRequest(request);
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "test.archiva.org" );
+        request.addHeader( "Origin", "http://test2.archiva.org/myservlet" );
+        interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
-        interceptor.filter(ctx);
-        assertTrue(ctx.isAborted());
+        interceptor.filter( ctx );
+        assertTrue( ctx.isAborted() );
     }
 
     @Test
-    public void validateRequestWithReferer() throws UserConfigurationException, IOException {
+    public void validateRequestWithReferer() throws UserConfigurationException, IOException
+    {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
-        RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
-        MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
-        request.setServerName("test.archiva.org");
-        request.addHeader("Referer","http://test.archiva.org/myservlet2");
-        interceptor.setHttpRequest(request);
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "test.archiva.org" );
+        request.addHeader( "Referer", "http://test.archiva.org/myservlet2" );
+        interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
-        interceptor.filter(ctx);
-        assertFalse(ctx.isAborted());
+        interceptor.filter( ctx );
+        assertFalse( ctx.isAborted() );
     }
 
     @Test
-    public void validateRequestWithBadReferer() throws UserConfigurationException, IOException {
+    public void validateRequestWithBadReferer() throws UserConfigurationException, IOException
+    {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
-        RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
-        MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
-        request.setServerName("test.archiva.org");
-        request.addHeader("Referer","http://test3.archiva.org/myservlet2");
-        interceptor.setHttpRequest(request);
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "test.archiva.org" );
+        request.addHeader( "Referer", "http://test3.archiva.org/myservlet2" );
+        interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
-        interceptor.filter(ctx);
-        assertTrue(ctx.isAborted());
+        interceptor.filter( ctx );
+        assertTrue( ctx.isAborted() );
     }
 
     @Test
-    public void validateRequestWithOriginAndReferer() throws UserConfigurationException, IOException {
+    public void validateRequestWithOriginAndReferer() throws UserConfigurationException, IOException
+    {
         TokenManager tm = new TokenManager();
         MockUserConfiguration cfg = new MockUserConfiguration();
-        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
-        RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
-        MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
-        request.setServerName("test.archiva.org");
-        request.addHeader("Origin","http://test.archiva.org/myservlet");
-        request.addHeader("Referer","http://test.archiva.org/myservlet2");
-        interceptor.setHttpRequest(request);
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "test.archiva.org" );
+        request.addHeader( "Origin", "http://test.archiva.org/myservlet" );
+        request.addHeader( "Referer", "http://test.archiva.org/myservlet2" );
+        interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
-        interceptor.filter(ctx);
-        assertFalse(ctx.isAborted());
+        interceptor.filter( ctx );
+        assertFalse( ctx.isAborted() );
+    }
+
+    @Test
+    public void validateRequestWithOriginAndRefererAndXForwarded() throws UserConfigurationException, IOException
+    {
+        TokenManager tm = new TokenManager();
+        MockUserConfiguration cfg = new MockUserConfiguration();
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "xxx.archiva.org" );
+        request.addHeader( "Origin", "http://test.archiva.org/myservlet" );
+        request.addHeader( "Referer", "http://test.archiva.org/myservlet2" );
+        request.addHeader( "X-Forwarded-Host", "test.archiva.org" );
+        interceptor.setHttpRequest( request );
+        interceptor.init();
+        MockContainerRequestContext ctx = new MockContainerRequestContext();
+        interceptor.filter( ctx );
+        assertFalse( ctx.isAborted() );
+    }
+
+    @Test
+    public void validateRequestWithOriginAndRefererAndWrongXForwarded() throws UserConfigurationException, IOException
+    {
+        TokenManager tm = new TokenManager();
+        MockUserConfiguration cfg = new MockUserConfiguration();
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "xxx.archiva.org" );
+        request.addHeader( "Origin", "http://test.archiva.org/myservlet" );
+        request.addHeader( "Referer", "http://test.archiva.org/myservlet2" );
+        request.addHeader( "X-Forwarded-Host", "test2.archiva.org" );
+        interceptor.setHttpRequest( request );
+        interceptor.init();
+        MockContainerRequestContext ctx = new MockContainerRequestContext();
+        interceptor.filter( ctx );
+        assertTrue( ctx.isAborted() );
+    }
+
+    @Test
+    public void validateRequestWithOriginAndRefererAndXForwardedMultiple() throws UserConfigurationException, IOException
+    {
+        TokenManager tm = new TokenManager();
+        MockUserConfiguration cfg = new MockUserConfiguration();
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "xxx.archiva.org" );
+        request.addHeader( "Origin", "http://test.archiva.org/myservlet" );
+        request.addHeader( "Referer", "http://test.archiva.org/myservlet2" );
+        request.addHeader( "X-Forwarded-Host", "my.proxy.org, test.archiva.org:80" );
+        interceptor.setHttpRequest( request );
+        interceptor.init();
+        MockContainerRequestContext ctx = new MockContainerRequestContext();
+        interceptor.filter( ctx );
+        assertFalse( ctx.isAborted() );
     }
 
 
     @Test
-    public void validateRequestWithOriginAndStaticUrl() throws UserConfigurationException, IOException {
+    public void validateRequestWithOriginAndStaticUrl() throws UserConfigurationException, IOException
+    {
         MockUserConfiguration cfg = new MockUserConfiguration();
         List<String> urls = new ArrayList<String>();
-        urls.add("http://test.archiva.org");
-        cfg.addList("rest.baseUrl",urls);
-        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        urls.add( "http://test.archiva.org" );
+        cfg.addList( "rest.baseUrl", urls );
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
         TokenManager tm = new TokenManager();
-        RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
-        MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
-        request.setServerName("test4.archiva.org");
-        request.addHeader("Origin","http://test.archiva.org/myservlet");
-        interceptor.setHttpRequest(request);
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "test4.archiva.org" );
+        request.addHeader( "Origin", "http://test.archiva.org/myservlet" );
+        interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
-        interceptor.filter(ctx);
-        assertFalse(ctx.isAborted());
+        interceptor.filter( ctx );
+        assertFalse( ctx.isAborted() );
     }
 
     @Test
-    public void validateRequestWithBadOriginAndStaticUrl() throws UserConfigurationException, IOException {
+    public void validateRequestWithBadOriginAndStaticUrl() throws UserConfigurationException, IOException
+    {
         MockUserConfiguration cfg = new MockUserConfiguration();
         List<String> urls = new ArrayList<String>();
-        urls.add("http://mytest.archiva.org");
-        cfg.addList("rest.baseUrl",urls);
-        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        urls.add( "http://mytest.archiva.org" );
+        cfg.addList( "rest.baseUrl", urls );
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
         TokenManager tm = new TokenManager();
-        RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
-        MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
-        request.setServerName("mytest.archiva.org");
-        request.addHeader("Origin","http://test.archiva.org/myservlet");
-        interceptor.setHttpRequest(request);
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "mytest.archiva.org" );
+        request.addHeader( "Origin", "http://test.archiva.org/myservlet" );
+        interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
-        interceptor.filter(ctx);
-        assertTrue(ctx.isAborted());
+        interceptor.filter( ctx );
+        assertTrue( ctx.isAborted() );
     }
 
 
     @Test
-    public void validateRequestWithOriginListAndStaticUrl() throws UserConfigurationException, IOException {
+    public void validateRequestWithOriginListAndStaticUrl() throws UserConfigurationException, IOException
+    {
         MockUserConfiguration cfg = new MockUserConfiguration();
         List<String> urls = new ArrayList<String>();
-        urls.add("http://mytest.archiva.org");
-        urls.add("http://mytest2.archiva.org");
-        urls.add("http://test.archiva.org");
-        cfg.addList("rest.baseUrl",urls);
-        cfg.addValue(UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION,"true");
+        urls.add( "http://mytest.archiva.org" );
+        urls.add( "http://mytest2.archiva.org" );
+        urls.add( "http://test.archiva.org" );
+        cfg.addList( "rest.baseUrl", urls );
+        cfg.addValue( UserConfigurationKeys.REST_CSRF_DISABLE_TOKEN_VALIDATION, "true" );
         TokenManager tm = new TokenManager();
-        RequestValidationInterceptor interceptor = new RequestValidationInterceptor(cfg);
-        MockHttpServletRequest request = new MockHttpServletRequest("GET","/api/v1/userService");
-        request.setServerName("mytest.archiva.org");
-        request.addHeader("Origin","http://test.archiva.org/myservlet");
-        interceptor.setHttpRequest(request);
+        RequestValidationInterceptor interceptor = new RequestValidationInterceptor( cfg );
+        MockHttpServletRequest request = new MockHttpServletRequest( "GET", "/api/v1/userService" );
+        request.setServerName( "mytest.archiva.org" );
+        request.addHeader( "Origin", "http://test.archiva.org/myservlet" );
+        interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
-        interceptor.filter(ctx);
-        assertFalse(ctx.isAborted());
+        interceptor.filter( ctx );
+        assertFalse( ctx.isAborted() );
     }
 
 }
