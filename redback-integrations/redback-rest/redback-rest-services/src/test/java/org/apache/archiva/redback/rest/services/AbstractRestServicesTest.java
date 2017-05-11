@@ -27,14 +27,18 @@ import org.apache.archiva.redback.rest.api.services.LdapGroupMappingService;
 import org.apache.archiva.redback.rest.api.services.LoginService;
 import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.apache.archiva.redback.rest.api.services.UserService;
-import org.apache.catalina.Context;
-import org.apache.catalina.deploy.ApplicationParameter;
-import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.servlet.CXFServlet;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -56,8 +60,8 @@ public abstract class AbstractRestServicesTest
 {
     protected Logger log = LoggerFactory.getLogger( getClass() );
 
-    private Tomcat tomcat;
-
+    Server server;
+    ServerConnector serverConnector;
     public int port;
 
     public String authorizationHeader = getAdminAuthzHeader();
@@ -98,17 +102,10 @@ public abstract class AbstractRestServicesTest
     public void startServer()
         throws Exception
     {
-
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-
-        SLF4JBridgeHandler.install();
-
-        tomcat = new Tomcat();
-        tomcat.setBaseDir( System.getProperty( "java.io.tmpdir" ) );
-        tomcat.setPort( 0 );
-
-        Context context = tomcat.addContext( "", System.getProperty( "java.io.tmpdir" ) );
-
+        server = new Server();
+        serverConnector = new ServerConnector( server, new HttpConnectionFactory());
+        server.addConnector(serverConnector);
+        /*
         ApplicationParameter applicationParameter = new ApplicationParameter();
         applicationParameter.setName( "contextConfigLocation" );
         applicationParameter.setValue( getSpringConfigLocation() );
@@ -118,10 +115,25 @@ public abstract class AbstractRestServicesTest
 
         Tomcat.addServlet( context, "cxf", new CXFServlet() );
         context.addServletMapping( "/" + getRestServicesPath() + "/*", "cxf" );
+        */
+        ServletHolder servletHolder = new ServletHolder( new CXFServlet() );
 
-        tomcat.start();
+        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        context.setSessionHandler( new SessionHandler(  ) );
+        context.setContextPath( "/" );
+        context.addServlet( servletHolder, "/" + getRestServicesPath() + "/*" );
+        context.setInitParameter( "contextConfigLocation", getSpringConfigLocation() );
+        context.addEventListener(new ContextLoaderListener());
 
-        this.port = tomcat.getConnector().getLocalPort();
+        server.setHandler( context );
+        server.start();
+
+        if (log.isDebugEnabled())
+        {
+            log.debug( "jetty dump: {}", server.dump() );
+        }
+        
+        this.port = serverConnector.getLocalPort();
 
         log.info( "start server on port {}", this.port );
 
@@ -143,16 +155,16 @@ public abstract class AbstractRestServicesTest
     {
         return JAXRSClientFactory.create(
             "http://localhost:" + port + "/" + getRestServicesPath() + "/fakeCreateAdminService/",
-            FakeCreateAdminService.class, Collections.singletonList( new com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider() ) );
+            FakeCreateAdminService.class, Collections.singletonList( new JacksonJaxbJsonProvider() ) );
     }
 
     @After
     public void stopServer()
         throws Exception
     {
-        if ( this.tomcat != null )
+        if ( this.server != null )
         {
-            this.tomcat.stop();
+            this.server.stop();
         }
     }
 
