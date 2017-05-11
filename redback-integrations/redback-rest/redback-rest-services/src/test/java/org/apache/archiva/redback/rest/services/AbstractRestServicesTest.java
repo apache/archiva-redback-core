@@ -103,22 +103,11 @@ public abstract class AbstractRestServicesTest
         server = new Server();
         serverConnector = new ServerConnector( server, new HttpConnectionFactory());
         server.addConnector(serverConnector);
-        /*
-        ApplicationParameter applicationParameter = new ApplicationParameter();
-        applicationParameter.setName( "contextConfigLocation" );
-        applicationParameter.setValue( getSpringConfigLocation() );
-        context.addApplicationParameter( applicationParameter );
 
-        context.addApplicationListener( ContextLoaderListener.class.getName() );
-
-        Tomcat.addServlet( context, "cxf", new CXFServlet() );
-        context.addServletMapping( "/" + getRestServicesPath() + "/*", "cxf" );
-        */
         ServletHolder servletHolder = new ServletHolder( new CXFServlet() );
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setSessionHandler( new SessionHandler(  ) );
-        context.setContextPath( "/" );
         context.addServlet( servletHolder, "/" + getRestServicesPath() + "/*" );
         context.setInitParameter( "contextConfigLocation", getSpringConfigLocation() );
         context.addEventListener(new ContextLoaderListener());
