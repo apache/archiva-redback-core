@@ -33,7 +33,7 @@
 
   <properties>
     <tomcatVersion>7.0.57</tomcatVersion>
-    <jetty.version>9.3.19.v20170502</jetty.version>
+    <jetty.version>9.4.5.v20170502</jetty.version>
     <rest.test.timeout>1000000</rest.test.timeout>
   </properties>
 
