@@ -37,7 +37,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.After;
 import org.junit.Before;
@@ -45,7 +44,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.web.context.ContextLoaderListener;
 
 import javax.ws.rs.core.MediaType;
@@ -132,7 +130,7 @@ public abstract class AbstractRestServicesTest
         {
             log.debug( "jetty dump: {}", server.dump() );
         }
-        
+
         this.port = serverConnector.getLocalPort();
 
         log.info( "start server on port {}", this.port );
