@@ -28,6 +28,7 @@ import org.apache.archiva.redback.rest.api.services.LoginService;
 import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -105,8 +106,8 @@ public abstract class AbstractRestServicesTest
         server.addConnector(serverConnector);
 
         ServletHolder servletHolder = new ServletHolder( new CXFServlet() );
-
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        context.setResourceBase( SystemUtils.JAVA_IO_TMPDIR );
         context.setSessionHandler( new SessionHandler(  ) );
         context.addServlet( servletHolder, "/" + getRestServicesPath() + "/*" );
         context.setInitParameter( "contextConfigLocation", getSpringConfigLocation() );
