@@ -20,24 +20,24 @@ package org.apache.archiva.redback.management;
  */
 
 import junit.framework.TestCase;
-import org.apache.archiva.redback.common.jdo.UserConfigurableJdoFactory;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.keys.KeyManager;
+import org.apache.archiva.redback.keys.KeyManagerException;
 import org.apache.archiva.redback.rbac.Permission;
 import org.apache.archiva.redback.rbac.RBACManager;
+import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.rbac.UserAssignment;
+import org.apache.archiva.redback.tests.utils.RBACDefaults;
+import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.apache.archiva.redback.keys.KeyManagerException;
-import org.apache.archiva.redback.rbac.RbacManagerException;
-import org.apache.archiva.redback.tests.utils.RBACDefaults;
-import org.apache.archiva.redback.users.User;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -57,6 +57,8 @@ import java.util.List;
 import java.util.Locale;
 
 
+// @TODO: Investigate how to implement export with JPA
+@Ignore("Currently no JPA implementation")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath*:/META-INF/spring-context.xml", "classpath*:/spring-context.xml" })
 public class DataManagementTest
@@ -68,20 +70,16 @@ public class DataManagementTest
     private File targetDirectory;
 
     @Inject
-    @Named(value = "jdoFactory#users")
-    UserConfigurableJdoFactory jdoFactory;
-
-    @Inject
-    @Named(value = "userManager#jdo")
+    @Named(value = "userManager#jpa")
     UserManager userManager;
 
     @Inject
-    @Named(value = "keyManager#jdo")
+    @Named(value = "keyManager#jpa")
     KeyManager keyManager;
 
 
     @Inject
-    @Named(value = "rbacManager#jdo")
+    @Named(value = "rbacManager#jpa")
     RBACManager rbacManager;
 
     @Before

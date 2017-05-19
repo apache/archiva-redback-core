@@ -21,12 +21,10 @@ package org.apache.archiva.redback.integration.mail;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
-import org.apache.archiva.redback.components.jdo.DefaultConfigurableJdoFactory;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.keys.KeyManager;
-import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.keys.KeyManagerException;
-import org.jpox.SchemaTool;
+import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,11 +35,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.jdo.PersistenceManager;
-import javax.jdo.PersistenceManagerFactory;
-import java.net.URL;
-import java.util.Map.Entry;
-import java.util.Properties;
 
 /**
  * Test the Mailer class.
@@ -67,9 +60,7 @@ public class MailGeneratorTest
     @Named(value = "keyManager#memory")
     private KeyManager keyManager;
 
-    @Inject
-    @Named(value = "jdoFactory#users")
-    DefaultConfigurableJdoFactory jdoFactory;
+
 
     private Logger log = LoggerFactory.getLogger( getClass() );
 
@@ -80,33 +71,6 @@ public class MailGeneratorTest
         CacheManager.getInstance().clearAll();
         super.setUp();
 
-        jdoFactory.setPassword( "" );
-
-        jdoFactory.setProperty( "org.jpox.transactionIsolation", "READ_COMMITTED" ); //$NON-NLS-1$ //$NON-NLS-2$
-
-        jdoFactory.setProperty( "org.jpox.poid.transactionIsolation", "READ_COMMITTED" ); //$NON-NLS-1$ //$NON-NLS-2$
-
-        jdoFactory.setProperty( "org.jpox.autoCreateSchema", "true" ); //$NON-NLS-1$ //$NON-NLS-2$
-        
-        Properties properties = jdoFactory.getProperties();
-
-        for ( Entry<Object, Object> entry : properties.entrySet() )
-        {
-            System.setProperty( (String) entry.getKey(), (String) entry.getValue() );
-        }
-
-        SchemaTool.createSchemaTables( new URL[] { getClass()
-            .getResource( "/org/apache/archiva/redback/keys/jdo/package.jdo" ) }, new URL[] {}, null, false, null ); //$NON-NLS-1$
-
-        log.info( "jdoFactory driverName {} " , jdoFactory.getDriverName() );
-
-        PersistenceManagerFactory pmf = jdoFactory.getPersistenceManagerFactory();
-
-        assertNotNull( pmf );
-
-        PersistenceManager pm = pmf.getPersistenceManager();
-
-        pm.close();        
         
     }
 

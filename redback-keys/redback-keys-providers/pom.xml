@@ -28,7 +28,7 @@
   <name>Redback :: Key Management Providers</name>
   <packaging>pom</packaging>
   <modules>    
-    <module>redback-keys-jdo</module>
+    <module>redback-keys-jpa</module>
     <module>redback-keys-memory</module>
     <module>redback-keys-cached</module>
   </modules>

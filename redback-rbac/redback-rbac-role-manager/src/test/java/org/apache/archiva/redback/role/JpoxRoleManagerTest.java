@@ -19,8 +19,7 @@ package org.apache.archiva.redback.role;
  * under the License.
  */
 
-import org.apache.archiva.redback.rbac.jdo.JdoRbacManager;
-import org.apache.archiva.redback.components.jdo.DefaultConfigurableJdoFactory;
+import org.apache.archiva.redback.rbac.RBACManager;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,8 +27,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.jdo.PersistenceManager;
-import javax.jdo.PersistenceManagerFactory;
 
 /**
  * RoleManagerTest:
@@ -41,38 +38,31 @@ import javax.jdo.PersistenceManagerFactory;
 public class JpoxRoleManagerTest
     extends AbstractRoleManagerTest
 {
-    @Inject
-    @Named( value = "jdoFactory#users" )
-    DefaultConfigurableJdoFactory jdoFactory;
-
-    @Inject
-    @Named( value = "rbacManager#jdo" )
-    JdoRbacManager rbacManagerJdo;
 
     @Inject @Named(value = "roleManager#jpox")
     DefaultRoleManager roleManagerInjected;
+
+    @Inject
+    @Named(value = "rbacManager#jpa")
+    RBACManager rbacManager;
+
+
 
     /**
      * Creates a new RbacStore which contains no data.
      */
     @Before
     public void setUp()
-        throws Exception
+            throws Exception
     {
 
         super.setUp();
-
-        PersistenceManagerFactory pmf = jdoFactory.getPersistenceManagerFactory();
-
-        assertNotNull( pmf );
-
-        PersistenceManager pm = pmf.getPersistenceManager();
-
-        pm.close();
-
-        setRbacManager( rbacManagerJdo );
-
+        // rbacManager.setEntityManager(emf.createEntityManager());
+        super.setRbacManager(rbacManager);
+        assertNotNull(rbacManager);
         setRoleManager( roleManagerInjected );
+
     }
+
 
 }

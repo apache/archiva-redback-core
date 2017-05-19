@@ -97,10 +97,12 @@ public class AbstractUserManagerTestCase
         throws UserManagerException
     {
 
+        assertNotNull(userManager);
         getUserManager().eraseDatabase();
         getEventTracker().userManagerInit( true );
         assertNotNull( getUserManager() );
 
+        assertNotNull(userManager.getUsers());
         assertEquals( "New UserManager should contain no users. " + userManager.getUsers(), 0,
                       userManager.getUsers().size() );
     }

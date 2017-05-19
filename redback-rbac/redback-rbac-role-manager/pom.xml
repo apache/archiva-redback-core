@@ -63,17 +63,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <artifactId>redback-rbac-jdo</artifactId>
-      <groupId>org.apache.archiva.redback</groupId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-model</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-common-jdo</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>

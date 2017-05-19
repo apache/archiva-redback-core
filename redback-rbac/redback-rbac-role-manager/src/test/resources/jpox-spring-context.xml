@@ -26,13 +26,13 @@
 
 
   <bean name="roleModelProcessor" class="org.apache.archiva.redback.role.processor.DefaultRoleModelProcessor">
-    <property name="rbacManager" ref="rbacManager#jdo"/>
+    <property name="rbacManager" ref="rbacManager#jpa"/>
   </bean>
 
   <alias name="roleModelProcessor" alias="roleModelProcessor#jpox"/>
 
   <bean name="roleTemplateProcessor" class="org.apache.archiva.redback.role.template.DefaultRoleTemplateProcessor">
-    <property name="rbacManager" ref="rbacManager#jdo"/>
+    <property name="rbacManager" ref="rbacManager#jpa"/>
   </bean>
 
   <alias name="roleTemplateProcessor" alias="roleTemplateProcessor#jpox"/>
@@ -41,34 +41,9 @@
     <property name="modelValidator" ref="roleModelValidator"/>
     <property name="modelProcessor" ref="roleModelProcessor#jpox"/>
     <property name="templateProcessor" ref="roleTemplateProcessor#jpox"/>
-    <property name="rbacManager" ref="rbacManager#jdo"/>
+    <property name="rbacManager" ref="rbacManager#jpa"/>
   </bean>
   <alias name="roleManager" alias="roleManager#jpox"/>
-
-
-  <bean name="rbacManager#jdo" class="org.apache.archiva.redback.rbac.jdo.JdoRbacManager">
-    <property name="jdo" ref="jdoTool"/>
-    <property name="enableCache" value="false"/>
-  </bean>
-
-  <bean name="jdoFactory#users" class="org.apache.archiva.redback.components.jdo.DefaultConfigurableJdoFactory">
-    <property name="driverName" value="org.hsqldb.jdbcDriver"/>
-    <property name="url" value="jdbc:hsqldb:mem:redback-jpox-role-manager-test" />
-    <property name="userName" value="sa"/>
-    <property name="password" value=""/>
-    <property name="persistenceManagerFactoryClass" value="org.jpox.PersistenceManagerFactoryImpl"/>
-    <property name="otherProperties">
-      <props>
-        <prop key="org.jpox.rdbms.dateTimezone">JDK_DEFAULT_TIMEZONE</prop>
-        <prop key="org.jpox.transactionIsolation">READ_UNCOMMITTED</prop>
-        <prop key="org.jpox.poid.transactionIsolation">READ_UNCOMMITTED</prop>
-        <prop key="org.jpox.autoCreateTables">true</prop>
-        <prop key="org.jpox.autoCreateSchema">true</prop>
-        <prop key="javax.jdo.option.RetainValues">true</prop>
-        <prop key="javax.jdo.option.RestoreValues">true</prop>
-      </props>
-    </property>
-  </bean>
 
   <bean name="userConfiguration#default" class="org.apache.archiva.redback.configuration.DefaultUserConfiguration">
     <property name="registry" ref="test-conf"/>

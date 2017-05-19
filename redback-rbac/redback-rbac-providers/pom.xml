@@ -28,7 +28,7 @@
   <name>Redback :: RBAC Providers</name>
   <packaging>pom</packaging>
   <modules>
-    <module>redback-rbac-jdo</module>
+    <module>redback-rbac-jpa</module>
     <module>redback-rbac-memory</module>
     <module>redback-rbac-cached</module>
     <module>redback-rbac-ldap</module>

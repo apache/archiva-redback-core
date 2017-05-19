@@ -71,13 +71,15 @@
   </distributionManagement>
 
   <properties>
-    <springVersion>4.2.1.RELEASE</springVersion>
+    <springVersion>4.3.5.RELEASE</springVersion>
     <slf4jVersion>1.7.12</slf4jVersion>
     <log4j2Version>2.8.2</log4j2Version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <gpg.useagent>true</gpg.useagent>
     <cxf.version>3.0.3</cxf.version>
+    <openjpa.version>2.4.1</openjpa.version>
+
     <!--
     <redbackTestJdbcUrl>jdbc:derby:memory:users-test;create=true</redbackTestJdbcUrl>
     <redbackTestJdbcDriver>org.apache.derby.jdbc.EmbeddedDriver</redbackTestJdbcDriver>
@@ -146,11 +148,6 @@
       </dependency>
       <dependency>
         <groupId>org.apache.archiva.redback</groupId>
-        <artifactId>redback-common-jdo</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.archiva.redback</groupId>
         <artifactId>redback-common-ldap</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -181,7 +178,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.archiva.redback</groupId>
-        <artifactId>redback-keys-jdo</artifactId>
+        <artifactId>redback-keys-jpa</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -216,7 +213,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.archiva.redback</groupId>
-        <artifactId>redback-users-jdo</artifactId>
+        <artifactId>redback-users-jpa</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -271,7 +268,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.archiva.redback</groupId>
-        <artifactId>redback-rbac-jdo</artifactId>
+        <artifactId>redback-rbac-jpa</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -298,6 +295,11 @@
         <groupId>org.apache.archiva.redback</groupId>
         <artifactId>redback-integrations-security</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.archiva.redback</groupId>
+        <artifactId>redback-common-jpa</artifactId>
+        <version>2.5-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -385,35 +387,7 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency>
-        <groupId>org.apache.archiva.redback.components</groupId>
-        <artifactId>spring-jdo2</artifactId>
-        <version>2.2</version>
-        <exclusions>
-          <exclusion>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>xerces</groupId>
-            <artifactId>xmlParserAPIs</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
       <!-- Other -->
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <!-- must run at xalan 2.7.0, as ealier versions embed an ancient version 
-             of bcel, which iterferes with the ability of jpox/jdo to run -->
-        <version>2.7.0</version>
-      </dependency>
-      <dependency>
-        <groupId>xml-apis</groupId>
-        <artifactId>xml-apis</artifactId>
-        <!-- Xalan 2.7.0 requires xml-apis version 1.3.02+ -->
-        <version>1.3.03</version>
-      </dependency>
       <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
@@ -483,6 +457,11 @@
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <version>${springVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
         <artifactId>spring-web</artifactId>
         <version>${springVersion}</version>
       </dependency>
@@ -512,6 +491,16 @@
         <version>${springVersion}</version>
       </dependency>
       <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-tx</artifactId>
+        <version>${springVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-orm</artifactId>
+        <version>${springVersion}</version>
+      </dependency>
+      <dependency>
         <groupId>javax.annotation</groupId>
         <artifactId>jsr250-api</artifactId>
         <version>1.0</version>
@@ -530,45 +519,6 @@
         <groupId>org.apache.archiva.redback</groupId>
         <artifactId>redback-rest-services</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jpox</groupId>
-        <artifactId>jpox</artifactId>
-        <version>1.1.9-1</version>
-        <scope>compile</scope>
-        <exclusions>
-          <!-- targeting JDK 1.4 we don't need this -->
-          <exclusion>
-            <groupId>javax.sql</groupId>
-            <artifactId>jdbc-stdext</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-
-          <exclusion>
-            <groupId>javax.resource</groupId>
-            <artifactId>connector</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
-          </exclusion>
-
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>jpox</groupId>
-        <artifactId>jpox-ehcache</artifactId>
-        <version>1.1.9</version>
-        <scope>test</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
@@ -685,21 +635,9 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>1.7</source>
+            <target>1.7</target>
           </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>jpox-maven-plugin</artifactId>
-          <version>1.1.7</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.apache.bcel</groupId>
-              <artifactId>bcel</artifactId>
-              <version>6.0</version>
-            </dependency>
-          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.codehaus.modello</groupId>
@@ -721,9 +659,9 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>org.apache.archiva.redback.components.modello</groupId>
-          <artifactId>jpox-modello-maven-plugin</artifactId>
-          <version>1.0</version>
+          <groupId>org.apache.openjpa</groupId>
+          <artifactId>openjpa-maven-plugin</artifactId>
+          <version>${openjpa.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -804,6 +742,7 @@
             <exclude>build-number.txt</exclude>
             <!-- IntelliJ IDEA files -->
             <exclude>.idea/**</exclude>
+            <exclude>**/*.iml</exclude>
             <!-- Eclipse files -->
             <exclude>.project</exclude>
             <exclude>.classpath</exclude>
@@ -931,7 +870,7 @@
                   <descriptorRefs>
                     <descriptorRef>${sourceReleaseAssemblyDescriptor}</descriptorRef>
                   </descriptorRefs>
-                  <tarLongFileFormat>gnu</tarLongFileFormat>
+                  <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
               </execution>
             </executions>

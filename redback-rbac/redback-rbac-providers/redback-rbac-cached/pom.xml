@@ -66,7 +66,7 @@
     </dependency>    
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-rbac-jdo</artifactId>      
+      <artifactId>redback-rbac-jpa</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
