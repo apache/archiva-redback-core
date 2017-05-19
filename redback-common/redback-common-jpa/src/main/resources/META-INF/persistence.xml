@@ -33,7 +33,7 @@
           <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)" />
           <property name="openjpa.jdbc.MappingDefaults"
                       value="ForeignKeyDeleteAction=restrict,JoinForeignKeyDeleteAction=restrict"/>
-          <property name="openjpa.Log" value="DefaultLevel=TRACE, Runtime=TRACE, Tool=INFO, SQL=TRACE"/>
+          <property name="openjpa.Log" value="DefaultLevel=INFO,Runtime=INFO,Tool=INFO,SQL=INFO"/>
           <property name="openjpa.jdbc.DBDictionary" value="(disableSchemaFactoryColumnTypeErrors=true,BitTypeName=CHAR(1),BooleanTypeName=CHAR(1),BooleanRepresentation=STRING_YN)"/>
         </properties>
     </persistence-unit>
