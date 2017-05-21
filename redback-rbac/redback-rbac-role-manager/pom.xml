@@ -127,6 +127,7 @@
           <forkMode>always</forkMode>
           <systemPropertyVariables>
             <basedir>${basedir}</basedir>
+            <openjpa.Log>${openjpa.Log}</openjpa.Log>
           </systemPropertyVariables>
         </configuration>
       </plugin>

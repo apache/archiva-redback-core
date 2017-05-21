@@ -26,6 +26,8 @@
            http://www.springframework.org/schema/context 
            http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
+  <context:property-placeholder system-properties-mode="OVERRIDE"/>
+
   <bean name="userConfiguration#default" class="org.apache.archiva.redback.configuration.DefaultUserConfiguration">
     <property name="registry" ref="test-conf"/>
   </bean>
@@ -57,7 +59,7 @@
         <entry key="openjpa.ConnectionDriverName" value="org.hsqldb.jdbcDriver" />
         <entry key="openjpa.ConnectionUserName" value="sa" />
         <entry key="openjpa.ConnectionPassword" value="" />
-        <entry key="openjpa.Log" value="DefaultLevel=INFO,Runtime=INFO,Tool=INFO,SQL=ERROR,Schema=ERROR,MetaData=ERROR" />
+        <entry key="openjpa.Log" value="${openjpa.Log:DefaultLevel=INFO,Runtime=ERROR,Tool=ERROR,SQL=ERROR,Schema=ERROR,MetaData=ERROR}" />
         <entry key="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)" />
         <entry key="openjpa.jdbc.MappingDefaults"
                value="ForeignKeyDeleteAction=restrict,JoinForeignKeyDeleteAction=restrict"/>

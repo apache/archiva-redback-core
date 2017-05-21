@@ -71,7 +71,7 @@
   </distributionManagement>
 
   <properties>
-    <springVersion>4.3.5.RELEASE</springVersion>
+    <springVersion>4.3.8.RELEASE</springVersion>
     <slf4jVersion>1.7.12</slf4jVersion>
     <log4j2Version>2.8.2</log4j2Version>
 
@@ -88,7 +88,8 @@
     <redbackTestJdbcDriver>org.hsqldb.jdbcDriver</redbackTestJdbcDriver>
     <siteDeployDirectory>${user.home}/archiva-sites/redback-core-site-deploy</siteDeployDirectory>
     <scmPubCheckoutDirectory>${basedir}/.site-content</scmPubCheckoutDirectory>
-
+    
+    <openjpa.Log>DefaultLevel=INFO,Runtime=ERROR,Tool=ERROR,SQL=ERROR,Schema=ERROR,MetaData=ERROR</openjpa.Log>
   </properties>
 
   <repositories>

@@ -227,6 +227,7 @@
           <systemPropertyVariables>
             <basedir>${basedir}</basedir>
             <derby.system.home>${project.build.directory}/test-home</derby.system.home>
+            <openjpa.Log>${openjpa.Log}</openjpa.Log>
           </systemPropertyVariables>
         </configuration>
       </plugin>

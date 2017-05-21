@@ -276,6 +276,7 @@
             <redback.jdbc.driver.name>${redbackTestJdbcDriver}</redback.jdbc.driver.name>
             <ldapPort>${ldapPort}</ldapPort>
             <rest.test.timeout>${rest.test.timeout}</rest.test.timeout>
+            <openjpa.Log>${openjpa.Log}</openjpa.Log>
           </systemPropertyVariables>
         </configuration>
       </plugin>
