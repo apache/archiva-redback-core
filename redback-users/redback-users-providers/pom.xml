@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.archiva.redback</groupId>
     <artifactId>redback-users</artifactId>
-    <version>2.7-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>redback-users-providers</artifactId>
   <name>Redback :: Users Providers</name>
