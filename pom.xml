@@ -631,7 +631,6 @@
   <build>
     <pluginManagement>
       <plugins>
-        <!-- https://issues.apache.org/jira/browse/MRM-1827  -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
