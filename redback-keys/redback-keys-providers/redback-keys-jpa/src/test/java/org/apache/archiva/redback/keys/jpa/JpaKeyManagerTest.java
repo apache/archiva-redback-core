@@ -30,7 +30,7 @@ import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 
 /**
- * JdoKeyManagerTest 
+ * JpaKeyManagerTest
  *
  * @author <a href="mailto:martin_s@apache.org">Martin Stockhammer</a>
  *

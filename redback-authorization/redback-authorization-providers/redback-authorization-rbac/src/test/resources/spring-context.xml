@@ -35,7 +35,7 @@
     <property name="usersCache" ref="cache#users"/>
   </bean>
   
-  <alias name="userManager#memory" alias="userManager#jdo"/>
+  <alias name="userManager#memory" alias="userManager#jpa"/>
 
   <bean name="cache#users" class="org.apache.archiva.redback.components.cache.ehcache.EhcacheCache"
       init-method="initialize">

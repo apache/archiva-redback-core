@@ -170,9 +170,6 @@ public class AbstractUserManagerTestCase
 
         User smcqueen = getUserManager().createUser( "smcqueen", "Steve McQueen", "the cooler king" );
 
-        /* Keep a reference to the object that was added.
-         * Since it has the actual principal that was managed by jpox/jdo.
-         */
         User added = userManager.addUser( smcqueen );
 
         assertEquals( 1, userManager.getUsers().size() );
@@ -202,11 +199,7 @@ public class AbstractUserManagerTestCase
 
         smcqueen.setLocked( true );
 
-		/*
-         * Keep a reference to the object that was added. Since it has the
-		 * actual principal that was managed by jpox/jdo.
-		 */
-        User added = userManager.addUser( smcqueen );
+		User added = userManager.addUser( smcqueen );
 
         assertTrue( added.isLocked() );
 

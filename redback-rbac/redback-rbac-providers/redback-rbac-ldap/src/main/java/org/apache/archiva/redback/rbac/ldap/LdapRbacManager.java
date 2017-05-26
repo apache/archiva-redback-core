@@ -393,7 +393,7 @@ public class LdapRbacManager
         }
         catch ( RbacObjectNotFoundException e )
         {
-            // if it's mapped role to a group it doesn't exist in jdo
+            // if it's mapped role to a group it doesn't exist in jpa
         }
         role = ( role == null ) ? new RoleImpl( group ) : role;
         if ( role != null )

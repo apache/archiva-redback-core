@@ -26,7 +26,7 @@ import java.util.Date;
 /**
  * Authentication Key implementation for JPA.
  *
- * The table names are set to match the JDO tables.
+ * The table names are set to match the legacy JDO tables.
  *
  * @author <a href="mailto:martin_s@apache.org">Martin Stockhammer</a>
  */

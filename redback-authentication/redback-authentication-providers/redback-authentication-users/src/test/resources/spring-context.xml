@@ -35,7 +35,7 @@
     <property name="securityPolicy" ref="userSecurityPolicy"/>
   </bean>
 
-  <alias name="userManager#memory" alias="userManager#jdo"/>
+  <alias name="userManager#memory" alias="userManager#jpa"/>
 
   <alias name="userConfiguration#redback" alias="userConfiguration#default"/>
 

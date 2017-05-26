@@ -34,7 +34,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * JdoRbacManagerTest:
+ * JpaRbacManagerTest:
  *
  * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
