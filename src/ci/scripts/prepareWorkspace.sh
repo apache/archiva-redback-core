@@ -29,6 +29,7 @@ ATTIC_DIRS="redback-common/redback-common-jdo \
 
 for i in ${ATTIC_DIRS}; do
  if [ "X${i}" != "X" -a -d ${i} ]; then
+   echo "Deleting directory ${i}"
    rm -rf ${i}
  fi
 done
