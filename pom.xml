@@ -822,13 +822,13 @@
           </additionalparam>
           <useStandardDocletOptions>false</useStandardDocletOptions>
           <additionalJOption>-J-Xmx1024m</additionalJOption>
-          <additionnalDependencies>
-            <additionnalDependency>
+          <additionalDependencies>
+            <additionalDependency>
               <groupId>org.jboss.spec.javax.resource</groupId>
               <artifactId>jboss-connector-api_1.5_spec</artifactId>
               <version>1.0.0.Final</version>
-            </additionnalDependency>
-          </additionnalDependencies>
+            </additionalDependency>
+          </additionalDependencies>
         </configuration>
         <reportSets>
           <reportSet>
@@ -862,7 +862,7 @@
                   <descriptorRefs>
                     <descriptorRef>${sourceReleaseAssemblyDescriptor}</descriptorRef>
                   </descriptorRefs>
-                  <tarLongFileMode>gnu</tarLongFileMode>
+                  <tarLongFileMode>posix</tarLongFileMode>
                 </configuration>
               </execution>
             </executions>
