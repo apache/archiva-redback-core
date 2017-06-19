@@ -122,7 +122,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         try {
             role = q.getSingleResult();
         } catch (NoResultException ex) {
-            log.warn("Role {0} not found", roleName);
+            log.warn("Role {} not found", roleName);
             throw new RbacObjectNotFoundException("Role not found "+roleName);
         }
         return role;
