@@ -35,7 +35,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * RoleProfileTest:
@@ -77,13 +78,13 @@ public class RoleTemplateProcessorTest
     public void testLoading()
         throws Exception
     {
-        File resource = new File( getBasedir() + "/src/test/template-tests/redback-1.xml" );
+        Path resource = Paths.get(getBasedir() + "/src/test/template-tests/redback-1.xml");
 
         assertNotNull( resource );
 
         RedbackRoleModelStaxReader modelReader = new RedbackRoleModelStaxReader();
 
-        RedbackRoleModel redback = modelReader.read( resource.getAbsolutePath() );
+        RedbackRoleModel redback = modelReader.read( resource.toAbsolutePath().toString() );
 
         assertNotNull( redback );
 

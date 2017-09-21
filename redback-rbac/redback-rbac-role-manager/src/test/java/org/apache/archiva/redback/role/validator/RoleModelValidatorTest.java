@@ -29,7 +29,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -71,13 +72,13 @@ public class RoleModelValidatorTest
     @Test
     public void testGood() throws Exception 
     {
-        File resource = new File( getBasedir() + "/src/test/validation-tests/redback-good.xml");
+        Path resource = Paths.get(getBasedir() + "/src/test/validation-tests/redback-good.xml");
         
         assertNotNull( resource );
         
         RedbackRoleModelStaxReader modelReader = new RedbackRoleModelStaxReader();
         
-        RedbackRoleModel redback = modelReader.read( resource.getAbsolutePath() );
+        RedbackRoleModel redback = modelReader.read( resource.toAbsolutePath().toString() );
         
         assertNotNull( redback );
 
@@ -89,13 +90,13 @@ public class RoleModelValidatorTest
     @Test
     public void testBad() throws Exception 
     {
-        File resource = new File( getBasedir() + "/src/test/validation-tests/redback-bad.xml");
+        Path resource = Paths.get( getBasedir() + "/src/test/validation-tests/redback-bad.xml");
         
         assertNotNull( resource );
         
         RedbackRoleModelStaxReader modelReader = new RedbackRoleModelStaxReader();
         
-        RedbackRoleModel redback = modelReader.read( resource.getAbsolutePath() );
+        RedbackRoleModel redback = modelReader.read( resource.toAbsolutePath().toString() );
         
         assertNotNull( redback );
 
@@ -120,13 +121,13 @@ public class RoleModelValidatorTest
     @Test
     public void testCore() throws Exception 
     {
-        File resource = new File( getBasedir() + "/src/test/validation-tests/redback-core.xml");
+        Path resource = Paths.get( getBasedir() + "/src/test/validation-tests/redback-core.xml");
         
         assertNotNull( resource );
         
         RedbackRoleModelStaxReader modelReader = new RedbackRoleModelStaxReader();
         
-        RedbackRoleModel redback = modelReader.read( resource.getAbsolutePath() );
+        RedbackRoleModel redback = modelReader.read( resource.toAbsolutePath().toString() );
         
         assertNotNull( redback );
 

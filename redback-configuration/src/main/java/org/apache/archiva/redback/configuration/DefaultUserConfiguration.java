@@ -19,12 +19,12 @@ package org.apache.archiva.redback.configuration;
  * under the License.
  */
 
-import org.apache.archiva.redback.components.registry.Registry;
-import org.apache.archiva.redback.components.registry.RegistryException;
 import org.apache.archiva.redback.components.evaluator.DefaultExpressionEvaluator;
 import org.apache.archiva.redback.components.evaluator.EvaluatorException;
 import org.apache.archiva.redback.components.evaluator.ExpressionEvaluator;
 import org.apache.archiva.redback.components.evaluator.sources.SystemPropertyExpressionSource;
+import org.apache.archiva.redback.components.registry.Registry;
+import org.apache.archiva.redback.components.registry.RegistryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 
@@ -133,7 +133,7 @@ public class DefaultUserConfiguration
                 }
                 log.info( "Attempting to find configuration [{}] (resolved to [{}])", configName, configName );
 
-                registry.addConfigurationFromFile( new File( configName ), PREFIX );
+                registry.addConfigurationFromFile(Paths.get(configName).toFile(), PREFIX );
             }
         }
     }

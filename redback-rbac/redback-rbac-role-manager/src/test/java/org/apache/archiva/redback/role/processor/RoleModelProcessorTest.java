@@ -36,8 +36,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.stream.XMLStreamException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * RoleProfileTest:
@@ -89,13 +90,13 @@ public class RoleModelProcessorTest
     private RedbackRoleModel getModelFromFile( String file )
         throws IOException, XMLStreamException
     {
-        File resource = new File( getBasedir() + file );
+        Path resource = Paths.get( getBasedir() + file );
 
         assertNotNull( resource );
 
         RedbackRoleModelStaxReader modelReader = new RedbackRoleModelStaxReader();
 
-        RedbackRoleModel redback = modelReader.read( resource.getAbsolutePath() );
+        RedbackRoleModel redback = modelReader.read( resource.toAbsolutePath().toString() );
 
         assertNotNull( redback );
         return redback;

@@ -26,8 +26,8 @@ import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.users.UserManagerException;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * Data management tool API.
@@ -35,22 +35,22 @@ import java.io.IOException;
 public interface DataManagementTool
 {
 
-    void backupRBACDatabase( RBACManager manager, File backupDirectory )
+    void backupRBACDatabase( RBACManager manager, Path backupDirectory )
         throws RbacManagerException, IOException, XMLStreamException;
 
-    void backupUserDatabase( UserManager manager, File backupDirectory )
+    void backupUserDatabase( UserManager manager, Path backupDirectory )
         throws IOException, XMLStreamException, UserManagerException;
 
-    void backupKeyDatabase( KeyManager manager, File backupDirectory )
+    void backupKeyDatabase( KeyManager manager, Path backupDirectory )
         throws IOException, XMLStreamException;
 
-    void restoreRBACDatabase( RBACManager manager, File backupDirectory )
+    void restoreRBACDatabase( RBACManager manager, Path backupDirectory )
         throws IOException, XMLStreamException, RbacManagerException;
 
-    void restoreUsersDatabase( UserManager manager, File backupDirectory )
+    void restoreUsersDatabase( UserManager manager, Path backupDirectory )
         throws IOException, XMLStreamException, UserManagerException;
 
-    void restoreKeysDatabase( KeyManager manager, File backupDirectory )
+    void restoreKeysDatabase( KeyManager manager, Path backupDirectory )
         throws IOException, XMLStreamException;
 
     void eraseRBACDatabase( RBACManager manager );

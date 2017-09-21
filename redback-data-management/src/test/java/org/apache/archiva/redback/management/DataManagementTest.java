@@ -23,11 +23,7 @@ import junit.framework.TestCase;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.keys.KeyManager;
 import org.apache.archiva.redback.keys.KeyManagerException;
-import org.apache.archiva.redback.rbac.Permission;
-import org.apache.archiva.redback.rbac.RBACManager;
-import org.apache.archiva.redback.rbac.RbacManagerException;
-import org.apache.archiva.redback.rbac.Role;
-import org.apache.archiva.redback.rbac.UserAssignment;
+import org.apache.archiva.redback.rbac.*;
 import org.apache.archiva.redback.tests.utils.RBACDefaults;
 import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
@@ -45,11 +41,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -67,7 +63,7 @@ public class DataManagementTest
     @Inject
     private DataManagementTool dataManagementTool;
 
-    private File targetDirectory;
+    private Path targetDirectory;
 
     @Inject
     @Named(value = "userManager#jpa")
@@ -128,16 +124,16 @@ public class DataManagementTest
 
         dataManagementTool.backupRBACDatabase( manager, targetDirectory );
 
-        File backupFile = new File( targetDirectory, "rbac.xml" );
+        Path backupFile = targetDirectory.resolve( "rbac.xml" );
 
-        assertTrue( "Check database exists", backupFile.exists() );
+        assertTrue( "Check database exists", Files.exists(backupFile) );
 
         StringWriter sw = new StringWriter();
 
         IOUtils.copy( getClass().getResourceAsStream( "/expected-rbac.xml" ), sw );
 
         XMLAssert.assertXMLEqual( new StringReader( sw.toString() ),
-                                  new StringReader( FileUtils.readFileToString( backupFile ) ) );
+                                  new StringReader( FileUtils.readFileToString( backupFile.toFile() ) ) );
 
     }
 
@@ -167,15 +163,15 @@ public class DataManagementTest
 
         dataManagementTool.backupUserDatabase( manager, targetDirectory );
 
-        File backupFile = new File( targetDirectory, "users.xml" );
+        Path backupFile = targetDirectory.resolve( "users.xml" );
 
-        assertTrue( "Check database exists", backupFile.exists() );
+        assertTrue( "Check database exists", Files.exists(backupFile) );
 
         StringWriter sw = new StringWriter();
 
         IOUtils.copy( getClass().getResourceAsStream( "/expected-users.xml" ), sw );
 
-        String actual = FileUtils.readFileToString( backupFile ).trim();
+        String actual = FileUtils.readFileToString( backupFile.toFile() ).trim();
         String expected = sw.toString().trim();
 
         XMLAssert.assertXMLEqual( removeTimestampVariance( expected ), removeTimestampVariance( actual ) );
@@ -210,15 +206,15 @@ public class DataManagementTest
 
         dataManagementTool.backupKeyDatabase( manager, targetDirectory );
 
-        File backupFile = new File( targetDirectory, "keys.xml" );
+        Path backupFile = targetDirectory.resolve( "keys.xml" );
 
-        assertTrue( "Check database exists", backupFile.exists() );
+        assertTrue( "Check database exists", Files.exists(backupFile) );
 
         StringWriter sw = new StringWriter();
 
         IOUtils.copy( getClass().getResourceAsStream( "/expected-keys.xml" ), sw );
 
-        String actual = FileUtils.readFileToString( backupFile ).trim();
+        String actual = FileUtils.readFileToString( backupFile.toFile() ).trim();
         String expected = sw.toString().trim();
 
         XMLAssert.assertXMLEqual( removeKeyAndTimestampVariance( expected ), removeKeyAndTimestampVariance( actual ) );
@@ -244,11 +240,11 @@ public class DataManagementTest
 
         assertEmpty( manager );
 
-        File backupFile = new File( targetDirectory, "rbac.xml" );
+        Path backupFile = targetDirectory.resolve("rbac.xml" );
 
         InputStream is = getClass().getResourceAsStream( "/expected-rbac.xml" );
 
-        FileWriter fw = new FileWriter( backupFile );
+        BufferedWriter fw = Files.newBufferedWriter(backupFile, StandardOpenOption.CREATE_NEW);
 
         IOUtils.copy( is, fw );
 
@@ -331,9 +327,9 @@ public class DataManagementTest
 
         assertEmpty( manager );
 
-        File backupFile = new File( targetDirectory, "users.xml" );
+        Path backupFile = targetDirectory.resolve( "users.xml" );
 
-        FileWriter fw = new FileWriter( backupFile );
+        BufferedWriter fw = Files.newBufferedWriter(backupFile, StandardOpenOption.CREATE_NEW );
 
         IOUtils.copy( getClass().getResourceAsStream( "/expected-users.xml" ), fw );
 
@@ -389,9 +385,9 @@ public class DataManagementTest
 
         assertEmpty( manager );
 
-        File backupFile = new File( targetDirectory, "keys.xml" );
+        Path backupFile = targetDirectory.resolve( "keys.xml" );
 
-        FileWriter fw = new FileWriter( backupFile );
+        BufferedWriter fw = Files.newBufferedWriter( backupFile, StandardOpenOption.CREATE_NEW );
 
         IOUtils.copy( getClass().getResourceAsStream( "/expected-keys.xml" ), fw );
 
@@ -451,12 +447,11 @@ public class DataManagementTest
         assertEquals( resource, permission.getResource().getIdentifier() );
     }
 
-    private static File createBackupDirectory()
-    {
+    private static Path createBackupDirectory() throws IOException {
         String timestamp = new SimpleDateFormat( "yyyyMMdd.HHmmss", Locale.US ).format( new Date() );
 
-        File targetDirectory = new File( SystemUtils.getJavaIoTmpDir(), "./target/backups/" + timestamp );
-        targetDirectory.mkdirs();
+        Path targetDirectory = Paths.get( SystemUtils.getJavaIoTmpDir().toString(), "./target/backups/" + timestamp );
+        Files.createDirectories(targetDirectory);
 
         return targetDirectory;
     }

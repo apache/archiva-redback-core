@@ -40,8 +40,10 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -113,15 +115,15 @@ public class AdminAutoCreateCheck
                 log.info( "{} system props is empty don't use an auto creation admin ", FORCE_ADMIN_FILE_PATH );
                 return;
             }
-            File file = new File( forceAdminFilePath );
-            if ( !file.exists() )
+            Path file = Paths.get( forceAdminFilePath );
+            if ( !Files.exists(file) )
             {
                 log.warn( "file set in sysprops {} not exists skip admin auto creation", FORCE_ADMIN_FILE_PATH );
                 return;
             }
             log.debug( "user {} not found try auto creation", getAdminUid() );
             Properties properties = new Properties();
-            FileInputStream fis = new FileInputStream( file );
+            InputStream fis = Files.newInputStream(file);
             try
             {
                 properties.load( fis );
