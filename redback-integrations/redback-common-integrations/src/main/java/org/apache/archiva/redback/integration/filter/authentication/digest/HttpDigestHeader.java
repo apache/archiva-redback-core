@@ -102,7 +102,7 @@ public class HttpDigestHeader
         }
 
         // [RFC 2617] Validate nonce
-        if ( !Base64.isArrayByteBase64( nonce.getBytes() ) )
+        if ( !Base64.isBase64( nonce.getBytes() ) )
         {
             log.debug( "Nonce is not encoded in Base64: nonce [{}]", nonce );
 
