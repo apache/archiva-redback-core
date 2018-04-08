@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class MockUserConfiguration implements UserConfiguration {
 
-    private Map<String, Object> values = new java.util.HashMap<String,Object>();
+    private Map<String, Object> values = new java.util.HashMap<>( );
 
     @SuppressWarnings("SameParameterValue")
     public void addValue(String key, String value) {
@@ -92,6 +92,7 @@ public class MockUserConfiguration implements UserConfiguration {
         }
     }
 
+    @SuppressWarnings( "unchecked" )
     @Override
     public List<String> getList(String key) {
         Object value = values.get(key);

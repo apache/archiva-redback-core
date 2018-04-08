@@ -19,7 +19,6 @@ package org.apache.archiva.redback.rest.services;
  */
 
 import org.apache.archiva.redback.common.ldap.MappingException;
-import org.apache.archiva.redback.common.ldap.connection.DefaultLdapConnection;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnection;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnectionFactory;
 import org.apache.archiva.redback.common.ldap.connection.LdapException;
@@ -51,7 +50,7 @@ import java.util.Map;
 public class DefaultLdapGroupMappingService
     implements LdapGroupMappingService
 {
-    private Logger log = LoggerFactory.getLogger( getClass() );
+    private final Logger log = LoggerFactory.getLogger( getClass() );
 
     @Inject
     @Named(value = "ldapRoleMapper#default")
@@ -78,12 +77,7 @@ public class DefaultLdapGroupMappingService
             context = ldapConnection.getDirContext();
             return new StringList( ldapRoleMapper.getAllGroups( context ) );
         }
-        catch ( LdapException e )
-        {
-            log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
-        }
-        catch ( MappingException e )
+        catch ( LdapException | MappingException e )
         {
             log.error( e.getMessage(), e );
             throw new RedbackServiceException( e.getMessage() );
@@ -101,7 +95,7 @@ public class DefaultLdapGroupMappingService
         try
         {
             Map<String, Collection<String>> map = ldapRoleMapperConfiguration.getLdapGroupMappings();
-            List<LdapGroupMapping> ldapGroupMappings = new ArrayList<LdapGroupMapping>( map.size() );
+            List<LdapGroupMapping> ldapGroupMappings = new ArrayList<>( map.size( ) );
             for ( Map.Entry<String, Collection<String>> entry : map.entrySet() )
             {
                 LdapGroupMapping ldapGroupMapping = new LdapGroupMapping( entry.getKey(), entry.getValue() );
@@ -123,7 +117,7 @@ public class DefaultLdapGroupMappingService
         try
         {
             ldapRoleMapperConfiguration.addLdapMapping( ldapGroupMapping.getGroup(),
-                                                        new ArrayList( ldapGroupMapping.getRoleNames() ) );
+                                                        new ArrayList<>( ldapGroupMapping.getRoleNames() ) );
         }
         catch ( MappingException e )
         {
@@ -156,7 +150,7 @@ public class DefaultLdapGroupMappingService
             for ( LdapGroupMapping ldapGroupMapping : ldapGroupMappingUpdateRequest.getLdapGroupMapping() )
             {
                 ldapRoleMapperConfiguration.updateLdapMapping( ldapGroupMapping.getGroup(),
-                                                               new ArrayList( ldapGroupMapping.getRoleNames() ) );
+                                                               new ArrayList<>( ldapGroupMapping.getRoleNames() ) );
             }
         }
         catch ( MappingException e )

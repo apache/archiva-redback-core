@@ -44,7 +44,7 @@ public class CachedUserManager
     implements UserManager, UserManagerListener
 {
 
-    private Logger log = LoggerFactory.getLogger( getClass() );
+    private final Logger log = LoggerFactory.getLogger( getClass() );
 
     @Inject
     @Named(value = "userManager#default")
@@ -271,7 +271,7 @@ public class CachedUserManager
     @Override
     public void userManagerInit( boolean freshDatabase )
     {
-        if ( userImpl instanceof UserManager )
+        if ( userImpl != null )
         {
             ( (UserManagerListener) this.userImpl ).userManagerInit( freshDatabase );
         }
@@ -282,7 +282,7 @@ public class CachedUserManager
     @Override
     public void userManagerUserAdded( User user )
     {
-        if ( userImpl instanceof UserManager )
+        if ( userImpl != null )
         {
             ( (UserManagerListener) this.userImpl ).userManagerUserAdded( user );
         }
@@ -296,7 +296,7 @@ public class CachedUserManager
     @Override
     public void userManagerUserRemoved( User user )
     {
-        if ( userImpl instanceof UserManager )
+        if ( userImpl != null )
         {
             ( (UserManagerListener) this.userImpl ).userManagerUserRemoved( user );
         }
@@ -310,7 +310,7 @@ public class CachedUserManager
     @Override
     public void userManagerUserUpdated( User user )
     {
-        if ( userImpl instanceof UserManager )
+        if ( userImpl != null )
         {
             ( (UserManagerListener) this.userImpl ).userManagerUserUpdated( user );
         }
@@ -336,7 +336,7 @@ public class CachedUserManager
         return usersCache;
     }
 
-    public void setUsersCache( Cache usersCache )
+    public void setUsersCache( Cache<String, User> usersCache )
     {
         this.usersCache = usersCache;
     }

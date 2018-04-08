@@ -48,6 +48,8 @@ public class VelocityMailGenerator
 {
     private Logger log = LoggerFactory.getLogger( VelocityMailGenerator.class );
 
+    public static final String DEFAULT_ENCODING = "UTF-8";
+
     @Inject
     @Named(value = "userConfiguration#default")
     private UserConfiguration config;
@@ -56,6 +58,15 @@ public class VelocityMailGenerator
     @Inject
     @Named(value = "velocityEngine#redback")
     private VelocityEngine velocityEngine;
+
+    private String encoding;
+
+    private String getEncoding() {
+        if (this.encoding==null) {
+            this.encoding = config.getString( "mail.encoding", DEFAULT_ENCODING );
+        }
+        return this.encoding;
+    }
 
     public String generateMail( String templateName, AuthenticationKey authkey, String baseUrl )
     {
@@ -68,7 +79,7 @@ public class VelocityMailGenerator
 
         try
         {
-            velocityEngine.mergeTemplate( templateFile, context, writer );
+            velocityEngine.mergeTemplate( templateFile, getEncoding(), context, writer );
         }
         catch ( ResourceNotFoundException e )
         {

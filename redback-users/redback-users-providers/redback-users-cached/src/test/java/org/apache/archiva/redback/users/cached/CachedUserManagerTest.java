@@ -66,6 +66,6 @@ public class CachedUserManagerTest
     @AfterClass
     public static void cleanCache()
     {
-        CacheManager.getInstance().removalAll();
+        CacheManager.getInstance().removeAllCaches();
     }
 }

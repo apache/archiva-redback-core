@@ -55,7 +55,7 @@ public class CachedKeyManagerTest
     protected void tearDown()
         throws Exception
     {
-        CacheManager.getInstance().removalAll();
+        CacheManager.getInstance().removeAllCaches();
         super.tearDown();
     }
 }

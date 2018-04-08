@@ -100,21 +100,21 @@ public class DefaultUserService
      */
     @Inject
     @Named( value = "cache#userAssignments" )
-    private Cache userAssignmentsCache;
+    private Cache<String, ? extends UserAssignment> userAssignmentsCache;
 
     /**
      * cache used for user permissions
      */
     @Inject
     @Named( value = "cache#userPermissions" )
-    private Cache userPermissionsCache;
+    private Cache<String, ? extends Permission> userPermissionsCache;
 
     /**
      * Cache used for users
      */
     @Inject
     @Named( value = "cache#users" )
-    private Cache usersCache;
+    private Cache<String, ? extends User> usersCache;
 
     @Inject
     private Mailer mailer;
@@ -284,7 +284,7 @@ public class DefaultUserService
         try
         {
             List<? extends org.apache.archiva.redback.users.User> users = userManager.getUsers();
-            List<User> simpleUsers = new ArrayList<User>( users.size() );
+            List<User> simpleUsers = new ArrayList<>( users.size( ) );
 
             for ( org.apache.archiva.redback.users.User user : users )
             {
@@ -457,14 +457,8 @@ public class DefaultUserService
             roleManager.assignRole( config.getString( UserConfigurationKeys.DEFAULT_GUEST ), user.getUsername() );
             return getSimpleUser( user );
         }
-        catch ( RoleManagerException e )
+        catch ( RoleManagerException | UserNotFoundException e )
         {
-            log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
-        }
-        catch ( UserNotFoundException e )
-        {
-            // olamy I wonder how this can happen :-)
             log.error( e.getMessage(), e );
             throw new RedbackServiceException( e.getMessage() );
         }
@@ -753,7 +747,7 @@ public class DefaultUserService
 
             return Boolean.TRUE;
         }
-        catch ( MustChangePasswordException e )
+        catch ( MustChangePasswordException | AccountLockedException | AuthenticationException e )
         {
             throw new RedbackServiceException( e.getMessage(), Response.Status.FORBIDDEN.getStatusCode() );
         }
@@ -771,14 +765,6 @@ public class DefaultUserService
         {
             throw new RedbackServiceException( new ErrorMessage( "cannot.find.user", new String[]{ principal } ) );
 
-        }
-        catch ( AccountLockedException e )
-        {
-            throw new RedbackServiceException( e.getMessage(), Response.Status.FORBIDDEN.getStatusCode() );
-        }
-        catch ( AuthenticationException e )
-        {
-            throw new RedbackServiceException( e.getMessage(), Response.Status.FORBIDDEN.getStatusCode() );
         }
         catch ( UserManagerException e )
         {
@@ -824,7 +810,7 @@ public class DefaultUserService
         throws RedbackServiceException
     {
         Collection<Permission> permissions = getUserPermissions( userName );
-        List<Operation> operations = new ArrayList<Operation>( permissions.size() );
+        List<Operation> operations = new ArrayList<>( permissions.size( ) );
         for ( Permission permission : permissions )
         {
             if ( permission.getOperation() != null )
@@ -845,7 +831,7 @@ public class DefaultUserService
             Set<? extends org.apache.archiva.redback.rbac.Permission> permissions =
                 rbacManager.getAssignedPermissions( userName );
             // FIXME return guest permissions !!
-            List<Permission> userPermissions = new ArrayList<Permission>( permissions.size() );
+            List<Permission> userPermissions = new ArrayList<>( permissions.size( ) );
             for ( org.apache.archiva.redback.rbac.Permission p : permissions )
             {
                 Permission permission = new Permission();
@@ -869,11 +855,6 @@ public class DefaultUserService
                 userPermissions.add( permission );
             }
             return userPermissions;
-        }
-        catch ( RbacObjectNotFoundException e )
-        {
-            log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
         }
         catch ( RbacManagerException e )
         {
