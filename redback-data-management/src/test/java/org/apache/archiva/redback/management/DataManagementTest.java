@@ -254,8 +254,8 @@ public class DataManagementTest
 
         dataManagementTool.restoreRBACDatabase( manager, targetDirectory );
 
-        List<Role> roles = manager.getAllRoles();
-        List<UserAssignment> assignments = manager.getAllUserAssignments();
+        List<? extends Role> roles = manager.getAllRoles();
+        List<? extends UserAssignment> assignments = manager.getAllUserAssignments();
         assertEquals( 4, roles.size() );
         assertEquals( 2, assignments.size() );
         assertEquals( 6, manager.getAllOperations().size() );

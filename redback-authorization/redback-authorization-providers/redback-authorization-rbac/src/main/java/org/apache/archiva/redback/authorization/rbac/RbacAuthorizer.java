@@ -87,7 +87,7 @@ public class RbacAuthorizer
             if ( principal != null )
             {
                 // Set permissions = manager.getAssignedPermissions( principal.toString(), operation );
-                Map<String, List<Permission>> permissionMap = manager.getAssignedPermissionMap( principal );
+                Map<String, List<? extends Permission>> permissionMap = manager.getAssignedPermissionMap( principal );
 
                 if ( permissionMap.keySet().contains( operation ) )
                 {
@@ -116,7 +116,7 @@ public class RbacAuthorizer
             if ( !guest.isLocked() )
             {
                 // Set permissions = manager.getAssignedPermissions( principal.toString(), operation );
-                Map<String, List<Permission>> permissionMap = manager.getAssignedPermissionMap( guest.getUsername() );
+                Map<String, List<? extends Permission>> permissionMap = manager.getAssignedPermissionMap( guest.getUsername() );
 
                 if ( permissionMap.keySet().contains( operation ) )
                 {

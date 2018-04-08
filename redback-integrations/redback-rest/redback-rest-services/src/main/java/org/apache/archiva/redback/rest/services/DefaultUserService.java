@@ -842,7 +842,7 @@ public class DefaultUserService
     {
         try
         {
-            Set<org.apache.archiva.redback.rbac.Permission> permissions =
+            Set<? extends org.apache.archiva.redback.rbac.Permission> permissions =
                 rbacManager.getAssignedPermissions( userName );
             // FIXME return guest permissions !!
             List<Permission> userPermissions = new ArrayList<Permission>( permissions.size() );

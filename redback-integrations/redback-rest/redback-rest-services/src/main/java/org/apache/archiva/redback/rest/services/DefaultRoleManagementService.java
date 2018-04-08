@@ -253,7 +253,7 @@ public class DefaultRoleManagementService
         }
         try
         {
-            List<org.apache.archiva.redback.rbac.Role> roles =
+            List<? extends org.apache.archiva.redback.rbac.Role> roles =
                 filterAssignableRoles( rbacManager.getEffectivelyAssignedRoles( username ) );
 
             List<Role> effectivelyAssignedRoles = new ArrayList<Role>( roles.size() );
@@ -312,7 +312,7 @@ public class DefaultRoleManagementService
     {
         try
         {
-            List<org.apache.archiva.redback.rbac.Role> roles = rbacManager.getAllRoles();
+            List<? extends org.apache.archiva.redback.rbac.Role> roles = rbacManager.getAllRoles();
 
             if ( roles == null )
             {
@@ -341,7 +341,7 @@ public class DefaultRoleManagementService
     {
         try
         {
-            List<org.apache.archiva.redback.rbac.Role> roles = rbacManager.getAllRoles();
+            List<? extends org.apache.archiva.redback.rbac.Role> roles = rbacManager.getAllRoles();
 
             if ( roles == null )
             {
@@ -365,8 +365,8 @@ public class DefaultRoleManagementService
         }
     }
 
-    private List<org.apache.archiva.redback.rbac.Role> filterAssignableRoles(
-        Collection<org.apache.archiva.redback.rbac.Role> roles )
+    private List<? extends org.apache.archiva.redback.rbac.Role> filterAssignableRoles(
+        Collection<? extends org.apache.archiva.redback.rbac.Role> roles )
     {
         List<org.apache.archiva.redback.rbac.Role> assignableRoles =
             new ArrayList<org.apache.archiva.redback.rbac.Role>( roles.size() );
@@ -388,13 +388,13 @@ public class DefaultRoleManagementService
             org.apache.archiva.redback.rbac.Role rbacRole = rbacManager.getRole( roleName );
             Role role = new Role( rbacRole );
 
-            Map<String, org.apache.archiva.redback.rbac.Role> parentRoles = rbacManager.getParentRoles( rbacRole );
+            Map<String, ? extends org.apache.archiva.redback.rbac.Role> parentRoles = rbacManager.getParentRoles( rbacRole );
             for ( String parentRoleName : parentRoles.keySet() )
             {
                 role.getParentRoleNames().add( parentRoleName );
             }
 
-            List<UserAssignment> userAssignments = rbacManager.getUserAssignmentsForRoles( Arrays.asList( roleName ) );
+            List<? extends UserAssignment> userAssignments = rbacManager.getUserAssignmentsForRoles( Arrays.asList( roleName ) );
 
             if ( userAssignments != null )
             {
@@ -414,7 +414,7 @@ public class DefaultRoleManagementService
 
             if ( !role.getParentRoleNames().isEmpty() )
             {
-                List<UserAssignment> userParentAssignments =
+                List<? extends UserAssignment> userParentAssignments =
                     rbacManager.getUserAssignmentsForRoles( parentRoles.keySet() );
                 if ( userParentAssignments != null )
                 {
@@ -614,7 +614,7 @@ public class DefaultRoleManagementService
                 rbacManager.saveUserAssignment( assignment );
             }
 
-            List<org.apache.archiva.redback.rbac.Role> allRoles =
+            List<? extends org.apache.archiva.redback.rbac.Role> allRoles =
                 filterRolesForCurrentUserAccess( rbacManager.getAllRoles() );
 
             List<ModelApplication> modelApplications = roleManager.getModel().getApplications();
@@ -628,7 +628,7 @@ public class DefaultRoleManagementService
                 applicationRoles.setDescription( modelApplication.getDescription() );
                 applicationRoles.setName( modelApplication.getId() );
 
-                Collection<org.apache.archiva.redback.rbac.Role> appRoles =
+                Collection<? extends org.apache.archiva.redback.rbac.Role> appRoles =
                     filterApplicationRoles( modelApplication, allRoles, modelApplication.getTemplates() );
 
                 List<String> roleNames = new ArrayList<String>( toRoleNames( appRoles ) );
@@ -750,7 +750,7 @@ public class DefaultRoleManagementService
     //----------------------------------------------------------------
 
     private org.apache.archiva.redback.rbac.Role isInList( String roleName,
-                                                           Collection<org.apache.archiva.redback.rbac.Role> roles )
+                                                           Collection<? extends org.apache.archiva.redback.rbac.Role> roles )
     {
         for ( org.apache.archiva.redback.rbac.Role role : roles )
         {
@@ -762,8 +762,8 @@ public class DefaultRoleManagementService
         return null;
     }
 
-    private Collection<org.apache.archiva.redback.rbac.Role> filterApplicationRoles( ModelApplication application,
-                                                                                     List<org.apache.archiva.redback.rbac.Role> allRoles,
+    private Collection<? extends org.apache.archiva.redback.rbac.Role> filterApplicationRoles( ModelApplication application,
+                                                                                     List<? extends org.apache.archiva.redback.rbac.Role> allRoles,
                                                                                      List<ModelTemplate> applicationTemplates )
     {
         Set<org.apache.archiva.redback.rbac.Role> applicationRoles =
@@ -810,7 +810,7 @@ public class DefaultRoleManagementService
         return false;
     }
 
-    private List<String> toRoleNames( Collection<org.apache.archiva.redback.rbac.Role> roles )
+    private List<String> toRoleNames( Collection<? extends org.apache.archiva.redback.rbac.Role> roles )
     {
         List<String> names = new ArrayList<String>( roles.size() );
 
@@ -847,7 +847,7 @@ public class DefaultRoleManagementService
     }
 
     private Set<String> discoverResources( List<ModelTemplate> applicationTemplates,
-                                           Collection<org.apache.archiva.redback.rbac.Role> roles )
+                                           Collection<? extends org.apache.archiva.redback.rbac.Role> roles )
     {
         Set<String> resources = new HashSet<String>();
         for ( ModelTemplate modelTemplate : applicationTemplates )
@@ -876,8 +876,8 @@ public class DefaultRoleManagementService
      * @throws RedbackServiceException
      *
      */
-    protected List<org.apache.archiva.redback.rbac.Role> filterRolesForCurrentUserAccess(
-        List<org.apache.archiva.redback.rbac.Role> roleList )
+    protected List<? extends org.apache.archiva.redback.rbac.Role> filterRolesForCurrentUserAccess(
+        List<? extends org.apache.archiva.redback.rbac.Role> roleList )
         throws RedbackServiceException
     {
         RedbackRequestInformation redbackRequestInformation = RedbackAuthenticationThreadLocal.get();
@@ -892,12 +892,12 @@ public class DefaultRoleManagementService
             new ArrayList<org.apache.archiva.redback.rbac.Role>();
         try
         {
-            Map<String, List<Permission>> assignedPermissionMap = rbacManager.getAssignedPermissionMap( currentUser );
+            Map<String, List<? extends Permission>> assignedPermissionMap = rbacManager.getAssignedPermissionMap( currentUser );
             List<String> resourceGrants = new ArrayList<String>();
 
             if ( assignedPermissionMap.containsKey( RedbackRoleConstants.USER_MANAGEMENT_ROLE_GRANT_OPERATION ) )
             {
-                List<Permission> roleGrantPermissions =
+                List<? extends Permission> roleGrantPermissions =
                     assignedPermissionMap.get( RedbackRoleConstants.USER_MANAGEMENT_ROLE_GRANT_OPERATION );
 
                 for ( Permission permission : roleGrantPermissions )

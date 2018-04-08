@@ -79,17 +79,19 @@ public class CachedRbacManager
 
     @Inject
     @Named( value = "cache#userPermissions" )
-    private Cache<String, Map<String, List<Permission>>> userPermissionsCache;
+    private Cache<String, Map<String, List<? extends Permission>>> userPermissionsCache;
 
     @Inject
     @Named( value = "cache#effectiveRoleSet" )
-    private Cache<String, Set<Role>> effectiveRoleSetCache;
+    private Cache<String, Set<? extends Role>> effectiveRoleSetCache;
 
+    @Override
     public void initialize()
     {
         // no op
     }
 
+    @Override
     public void addChildRole( Role role, Role childRole )
         throws RbacObjectInvalidException, RbacManagerException
     {
@@ -104,11 +106,13 @@ public class CachedRbacManager
         }
     }
 
+    @Override
     public void addListener( RBACManagerListener listener )
     {
         this.rbacImpl.addListener( listener );
     }
 
+    @Override
     public Operation createOperation( String name )
         throws RbacManagerException
     {
@@ -116,6 +120,7 @@ public class CachedRbacManager
         return this.rbacImpl.createOperation( name );
     }
 
+    @Override
     public Permission createPermission( String name )
         throws RbacManagerException
     {
@@ -123,6 +128,7 @@ public class CachedRbacManager
         return this.rbacImpl.createPermission( name );
     }
 
+    @Override
     public Permission createPermission( String name, String operationName, String resourceIdentifier )
         throws RbacManagerException
     {
@@ -130,6 +136,7 @@ public class CachedRbacManager
         return this.rbacImpl.createPermission( name, operationName, resourceIdentifier );
     }
 
+    @Override
     public Resource createResource( String identifier )
         throws RbacManagerException
     {
@@ -137,12 +144,14 @@ public class CachedRbacManager
         return this.rbacImpl.createResource( identifier );
     }
 
+    @Override
     public Role createRole( String name )
     {
         rolesCache.remove( name );
         return this.rbacImpl.createRole( name );
     }
 
+    @Override
     public UserAssignment createUserAssignment( String principal )
         throws RbacManagerException
     {
@@ -150,6 +159,7 @@ public class CachedRbacManager
         return this.rbacImpl.createUserAssignment( principal );
     }
 
+    @Override
     public void eraseDatabase()
     {
         try
@@ -166,42 +176,48 @@ public class CachedRbacManager
     /**
      * @see org.apache.archiva.redback.rbac.RBACManager#getAllAssignableRoles()
      */
-    public List<Role> getAllAssignableRoles()
+    @Override
+    public List<? extends Role> getAllAssignableRoles()
         throws RbacManagerException, RbacObjectNotFoundException
     {
         log.debug( "NOT CACHED - .getAllAssignableRoles()" );
         return this.rbacImpl.getAllAssignableRoles();
     }
 
-    public List<Operation> getAllOperations()
+    @Override
+    public List<? extends Operation> getAllOperations()
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getAllOperations()" );
         return this.rbacImpl.getAllOperations();
     }
 
-    public List<Permission> getAllPermissions()
+    @Override
+    public List<? extends Permission> getAllPermissions()
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getAllPermissions()" );
         return this.rbacImpl.getAllPermissions();
     }
 
-    public List<Resource> getAllResources()
+    @Override
+    public List<? extends Resource> getAllResources()
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getAllResources()" );
         return this.rbacImpl.getAllResources();
     }
 
-    public List<Role> getAllRoles()
+    @Override
+    public List<? extends Role> getAllRoles()
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getAllRoles()" );
         return this.rbacImpl.getAllRoles();
     }
 
-    public List<UserAssignment> getAllUserAssignments()
+    @Override
+    public List<? extends UserAssignment> getAllUserAssignments()
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getAllUserAssignments()" );
@@ -211,11 +227,12 @@ public class CachedRbacManager
     /**
      * @see org.apache.archiva.redback.rbac.RBACManager#getAssignedPermissionMap(java.lang.String)
      */
+    @Override
     @SuppressWarnings( "unchecked" )
-    public Map<String, List<Permission>> getAssignedPermissionMap( String principal )
+    public Map<String, List<? extends Permission>> getAssignedPermissionMap( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
-        Map<String, List<Permission>> el = userPermissionsCache.get( principal );
+        Map<String, List<? extends Permission>> el = userPermissionsCache.get( principal );
 
         if ( el != null )
         {
@@ -224,66 +241,74 @@ public class CachedRbacManager
         }
 
         log.debug( "building user permission map" );
-        Map<String, List<Permission>> userPermMap = this.rbacImpl.getAssignedPermissionMap( principal );
+        Map<String, List<? extends Permission>> userPermMap = this.rbacImpl.getAssignedPermissionMap( principal );
         userPermissionsCache.put( principal, userPermMap );
         return userPermMap;
 
     }
 
-    public Set<Permission> getAssignedPermissions( String principal )
+    @Override
+    public Set<? extends Permission> getAssignedPermissions( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         log.debug( "NOT CACHED - .getAssignedPermissions(String)" );
         return this.rbacImpl.getAssignedPermissions( principal );
     }
 
-    public Collection<Role> getAssignedRoles( String principal )
+    @Override
+    public Collection<? extends Role> getAssignedRoles( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         log.debug( "NOT CACHED - .getAssignedRoles(String)" );
         return this.rbacImpl.getAssignedRoles( principal );
     }
 
-    public Collection<Role> getAssignedRoles( UserAssignment userAssignment )
+    @Override
+    public Collection<? extends Role> getAssignedRoles( UserAssignment userAssignment )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         log.debug( "NOT CACHED - .getAssignedRoles(UserAssignment)" );
         return this.rbacImpl.getAssignedRoles( userAssignment );
     }
 
-    public Map<String, Role> getChildRoles( Role role )
+    @Override
+    public Map<String, ? extends Role> getChildRoles( Role role )
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getChildRoles(Role)" );
         return this.rbacImpl.getChildRoles( role );
     }
 
-    public Map<String, Role> getParentRoles( Role role )
+    @Override
+    public Map<String, ? extends Role> getParentRoles( Role role )
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getParentRoles(Role)" );
         return this.rbacImpl.getParentRoles( role );
     }
 
-    public Collection<Role> getEffectivelyAssignedRoles( String principal )
+    @Override
+    public Collection<? extends Role> getEffectivelyAssignedRoles( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         log.debug( "NOT CACHED - .getEffectivelyAssignedRoles(String)" );
         return this.rbacImpl.getEffectivelyAssignedRoles( principal );
     }
 
-    public Collection<Role> getEffectivelyUnassignedRoles( String principal )
+    @Override
+    public Collection<? extends Role> getEffectivelyUnassignedRoles( String principal )
         throws RbacManagerException, RbacObjectNotFoundException
     {
         log.debug( "NOT CACHED - .getEffectivelyUnassignedRoles(String)" );
         return this.rbacImpl.getEffectivelyUnassignedRoles( principal );
     }
 
+    @Override
     @SuppressWarnings( "unchecked" )
-    public Set<Role> getEffectiveRoles( Role role )
+    public Set<? extends Role> getEffectiveRoles( Role role )
         throws RbacObjectNotFoundException, RbacManagerException
     {
-        Set<Role> el = effectiveRoleSetCache.get( role.getName() );
+        Set<? extends Role> el = effectiveRoleSetCache.get( role.getName() );
 
         if ( el != null )
         {
@@ -293,12 +318,13 @@ public class CachedRbacManager
         else
         {
             log.debug( "building effective role set" );
-            Set<Role> effectiveRoleSet = this.rbacImpl.getEffectiveRoles( role );
+            Set<? extends Role> effectiveRoleSet = this.rbacImpl.getEffectiveRoles( role );
             effectiveRoleSetCache.put( role.getName(), effectiveRoleSet );
             return effectiveRoleSet;
         }
     }
 
+    @Override
     public Resource getGlobalResource()
         throws RbacManagerException
     {
@@ -307,6 +333,7 @@ public class CachedRbacManager
         return this.rbacImpl.getGlobalResource();
     }
 
+    @Override
     public Operation getOperation( String operationName )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -323,6 +350,7 @@ public class CachedRbacManager
         }
     }
 
+    @Override
     public Permission getPermission( String permissionName )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -339,6 +367,7 @@ public class CachedRbacManager
         }
     }
 
+    @Override
     public Resource getResource( String resourceIdentifier )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -355,6 +384,7 @@ public class CachedRbacManager
         }
     }
 
+    @Override
     public Role getRole( String roleName )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -371,20 +401,23 @@ public class CachedRbacManager
         }
     }
 
-    public Map<String, Role> getRoles( Collection<String> roleNames )
+    @Override
+    public Map<String, ? extends Role> getRoles( Collection<String> roleNames )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         log.debug( "NOT CACHED - .getRoles(Collection)" );
         return this.rbacImpl.getRoles( roleNames );
     }
 
-    public Collection<Role> getUnassignedRoles( String principal )
+    @Override
+    public Collection<? extends Role> getUnassignedRoles( String principal )
         throws RbacManagerException, RbacObjectNotFoundException
     {
         log.debug( "NOT CACHED - .getUnassignedRoles(String)" );
         return this.rbacImpl.getUnassignedRoles( principal );
     }
 
+    @Override
     public UserAssignment getUserAssignment( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -401,13 +434,15 @@ public class CachedRbacManager
         }
     }
 
-    public List<UserAssignment> getUserAssignmentsForRoles( Collection<String> roleNames )
+    @Override
+    public List<? extends UserAssignment> getUserAssignmentsForRoles( Collection<String> roleNames )
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getUserAssignmentsForRoles(Collection)" );
         return this.rbacImpl.getUserAssignmentsForRoles( roleNames );
     }
 
+    @Override
     public boolean operationExists( Operation operation )
     {
         if ( operation == null )
@@ -423,6 +458,7 @@ public class CachedRbacManager
         return this.rbacImpl.operationExists( operation );
     }
 
+    @Override
     public boolean operationExists( String name )
     {
         if ( operationsCache.hasKey( name ) )
@@ -433,6 +469,7 @@ public class CachedRbacManager
         return this.rbacImpl.operationExists( name );
     }
 
+    @Override
     public boolean permissionExists( Permission permission )
     {
         if ( permission == null )
@@ -448,6 +485,7 @@ public class CachedRbacManager
         return this.rbacImpl.permissionExists( permission );
     }
 
+    @Override
     public boolean permissionExists( String name )
     {
         if ( permissionsCache.hasKey( name ) )
@@ -458,6 +496,7 @@ public class CachedRbacManager
         return this.rbacImpl.permissionExists( name );
     }
 
+    @Override
     public void rbacInit( boolean freshdb )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -473,6 +512,7 @@ public class CachedRbacManager
         this.userPermissionsCache.clear();
     }
 
+    @Override
     public void rbacPermissionRemoved( Permission permission )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -483,6 +523,7 @@ public class CachedRbacManager
         invalidateCachedPermission( permission );
     }
 
+    @Override
     public void rbacPermissionSaved( Permission permission )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -493,6 +534,7 @@ public class CachedRbacManager
         invalidateCachedPermission( permission );
     }
 
+    @Override
     public void rbacRoleRemoved( Role role )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -503,6 +545,7 @@ public class CachedRbacManager
         invalidateCachedRole( role );
     }
 
+    @Override
     public void rbacRoleSaved( Role role )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -513,6 +556,7 @@ public class CachedRbacManager
         invalidateCachedRole( role );
     }
 
+    @Override
     public void rbacUserAssignmentRemoved( UserAssignment userAssignment )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -523,6 +567,7 @@ public class CachedRbacManager
         invalidateCachedUserAssignment( userAssignment );
     }
 
+    @Override
     public void rbacUserAssignmentSaved( UserAssignment userAssignment )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -533,11 +578,13 @@ public class CachedRbacManager
         invalidateCachedUserAssignment( userAssignment );
     }
 
+    @Override
     public void removeListener( RBACManagerListener listener )
     {
         this.rbacImpl.removeListener( listener );
     }
 
+    @Override
     public void removeOperation( Operation operation )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
@@ -545,6 +592,7 @@ public class CachedRbacManager
         this.rbacImpl.removeOperation( operation );
     }
 
+    @Override
     public void removeOperation( String operationName )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
@@ -552,6 +600,7 @@ public class CachedRbacManager
         this.rbacImpl.removeOperation( operationName );
     }
 
+    @Override
     public void removePermission( Permission permission )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
@@ -559,6 +608,7 @@ public class CachedRbacManager
         this.rbacImpl.removePermission( permission );
     }
 
+    @Override
     public void removePermission( String permissionName )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
@@ -566,6 +616,7 @@ public class CachedRbacManager
         this.rbacImpl.removePermission( permissionName );
     }
 
+    @Override
     public void removeResource( Resource resource )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
@@ -573,6 +624,7 @@ public class CachedRbacManager
         this.rbacImpl.removeResource( resource );
     }
 
+    @Override
     public void removeResource( String resourceIdentifier )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
@@ -580,6 +632,7 @@ public class CachedRbacManager
         this.rbacImpl.removeResource( resourceIdentifier );
     }
 
+    @Override
     public void removeRole( Role role )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
@@ -587,6 +640,7 @@ public class CachedRbacManager
         this.rbacImpl.removeRole( role );
     }
 
+    @Override
     public void removeRole( String roleName )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
@@ -594,6 +648,7 @@ public class CachedRbacManager
         this.rbacImpl.removeRole( roleName );
     }
 
+    @Override
     public void removeUserAssignment( String principal )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
@@ -601,6 +656,7 @@ public class CachedRbacManager
         this.rbacImpl.removeUserAssignment( principal );
     }
 
+    @Override
     public void removeUserAssignment( UserAssignment userAssignment )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
@@ -608,6 +664,7 @@ public class CachedRbacManager
         this.rbacImpl.removeUserAssignment( userAssignment );
     }
 
+    @Override
     public boolean resourceExists( Resource resource )
     {
         if ( resourcesCache.hasKey( resource.getIdentifier() ) )
@@ -618,6 +675,7 @@ public class CachedRbacManager
         return this.rbacImpl.resourceExists( resource );
     }
 
+    @Override
     public boolean resourceExists( String identifier )
     {
         if ( resourcesCache.hasKey( identifier ) )
@@ -628,6 +686,7 @@ public class CachedRbacManager
         return this.rbacImpl.resourceExists( identifier );
     }
 
+    @Override
     public boolean roleExists( Role role )
         throws RbacManagerException
     {
@@ -639,6 +698,7 @@ public class CachedRbacManager
         return this.rbacImpl.roleExists( role );
     }
 
+    @Override
     public boolean roleExists( String name )
         throws RbacManagerException
     {
@@ -650,6 +710,7 @@ public class CachedRbacManager
         return this.rbacImpl.roleExists( name );
     }
 
+    @Override
     public Operation saveOperation( Operation operation )
         throws RbacObjectInvalidException, RbacManagerException
     {
@@ -657,6 +718,7 @@ public class CachedRbacManager
         return this.rbacImpl.saveOperation( operation );
     }
 
+    @Override
     public Permission savePermission( Permission permission )
         throws RbacObjectInvalidException, RbacManagerException
     {
@@ -664,6 +726,7 @@ public class CachedRbacManager
         return this.rbacImpl.savePermission( permission );
     }
 
+    @Override
     public Resource saveResource( Resource resource )
         throws RbacObjectInvalidException, RbacManagerException
     {
@@ -671,6 +734,7 @@ public class CachedRbacManager
         return this.rbacImpl.saveResource( resource );
     }
 
+    @Override
     public synchronized Role saveRole( Role role )
         throws RbacObjectInvalidException, RbacManagerException
     {
@@ -697,6 +761,7 @@ public class CachedRbacManager
         return this.rbacImpl.saveRole( role );
     }
 
+    @Override
     public synchronized void saveRoles( Collection<Role> roles )
         throws RbacObjectInvalidException, RbacManagerException
     {
@@ -719,6 +784,7 @@ public class CachedRbacManager
         this.rbacImpl.saveRoles( roles );
     }
 
+    @Override
     public UserAssignment saveUserAssignment( UserAssignment userAssignment )
         throws RbacObjectInvalidException, RbacManagerException
     {
@@ -726,6 +792,7 @@ public class CachedRbacManager
         return this.rbacImpl.saveUserAssignment( userAssignment );
     }
 
+    @Override
     public boolean userAssignmentExists( String principal )
     {
         if ( userAssignmentsCache.hasKey( principal ) )
@@ -736,6 +803,7 @@ public class CachedRbacManager
         return this.rbacImpl.userAssignmentExists( principal );
     }
 
+    @Override
     public boolean userAssignmentExists( UserAssignment assignment )
     {
         if ( userAssignmentsCache.hasKey( assignment.getPrincipal() ) )
@@ -803,72 +871,77 @@ public class CachedRbacManager
         userPermissionsCache.clear();
     }
 
-    public Cache getOperationsCache()
+    public Cache<String, ? extends Operation> getOperationsCache()
     {
         return operationsCache;
     }
 
-    public void setOperationsCache( Cache operationsCache )
+    @SuppressWarnings( "unchecked" )
+    public void setOperationsCache( Cache<String, ? extends Operation> operationsCache )
     {
-        this.operationsCache = operationsCache;
+        this.operationsCache = (Cache<String, Operation>) operationsCache;
     }
 
-    public Cache getPermissionsCache()
+    public Cache<String, ? extends Permission> getPermissionsCache()
     {
         return permissionsCache;
     }
 
-    public void setPermissionsCache( Cache permissionsCache )
+    @SuppressWarnings( "unchecked" )
+    public void setPermissionsCache( Cache<String, ? extends Permission> permissionsCache )
     {
-        this.permissionsCache = permissionsCache;
+        this.permissionsCache = (Cache<String, Permission>) permissionsCache;
     }
 
-    public Cache getResourcesCache()
+    public Cache<String, ? extends Resource> getResourcesCache()
     {
         return resourcesCache;
     }
 
-    public void setResourcesCache( Cache resourcesCache )
+    @SuppressWarnings( "unchecked" )
+    public void setResourcesCache( Cache<String, ? extends Resource> resourcesCache )
     {
-        this.resourcesCache = resourcesCache;
+        this.resourcesCache = (Cache<String, Resource>) resourcesCache;
     }
 
-    public Cache getRolesCache()
+    public Cache<String, ? extends Role> getRolesCache()
     {
         return rolesCache;
     }
 
-    public void setRolesCache( Cache rolesCache )
+    @SuppressWarnings( "unchecked" )
+    public void setRolesCache( Cache<String, ? extends Role> rolesCache )
     {
-        this.rolesCache = rolesCache;
+        this.rolesCache = (Cache<String, Role>) rolesCache;
     }
 
-    public Cache getUserAssignmentsCache()
+    public Cache<String, ? extends UserAssignment> getUserAssignmentsCache()
     {
         return userAssignmentsCache;
     }
 
-    public void setUserAssignmentsCache( Cache userAssignmentsCache )
+    @SuppressWarnings( "unchecked" )
+    public void setUserAssignmentsCache( Cache<String, ? extends UserAssignment> userAssignmentsCache )
     {
-        this.userAssignmentsCache = userAssignmentsCache;
+        this.userAssignmentsCache = (Cache<String, UserAssignment>) userAssignmentsCache;
     }
 
-    public Cache getUserPermissionsCache()
+    public Cache<String, Map<String, List<? extends Permission>>> getUserPermissionsCache()
     {
         return userPermissionsCache;
     }
 
-    public void setUserPermissionsCache( Cache userPermissionsCache )
+    public void setUserPermissionsCache( Cache<String, Map<String, List<? extends Permission>>> userPermissionsCache )
     {
         this.userPermissionsCache = userPermissionsCache;
     }
 
-    public Cache getEffectiveRoleSetCache()
+    public Cache<String, Set<? extends Role>> getEffectiveRoleSetCache()
     {
         return effectiveRoleSetCache;
     }
 
-    public void setEffectiveRoleSetCache( Cache effectiveRoleSetCache )
+    public void setEffectiveRoleSetCache( Cache<String, Set<? extends Role>> effectiveRoleSetCache )
     {
         this.effectiveRoleSetCache = effectiveRoleSetCache;
     }
@@ -884,16 +957,19 @@ public class CachedRbacManager
     }
 
 
+    @Override
     public boolean isFinalImplementation()
     {
         return false;
     }
 
+    @Override
     public String getDescriptionKey()
     {
         return "archiva.redback.rbacmanager.cached";
     }
 
+    @Override
     public boolean isReadOnly()
     {
         return false;

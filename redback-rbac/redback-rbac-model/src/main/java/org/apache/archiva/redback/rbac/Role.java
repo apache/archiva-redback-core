@@ -77,7 +77,7 @@ public interface Role
     /**
      * Method getPermissions
      */
-    List<Permission> getPermissions();
+    List<? extends Permission> getPermissions();
 
     /**
      * true if this role is available to be assigned to a user

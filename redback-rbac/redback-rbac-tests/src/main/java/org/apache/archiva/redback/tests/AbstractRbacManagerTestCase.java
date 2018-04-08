@@ -467,7 +467,7 @@ public abstract class AbstractRbacManagerTestCase
 
         assertEquals( 1, manager.getAllUserAssignments().size() );
 
-        Set<Permission> assignedPermissions = manager.getAssignedPermissions( adminPrincipal );
+        Set<? extends Permission> assignedPermissions = manager.getAssignedPermissions( adminPrincipal );
 
         assertThat( assignedPermissions ).isNotNull().isNotEmpty().hasSize( 1 );
 
@@ -689,7 +689,7 @@ public abstract class AbstractRbacManagerTestCase
         afterSetup();
 
         // Get the List of Assigned Roles for user bob.
-        Collection<Role> assignedRoles = manager.getAssignedRoles( username );
+        Collection<? extends Role> assignedRoles = manager.getAssignedRoles( username );
 
         assertThat( assignedRoles ).isNotNull().isNotEmpty().hasSize( 3 );
     }
@@ -733,7 +733,7 @@ public abstract class AbstractRbacManagerTestCase
         assertThat( manager.getAllPermissions() ).isNotNull().isNotEmpty().hasSize( 3 );
 
         // Get the List of Assigned Roles for user bob.
-        Collection<Permission> assignedPermissions = manager.getAssignedPermissions( username );
+        Collection<? extends Permission> assignedPermissions = manager.getAssignedPermissions( username );
 
         assertThat( assignedPermissions ).isNotNull().isNotEmpty().hasSize( 1 );
     }
@@ -852,16 +852,16 @@ public abstract class AbstractRbacManagerTestCase
         rbacManager.saveUserAssignment( assignment );
 
         assertEquals( incAssignements( 1 ), rbacManager.getAllUserAssignments().size() );
-        List<Permission> permissions = rbacManager.getAllPermissions();
+        List<? extends Permission> permissions = rbacManager.getAllPermissions();
         Assertions.assertThat( permissions ).isNotNull().isNotEmpty().hasSize( 6 );
 
-        List<Role> roles = rbacManager.getAllRoles();
+        List<? extends Role> roles = rbacManager.getAllRoles();
         Assertions.assertThat( roles ).isNotNull().isNotEmpty().hasSize( 4 );
 
         afterSetup();
 
         // Get the List of Assigned Roles for user bob.
-        Collection<Permission> assignedPermissions = rbacManager.getAssignedPermissions( username );
+        Collection<? extends Permission> assignedPermissions = rbacManager.getAssignedPermissions( username );
 
         assertNotNull( assignedPermissions );
         assertEquals( 6, assignedPermissions.size() );

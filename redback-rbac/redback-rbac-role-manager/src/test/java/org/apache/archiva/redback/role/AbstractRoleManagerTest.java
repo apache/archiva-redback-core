@@ -65,7 +65,7 @@ public abstract class AbstractRoleManagerTest
         throws Exception
     {
 
-        List<Resource> all = rbacManager.getAllResources();
+        List<? extends Resource> all = rbacManager.getAllResources();
 
 
         assertTrue( rbacManager.resourceExists( "*" ) );

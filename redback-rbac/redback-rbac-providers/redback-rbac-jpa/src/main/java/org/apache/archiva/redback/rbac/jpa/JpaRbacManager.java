@@ -76,13 +76,13 @@ public class JpaRbacManager extends AbstractRBACManager  {
 
     @Transactional
     @Override
-    public Map<String, List<Permission>> getAssignedPermissionMap(String principal) throws RbacManagerException {
+    public Map<String, List<? extends Permission>> getAssignedPermissionMap(String principal) throws RbacManagerException {
         return super.getAssignedPermissionMap(principal);
     }
 
     @Transactional
     @Override
-    public Map<String, Role> getChildRoles(Role role) throws RbacManagerException {
+    public Map<String, ? extends Role> getChildRoles(Role role) throws RbacManagerException {
         return super.getChildRoles(role);
     }
 
@@ -102,7 +102,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         }
 
         final EntityManager em = getEm();
-        List<Role> merged = new ArrayList<Role>();
+        List<Role> merged = new ArrayList<>( );
         for (Role role : roles ) {
             RBACObjectAssertions.assertValid(role);
             merged.add(em.merge(role));
@@ -129,9 +129,9 @@ public class JpaRbacManager extends AbstractRBACManager  {
     }
 
     @Override
-    public List<Role> getAllRoles() throws RbacManagerException {
+    public List<? extends Role> getAllRoles() throws RbacManagerException {
         final EntityManager em = getEm();
-        Query q = em.createQuery("SELECT r FROM JpaRole r");
+        TypedQuery<JpaRole> q = em.createQuery("SELECT r FROM JpaRole r", JpaRole.class);
         return q.getResultList();
     }
 
@@ -151,7 +151,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
         if (myRole == null) {
             throw new RbacObjectNotFoundException("Role not found "+role.getName());
         }
-        myRole.setPermissions(new ArrayList<Permission>());
+        myRole.setPermissions( new ArrayList<>( ));
         em.remove(myRole);
         fireRbacRoleRemoved(myRole);
     }
@@ -210,10 +210,10 @@ public class JpaRbacManager extends AbstractRBACManager  {
     }
 
     @Override
-    public List<Permission> getAllPermissions() throws RbacManagerException {
+    public List<? extends Permission> getAllPermissions() throws RbacManagerException {
         final EntityManager em = getEm();
         TypedQuery<JpaPermission> q = em.createQuery("SELECT p FROM JpaPermission p",JpaPermission.class);
-        return (List<Permission>)(List<?>)q.getResultList();
+        return q.getResultList();
     }
 
     @Transactional
@@ -251,8 +251,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacObjectInvalidException("Operation is not JpaOperation object");
         }
         final EntityManager em = getEm();
-        Operation savedOperation = em.merge(operation);
-        return savedOperation;
+        return em.merge(operation);
     }
 
     @Override
@@ -266,9 +265,9 @@ public class JpaRbacManager extends AbstractRBACManager  {
     }
 
     @Override
-    public List<Operation> getAllOperations() throws RbacManagerException {
+    public List<? extends Operation> getAllOperations() throws RbacManagerException {
         final EntityManager em = getEm();
-        Query q = em.createQuery("SELECT o FROM JpaOperation o");
+        TypedQuery<JpaOperation> q = em.createQuery("SELECT o FROM JpaOperation o", JpaOperation.class);
         return q.getResultList();
     }
 
@@ -306,8 +305,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacObjectInvalidException("Resource is not JpaResource");
         }
         final EntityManager em = getEm();
-        Resource savedResource = em.merge(resource);
-        return savedResource;
+        return em.merge(resource);
     }
 
     // Overriding to add the transactional attribute here
@@ -330,10 +328,10 @@ public class JpaRbacManager extends AbstractRBACManager  {
     }
 
     @Override
-    public List<Resource> getAllResources() throws RbacManagerException {
+    public List<? extends Resource> getAllResources() throws RbacManagerException {
         final EntityManager em = getEm();
         TypedQuery<JpaResource> q = em.createQuery("SELECT r FROM JpaResource r",JpaResource.class);
-        return (List<Resource>)(List<?>)q.getResultList();
+        return q.getResultList();
     }
 
     @Transactional
@@ -385,17 +383,17 @@ public class JpaRbacManager extends AbstractRBACManager  {
     }
 
     @Override
-    public List<UserAssignment> getAllUserAssignments() throws RbacManagerException {
+    public List<? extends UserAssignment> getAllUserAssignments() throws RbacManagerException {
         final EntityManager em = getEm();
-        Query q = em.createQuery("SELECT ua FROM JpaUserAssignment ua");
+        TypedQuery<JpaUserAssignment> q = em.createQuery("SELECT ua FROM JpaUserAssignment ua", JpaUserAssignment.class);
         return q.getResultList();
     }
 
     @Override
-    public List<UserAssignment> getUserAssignmentsForRoles(Collection<String> roleNames) throws RbacManagerException {
+    public List<? extends UserAssignment> getUserAssignmentsForRoles(Collection<String> roleNames) throws RbacManagerException {
         try {
             final EntityManager em = getEm();
-            Query q = em.createQuery("SELECT ua FROM JpaUserAssignment ua WHERE ua.roleNames IN :roles");
+            TypedQuery<JpaUserAssignment> q = em.createQuery("SELECT ua FROM JpaUserAssignment ua WHERE ua.roleNames IN :roles", JpaUserAssignment.class);
             q.setParameter("roles", roleNames);
             return q.getResultList();
         } catch (Exception ex) {

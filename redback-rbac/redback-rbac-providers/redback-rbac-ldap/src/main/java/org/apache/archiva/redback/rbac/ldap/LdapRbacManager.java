@@ -115,6 +115,7 @@ public class LdapRbacManager
 
     private boolean writableLdap = false;
 
+    @Override
     @PostConstruct
     public void initialize()
     {
@@ -122,47 +123,55 @@ public class LdapRbacManager
     }
 
 
+    @Override
     public void addChildRole( Role role, Role childRole )
         throws RbacObjectInvalidException, RbacManagerException
     {
         this.rbacImpl.addChildRole( role, childRole );
     }
 
+    @Override
     public void addListener( RBACManagerListener listener )
     {
         super.addListener( listener );
         this.rbacImpl.addListener( listener );
     }
 
+    @Override
     public Operation createOperation( String name )
         throws RbacManagerException
     {
         return this.rbacImpl.createOperation( name );
     }
 
+    @Override
     public Permission createPermission( String name )
         throws RbacManagerException
     {
         return this.rbacImpl.createPermission( name );
     }
 
+    @Override
     public Permission createPermission( String name, String operationName, String resourceIdentifier )
         throws RbacManagerException
     {
         return this.rbacImpl.createPermission( name, operationName, resourceIdentifier );
     }
 
+    @Override
     public Resource createResource( String identifier )
         throws RbacManagerException
     {
         return this.rbacImpl.createResource( identifier );
     }
 
+    @Override
     public Role createRole( String name )
     {
         return this.rbacImpl.createRole( name );
     }
 
+    @Override
     public UserAssignment createUserAssignment( String username )
         throws RbacManagerException
     {
@@ -170,6 +179,7 @@ public class LdapRbacManager
         return this.rbacImpl.createUserAssignment( username );
     }
 
+    @Override
     public void eraseDatabase()
     {
         if ( writableLdap )
@@ -204,6 +214,7 @@ public class LdapRbacManager
     /**
      * @see org.apache.archiva.redback.rbac.RBACManager#getAllAssignableRoles()
      */
+    @Override
     public List<Role> getAllAssignableRoles()
         throws RbacManagerException
     {
@@ -229,24 +240,28 @@ public class LdapRbacManager
         }
     }
 
-    public List<Operation> getAllOperations()
+    @Override
+    public List<? extends Operation> getAllOperations()
         throws RbacManagerException
     {
         return this.rbacImpl.getAllOperations();
     }
 
-    public List<Permission> getAllPermissions()
+    @Override
+    public List<? extends Permission> getAllPermissions()
         throws RbacManagerException
     {
         return this.rbacImpl.getAllPermissions();
     }
 
-    public List<Resource> getAllResources()
+    @Override
+    public List<? extends Resource> getAllResources()
         throws RbacManagerException
     {
         return this.rbacImpl.getAllResources();
     }
 
+    @Override
     public List<Role> getAllRoles()
         throws RbacManagerException
     {
@@ -277,6 +292,7 @@ public class LdapRbacManager
     }
 
 
+    @Override
     public List<UserAssignment> getAllUserAssignments()
         throws RbacManagerException
     {
@@ -407,7 +423,7 @@ public class LdapRbacManager
     protected List<String> getRealRoles()
         throws RbacManagerException
     {
-        List<Role> roles = this.rbacImpl.getAllRoles();
+        List<? extends Role> roles = this.rbacImpl.getAllRoles();
         List<String> roleNames = new ArrayList<String>( roles.size() );
         for ( Role role : roles )
         {
@@ -416,6 +432,7 @@ public class LdapRbacManager
         return roleNames;
     }
 
+    @Override
     public Collection<Role> getAssignedRoles( String username )
         throws RbacManagerException
     {
@@ -454,19 +471,22 @@ public class LdapRbacManager
         }
     }
 
+    @Override
     public Collection<Role> getAssignedRoles( UserAssignment userAssignment )
         throws RbacManagerException
     {
         return getAssignedRoles( userAssignment.getPrincipal() );
     }
 
-    public Map<String, Role> getChildRoles( Role role )
+    @Override
+    public Map<String, ? extends Role> getChildRoles( Role role )
         throws RbacManagerException
     {
         return this.rbacImpl.getChildRoles( role );
     }
 
-    public Map<String, Role> getParentRoles( Role role )
+    @Override
+    public Map<String, ? extends Role> getParentRoles( Role role )
         throws RbacManagerException
     {
         return this.rbacImpl.getParentRoles( role );
@@ -488,36 +508,42 @@ public class LdapRbacManager
     // }
 
 
-    public Set<Role> getEffectiveRoles( Role role )
+    @Override
+    public Set<? extends Role> getEffectiveRoles( Role role )
         throws RbacManagerException
     {
         return this.rbacImpl.getEffectiveRoles( role );
     }
 
+    @Override
     public Resource getGlobalResource()
         throws RbacManagerException
     {
         return this.rbacImpl.getGlobalResource();
     }
 
+    @Override
     public Operation getOperation( String operationName )
         throws RbacManagerException
     {
         return this.rbacImpl.getOperation( operationName );
     }
 
+    @Override
     public Permission getPermission( String permissionName )
         throws RbacManagerException
     {
         return this.rbacImpl.getPermission( permissionName );
     }
 
+    @Override
     public Resource getResource( String resourceIdentifier )
         throws RbacManagerException
     {
         return this.rbacImpl.getResource( resourceIdentifier );
     }
 
+    @Override
     public Role getRole( String roleName )
         throws RbacManagerException
     {
@@ -555,12 +581,14 @@ public class LdapRbacManager
         return role;
     }
 
-    public Map<String, Role> getRoles( Collection<String> roleNames )
+    @Override
+    public Map<String, ? extends Role> getRoles( Collection<String> roleNames )
         throws RbacManagerException
     {
         return this.rbacImpl.getRoles( roleNames );
     }
 
+    @Override
     public Collection<Role> getUnassignedRoles( String username )
         throws RbacManagerException
     {
@@ -604,6 +632,7 @@ public class LdapRbacManager
         }
     }
 
+    @Override
     public UserAssignment getUserAssignment( String username )
         throws RbacManagerException
     {
@@ -643,33 +672,39 @@ public class LdapRbacManager
         //return this.rbacImpl.getUserAssignment( username );
     }
 
-    public List<UserAssignment> getUserAssignmentsForRoles( Collection<String> roleNames )
+    @Override
+    public List<? extends UserAssignment> getUserAssignmentsForRoles( Collection<String> roleNames )
         throws RbacManagerException
     {
         // TODO from ldap
         return this.rbacImpl.getUserAssignmentsForRoles( roleNames );
     }
 
+    @Override
     public boolean operationExists( Operation operation )
     {
         return this.rbacImpl.operationExists( operation );
     }
 
+    @Override
     public boolean operationExists( String name )
     {
         return this.rbacImpl.operationExists( name );
     }
 
+    @Override
     public boolean permissionExists( Permission permission )
     {
         return this.rbacImpl.permissionExists( permission );
     }
 
+    @Override
     public boolean permissionExists( String name )
     {
         return this.rbacImpl.permissionExists( name );
     }
 
+    @Override
     public void rbacInit( boolean freshdb )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -678,6 +713,7 @@ public class LdapRbacManager
         }
     }
 
+    @Override
     public void rbacPermissionRemoved( Permission permission )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -687,6 +723,7 @@ public class LdapRbacManager
 
     }
 
+    @Override
     public void rbacPermissionSaved( Permission permission )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -696,6 +733,7 @@ public class LdapRbacManager
 
     }
 
+    @Override
     public void rbacRoleRemoved( Role role )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -705,6 +743,7 @@ public class LdapRbacManager
 
     }
 
+    @Override
     public void rbacRoleSaved( Role role )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -714,6 +753,7 @@ public class LdapRbacManager
 
     }
 
+    @Override
     public void rbacUserAssignmentRemoved( UserAssignment userAssignment )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -723,6 +763,7 @@ public class LdapRbacManager
 
     }
 
+    @Override
     public void rbacUserAssignmentSaved( UserAssignment userAssignment )
     {
         if ( rbacImpl instanceof RBACManagerListener )
@@ -732,47 +773,55 @@ public class LdapRbacManager
 
     }
 
+    @Override
     public void removeListener( RBACManagerListener listener )
     {
         this.rbacImpl.removeListener( listener );
     }
 
+    @Override
     public void removeOperation( Operation operation )
         throws RbacManagerException
     {
         this.rbacImpl.removeOperation( operation );
     }
 
+    @Override
     public void removeOperation( String operationName )
         throws RbacManagerException
     {
         this.rbacImpl.removeOperation( operationName );
     }
 
+    @Override
     public void removePermission( Permission permission )
         throws RbacManagerException
     {
         this.rbacImpl.removePermission( permission );
     }
 
+    @Override
     public void removePermission( String permissionName )
         throws RbacManagerException
     {
         this.rbacImpl.removePermission( permissionName );
     }
 
+    @Override
     public void removeResource( Resource resource )
         throws RbacManagerException
     {
         this.rbacImpl.removeResource( resource );
     }
 
+    @Override
     public void removeResource( String resourceIdentifier )
         throws RbacManagerException
     {
         this.rbacImpl.removeResource( resourceIdentifier );
     }
 
+    @Override
     public void removeRole( Role role )
         throws RbacManagerException
     {
@@ -805,6 +854,7 @@ public class LdapRbacManager
         }
     }
 
+    @Override
     public void removeRole( String roleName )
         throws RbacManagerException
     {
@@ -815,6 +865,7 @@ public class LdapRbacManager
         removeRole( new RoleImpl( roleName ) );
     }
 
+    @Override
     public void removeUserAssignment( String username )
         throws RbacManagerException
     {
@@ -823,6 +874,7 @@ public class LdapRbacManager
         this.rbacImpl.removeUserAssignment( username );
     }
 
+    @Override
     public void removeUserAssignment( UserAssignment userAssignment )
         throws RbacManagerException
     {
@@ -834,11 +886,13 @@ public class LdapRbacManager
         this.rbacImpl.removeUserAssignment( userAssignment );
     }
 
+    @Override
     public boolean resourceExists( Resource resource )
     {
         return this.rbacImpl.resourceExists( resource );
     }
 
+    @Override
     public boolean resourceExists( String identifier )
     {
         return this.rbacImpl.resourceExists( identifier );
@@ -894,24 +948,28 @@ public class LdapRbacManager
         }
     }
 
+    @Override
     public Operation saveOperation( Operation operation )
         throws RbacManagerException
     {
         return this.rbacImpl.saveOperation( operation );
     }
 
+    @Override
     public Permission savePermission( Permission permission )
         throws RbacManagerException
     {
         return this.rbacImpl.savePermission( permission );
     }
 
+    @Override
     public Resource saveResource( Resource resource )
         throws RbacManagerException
     {
         return this.rbacImpl.saveResource( resource );
     }
 
+    @Override
     public synchronized Role saveRole( Role role )
         throws RbacManagerException
     {
@@ -950,6 +1008,7 @@ public class LdapRbacManager
         //return new RoleImpl( role.getName(), role.getPermissions() );
     }
 
+    @Override
     public synchronized void saveRoles( Collection<Role> roles )
         throws RbacManagerException
     {
@@ -981,6 +1040,7 @@ public class LdapRbacManager
 
     }
 
+    @Override
     public UserAssignment saveUserAssignment( UserAssignment userAssignment )
         throws RbacManagerException
     {
@@ -1045,6 +1105,7 @@ public class LdapRbacManager
         }
     }
 
+    @Override
     public boolean userAssignmentExists( String principal )
     {
         if ( userAssignmentsCache.hasKey( principal ) )
@@ -1084,6 +1145,7 @@ public class LdapRbacManager
         return false;
     }
 
+    @Override
     public boolean userAssignmentExists( UserAssignment assignment )
     {
         if ( assignment == null )
@@ -1145,76 +1207,91 @@ public class LdapRbacManager
             this.permissions = permissions;
         }
 
+        @Override
         public void addPermission( Permission permission )
         {
             this.permissions.add( permission );
         }
 
+        @Override
         public void addChildRoleName( String name )
         {
             this.childRoleNames.add( name );
         }
 
+        @Override
         public List<String> getChildRoleNames()
         {
             return this.childRoleNames;
         }
 
+        @Override
         public String getDescription()
         {
             return this.description;
         }
 
+        @Override
         public String getName()
         {
             return this.name;
         }
 
+        @Override
         public List<Permission> getPermissions()
         {
             return this.permissions;
         }
 
+        @Override
         public boolean isAssignable()
         {
             return true;
         }
 
+        @Override
         public void removePermission( Permission permission )
         {
             this.permissions.remove( permission );
         }
 
+        @Override
         public void setAssignable( boolean assignable )
         {
             // no op
         }
 
+        @Override
         public void setChildRoleNames( List<String> names )
         {
             this.childRoleNames = names;
         }
 
+        @Override
         public void setDescription( String description )
         {
             this.description = description;
         }
 
+        @Override
         public void setName( String name )
         {
             this.name = name;
         }
 
+        @Override
         public void setPermissions( List<Permission> permissions )
         {
             this.permissions = permissions;
         }
 
+        @Override
         public boolean isPermanent()
         {
             return true;
         }
 
+        @Override
         public void setPermanent( boolean permanent )
         {
             // no op
@@ -1282,16 +1359,19 @@ public class LdapRbacManager
             }
         }
 
+        @Override
         public String getPrincipal()
         {
             return this.username;
         }
 
+        @Override
         public List<String> getRoleNames()
         {
             return this.roleNames;
         }
 
+        @Override
         public void addRoleName( Role role )
         {
             if ( role == null )
@@ -1301,6 +1381,7 @@ public class LdapRbacManager
             this.roleNames.add( role.getName() );
         }
 
+        @Override
         public void addRoleName( String roleName )
         {
             if ( roleName == null )
@@ -1310,6 +1391,7 @@ public class LdapRbacManager
             this.roleNames.add( roleName );
         }
 
+        @Override
         public void removeRoleName( Role role )
         {
             if ( role == null )
@@ -1319,6 +1401,7 @@ public class LdapRbacManager
             this.roleNames.remove( role.getName() );
         }
 
+        @Override
         public void removeRoleName( String roleName )
         {
             if ( roleName == null )
@@ -1328,21 +1411,25 @@ public class LdapRbacManager
             this.roleNames.remove( roleName );
         }
 
+        @Override
         public void setPrincipal( String principal )
         {
             this.username = principal;
         }
 
+        @Override
         public void setRoleNames( List<String> roles )
         {
             this.roleNames = roles;
         }
 
+        @Override
         public boolean isPermanent()
         {
             return this.permanent;
         }
 
+        @Override
         public void setPermanent( boolean permanent )
         {
             this.permanent = permanent;
@@ -1368,11 +1455,13 @@ public class LdapRbacManager
         return true;
     }
 
+    @Override
     public String getDescriptionKey()
     {
         return "archiva.redback.rbacmanager.ldap";
     }
 
+    @Override
     public boolean isReadOnly()
     {
         return !writableLdap;

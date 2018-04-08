@@ -76,7 +76,7 @@ public class LockedAdminEnvironmentCheck
             List<String> roles = new ArrayList<String>();
             roles.add( RedbackRoleConstants.SYSTEM_ADMINISTRATOR_ROLE );
 
-            List<UserAssignment> systemAdminstrators;
+            List<? extends UserAssignment> systemAdminstrators;
             try
             {
                 systemAdminstrators = rbacManager.getUserAssignmentsForRoles( roles );

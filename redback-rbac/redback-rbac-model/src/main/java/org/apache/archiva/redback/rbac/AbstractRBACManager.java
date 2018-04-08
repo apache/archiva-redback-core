@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * AbstractRBACManager
@@ -45,18 +47,21 @@ public abstract class AbstractRBACManager
 
     private Resource globalResource;
 
+    @Override
     @PostConstruct
     public void initialize()
     {
         //no op
     }
 
+    @Override
     public boolean isFinalImplementation()
     {
         return false;
     }
 
 
+    @Override
     public void addListener( RBACManagerListener listener )
     {
         if ( !listeners.contains( listener ) )
@@ -65,6 +70,7 @@ public abstract class AbstractRBACManager
         }
     }
 
+    @Override
     public void removeListener( RBACManagerListener listener )
     {
         listeners.remove( listener );
@@ -179,36 +185,42 @@ public abstract class AbstractRBACManager
         }
     }
 
+    @Override
     public void removeRole( String roleName )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         removeRole( getRole( roleName ) );
     }
 
+    @Override
     public void removePermission( String permissionName )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         removePermission( getPermission( permissionName ) );
     }
 
+    @Override
     public void removeOperation( String operationName )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         removeOperation( getOperation( operationName ) );
     }
 
+    @Override
     public void removeResource( String resourceIdentifier )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         removeResource( getResource( resourceIdentifier ) );
     }
 
+    @Override
     public void removeUserAssignment( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         removeUserAssignment( getUserAssignment( principal ) );
     }
 
+    @Override
     public boolean resourceExists( Resource resource )
     {
         try
@@ -221,6 +233,7 @@ public abstract class AbstractRBACManager
         }
     }
 
+    @Override
     public boolean resourceExists( String identifier )
     {
         try
@@ -241,6 +254,7 @@ public abstract class AbstractRBACManager
         return false;
     }
 
+    @Override
     public boolean operationExists( Operation operation )
     {
         try
@@ -253,6 +267,7 @@ public abstract class AbstractRBACManager
         }
     }
 
+    @Override
     public boolean operationExists( String name )
     {
         try
@@ -273,6 +288,7 @@ public abstract class AbstractRBACManager
         return false;
     }
 
+    @Override
     public boolean permissionExists( Permission permission )
     {
         try
@@ -285,6 +301,7 @@ public abstract class AbstractRBACManager
         }
     }
 
+    @Override
     public boolean permissionExists( String name )
     {
         try
@@ -305,6 +322,7 @@ public abstract class AbstractRBACManager
         return false;
     }
 
+    @Override
     public boolean roleExists( Role role )
         throws RbacManagerException
     {
@@ -318,6 +336,7 @@ public abstract class AbstractRBACManager
         }
     }
 
+    @Override
     public boolean roleExists( String name )
         throws RbacManagerException
     {
@@ -339,6 +358,7 @@ public abstract class AbstractRBACManager
         return false;
     }
 
+    @Override
     public boolean userAssignmentExists( String principal )
     {
         try
@@ -359,6 +379,7 @@ public abstract class AbstractRBACManager
         return false;
     }
 
+    @Override
     public boolean userAssignmentExists( UserAssignment assignment )
     {
         try
@@ -380,7 +401,8 @@ public abstract class AbstractRBACManager
      * @throws RbacObjectNotFoundException
      * @throws RbacManagerException
      */
-    public Set<Permission> getAssignedPermissions( String principal )
+    @Override
+    public Set<? extends Permission> getAssignedPermissions( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
 
@@ -426,33 +448,18 @@ public abstract class AbstractRBACManager
      * @throws RbacObjectNotFoundException
      * @throws RbacManagerException
      */
-    public Map<String, List<Permission>> getAssignedPermissionMap( String principal )
+    @Override
+    public Map<String, List<? extends Permission>> getAssignedPermissionMap( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         return getPermissionMapByOperation( getAssignedPermissions( principal ) );
     }
 
-    private Map<String, List<Permission>> getPermissionMapByOperation( Collection<Permission> permissions )
+    private Map<String, List<? extends Permission>> getPermissionMapByOperation( Collection<? extends Permission> permissions )
     {
-        Map<String, List<Permission>> userPermMap = new HashMap<String, List<Permission>>();
-
-        for ( Permission permission : permissions )
-        {
-            List<Permission> permList = userPermMap.get( permission.getOperation().getName() );
-
-            if ( permList != null )
-            {
-                permList.add( permission );
-            }
-            else
-            {
-                List<Permission> newPermList = new ArrayList<Permission>( permissions.size() );
-                newPermList.add( permission );
-                userPermMap.put( permission.getOperation().getName(), newPermList );
-            }
-        }
-
-        return userPermMap;
+        Map<String, List<? extends Permission>> tList = new HashMap<>(  );
+        tList.putAll( permissions.stream().collect( Collectors.<Permission, String>groupingBy( p -> p.getOperation( ).getName( ) ) ) );
+        return tList;
     }
 
     private void gatherUniquePermissions( Role role, Collection<Permission> coll )
@@ -471,8 +478,8 @@ public abstract class AbstractRBACManager
 
         if ( role.hasChildRoles() )
         {
-            Map<String, Role> childRoles = getChildRoles( role );
-            Iterator<Role> it = childRoles.values().iterator();
+            Map<String, ? extends Role> childRoles = getChildRoles( role );
+            Iterator<? extends Role> it = childRoles.values().iterator();
             while ( it.hasNext() )
             {
                 Role child = it.next();
@@ -481,6 +488,7 @@ public abstract class AbstractRBACManager
         }
     }
 
+    @Override
     public List<Role> getAllAssignableRoles()
         throws RbacManagerException, RbacObjectNotFoundException
     {
@@ -509,6 +517,7 @@ public abstract class AbstractRBACManager
      * @throws RbacObjectNotFoundException
      * @throws RbacManagerException
      */
+    @Override
     public Collection<Role> getAssignedRoles( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -526,6 +535,7 @@ public abstract class AbstractRBACManager
      * @throws RbacObjectNotFoundException
      * @throws RbacManagerException
      */
+    @Override
     public Collection<Role> getAssignedRoles( UserAssignment ua )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -604,6 +614,7 @@ public abstract class AbstractRBACManager
         }
     }
 
+    @Override
     public Collection<Role> getEffectivelyAssignedRoles( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -653,6 +664,7 @@ public abstract class AbstractRBACManager
      * @throws RbacManagerException
      * @throws RbacObjectNotFoundException
      */
+    @Override
     public Collection<Role> getEffectivelyUnassignedRoles( String principal )
         throws RbacManagerException, RbacObjectNotFoundException
     {
@@ -672,6 +684,7 @@ public abstract class AbstractRBACManager
      * @throws RbacManagerException
      * @throws RbacObjectNotFoundException
      */
+    @Override
     public Collection<Role> getUnassignedRoles( String principal )
         throws RbacManagerException, RbacObjectNotFoundException
     {
@@ -684,6 +697,7 @@ public abstract class AbstractRBACManager
         return CollectionUtils.subtract( allRoles, assignedRoles );
     }
 
+    @Override
     public Resource getGlobalResource()
         throws RbacManagerException
     {
@@ -696,6 +710,7 @@ public abstract class AbstractRBACManager
         return globalResource;
     }
 
+    @Override
     public void addChildRole( Role role, Role childRole )
         throws RbacObjectInvalidException, RbacManagerException
     {
@@ -703,7 +718,8 @@ public abstract class AbstractRBACManager
         role.addChildRoleName( childRole.getName() );
     }
 
-    public Map<String, Role> getChildRoles( Role role )
+    @Override
+    public Map<String, ? extends Role> getChildRoles( Role role )
         throws RbacManagerException
     {
         Map<String, Role> childRoles = new HashMap<String, Role>();
@@ -759,7 +775,8 @@ public abstract class AbstractRBACManager
         return childRoles;
     }
 
-    public Map<String, Role> getParentRoles( Role role )
+    @Override
+    public Map<String, ? extends Role> getParentRoles( Role role )
         throws RbacManagerException
     {
         Map<String, Role> parentRoles = new HashMap<String, Role>();
@@ -768,7 +785,7 @@ public abstract class AbstractRBACManager
         {
             if ( !r.getName().equals( role.getName() ) )
             {
-                Set<Role> effectiveRoles = getEffectiveRoles( r );
+                Set<? extends Role> effectiveRoles = getEffectiveRoles( r );
                 for ( Role currentRole : effectiveRoles )
                 {
                     if ( currentRole.getName().equals( role.getName() ) )
@@ -784,7 +801,8 @@ public abstract class AbstractRBACManager
         return parentRoles;
     }
 
-    public Set<Role> getEffectiveRoles( Role role )
+    @Override
+    public Set<? extends Role> getEffectiveRoles( Role role )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         Set<Role> roleSet = new HashSet<Role>();
@@ -793,7 +811,8 @@ public abstract class AbstractRBACManager
         return roleSet;
     }
 
-    public Map<String, Role> getRoles( Collection<String> roleNames )
+    @Override
+    public Map<String, ? extends Role> getRoles( Collection<String> roleNames )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         Map<String, Role> roleMap = new HashMap<String, Role>();

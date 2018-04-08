@@ -99,9 +99,8 @@ public class JpaRole extends AbstractRole implements Serializable {
     }
 
     @Override
-    public List<Permission> getPermissions() {
-        // Maybe better to create a new list?
-        return (List<Permission>)(List<?>)permissions;
+    public List<? extends Permission> getPermissions() {
+        return permissions;
     }
 
     @Override

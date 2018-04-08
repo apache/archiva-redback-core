@@ -167,7 +167,7 @@ public class DefaultRoleModelProcessor
             throw new RoleManagerException( "cycle detected: this should have been caught in validation", e );
         }
 
-        List<Role> allRoles;
+        List<? extends Role> allRoles;
         try
         {
             allRoles = rbacManager.getAllRoles();
@@ -187,7 +187,7 @@ public class DefaultRoleModelProcessor
         {
             ModelRole roleProfile = RoleModelUtils.getModelRole( model, roleId );
 
-            List<Permission> permissions = processPermissions( roleProfile.getPermissions() );
+            List<? extends Permission> permissions = processPermissions( roleProfile.getPermissions() );
 
             boolean roleExists = allRoleNames.contains( roleProfile.getName() );// false;
 
@@ -292,7 +292,7 @@ public class DefaultRoleModelProcessor
         log.info( "time to process roles model: {} ms", stopWatch.getTime() );
     }
 
-    private List<Permission> processPermissions( List<ModelPermission> permissions )
+    private List<? extends Permission> processPermissions( List<ModelPermission> permissions )
         throws RoleManagerException
     {
         List<Permission> rbacPermissions = new ArrayList<Permission>( permissions.size() );
