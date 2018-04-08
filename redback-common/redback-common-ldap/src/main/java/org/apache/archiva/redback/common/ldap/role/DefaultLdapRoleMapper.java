@@ -312,10 +312,10 @@ public class DefaultLdapRoleMapper
 
                 if ( uniqueMemberAttr != null )
                 {
-                    NamingEnumeration<String> allMembersEnum = (NamingEnumeration<String>) uniqueMemberAttr.getAll();
+                    NamingEnumeration<?> allMembersEnum = uniqueMemberAttr.getAll();
                     while ( allMembersEnum.hasMore() )
                     {
-                        String userName = allMembersEnum.next();
+                        String userName = allMembersEnum.next().toString();
                         // uid=blabla we only want bla bla
                         userName = StringUtils.substringAfter( userName, "=" );
                         userName = StringUtils.substringBefore( userName, "," );
@@ -420,11 +420,11 @@ public class DefaultLdapRoleMapper
 
                 if ( uniqueMemberAttr != null )
                 {
-                    NamingEnumeration<String> allMembersEnum = (NamingEnumeration<String>) uniqueMemberAttr.getAll();
+                    NamingEnumeration<?> allMembersEnum = uniqueMemberAttr.getAll();
                     while ( allMembersEnum.hasMore() )
                     {
 
-                        String userName = allMembersEnum.next();
+                        String userName = allMembersEnum.next().toString();
                         //the original dn
                         allMembers.add( userName );
                         // uid=blabla we only want bla bla
@@ -621,7 +621,7 @@ public class DefaultLdapRoleMapper
 
             namingEnumeration = context.search( "cn=" + groupName + "," + getGroupsDn(), filter, searchControls );
 
-            while ( namingEnumeration.hasMore() )
+            if ( namingEnumeration.hasMore() )
             {
                 SearchResult searchResult = namingEnumeration.next();
                 Attribute attribute = searchResult.getAttributes().get( getLdapGroupMember() );
@@ -692,7 +692,7 @@ public class DefaultLdapRoleMapper
 
             namingEnumeration = context.search( "cn=" + groupName + "," + getGroupsDn(), filter, searchControls );
 
-            while ( namingEnumeration.hasMore() )
+            if ( namingEnumeration.hasMore() )
             {
                 SearchResult searchResult = namingEnumeration.next();
                 Attribute attribute = searchResult.getAttributes().get( getLdapGroupMember() );

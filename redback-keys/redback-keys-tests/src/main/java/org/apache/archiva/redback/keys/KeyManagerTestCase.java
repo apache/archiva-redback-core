@@ -114,7 +114,7 @@ public class KeyManagerTestCase
 
         System.out.println("foo key "+created1.getKey());
         System.out.println("bar key "+created2.getKey());
-        List<AuthenticationKey> keys = new ArrayList(getKeyManager().getAllKeys());
+        List<AuthenticationKey> keys = new ArrayList<>(getKeyManager().getAllKeys());
         Collections.sort( keys, new Comparator<AuthenticationKey>()
         {
             public int compare( AuthenticationKey key1, AuthenticationKey key2 )

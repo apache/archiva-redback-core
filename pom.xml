@@ -74,6 +74,7 @@
     <springVersion>4.3.10.RELEASE</springVersion>
     <slf4jVersion>1.7.25</slf4jVersion>
     <log4j2Version>2.8.2</log4j2Version>
+    <commons-collections.version>4.1</commons-collections.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <gpg.useagent>true</gpg.useagent>
@@ -409,6 +410,11 @@
         <artifactId>commons-collections</artifactId>
         <!-- commons-configuration requires this version. -->
         <version>3.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-collections4</artifactId>
+        <version>${commons-collections.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>

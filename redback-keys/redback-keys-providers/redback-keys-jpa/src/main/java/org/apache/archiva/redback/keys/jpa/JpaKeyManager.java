@@ -166,7 +166,7 @@ public class JpaKeyManager extends AbstractKeyManager {
     @Override
     public List<AuthenticationKey> getAllKeys() {
         final EntityManager em = getEm();
-        Query q= em.createQuery("SELECT x from JpaAuthenticationKey x");
+        TypedQuery<AuthenticationKey> q= em.createQuery("SELECT x from JpaAuthenticationKey x", AuthenticationKey.class);
         return q.getResultList();
     }
 
