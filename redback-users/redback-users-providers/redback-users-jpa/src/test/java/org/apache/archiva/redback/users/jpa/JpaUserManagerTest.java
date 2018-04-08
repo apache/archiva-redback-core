@@ -19,34 +19,16 @@ package org.apache.archiva.redback.users.jpa;
  * under the License.
  */
 
-import org.apache.archiva.redback.policy.UserSecurityPolicy;
-import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
-import org.apache.archiva.redback.users.UserManagerException;
-import org.apache.archiva.redback.users.UserNotFoundException;
-import org.apache.archiva.redback.users.jpa.model.JpaUser;
 import org.apache.archiva.redback.users.provider.test.AbstractUserManagerTestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  *
@@ -63,12 +45,6 @@ public class JpaUserManagerTest extends AbstractUserManagerTestCase {
     @Named("userManager#jpa")
     UserManager jpaUserManager;
 
-    @Inject
-    EntityManagerFactory entityManagerFactory;
-
-
-    @Inject
-    private UserSecurityPolicy securityPolicy;
 
     @Before
     @Override

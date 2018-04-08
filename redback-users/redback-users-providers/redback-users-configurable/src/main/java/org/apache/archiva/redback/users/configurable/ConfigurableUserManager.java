@@ -50,6 +50,7 @@ public class ConfigurableUserManager
     private UserManager userManagerImpl;
 
 
+    @Override
     @PostConstruct
     public void initialize()
     {
@@ -66,40 +67,47 @@ public class ConfigurableUserManager
         userManagerImpl = applicationContext.getBean( "userManager#" + userManagerRole, UserManager.class );
     }
 
+    @Override
     public User addUser( User user )
         throws UserManagerException
     {
         return userManagerImpl.addUser( user );
     }
 
+    @Override
     public void addUserUnchecked( User user )
         throws UserManagerException
     {
         userManagerImpl.addUserUnchecked( user );
     }
 
+    @Override
     public User createUser( String username, String fullName, String emailAddress )
         throws UserManagerException
     {
         return userManagerImpl.createUser( username, fullName, emailAddress );
     }
 
+    @Override
     public UserQuery createUserQuery()
     {
         return userManagerImpl.createUserQuery();
     }
 
+    @Override
     public void deleteUser( String username )
         throws UserNotFoundException, UserManagerException
     {
         userManagerImpl.deleteUser( username );
     }
 
+    @Override
     public void eraseDatabase()
     {
         userManagerImpl.eraseDatabase();
     }
 
+    @Override
     public User findUser( String username )
         throws UserManagerException, UserNotFoundException
     {
@@ -120,64 +128,75 @@ public class ConfigurableUserManager
         return userManagerImpl.getGuestUser();
     }
 
-    public List<User> findUsersByEmailKey( String emailKey, boolean orderAscending )
+    @Override
+    public List<? extends User> findUsersByEmailKey( String emailKey, boolean orderAscending )
         throws UserManagerException
     {
         return userManagerImpl.findUsersByEmailKey( emailKey, orderAscending );
     }
 
-    public List<User> findUsersByFullNameKey( String fullNameKey, boolean orderAscending )
+    @Override
+    public List<? extends User> findUsersByFullNameKey( String fullNameKey, boolean orderAscending )
         throws UserManagerException
     {
         return userManagerImpl.findUsersByFullNameKey( fullNameKey, orderAscending );
     }
 
-    public List<User> findUsersByQuery( UserQuery query )
+    @Override
+    public List<? extends User> findUsersByQuery( UserQuery query )
         throws UserManagerException
     {
         return userManagerImpl.findUsersByQuery( query );
     }
 
-    public List<User> findUsersByUsernameKey( String usernameKey, boolean orderAscending )
+    @Override
+    public List<? extends User> findUsersByUsernameKey( String usernameKey, boolean orderAscending )
         throws UserManagerException
     {
         return userManagerImpl.findUsersByUsernameKey( usernameKey, orderAscending );
     }
 
+    @Override
     public String getId()
     {
         return "configurable";
     }
 
-    public List<User> getUsers()
+    @Override
+    public List<? extends User> getUsers()
         throws UserManagerException
     {
         return userManagerImpl.getUsers();
     }
 
-    public List<User> getUsers( boolean orderAscending )
+    @Override
+    public List<? extends User> getUsers( boolean orderAscending )
         throws UserManagerException
     {
         return userManagerImpl.getUsers( orderAscending );
     }
 
+    @Override
     public boolean isReadOnly()
     {
         return userManagerImpl.isReadOnly();
     }
 
+    @Override
     public User updateUser( User user )
         throws UserNotFoundException, UserManagerException
     {
         return updateUser( user, false );
     }
 
+    @Override
     public User updateUser( User user, boolean passwordChangeRequired )
         throws UserNotFoundException, UserManagerException
     {
         return userManagerImpl.updateUser( user, passwordChangeRequired );
     }
 
+    @Override
     public boolean userExists( String userName )
         throws UserManagerException
     {
@@ -189,6 +208,7 @@ public class ConfigurableUserManager
         this.userManagerImpl = userManagerImpl;
     }
 
+    @Override
     public String getDescriptionKey()
     {
         return "archiva.redback.usermanager.configurable";

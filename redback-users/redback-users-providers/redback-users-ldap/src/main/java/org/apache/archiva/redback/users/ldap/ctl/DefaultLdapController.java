@@ -19,14 +19,21 @@ package org.apache.archiva.redback.users.ldap.ctl;
  * under the License.
  */
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.archiva.redback.common.ldap.MappingException;
+import org.apache.archiva.redback.common.ldap.user.LdapUser;
+import org.apache.archiva.redback.common.ldap.user.LdapUserMapper;
+import org.apache.archiva.redback.common.ldap.user.UserMapper;
+import org.apache.archiva.redback.configuration.UserConfiguration;
+import org.apache.archiva.redback.configuration.UserConfigurationKeys;
+import org.apache.archiva.redback.policy.PasswordEncoder;
+import org.apache.archiva.redback.policy.encoders.SHA1PasswordEncoder;
+import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserManager;
+import org.apache.archiva.redback.users.ldap.LdapUserQuery;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -40,22 +47,14 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
-import org.apache.archiva.redback.common.ldap.user.LdapUser;
-import org.apache.archiva.redback.common.ldap.user.LdapUserMapper;
-import org.apache.archiva.redback.common.ldap.user.UserMapper;
-import org.apache.archiva.redback.configuration.UserConfiguration;
-import org.apache.archiva.redback.configuration.UserConfigurationKeys;
-import org.apache.archiva.redback.policy.PasswordEncoder;
-import org.apache.archiva.redback.policy.encoders.SHA1PasswordEncoder;
-import org.apache.archiva.redback.users.User;
-import org.apache.archiva.redback.users.UserManager;
-import org.apache.archiva.redback.common.ldap.MappingException;
-import org.apache.archiva.redback.users.ldap.LdapUserQuery;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author  jesse
@@ -420,10 +419,10 @@ public class DefaultLdapController
 
                 if ( uniqueMemberAttr != null )
                 {
-                    NamingEnumeration<String> allMembersEnum = (NamingEnumeration<String>) uniqueMemberAttr.getAll();
+                    NamingEnumeration<?> allMembersEnum = uniqueMemberAttr.getAll();
                     while ( allMembersEnum.hasMore() )
                     {
-                        String userName = allMembersEnum.next();
+                        String userName = allMembersEnum.next().toString();
                         // uid=blabla we only want bla bla
                         userName = StringUtils.substringAfter( userName, "=" );
                         userName = StringUtils.substringBefore( userName, "," );

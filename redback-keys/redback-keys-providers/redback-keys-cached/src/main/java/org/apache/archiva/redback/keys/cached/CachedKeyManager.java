@@ -19,11 +19,6 @@ package org.apache.archiva.redback.keys.cached;
  * under the License.
  */
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.apache.archiva.redback.components.cache.Cache;
 import org.apache.archiva.redback.keys.AbstractKeyManager;
 import org.apache.archiva.redback.keys.AuthenticationKey;
@@ -31,6 +26,10 @@ import org.apache.archiva.redback.keys.KeyManager;
 import org.apache.archiva.redback.keys.KeyManagerException;
 import org.apache.archiva.redback.keys.KeyNotFoundException;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.List;
 
 /**
  * CachedKeyManager
@@ -94,7 +93,7 @@ public class CachedKeyManager
     }
 
     public AuthenticationKey findKey( String key )
-        throws KeyNotFoundException, KeyManagerException
+        throws KeyManagerException
     {
         try
         {
@@ -146,7 +145,7 @@ public class CachedKeyManager
         return keysCache;
     }
 
-    public void setKeysCache( Cache keysCache )
+    public void setKeysCache( Cache<String, AuthenticationKey> keysCache )
     {
         this.keysCache = keysCache;
     }

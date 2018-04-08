@@ -100,10 +100,10 @@ public interface UserManager
      * @return the List of {@link User} Objects.
      * @throws UserManagerException
      */
-    List<User> getUsers()
+    List<? extends User> getUsers()
         throws UserManagerException;
 
-    List<User> getUsers( boolean orderAscending )
+    List<? extends User> getUsers( boolean orderAscending )
         throws UserManagerException;
 
     /**
@@ -156,13 +156,13 @@ public interface UserManager
     User getGuestUser()
         throws UserNotFoundException, UserManagerException;
 
-    List<User> findUsersByUsernameKey( String usernameKey, boolean orderAscending )
+    List<? extends User> findUsersByUsernameKey( String usernameKey, boolean orderAscending )
         throws UserManagerException;
 
-    List<User> findUsersByFullNameKey( String fullNameKey, boolean orderAscending )
+    List<? extends User> findUsersByFullNameKey( String fullNameKey, boolean orderAscending )
         throws UserManagerException;
 
-    List<User> findUsersByEmailKey( String emailKey, boolean orderAscending )
+    List<? extends User> findUsersByEmailKey( String emailKey, boolean orderAscending )
         throws UserManagerException;
 
     /**
@@ -172,7 +172,7 @@ public interface UserManager
      * @param query the query.
      * @return a List of {@link User} objects.
      */
-    List<User> findUsersByQuery( UserQuery query )
+    List<? extends User> findUsersByQuery( UserQuery query )
         throws UserManagerException;
 
     /**

@@ -283,7 +283,7 @@ public class DefaultUserService
     {
         try
         {
-            List<org.apache.archiva.redback.users.User> users = userManager.getUsers();
+            List<? extends org.apache.archiva.redback.users.User> users = userManager.getUsers();
             List<User> simpleUsers = new ArrayList<User>( users.size() );
 
             for ( org.apache.archiva.redback.users.User user : users )

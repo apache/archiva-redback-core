@@ -200,7 +200,7 @@ public class LdapUserManagerTest
 
         //assertNotNull( ldapCacheService.getUser( "jesse" ) );
 
-        List<User> users = userManager.getUsers();
+        List<? extends User> users = userManager.getUsers();
 
         assertNotNull( users );
 
@@ -244,7 +244,7 @@ public class LdapUserManagerTest
 
         assertTrue( userManager.userExists( "user10" ) );
 
-        List<User> users = userManager.getUsers();
+        List<? extends User> users = userManager.getUsers();
 
         assertNotNull( users );
 

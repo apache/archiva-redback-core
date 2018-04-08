@@ -54,17 +54,20 @@ public class CachedUserManager
     @Named(value = "cache#users")
     private Cache<String, User> usersCache;
 
+    @Override
     public boolean isReadOnly()
     {
         return userImpl.isReadOnly();
     }
 
+    @Override
     public User createGuestUser()
         throws UserManagerException
     {
         return userImpl.createGuestUser();
     }
 
+    @Override
     public User addUser( User user )
         throws UserManagerException
     {
@@ -75,11 +78,13 @@ public class CachedUserManager
         return this.userImpl.addUser( user );
     }
 
+    @Override
     public void addUserManagerListener( UserManagerListener listener )
     {
         this.userImpl.addUserManagerListener( listener );
     }
 
+    @Override
     public void addUserUnchecked( User user )
         throws UserManagerException
     {
@@ -90,6 +95,7 @@ public class CachedUserManager
         this.userImpl.addUserUnchecked( user );
     }
 
+    @Override
     public User createUser( String username, String fullName, String emailAddress )
         throws UserManagerException
     {
@@ -97,6 +103,7 @@ public class CachedUserManager
         return this.userImpl.createUser( username, fullName, emailAddress );
     }
 
+    @Override
     public void deleteUser( String username )
         throws UserNotFoundException, UserManagerException
     {
@@ -104,6 +111,7 @@ public class CachedUserManager
         this.userImpl.deleteUser( username );
     }
 
+    @Override
     public void eraseDatabase()
     {
         try
@@ -116,6 +124,7 @@ public class CachedUserManager
         }
     }
 
+    @Override
     public User findUser( String username )
         throws UserNotFoundException, UserManagerException
     {
@@ -145,6 +154,7 @@ public class CachedUserManager
         return findUser( username );
     }
 
+    @Override
     public User getGuestUser()
         throws UserNotFoundException, UserManagerException
     {
@@ -161,70 +171,81 @@ public class CachedUserManager
         }
     }
 
+    @Override
     public UserQuery createUserQuery()
     {
         return userImpl.createUserQuery();
     }
 
 
-    public List<User> findUsersByQuery( UserQuery query )
+    @Override
+    public List<? extends User> findUsersByQuery( UserQuery query )
         throws UserManagerException
     {
         log.debug( "NOT CACHED - .findUsersByQuery(UserQuery)" );
         return this.userImpl.findUsersByQuery( query );
     }
 
-    public List<User> findUsersByEmailKey( String emailKey, boolean orderAscending )
+    @Override
+    public List<? extends User> findUsersByEmailKey( String emailKey, boolean orderAscending )
         throws UserManagerException
     {
         log.debug( "NOT CACHED - .findUsersByEmailKey(String, boolean)" );
         return this.userImpl.findUsersByEmailKey( emailKey, orderAscending );
     }
 
-    public List<User> findUsersByFullNameKey( String fullNameKey, boolean orderAscending )
+    @Override
+    public List<? extends User> findUsersByFullNameKey( String fullNameKey, boolean orderAscending )
         throws UserManagerException
     {
         log.debug( "NOT CACHED - .findUsersByFullNameKey(String, boolean)" );
         return this.userImpl.findUsersByFullNameKey( fullNameKey, orderAscending );
     }
 
-    public List<User> findUsersByUsernameKey( String usernameKey, boolean orderAscending )
+    @Override
+    public List<? extends User> findUsersByUsernameKey( String usernameKey, boolean orderAscending )
         throws UserManagerException
     {
         log.debug( "NOT CACHED - .findUsersByUsernameKey(String, boolean)" );
         return this.userImpl.findUsersByUsernameKey( usernameKey, orderAscending );
     }
 
+    @Override
     public String getId()
     {
         return "cached";
     }
 
-    public List<User> getUsers()
+    @Override
+    public List<? extends User> getUsers()
         throws UserManagerException
     {
         log.debug( "NOT CACHED - .getUsers()" );
         return this.userImpl.getUsers();
     }
 
-    public List<User> getUsers( boolean orderAscending )
+    @Override
+    public List<? extends User> getUsers( boolean orderAscending )
         throws UserManagerException
     {
         log.debug( "NOT CACHED - .getUsers(boolean)" );
         return this.userImpl.getUsers( orderAscending );
     }
 
+    @Override
     public void removeUserManagerListener( UserManagerListener listener )
     {
         this.userImpl.removeUserManagerListener( listener );
     }
 
+    @Override
     public User updateUser( User user )
         throws UserNotFoundException, UserManagerException
     {
         return updateUser( user, false );
     }
 
+    @Override
     public User updateUser( User user, boolean passwordChangeRequired )
         throws UserNotFoundException, UserManagerException
     {
@@ -235,6 +256,7 @@ public class CachedUserManager
         return this.userImpl.updateUser( user, passwordChangeRequired );
     }
 
+    @Override
     public boolean userExists( String userName )
         throws UserManagerException
     {
@@ -246,6 +268,7 @@ public class CachedUserManager
         return this.userImpl.userExists( userName );
     }
 
+    @Override
     public void userManagerInit( boolean freshDatabase )
     {
         if ( userImpl instanceof UserManager )
@@ -256,6 +279,7 @@ public class CachedUserManager
         usersCache.clear();
     }
 
+    @Override
     public void userManagerUserAdded( User user )
     {
         if ( userImpl instanceof UserManager )
@@ -269,6 +293,7 @@ public class CachedUserManager
         }
     }
 
+    @Override
     public void userManagerUserRemoved( User user )
     {
         if ( userImpl instanceof UserManager )
@@ -282,6 +307,7 @@ public class CachedUserManager
         }
     }
 
+    @Override
     public void userManagerUserUpdated( User user )
     {
         if ( userImpl instanceof UserManager )
@@ -305,7 +331,7 @@ public class CachedUserManager
         this.userImpl = userImpl;
     }
 
-    public Cache getUsersCache()
+    public Cache<String, User> getUsersCache()
     {
         return usersCache;
     }
@@ -315,16 +341,19 @@ public class CachedUserManager
         this.usersCache = usersCache;
     }
 
+    @Override
     public void initialize()
     {
         // no op configurable impl do the job
     }
 
+    @Override
     public boolean isFinalImplementation()
     {
         return false;
     }
 
+    @Override
     public String getDescriptionKey()
     {
         return "archiva.redback.usermanager.cached";

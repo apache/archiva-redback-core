@@ -20,17 +20,24 @@ package org.apache.archiva.redback.users.jpa;
  */
 
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
-import org.apache.archiva.redback.users.*;
+import org.apache.archiva.redback.users.AbstractUserManager;
+import org.apache.archiva.redback.users.Messages;
+import org.apache.archiva.redback.users.PermanentUserException;
+import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserManagerException;
+import org.apache.archiva.redback.users.UserNotFoundException;
+import org.apache.archiva.redback.users.UserQuery;
 import org.apache.archiva.redback.users.jpa.model.JpaUser;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -91,17 +98,17 @@ public class JpaUserManager extends AbstractUserManager {
     }
 
     @Override
-    public List<User> getUsers() throws UserManagerException {
+    public List<? extends User> getUsers() throws UserManagerException {
         final EntityManager em = getEm();
-        Query q= em.createQuery("SELECT x from JpaUser x");
+        TypedQuery<JpaUser> q= em.createQuery("SELECT x from JpaUser x", JpaUser.class);
         return q.getResultList();
     }
 
     @Override
-    public List<User> getUsers(boolean orderAscending) throws UserManagerException {
+    public List<? extends User> getUsers(boolean orderAscending) throws UserManagerException {
         final EntityManager em = getEm();
         final String orderFlag = orderAscending ? "ASC" : "DESC";
-        Query q = em.createQuery("SELECT u FROM JpaUser u ORDER BY u.username "+orderFlag);
+        TypedQuery<JpaUser> q = em.createQuery("SELECT u FROM JpaUser u ORDER BY u.username "+orderFlag, JpaUser.class);
         return q.getResultList();
     }
 
@@ -140,18 +147,18 @@ public class JpaUserManager extends AbstractUserManager {
         if (user.getLastPasswordChange()==null) {
             user.setLastPasswordChange(new Date());
         }
-        em.persist((JpaUser)user);
+        em.persist( user );
         return user;
     }
 
     @Transactional
     @Override
-    public User updateUser(User user) throws UserNotFoundException, UserManagerException {
+    public User updateUser(User user) throws UserManagerException {
         return updateUser(user, false);
     }
 
     @Override
-    public User findUser(String username) throws UserNotFoundException, UserManagerException {
+    public User findUser(String username) throws UserManagerException {
         if (username==null) {
             throw new UserNotFoundException("Username was <null>");
         }
@@ -168,30 +175,30 @@ public class JpaUserManager extends AbstractUserManager {
     }
 
     @Override
-    public User findUser(String username, boolean useCache) throws UserNotFoundException, UserManagerException {
+    public User findUser(String username, boolean useCache) throws UserManagerException {
         return findUser(username);
     }
 
     @Override
-    public List<User> findUsersByUsernameKey(String usernameKey, boolean orderAscending) throws UserManagerException {
+    public List<? extends User> findUsersByUsernameKey(String usernameKey, boolean orderAscending) throws UserManagerException {
         return findUsers("username",usernameKey,"username",orderAscending);
     }
 
     @Override
-    public List<User> findUsersByFullNameKey(String fullNameKey, boolean orderAscending) throws UserManagerException {
+    public List<? extends User> findUsersByFullNameKey(String fullNameKey, boolean orderAscending) throws UserManagerException {
         return findUsers("fullName",fullNameKey,"username",orderAscending);
     }
 
     @Override
-    public List<User> findUsersByEmailKey(String emailKey, boolean orderAscending) throws UserManagerException {
+    public List<? extends User> findUsersByEmailKey(String emailKey, boolean orderAscending) throws UserManagerException {
         return findUsers("email",emailKey,"username", orderAscending);
     }
 
     @Override
-    public List<User> findUsersByQuery(final UserQuery queryParam) throws UserManagerException {
+    public List<? extends User> findUsersByQuery(final UserQuery queryParam) throws UserManagerException {
         final EntityManager em = getEm();
         final JpaUserQuery query = (JpaUserQuery)queryParam;
-        String orderByAttribute = "";
+        String orderByAttribute;
         if (UserQuery.ORDER_BY_EMAIL.equals(query.getOrderBy())) {
             orderByAttribute="email";
         } else if (UserQuery.ORDER_BY_FULLNAME.equals(query.getOrderBy())) {
@@ -240,7 +247,7 @@ public class JpaUserManager extends AbstractUserManager {
         return q.getResultList();
     }
 
-    private List<User> findUsers(final String attribute, final String pattern,
+    private List<? extends User> findUsers(final String attribute, final String pattern,
                                  final String orderAttribute, final boolean orderAscending)  {
         final EntityManager em = getEm();
         StringBuilder sb = new StringBuilder("SELECT u FROM JpaUser u WHERE LOWER(u.");
@@ -262,7 +269,7 @@ public class JpaUserManager extends AbstractUserManager {
 
     @Transactional
     @Override
-    public void deleteUser(String username) throws UserNotFoundException, UserManagerException {
+    public void deleteUser(String username) throws UserManagerException {
         final EntityManager em = getEm();
         User u = findUser(username);
         if (u.isPermanent()) {
@@ -293,7 +300,7 @@ public class JpaUserManager extends AbstractUserManager {
             log.info("USER FOUND: "+u.getUsername());
         }
         log.info("NEW USER "+user.getUsername());
-        em.persist((JpaUser)user);
+        em.persist( user );
 
     }
 
@@ -314,7 +321,7 @@ public class JpaUserManager extends AbstractUserManager {
 
     @Transactional
     @Override
-    public User updateUser(User user, boolean passwordChangeRequired) throws UserNotFoundException, UserManagerException {
+    public User updateUser(User user, boolean passwordChangeRequired) throws UserManagerException {
         if ( !( user instanceof JpaUser ) )
         {
             throw new UserManagerException( "Unable to update user. User object " + user.getClass().getName() +

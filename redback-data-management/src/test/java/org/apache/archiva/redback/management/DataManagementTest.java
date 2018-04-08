@@ -337,7 +337,7 @@ public class DataManagementTest
 
         dataManagementTool.restoreUsersDatabase( manager, targetDirectory );
 
-        List<User> users = manager.getUsers();
+        List<? extends User> users = manager.getUsers();
         assertEquals( 3, users.size() );
 
         User user = users.get( 0 );
@@ -371,7 +371,7 @@ public class DataManagementTest
     private void assertEmpty( UserManager manager )
         throws UserManagerException
     {
-        List<User> users = manager.getUsers();
+        List<? extends User> users = manager.getUsers();
         assertEquals( 0, users.size() );
     }
 
