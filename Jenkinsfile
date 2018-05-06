@@ -76,7 +76,7 @@ pipeline {
                                 // -Dmaven.compiler.fork=false: Do not compile in a separate forked process
                                 // -Dmaven.test.failure.ignore=true: Do not stop, if some tests fail
                                 // -Pci-build: Profile for CI-Server
-                                sh "mvn clean deploy -B -U -e -fae -Dmaven.test.failure.ignore=true -T2 -Dmaven.compiler.fork=false -Pci-build"
+                                sh "mvn clean deploy -B -U -e -fae -Dmaven.test.failure.ignore=true -T2"
                             }
                 }
             }
