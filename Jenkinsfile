@@ -49,7 +49,7 @@ pipeline {
             }
             post {
                 failure {
-                    notifyBuild("Checkout failure (${currentBuild.currentResult})")
+                    notifyBuild("Checkout failure")
                 }
             }
         }
@@ -76,7 +76,7 @@ pipeline {
                                 // -Dmaven.compiler.fork=false: Do not compile in a separate forked process
                                 // -Dmaven.test.failure.ignore=true: Do not stop, if some tests fail
                                 // -Pci-build: Profile for CI-Server
-                                sh "mvn clean deploy -B -U -e -fae -Dmaven.test.failure.ignore=true -T2"
+                                sh "mvn clean deploy -B -U -e -fae -T2"
                             }
                 }
             }
@@ -86,15 +86,9 @@ pipeline {
                 }
                 success {
                     archiveArtifacts '**/target/*.jar'
-                    script {
-                        def previousResult = currentBuild.previousBuild?.result
-                        if (previousResult && !currentBuild.resultIsWorseOrEqualTo(previousResult)) {
-                            notifyBuild("Fixed: ${currentBuild.currentResult}")
-                        }
-                    }
                 }
                 failure {
-                    notifyBuild("Build / Test failure (${currentBuild.currentResult})")
+                    notifyBuild("Failure in BuildAndDeploy Stage")
                 }
             }
         }
@@ -102,10 +96,18 @@ pipeline {
 
     post {
         unstable {
-            notifyBuild("Unstable Build (${currentBuild.currentResult})")
+            notifyBuild("Unstable Build")
         }
         always {
             cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: '.repository', type: 'EXCLUDE']]
+        }
+        success {
+            script {
+                def previousResult = currentBuild.previousBuild?.result
+                if (previousResult && !currentBuild.resultIsWorseOrEqualTo(previousResult)) {
+                    notifyBuild("Fixed")
+                }
+            }
         }
     }
 }
@@ -134,4 +136,4 @@ def notifyBuild(String buildStatus) {
     )
 }
 
-// vim: et:ts=2:sw=2:ft=groovy
+// vim: et:ts=4:sw=4:ft=groovy
