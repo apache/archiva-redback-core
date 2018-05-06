@@ -750,6 +750,7 @@
             <exclude>patch.diff</exclude>
             <exclude>.repository</exclude>
             <exclude>.travis.yml</exclude>
+            <exclude>.repository/**</exclude>
             <!-- Netbeans files -->
             <exclude>nb-configuration.xml</exclude>
             <exclude>Jenkinsfile</exclude>
@@ -803,9 +804,14 @@
         <artifactId>maven-jxr-plugin</artifactId>
         <version>${jxrVersion}</version>
         <inherited>false</inherited>
-        <configuration>
-          <aggregate>true</aggregate>
-        </configuration>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
