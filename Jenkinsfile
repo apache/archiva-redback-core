@@ -85,6 +85,7 @@ pipeline {
                 stage('JDK9') {
                     steps {
 
+                        checkout scm
                         ws("${env.JOB_NAME}-JDK9") {
                             timeout(120) {
                                 withMaven(maven: buildMvn, jdk: buildJdk9,
@@ -105,7 +106,7 @@ pipeline {
                 }
                 stage('JDK10') {
                     steps {
-
+                        checkout scm
                         ws("${env.JOB_NAME}-JDK10") {
                             timeout(120) {
                                 withMaven(maven: buildMvn, jdk: buildJdk10,
