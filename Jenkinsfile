@@ -29,6 +29,8 @@
  */
 LABEL = 'ubuntu'
 buildJdk = 'JDK 1.8 (latest)'
+buildJdk9 = 'JDK 1.9 (latest)'
+buildJdk10 = 'JDK 10 (latest)'
 buildMvn = 'Maven 3.5.2'
 deploySettings = 'DefaultMavenSettingsProvider.1331204114925'
 
@@ -38,21 +40,6 @@ pipeline {
     }
 
     stages {
-
-
-        stage('Checkout') {
-            steps {
-                script {
-                    echo "Info: Job-Name=${JOB_NAME}, Branch=${BRANCH_NAME}, Workspace=${PWD}"
-                }
-                checkout scm
-            }
-            post {
-                failure {
-                    notifyBuild("Checkout failure")
-                }
-            }
-        }
 
         stage('BuildAndDeploy') {
             steps {
@@ -92,14 +79,61 @@ pipeline {
                 }
             }
         }
+        
+        stage('JDKs') {
+            parallel {
+                stage('JDK9') {
+                    steps {
+
+                        ws("${env.JOB_NAME}-JDK9") {
+                            timeout(120) {
+                                withMaven(maven: buildMvn, jdk: buildJdk9,
+                                        mavenSettingsConfig: deploySettings,
+                                        mavenLocalRepo: ".repository",
+                                        options: [concordionPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true),
+                                                  findbugsPublisher(disabled: true), artifactsPublisher(disabled: true),
+                                                  invokerPublisher(disabled: true), jgivenPublisher(disabled: true),
+                                                  junitPublisher(disabled: true, ignoreAttachments: false),
+                                                  openTasksPublisher(disabled: true), pipelineGraphPublisher(disabled: true)]
+                                )
+                                        {
+                                            sh "mvn clean install -B -U -e -fae -T2"
+                                        }
+                            }
+                        }
+                    }
+                }
+                stage('JDK10') {
+                    steps {
+
+                        ws("${env.JOB_NAME}-JDK10") {
+                            timeout(120) {
+                                withMaven(maven: buildMvn, jdk: buildJdk10,
+                                        mavenSettingsConfig: deploySettings,
+                                        mavenLocalRepo: ".repository",
+                                        options: [concordionPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true),
+                                                  findbugsPublisher(disabled: true), artifactsPublisher(disabled: true),
+                                                  invokerPublisher(disabled: true), jgivenPublisher(disabled: true),
+                                                  junitPublisher(disabled: true, ignoreAttachments: false),
+                                                  openTasksPublisher(disabled: true), pipelineGraphPublisher(disabled: true)]
+                                )
+                                        {
+                                            sh "mvn clean install -B -U -e -fae -T2"
+                                        }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post {
         unstable {
             notifyBuild("Unstable Build")
         }
-        always {
-            cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: '.repository', type: 'EXCLUDE']]
+        failure {
+            notifyBuild("Error in redback build")
         }
         success {
             script {
