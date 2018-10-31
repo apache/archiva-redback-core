@@ -152,7 +152,7 @@ public class UserServiceTest
             assertFalse( key.equals( "-1" ) );
 
             ServicesAssert assertService =
-                JAXRSClientFactory.create( "http://localhost:" + port + "/" + getRestServicesPath() + "/testsService/",
+                JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/testsService/",
                                            ServicesAssert.class,
                                            Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
@@ -211,7 +211,7 @@ public class UserServiceTest
             assertFalse( key.equals( "-1" ) );
 
             ServicesAssert assertService =
-                JAXRSClientFactory.create( "http://localhost:" + port + "/" + getRestServicesPath() + "/testsService/",
+                JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/testsService/",
                                            ServicesAssert.class,
                                            Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
@@ -225,7 +225,7 @@ public class UserServiceTest
             log.info( "messageContent: {}", messageContent );
 
             assertThat( messageContent ).contains( "Use the following URL to validate your account." ).contains(
-                "http://localhost:" + port ).containsIgnoringCase( "toto" );
+                "http://localhost:" + getServerPort() ).containsIgnoringCase( "toto" );
 
             assertTrue( service.validateUserFromKey( key ) );
 
@@ -270,7 +270,7 @@ public class UserServiceTest
             assertFalse( key.equals( "-1" ) );
 
             ServicesAssert assertService =
-                JAXRSClientFactory.create( "http://localhost:" + port + "/" + getRestServicesPath() + "/testsService/",
+                JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/testsService/",
                                            ServicesAssert.class,
                                            Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 

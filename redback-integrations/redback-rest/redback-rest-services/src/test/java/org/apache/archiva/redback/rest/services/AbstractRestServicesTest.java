@@ -49,6 +49,7 @@ import org.springframework.web.context.ContextLoaderListener;
 
 import javax.ws.rs.core.MediaType;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Olivier Lamy
@@ -59,13 +60,41 @@ public abstract class AbstractRestServicesTest
 {
     protected Logger log = LoggerFactory.getLogger( getClass() );
 
-    Server server;
-    ServerConnector serverConnector;
-    public int port;
+    private static AtomicReference<Server> server = new AtomicReference<>();
+    private static AtomicReference<ServerConnector> serverConnector = new AtomicReference<>();
 
     public String authorizationHeader = getAdminAuthzHeader();
 
+    /**
+     * Returns the server that was started, or null if not initialized before.
+     * @return
+     */
+    public Server getServer() {
+        return this.server.get();
+    }
 
+    public int getServerPort() {
+        ServerConnector connector = serverConnector.get();
+        if (connector!=null) {
+            return connector.getLocalPort();
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Returns true, if the server does exist and is running.
+     * @return true, if server does exist and is running.
+     */
+    public boolean isServerRunning() {
+        return this.server.get() != null && this.server.get().isRunning();
+    }
+
+    /**
+     * Returns the timeout in ms for rest requests. The timeout can be set by
+     * the system property <code>rest.test.timeout</code>.
+     * @return The timeout value in ms.
+     */
     public long getTimeout()
     {
         return Long.getLong( "rest.test.timeout", 1000000 );
@@ -101,9 +130,11 @@ public abstract class AbstractRestServicesTest
     public void startServer()
         throws Exception
     {
-        server = new Server();
-        serverConnector = new ServerConnector( server, new HttpConnectionFactory());
-        server.addConnector(serverConnector);
+        log.info("Starting server");
+        Server myServer = new Server();
+        this.server.set(myServer);
+        this.serverConnector.set(new ServerConnector( myServer, new HttpConnectionFactory()));
+        myServer.addConnector(serverConnector.get());
 
         ServletHolder servletHolder = new ServletHolder( new CXFServlet() );
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
@@ -113,17 +144,15 @@ public abstract class AbstractRestServicesTest
         context.setInitParameter( "contextConfigLocation", getSpringConfigLocation() );
         context.addEventListener(new ContextLoaderListener());
 
-        server.setHandler( context );
-        server.start();
+        getServer().setHandler( context );
+        getServer().start();
 
         if (log.isDebugEnabled())
         {
-            log.debug( "jetty dump: {}", server.dump() );
+            log.debug( "Jetty dump: {}", getServer().dump() );
         }
 
-        this.port = serverConnector.getLocalPort();
-
-        log.info( "start server on port {}", this.port );
+        log.info( "Started server on port {}", getServerPort() );
 
         UserService userService = getUserService();
 
@@ -142,7 +171,7 @@ public abstract class AbstractRestServicesTest
     protected FakeCreateAdminService getFakeCreateAdminService()
     {
         return JAXRSClientFactory.create(
-            "http://localhost:" + port + "/" + getRestServicesPath() + "/fakeCreateAdminService/",
+            "http://localhost:" + getServerPort()+ "/" + getRestServicesPath() + "/fakeCreateAdminService/",
             FakeCreateAdminService.class, Collections.singletonList( new JacksonJaxbJsonProvider() ) );
     }
 
@@ -150,9 +179,10 @@ public abstract class AbstractRestServicesTest
     public void stopServer()
         throws Exception
     {
-        if ( this.server != null )
+        if ( getServer() != null )
         {
-            this.server.stop();
+            log.info("Stopping server");
+            getServer().stop();
         }
     }
 
@@ -166,7 +196,7 @@ public abstract class AbstractRestServicesTest
     protected UserService getUserService( String authzHeader )
     {
         UserService service =
-            JAXRSClientFactory.create( "http://localhost:" + port + "/" + getRestServicesPath() + "/redbackServices/",
+            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/redbackServices/",
                                        UserService.class, Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
         // time out for debuging purpose
@@ -176,7 +206,7 @@ public abstract class AbstractRestServicesTest
         {
             WebClient.client( service ).header( "Authorization", authzHeader );
         }
-        WebClient.client(service).header("Referer","http://localhost:"+port);
+        WebClient.client(service).header("Referer","http://localhost:"+getServerPort());
         WebClient.client( service ).accept( MediaType.APPLICATION_JSON_TYPE );
         WebClient.client( service ).type( MediaType.APPLICATION_JSON_TYPE );
 
@@ -187,7 +217,7 @@ public abstract class AbstractRestServicesTest
     protected RoleManagementService getRoleManagementService( String authzHeader )
     {
         RoleManagementService service =
-            JAXRSClientFactory.create( "http://localhost:" + port + "/" + getRestServicesPath() + "/redbackServices/",
+            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/redbackServices/",
                                        RoleManagementService.class,
                                        Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
@@ -198,7 +228,7 @@ public abstract class AbstractRestServicesTest
         {
             WebClient.client( service ).header( "Authorization", authzHeader );
         }
-        WebClient.client(service).header("Referer","http://localhost:"+port);
+        WebClient.client(service).header("Referer","http://localhost:"+getServerPort());
 
         WebClient.client( service ).accept( MediaType.APPLICATION_JSON_TYPE );
         WebClient.client( service ).type( MediaType.APPLICATION_JSON_TYPE );
@@ -209,7 +239,7 @@ public abstract class AbstractRestServicesTest
     protected LoginService getLoginService( String authzHeader )
     {
         LoginService service =
-            JAXRSClientFactory.create( "http://localhost:" + port + "/" + getRestServicesPath() + "/redbackServices/",
+            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/redbackServices/",
                                        LoginService.class, Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
         // for debuging purpose
@@ -219,7 +249,7 @@ public abstract class AbstractRestServicesTest
         {
             WebClient.client( service ).header( "Authorization", authzHeader );
         }
-        WebClient.client(service).header("Referer","http://localhost:"+port);
+        WebClient.client(service).header("Referer","http://localhost:"+getServerPort());
 
         WebClient.client( service ).accept( MediaType.APPLICATION_JSON_TYPE );
         WebClient.client( service ).type( MediaType.APPLICATION_JSON_TYPE );
@@ -231,7 +261,7 @@ public abstract class AbstractRestServicesTest
     protected LdapGroupMappingService getLdapGroupMappingService( String authzHeader )
     {
         LdapGroupMappingService service =
-            JAXRSClientFactory.create( "http://localhost:" + port + "/" + getRestServicesPath() + "/redbackServices/",
+            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/redbackServices/",
                                        LdapGroupMappingService.class,
                                        Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
@@ -242,7 +272,7 @@ public abstract class AbstractRestServicesTest
         {
             WebClient.client( service ).header( "Authorization", authzHeader );
         }
-        WebClient.client(service).header("Referer","http://localhost:"+port);
+        WebClient.client(service).header("Referer","http://localhost:"+getServerPort());
 
         WebClient.client( service ).accept( MediaType.APPLICATION_JSON_TYPE );
         WebClient.client( service ).type( MediaType.APPLICATION_JSON_TYPE );
