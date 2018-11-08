@@ -834,6 +834,7 @@
         <configuration>
           <javadocVersion>1.8</javadocVersion>
           <source>1.8</source>
+          <doclint>none</doclint>
         </configuration>
         <reportSets>
           <reportSet>
