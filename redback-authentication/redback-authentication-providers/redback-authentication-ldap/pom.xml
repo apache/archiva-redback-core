@@ -32,6 +32,7 @@
   <name>Redback :: Authentication Provider :: Ldap</name>
 
   <properties>
+    <site.staging.base>${project.parent.parent.parent.basedir}</site.staging.base>
     <apacheds.version>1.5.1</apacheds.version>
   </properties>
 

@@ -32,6 +32,7 @@
   <name>Redback :: Karaf Features</name>
 
   <properties>
+    <site.staging.base>${project.parent.basedir}</site.staging.base>
     <javax-inject.bundle.version>1_2</javax-inject.bundle.version>
   </properties>
 

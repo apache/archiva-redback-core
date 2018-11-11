@@ -30,6 +30,9 @@
 
   <artifactId>redback-authentication-keys</artifactId>
   <packaging>bundle</packaging>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
   <name>Redback :: Authentication Provider :: Keys</name>
 
   <dependencies>

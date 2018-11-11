@@ -27,6 +27,9 @@
   <artifactId>redback-users-providers</artifactId>
   <name>Redback :: Users Providers</name>
   <packaging>pom</packaging>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>

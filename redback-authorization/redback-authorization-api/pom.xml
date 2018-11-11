@@ -29,6 +29,9 @@
 
   <artifactId>redback-authorization-api</artifactId>
   <packaging>bundle</packaging>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
   <name>Redback :: Authorization API</name>
 
   <build>

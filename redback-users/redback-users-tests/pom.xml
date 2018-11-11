@@ -26,6 +26,9 @@
   </parent>
   <artifactId>redback-users-tests</artifactId>
   <name>Redback :: User Tests</name>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
 
   <dependencies>
     <dependency>

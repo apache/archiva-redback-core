@@ -26,6 +26,9 @@
   </parent>
   <artifactId>redback-rbac-tests</artifactId>
   <name>Redback :: RBAC Test Framework</name>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>

@@ -27,6 +27,9 @@
   <artifactId>redback-rbac-providers</artifactId>
   <name>Redback :: RBAC Providers</name>
   <packaging>pom</packaging>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
   <modules>
     <module>redback-rbac-jpa</module>
     <module>redback-rbac-memory</module>

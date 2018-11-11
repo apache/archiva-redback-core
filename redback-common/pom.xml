@@ -28,6 +28,9 @@
   <artifactId>redback-common</artifactId>
   <name>Redback :: Commons</name>
   <packaging>pom</packaging>
+  <properties>
+    <site.staging.base>${project.parent.basedir}</site.staging.base>
+  </properties>
   <modules>
     <module>redback-common-ldap</module>
     <module>redback-common-test-resources</module>

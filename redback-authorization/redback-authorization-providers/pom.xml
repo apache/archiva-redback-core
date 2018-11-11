@@ -27,6 +27,9 @@
   <artifactId>redback-authorization-providers</artifactId>
   <name>Redback :: Authorization Providers</name>
   <packaging>pom</packaging>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
   <modules>
     <module>redback-authorization-rbac</module>
     <module>redback-authorization-open</module>

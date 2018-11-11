@@ -29,6 +29,9 @@
 
   <artifactId>redback-keys-jpa</artifactId>
   <packaging>jar</packaging>
+  <properties>
+    <site.staging.base>${project.parent.parent.parent.basedir}</site.staging.base>
+  </properties>
   <name>Redback :: Key Management Provider :: JPA</name>
 
   <dependencies>

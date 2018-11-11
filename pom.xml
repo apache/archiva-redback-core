@@ -66,11 +66,12 @@
   <distributionManagement>
     <site>
       <id>apache.website</id>
-      <url>file://${siteDeployDirectory}</url>
+      <url>${siteRepositoryUrl}</url>
     </site>
   </distributionManagement>
 
   <properties>
+    <site.staging.base>${project.basedir}</site.staging.base>
     <springVersion>4.3.10.RELEASE</springVersion>
     <slf4jVersion>1.7.25</slf4jVersion>
     <log4j2Version>2.8.2</log4j2Version>
@@ -87,10 +88,15 @@
      -->
     <redbackTestJdbcUrl>jdbc:hsqldb:mem:redback-test</redbackTestJdbcUrl>
     <redbackTestJdbcDriver>org.hsqldb.jdbcDriver</redbackTestJdbcDriver>
-    <siteDeployDirectory>${user.home}/archiva-sites/redback-core-site-deploy</siteDeployDirectory>
-    <scmPubCheckoutDirectory>${basedir}/.site-content</scmPubCheckoutDirectory>
-    
+
     <openjpa.Log>DefaultLevel=INFO,Runtime=ERROR,Tool=ERROR,SQL=ERROR,Schema=ERROR,MetaData=ERROR</openjpa.Log>
+
+    <scmPubCheckoutDirectory>${basedir}/.site-content</scmPubCheckoutDirectory>
+    <!-- The git repository, where the site content is placed -->
+    <siteRepositoryUrl>scm:git:https://gitbox.apache.org/repos/asf/archiva-web-content-INVALID.git</siteRepositoryUrl>
+
+    <site.staging.base>${project.basedir}</site.staging.base>
+
   </properties>
 
   <repositories>
@@ -659,7 +665,7 @@
             <useJava5>false</useJava5>
           </configuration>
         </plugin>
-        <plugin>
+<!--        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-scm-publish-plugin</artifactId>
           <configuration>
@@ -668,7 +674,7 @@
             <tryUpdate>true</tryUpdate>
             <pubScmUrl>scm:svn:https://svn.apache.org/repos/asf/archiva/site-content/redback/core</pubScmUrl>
           </configuration>
-        </plugin>
+        </plugin>-->
         <plugin>
           <groupId>org.apache.openjpa</groupId>
           <artifactId>openjpa-maven-plugin</artifactId>
@@ -677,6 +683,67 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-scm-publish-plugin</artifactId>
+        <inherited>false</inherited>
+        <configuration>
+          <checkinComment>Apache Archiva versioned module docs for ${project.version}</checkinComment>
+          <skipDeletedFiles>true</skipDeletedFiles>
+          <content>${project.build.directory}/staging/</content>
+          <tryUpdate>true</tryUpdate>
+          <!--
+                    <ignorePathsToDelete>
+                      <path>%regex[^(?!docs/).*$]</path>
+                    </ignorePathsToDelete>
+          -->
+        </configuration>
+        <executions>
+          <execution>
+            <id>scm-publish</id>
+            <phase>site-deploy</phase>
+            <goals>
+              <goal>publish-scm</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <inherited>false</inherited>
+        <configuration>
+          <skipDeploy>true</skipDeploy>
+          <stagingDirectory>${site.staging.base}/target/staging/redback/core/</stagingDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-descriptor</id>
+            <goals>
+              <goal>attach-descriptor</goal>
+            </goals>
+          </execution>
+          <!--
+          <execution>
+            <id>site-generate-resources</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>site</goal>
+            </goals>
+          </execution>
+          -->
+          <execution>
+            <id>stage-for-scm-publish</id>
+            <phase>post-site</phase>
+            <goals>
+              <goal>stage</goal>
+            </goals>
+            <configuration>
+              <skipDeploy>false</skipDeploy>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -789,7 +856,17 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
         <version>${maven-project-info-reports-plugin.version}</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>index</report>
+              <report>team</report>
+              <report>licenses</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
+      <!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
@@ -826,6 +903,7 @@
           </reportSet>
         </reportSets>
       </plugin>
+            -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -839,12 +917,15 @@
         <reportSets>
           <reportSet>
             <id>aggregate</id>
+            <inherited>false</inherited>
             <reports>
               <report>aggregate</report>
             </reports>
           </reportSet>
         </reportSets>
+
       </plugin>
+
     </plugins>
   </reporting>
 

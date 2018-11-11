@@ -27,5 +27,8 @@
 
   <artifactId>redback-common-test-resources</artifactId>
   <name>Redback :: Common TestResources</name>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
 
 </project>

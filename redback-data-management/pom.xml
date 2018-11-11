@@ -29,6 +29,9 @@
 
   <artifactId>redback-data-management</artifactId>
   <packaging>bundle</packaging>
+  <properties>
+    <site.staging.base>${project.parent.basedir}</site.staging.base>
+  </properties>
   <name>Redback :: Data Management Utilities</name>
   <description>Back up, restore and upgrade utilities for JDO databases using XML</description>
 

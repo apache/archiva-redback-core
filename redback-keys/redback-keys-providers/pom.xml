@@ -27,6 +27,9 @@
   <artifactId>redback-keys-providers</artifactId>
   <name>Redback :: Key Management Providers</name>
   <packaging>pom</packaging>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
   <modules>    
     <module>redback-keys-jpa</module>
     <module>redback-keys-memory</module>

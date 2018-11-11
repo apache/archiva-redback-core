@@ -27,6 +27,9 @@
   <artifactId>redback-integrations</artifactId>
   <name>Redback :: Integrations</name>
   <packaging>pom</packaging>
+  <properties>
+    <site.staging.base>${project.parent.basedir}</site.staging.base>
+  </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>

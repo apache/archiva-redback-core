@@ -28,6 +28,9 @@
   <groupId>org.apache.archiva.redback</groupId>
   <artifactId>redback-rest</artifactId>
   <packaging>pom</packaging>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
   <name>Redback :: Integration :: REST</name>
   
   <modules>

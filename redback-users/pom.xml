@@ -27,6 +27,9 @@
   <artifactId>redback-users</artifactId>
   <name>Redback :: User Management</name>
   <packaging>pom</packaging>
+  <properties>
+    <site.staging.base>${project.parent.basedir}</site.staging.base>
+  </properties>
   <modules>
     <module>redback-users-api</module>
     <module>redback-users-providers</module>

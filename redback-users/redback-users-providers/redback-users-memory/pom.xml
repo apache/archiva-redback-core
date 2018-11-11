@@ -29,6 +29,9 @@
 
   <artifactId>redback-users-memory</artifactId>
   <packaging>bundle</packaging>
+  <properties>
+    <site.staging.base>${project.parent.parent.parent.basedir}</site.staging.base>
+  </properties>
   <name>Redback :: Users Provider :: Memory</name>
 
   <dependencies>

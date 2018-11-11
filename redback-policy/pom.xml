@@ -29,6 +29,9 @@
 
   <artifactId>redback-policy</artifactId>
   <packaging>bundle</packaging>
+  <properties>
+    <site.staging.base>${project.parent.basedir}</site.staging.base>
+  </properties>
   <name>Redback :: Policy</name>
 
   <dependencies>

@@ -27,6 +27,9 @@
   <artifactId>redback-keys-tests</artifactId>
   <name>Redback :: Key Management Test Harness</name>
   <packaging>jar</packaging>
+  <properties>
+    <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>

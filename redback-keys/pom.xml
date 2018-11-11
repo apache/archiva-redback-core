@@ -27,6 +27,9 @@
   <artifactId>redback-keys</artifactId>
   <name>Redback :: Key Management</name>
   <packaging>pom</packaging>
+  <properties>
+    <site.staging.base>${project.parent.basedir}</site.staging.base>
+  </properties>
   <modules>
     <module>redback-keys-api</module>
     <module>redback-keys-providers</module>

@@ -33,6 +33,7 @@
   <name>Redback :: Integration :: REST :: Api</name>
 
   <properties>
+    <site.staging.base>${project.parent.parent.parent.basedir}</site.staging.base>
     <enunciate.docsDir>${project.build.outputDirectory}/rest-docs-redback-rest-api</enunciate.docsDir>
   </properties>
 
