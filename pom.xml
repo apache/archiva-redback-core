@@ -17,7 +17,8 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -665,20 +666,27 @@
             <useJava5>false</useJava5>
           </configuration>
         </plugin>
-<!--        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-scm-publish-plugin</artifactId>
-          <configuration>
-            <content>${project.build.directory}/staging</content>
-            <checkinComment>Apache Redback Core site deployment</checkinComment>
-            <tryUpdate>true</tryUpdate>
-            <pubScmUrl>scm:svn:https://svn.apache.org/repos/asf/archiva/site-content/redback/core</pubScmUrl>
-          </configuration>
-        </plugin>-->
+        <!--        <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-scm-publish-plugin</artifactId>
+                  <configuration>
+                    <content>${project.build.directory}/staging</content>
+                    <checkinComment>Apache Redback Core site deployment</checkinComment>
+                    <tryUpdate>true</tryUpdate>
+                    <pubScmUrl>scm:svn:https://svn.apache.org/repos/asf/archiva/site-content/redback/core</pubScmUrl>
+                  </configuration>
+                </plugin>-->
         <plugin>
           <groupId>org.apache.openjpa</groupId>
           <artifactId>openjpa-maven-plugin</artifactId>
           <version>${openjpa.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <configuration>
+            <skipDeploy>true</skipDeploy>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -711,7 +719,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <inherited>false</inherited>
+        <inherited>true</inherited>
         <configuration>
           <skipDeploy>true</skipDeploy>
           <stagingDirectory>${site.staging.base}/target/staging/redback/core/</stagingDirectory>
@@ -981,6 +989,50 @@
         </plugins>
       </build>
     </profile>
+
+    <!--
+This runs a sparse git checkout for the web site content repository that contains only the doc directory.
+The profile is activated only, if the checkout directory does not exist.
+The executor runs a shell script.
+-->
+    <profile>
+      <id>site-checkout</id>
+      <activation>
+
+        <file>
+          <missing>${scmPubCheckoutDirectory}</missing>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.6.0</version>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>prepare-checkout</id>
+                <phase>pre-site</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>checkoutSite.sh</executable>
+                  <workingDirectory>${project.basedir}</workingDirectory>
+                  <arguments>
+                    <argument>-d</argument>
+                    <argument>${scmPubCheckoutDirectory}</argument>
+                    <argument>${siteRepositoryUrl}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
 
 </project>

@@ -29,7 +29,7 @@
       <sideBarEnabled>false</sideBarEnabled>
       <skipGenerationDate>true</skipGenerationDate>
       <googleSearch>
-        <sitesearch>http://archiva.apache.org/redback</sitesearch>
+        <sitesearch>https://archiva.apache.org/redback</sitesearch>
       </googleSearch>
       <twitter>
         <user>archiva</user>
@@ -38,16 +38,26 @@
       </twitter>
       <ohloh>
         <projectId>8659</projectId>
-        <widget>stats</widget>
+        <widget>thin-badge</widget>
       </ohloh>
+      <gitHub>
+        <projectId>apache/archiva-redback-core</projectId>
+        <ribbonOrientation>right</ribbonOrientation>
+        <ribbonColor>black</ribbonColor>
+      </gitHub>
     </fluidoSkin>
 
   </custom>
 
-  <publishDate format="yyyy-MM-dd" position="left" />
-  <version position="left" />
+  <publishDate format="yyyy-MM-dd" position="right" />
+  <version position="right" />
  
   <body>
+    <breadcrumbs>
+      <item name="Apache" href="https://www.apache.org" />
+      <item name="Archiva" href="https://archiva.apache.org" />
+      <item name="Redback" href="index.html" />
+    </breadcrumbs>
 
     <menu ref="reports" />
     <menu ref="modules" />
