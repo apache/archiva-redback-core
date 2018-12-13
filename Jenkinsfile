@@ -104,7 +104,7 @@ def mavenBuild(jdk, cmdline, options) {
     deploySettings = 'archiva-uid-jenkins'
     def mavenOpts = '-Xms1g -Xmx2g -Djava.awt.headless=true'
 
-    withMaven(maven: buildMvn, "$jdk": buildJdk,
+    withMaven(maven: buildMvn, jdk: "$jdk",
               publisherStrategy: 'EXPLICIT',
               mavenOpts: mavenOpts,
               mavenSettingsConfig: deploySettings,
