@@ -31,8 +31,6 @@ LABEL = 'ubuntu'
 buildJdk = 'JDK 1.8 (latest)'
 buildJdk9 = 'JDK 1.9 (latest)'
 buildJdk10 = 'JDK 10 (latest)'
-buildMvn = 'Maven 3.5.2'
-deploySettings = 'archiva-uid-jenkins'
 
 pipeline {
     agent {
@@ -40,65 +38,31 @@ pipeline {
     }
 
     stages {
-
-        stage('BuildAndDeploy') {
-            steps {
-                timeout(120) {
-                    withMaven(maven: buildMvn, jdk: buildJdk,
-                            mavenSettingsConfig: deploySettings,
-                            mavenLocalRepo: ".repository",
-                            options: [concordionPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true),
-                                      findbugsPublisher(disabled: true), artifactsPublisher(disabled: true),
-                                      invokerPublisher(disabled: true), jgivenPublisher(disabled: true),
-                                      junitPublisher(disabled: true, ignoreAttachments: false),
-                                      openTasksPublisher(disabled: true), pipelineGraphPublisher(disabled: true)]
-                    )
-                            {
-
-                                // Run test phase / ignore test failures
-                                // -B: Batch mode
-                                // -U: Force snapshot update
-                                // -e: Produce execution error messages
-                                // -fae: Fail at the end
-                                // -Dmaven.compiler.fork=false: Do not compile in a separate forked process
-                                // -Dmaven.test.failure.ignore=true: Do not stop, if some tests fail
-                                // -Pci-build: Profile for CI-Server
-                                sh "mvn clean deploy -B -U -e -fae -T2"
-                            }
-                }
-            }
-            post {
-                always {
-                    junit testResults: '**/target/surefire-reports/TEST-*.xml'
-                }
-                success {
-                    archiveArtifacts '**/target/*.jar'
-                }
-                failure {
-                    notifyBuild("Failure in BuildAndDeploy Stage")
-                }
-            }
-        }
-        
-        stage('JDKs') {
+        stage('Builds') {
             parallel {
+
+                stage('BuildAndDeploy-JDK8') {
+                    steps {
+                        timeout(120) {
+                            mavenBuild(buildJdk,"mvn clean deploy -B -U -e -fae -T2",
+                                       [artifactsPublisher(disabled: false),
+                                        junitPublisher(disabled: false, ignoreAttachments: false),
+                                        pipelineGraphPublisher(disabled: false)])
+                        }
+                    }
+                    post {
+                        failure {
+                            notifyBuild("Failure in BuildAndDeploy Stage")
+                        }
+                    }
+                }
+
                 stage('JDK9') {
                     steps {
                         ws("${env.JOB_NAME}-JDK9") {
                             checkout scm
                             timeout(120) {
-                                withMaven(maven: buildMvn, jdk: buildJdk9,
-                                        mavenSettingsConfig: deploySettings,
-                                        mavenLocalRepo: ".repository",
-                                        options: [concordionPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true),
-                                                  findbugsPublisher(disabled: true), artifactsPublisher(disabled: true),
-                                                  invokerPublisher(disabled: true), jgivenPublisher(disabled: true),
-                                                  junitPublisher(disabled: true, ignoreAttachments: false),
-                                                  openTasksPublisher(disabled: true), pipelineGraphPublisher(disabled: true)]
-                                )
-                                        {
-                                            sh "mvn clean install -B -U -e -fae -T2"
-                                        }
+                                mavenBuild(buildJdk9,"mvn clean install -B -U -e -fae -T2", [])
                             }
                         }
                     }
@@ -108,18 +72,7 @@ pipeline {
                         ws("${env.JOB_NAME}-JDK10") {
                             checkout scm
                             timeout(120) {
-                                withMaven(maven: buildMvn, jdk: buildJdk10,
-                                        mavenSettingsConfig: deploySettings,
-                                        mavenLocalRepo: ".repository",
-                                        options: [concordionPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true),
-                                                  findbugsPublisher(disabled: true), artifactsPublisher(disabled: true),
-                                                  invokerPublisher(disabled: true), jgivenPublisher(disabled: true),
-                                                  junitPublisher(disabled: true, ignoreAttachments: false),
-                                                  openTasksPublisher(disabled: true), pipelineGraphPublisher(disabled: true)]
-                                )
-                                        {
-                                            sh "mvn clean install -B -U -e -fae -T2"
-                                        }
+                                mavenBuild(buildJdk10,"mvn clean install -B -U -e -fae -T2", [])
                             }
                         }
                     }
@@ -144,6 +97,23 @@ pipeline {
             }
         }
     }
+}
+
+def mavenBuild(jdk, cmdline, options) {
+    buildMvn = 'Maven 3.5.2'
+    deploySettings = 'archiva-uid-jenkins'
+    def mavenOpts = '-Xms1g -Xmx2g -Djava.awt.headless=true'
+
+    withMaven(maven: buildMvn, "$jdk": buildJdk,
+              publisherStrategy: 'EXPLICIT',
+              mavenOpts: mavenOpts,
+              mavenSettingsConfig: deploySettings,
+              mavenLocalRepo: ".repository",
+              options: options
+    )
+        {
+            sh "$cmdline"
+        }
 }
 
 // Send a notification about the build status
