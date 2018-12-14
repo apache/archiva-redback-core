@@ -43,7 +43,7 @@ pipeline {
                 stage('BuildAndDeploy-JDK8') {
                     steps {
                         timeout(120) {
-                            mavenBuild(buildJdk,"mvn clean deploy -B -U -e -fae -T2",
+                            mavenBuild(buildJdk,"clean deploy -U -fae",
                                        [artifactsPublisher(disabled: false),
                                         junitPublisher(disabled: false, ignoreAttachments: false),
                                         pipelineGraphPublisher(disabled: false)])
@@ -61,7 +61,8 @@ pipeline {
                         ws("${env.JOB_NAME}-JDK11") {
                             checkout scm
                             timeout(120) {
-                                mavenBuild(buildJdk11,"mvn clean install -B -U -e -fae -T2", [])
+                                mavenBuild(buildJdk11,"clean install -U -fae",
+                                           [junitPublisher(disabled: false, ignoreAttachments: false)])
                             }
                         }
                     }
@@ -101,7 +102,7 @@ def mavenBuild(jdk, cmdline, options) {
               options: options
     )
         {
-            sh "$cmdline"
+            sh "mvn -V -B -T3 -e -Dmaven.test.failure.ignore=true $cmdline"
         }
 }
 
