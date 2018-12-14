@@ -29,8 +29,7 @@
  */
 LABEL = 'ubuntu'
 buildJdk = 'JDK 1.8 (latest)'
-buildJdk9 = 'JDK 1.9 (latest)'
-buildJdk10 = 'JDK 10 (latest)'
+buildJdk11 = 'JDK 11 (latest)'
 
 pipeline {
     agent {
@@ -57,22 +56,12 @@ pipeline {
                     }
                 }
 
-                stage('JDK9') {
+                stage('JDK11') {
                     steps {
-                        ws("${env.JOB_NAME}-JDK9") {
+                        ws("${env.JOB_NAME}-JDK11") {
                             checkout scm
                             timeout(120) {
-                                mavenBuild(buildJdk9,"mvn clean install -B -U -e -fae -T2", [])
-                            }
-                        }
-                    }
-                }
-                stage('JDK10') {
-                    steps {
-                        ws("${env.JOB_NAME}-JDK10") {
-                            checkout scm
-                            timeout(120) {
-                                mavenBuild(buildJdk10,"mvn clean install -B -U -e -fae -T2", [])
+                                mavenBuild(buildJdk11,"mvn clean install -B -U -e -fae -T2", [])
                             }
                         }
                     }
