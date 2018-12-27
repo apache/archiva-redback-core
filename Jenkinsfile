@@ -59,17 +59,17 @@ pipeline {
                     }
                 }
 
-                stage('JDK11') {
-                    steps {
-                        ws("${env.JOB_NAME}-JDK11") {
-                            checkout scm
-                            timeout(120) {
-                                mavenBuild(buildJdk11,"clean install -U -fae",
-                                           [junitPublisher(disabled: false, ignoreAttachments: false)])
-                            }
-                        }
-                    }
-                }
+//                stage('JDK11') {
+//                    steps {
+//                        ws("${env.JOB_NAME}-JDK11") {
+//                            checkout scm
+//                            timeout(120) {
+//                                mavenBuild(buildJdk11,"clean install -U -fae",
+//                                           [junitPublisher(disabled: false, ignoreAttachments: false)])
+//                            }
+//                        }
+//                    }
+//                }
             }
         }
     }
