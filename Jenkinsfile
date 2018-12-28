@@ -75,6 +75,9 @@ pipeline {
     }
 
     post {
+        always {
+            cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: '.repository', type: 'EXCLUDE']]
+        }    
         unstable {
             notifyBuild("Unstable Build")
         }
