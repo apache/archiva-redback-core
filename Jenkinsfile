@@ -31,6 +31,11 @@ LABEL = 'ubuntu'
 buildJdk = 'JDK 1.8 (latest)'
 buildJdk11 = 'JDK 11 (latest)'
 
+def defaultPublishers = [artifactsPublisher(disabled: false), junitPublisher(ignoreAttachments: false, disabled: false),
+                         findbugsPublisher(disabled: true), openTasksPublisher(disabled: true),
+                         dependenciesFingerprintPublisher(disabled: false), invokerPublisher(disabled: true),
+                         pipelineGraphPublisher(disabled: false)]
+
 pipeline {
     agent {
         label "${LABEL}"
@@ -40,21 +45,17 @@ pipeline {
     }
 
     stages {
-        stage('Builds') {
+        stage( 'Builds' ) {
             parallel {
 
-                stage('BuildAndDeploy-JDK8') {
+                stage( 'BuildAndDeploy-JDK8' ) {
                     steps {
-                        timeout(120) {
-                            mavenBuild(buildJdk,"clean deploy -U -fae",
-                                       [artifactsPublisher(disabled: false),
-                                        junitPublisher(disabled: false, ignoreAttachments: false),
-                                        pipelineGraphPublisher(disabled: false)])
+                        timeout( 120 ) {
+                            mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers )
                         }
-                    }
                     post {
                         failure {
-                            notifyBuild("Failure in BuildAndDeploy Stage")
+                            notifyBuild( "Failure in BuildAndDeploy Stage ")
                         }
                     }
                 }
@@ -79,61 +80,21 @@ pipeline {
             cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: '.repository', type: 'EXCLUDE']]
         }    
         unstable {
-            notifyBuild("Unstable Build")
+            notifyBuild( "Unstable Build ")
         }
         failure {
-            notifyBuild("Error in redback build")
+            notifyBuild( "Error in redback build ")
         }
         success {
             script {
                 def previousResult = currentBuild.previousBuild?.result
-                if (previousResult && !currentBuild.resultIsWorseOrEqualTo(previousResult)) {
-                    notifyBuild("Fixed")
+                if (previousResult && !currentBuild.resultIsWorseOrEqualTo( previousResult ) )
+                {
+                    notifyBuild( "Fixed" )
                 }
             }
         }
     }
+    }
 }
-
-def mavenBuild(jdk, cmdline, options) {
-    buildMvn = 'Maven 3.5.2'
-    deploySettings = 'archiva-uid-jenkins'
-    def mavenOpts = '-Xms1g -Xmx2g -Djava.awt.headless=true'
-
-    withMaven(maven: buildMvn, jdk: "$jdk",
-              publisherStrategy: 'EXPLICIT',
-              mavenOpts: mavenOpts,
-              mavenSettingsConfig: deploySettings,
-              mavenLocalRepo: ".repository",
-              options: options
-    )
-        {
-            sh "mvn -V -B -T3 -e -Dmaven.test.failure.ignore=true $cmdline"
-        }
-}
-
-// Send a notification about the build status
-def notifyBuild(String buildStatus) {
-    // default the value
-    buildStatus = buildStatus ?: "UNKNOWN"
-
-    def email = "notifications@archiva.apache.org"
-    def summary = "${env.JOB_NAME}#${env.BUILD_NUMBER} - ${buildStatus} - ${currentBuild?.currentResult}"
-    def detail = """<h4>Job: <a href='${env.JOB_URL}'>${env.JOB_NAME}</a> [#${env.BUILD_NUMBER}]</h4>
-  <p><b>${buildStatus}</b></p>
-  <table>
-    <tr><td>Build</td><td><a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></td><tr>
-    <tr><td>Console</td><td><a href='${env.BUILD_URL}console'>${env.BUILD_URL}console</a></td><tr>
-    <tr><td>Test Report</td><td><a href='${env.BUILD_URL}testReport/'>${env.BUILD_URL}testReport/</a></td><tr>
-  </table>
-  """
-
-    emailext(
-            to: email,
-            subject: summary,
-            body: detail,
-            mimeType: 'text/html'
-    )
-}
-
 // vim: et:ts=4:sw=4:ft=groovy
