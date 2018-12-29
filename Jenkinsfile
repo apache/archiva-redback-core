@@ -37,9 +37,7 @@ def defaultPublishers = [artifactsPublisher(disabled: false), junitPublisher(ign
                          pipelineGraphPublisher(disabled: false)]
 
 pipeline {
-    agent {
-        label "${LABEL}"
-    }
+    agent { label "${LABEL}" }
     options {
         buildDiscarder(logRotator(numToKeepStr: '7', artifactNumToKeepStr: '5'))
     }
@@ -47,12 +45,10 @@ pipeline {
     stages {
         stage( 'Builds' ) {
             parallel {
-
                 stage( 'BuildAndDeploy-JDK8' ) {
+                    options { timeout(time: 120, unit: 'MINUTES') }
                     steps {
-                        timeout( 120 ) {
-                            mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers )
-                        }
+                        mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers )
                     } post {
                         failure {
                             notifyBuild( "Failure in BuildAndDeploy Stage ")
