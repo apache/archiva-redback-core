@@ -31,14 +31,10 @@ LABEL = 'ubuntu'
 buildJdk = 'JDK 1.8 (latest)'
 buildJdk11 = 'JDK 11 (latest)'
 
-def defaultPublishers = [artifactsPublisher(disabled: false), junitPublisher(ignoreAttachments: false, disabled: false),
-                         findbugsPublisher(disabled: true), openTasksPublisher(disabled: true),
-                         dependenciesFingerprintPublisher(disabled: false), invokerPublisher(disabled: true),
-                         pipelineGraphPublisher(disabled: false)]
-
 pipeline {
     agent { label "${LABEL}" }
     options {
+        durabilityHint('PERFORMANCE_OPTIMIZED')
         buildDiscarder(logRotator(numToKeepStr: '7', artifactNumToKeepStr: '5'))
     }
 
@@ -48,7 +44,10 @@ pipeline {
                 stage( 'BuildAndDeploy-JDK8' ) {
                     options { timeout(time: 120, unit: 'MINUTES') }
                     steps {
-                        mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers )
+                        mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', [artifactsPublisher(disabled: false), junitPublisher(ignoreAttachments: false, disabled: false),
+                                                                                          findbugsPublisher(disabled: true), openTasksPublisher(disabled: true),
+                                                                                          dependenciesFingerprintPublisher(disabled: false), invokerPublisher(disabled: true),
+                                                                                          pipelineGraphPublisher(disabled: false)] )
                     }
                 }post {
                     failure {
