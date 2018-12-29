@@ -53,7 +53,7 @@ pipeline {
                         timeout( 120 ) {
                             mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers )
                         }
-                    post {
+                    } post {
                         failure {
                             notifyBuild( "Failure in BuildAndDeploy Stage ")
                         }
@@ -94,7 +94,6 @@ pipeline {
                 }
             }
         }
-    }
     }
 }
 // vim: et:ts=4:sw=4:ft=groovy
