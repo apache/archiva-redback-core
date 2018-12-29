@@ -49,10 +49,10 @@ pipeline {
                     options { timeout(time: 120, unit: 'MINUTES') }
                     steps {
                         mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers )
-                    } post {
-                        failure {
-                            notifyBuild( "Failure in BuildAndDeploy Stage ")
-                        }
+                    }
+                }post {
+                    failure {
+                        notifyBuild( "Failure in BuildAndDeploy Stage ")
                     }
                 }
 
