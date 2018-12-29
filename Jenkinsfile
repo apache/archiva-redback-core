@@ -36,7 +36,7 @@ pipeline {
         label "${LABEL}"
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+        buildDiscarder(logRotator(numToKeepStr: '7', artifactNumToKeepStr: '5'))
     }
 
     stages {
