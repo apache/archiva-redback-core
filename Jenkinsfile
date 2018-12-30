@@ -47,7 +47,9 @@ pipeline {
     stages {
         stage( 'BuildAndDeploy-JDK8' ) {
             steps {
-                mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers)
+                script{
+                    asfStandardBuild.mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers)
+                }
             }
         }
 //                stage('JDK11') {
