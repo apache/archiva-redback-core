@@ -46,7 +46,7 @@ pipeline {
 
     stages {
         stage( 'BuildAndDeploy-JDK8' ) {
-            \steps {
+            steps {
                 mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers)
             }
         }
