@@ -44,18 +44,16 @@ pipeline {
     }
 
     stages {
-        stage( 'Builds' ) {
-                stage( 'BuildAndDeploy-JDK8' ) {
-                    options { timeout(time: 120, unit: 'MINUTES') }
-                    steps {
-                        mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers)
-                    }
-                }post {
-                    failure {
-                        notifyBuild( "Failure in BuildAndDeploy-JDK8 Stage ")
-                    }
-                }
-
+        stage( 'BuildAndDeploy-JDK8' ) {
+            options { timeout(time: 120, unit: 'MINUTES') }
+            steps {
+                mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers)
+            }
+        }post {
+            failure {
+                notifyBuild( "Failure in BuildAndDeploy-JDK8 Stage ")
+            }
+        }
 //                stage('JDK11') {
 //                    steps {
 //                        ws("${env.JOB_NAME}-JDK11") {
@@ -67,7 +65,7 @@ pipeline {
 //                        }
 //                    }
 //                }
-        }
+
     }
 
     post {
