@@ -195,11 +195,7 @@ public class DefaultLoginService
         {
             throw new RedbackServiceException( e.getMessage(), Response.Status.FORBIDDEN.getStatusCode() );
         }
-        catch ( UserNotFoundException e )
-        {
-            throw new RedbackServiceException( e.getMessage() );
-        }
-        catch ( AccountLockedException e )
+        catch ( UserNotFoundException | AccountLockedException e )
         {
             throw new RedbackServiceException( e.getMessage() );
         }
