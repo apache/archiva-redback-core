@@ -66,7 +66,7 @@ pipeline {
 
     post {
         always {
-            cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: '.repository', type: 'EXCLUDE']]
+            cleanWs() // deleteDirs: true, notFailBuild: true, patterns: [[pattern: '.repository', type: 'EXCLUDE']]
         }    
         unstable {
             script{
