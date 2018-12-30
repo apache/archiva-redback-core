@@ -72,7 +72,7 @@ pipeline {
             asfStandardBuild.notifyBuild( "Unstable Build ")
         }
         failure {
-            notifyBuild( "Error in redback core build ")
+            asfStandardBuild.notifyBuild( "Error in redback core build ")
         }
         success {
             script {
