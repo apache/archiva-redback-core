@@ -69,7 +69,7 @@ pipeline {
             cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: '.repository', type: 'EXCLUDE']]
         }    
         unstable {
-            notifyBuild( "Unstable Build ")
+            asfStandardBuild.notifyBuild( "Unstable Build ")
         }
         failure {
             notifyBuild( "Error in redback core build ")
