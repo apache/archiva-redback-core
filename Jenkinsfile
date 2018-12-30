@@ -41,17 +41,13 @@ pipeline {
     options {
         durabilityHint('PERFORMANCE_OPTIMIZED')
         buildDiscarder(logRotator(numToKeepStr: '7', artifactNumToKeepStr: '5'))
+        timeout(time: 120, unit: 'MINUTES')
     }
 
     stages {
         stage( 'BuildAndDeploy-JDK8' ) {
-            options { timeout(time: 120, unit: 'MINUTES') }
-            steps {
+            \steps {
                 mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2', defaultPublishers)
-            }
-        }post {
-            failure {
-                notifyBuild( "Failure in BuildAndDeploy-JDK8 Stage ")
             }
         }
 //                stage('JDK11') {
@@ -76,7 +72,7 @@ pipeline {
             notifyBuild( "Unstable Build ")
         }
         failure {
-            notifyBuild( "Error in redback build ")
+            notifyBuild( "Error in redback core build ")
         }
         success {
             script {
