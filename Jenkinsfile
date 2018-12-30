@@ -69,12 +69,12 @@ pipeline {
             cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: '.repository', type: 'EXCLUDE']]
         }    
         unstable {
-            scripts{
+            script{
                 asfStandardBuild.notifyBuild( "Unstable Build ")
             }
         }
         failure {
-            scripts{
+            script{
                 asfStandardBuild.notifyBuild( "Error in redback core build ")
             }
         }
@@ -82,9 +82,7 @@ pipeline {
             script {
                 def previousResult = currentBuild.previousBuild?.result
                 if (previousResult && !currentBuild.resultIsWorseOrEqualTo( previousResult ) ) {
-                    scripts{
-                        asfStandardBuild.notifyBuild( "Fixed" )
-                    }
+                    asfStandardBuild.notifyBuild( "Fixed" )
                 }
             }
         }
