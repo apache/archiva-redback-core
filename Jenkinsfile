@@ -39,6 +39,7 @@ def defaultPublishers = [artifactsPublisher(disabled: false), junitPublisher(ign
 pipeline {
     agent { label "${LABEL}" }
     options {
+        disableConcurrentBuilds()
         durabilityHint('PERFORMANCE_OPTIMIZED')
         buildDiscarder(logRotator(numToKeepStr: '7', artifactNumToKeepStr: '5'))
         timeout(time: 120, unit: 'MINUTES')
