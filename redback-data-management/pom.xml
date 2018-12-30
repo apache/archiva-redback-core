@@ -28,7 +28,6 @@
   </parent>
 
   <artifactId>redback-data-management</artifactId>
-  <packaging>bundle</packaging>
   <properties>
     <site.staging.base>${project.parent.basedir}</site.staging.base>
   </properties>
@@ -99,26 +98,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Export-Package>
-              org.apache.archiva.redback.management;version=${project.version};-split-package:=merge-first
-            </Export-Package>
-            <Import-Package>
-              javax.xml.stream,
-              org.apache.archiva.redback.keys*;version=${project.version},
-              org.apache.archiva.redback.rbac*;version=${project.version},
-              org.apache.archiva.redback.users*;version=${project.version},
-              org.codehaus.plexus.util;version="[3,4)",
-              org.apache.commons.io,
-              org.springframework.stereotype;version="[3,4)"
-            </Import-Package>
-          </instructions>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

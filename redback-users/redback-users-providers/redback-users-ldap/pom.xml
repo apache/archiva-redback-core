@@ -28,7 +28,7 @@
   </parent>
   
   <artifactId>redback-users-ldap</artifactId>
-  <packaging>bundle</packaging>
+
   <properties>
     <site.staging.base>${project.parent.parent.parent.basedir}</site.staging.base>
   </properties>
@@ -85,10 +85,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>

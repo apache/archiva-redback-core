@@ -27,7 +27,6 @@
   </parent>
 
   <artifactId>redback-authentication-api</artifactId>
-  <packaging>bundle</packaging>
   <properties>
     <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
   </properties>
@@ -51,30 +50,5 @@
       <artifactId>jsr250-api</artifactId>
     </dependency>     
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Export-Package>
-              org.apache.archiva.redback.authentication;version=${project.version};-split-package:=import-first
-            </Export-Package>
-            <Import-Package>
-              javax.annotation,
-              javax.inject;version="[1,2)",
-              org.apache.archiva.redback.policy;version=${project.version},
-              org.apache.archiva.redback.users;version=${project.version},
-              org.apache.commons.lang;version="[2.6,3)",
-              org.springframework*;version="[3,4)",
-              org.slf4j;resolution:=optional
-            </Import-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

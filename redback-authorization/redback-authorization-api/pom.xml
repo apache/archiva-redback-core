@@ -28,29 +28,9 @@
   </parent>
 
   <artifactId>redback-authorization-api</artifactId>
-  <packaging>bundle</packaging>
   <properties>
     <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
   </properties>
   <name>Redback :: Authorization API</name>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Export-Package>
-              org.apache.archiva.redback.authorization;version=${project.version};-split-package:=merge-first
-            </Export-Package>
-            <Import-Package>
-              org.apache.archiva.redback.users;version=${project.version}
-            </Import-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

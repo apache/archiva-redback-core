@@ -28,7 +28,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>redback-rbac-jpa</artifactId>
-  <packaging>jar</packaging>
+
   <properties>
     <site.staging.base>${project.parent.parent.parent.basedir}</site.staging.base>
   </properties>

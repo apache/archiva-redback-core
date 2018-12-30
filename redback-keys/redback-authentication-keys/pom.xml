@@ -29,7 +29,6 @@
   </parent>
 
   <artifactId>redback-authentication-keys</artifactId>
-  <packaging>bundle</packaging>
   <properties>
     <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
   </properties>
@@ -57,14 +56,5 @@
       <artifactId>jsr250-api</artifactId>
     </dependency>    
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

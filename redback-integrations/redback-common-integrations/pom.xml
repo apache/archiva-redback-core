@@ -28,7 +28,6 @@
   </parent>
 
   <artifactId>redback-common-integrations</artifactId>
-  <packaging>bundle</packaging>
   <properties>
     <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
   </properties>
@@ -189,40 +188,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Export-Package>
-              org.apache.archiva.redback.integration*;version=${project.version};-split-package:=merge-first
-            </Export-Package>
-            <Import-Package>
-              javax.annotation,
-              javax.inject;version="[1,2)",
-              javax.mail*,
-              javax.servlet*,
-              org.apache.archiva.redback.authentication;version=${project.version},
-              org.apache.archiva.redback.authorization;version=${project.version},
-              org.apache.archiva.redback.configuration;version=${project.version},
-              org.apache.archiva.redback.keys;version=${project.version},
-              org.apache.archiva.redback.policy;version=${project.version},
-              org.apache.archiva.redback.rbac;version=${project.version},
-              org.apache.archiva.redback.role*;version=${project.version},
-              org.apache.archiva.redback.system*;version=${project.version},
-              org.apache.archiva.redback.users;version=${project.version},
-              org.apache.commons.beanutils;version="[1.7,2)",
-              org.apache.commons.codec.binary;version="[1.6,2)",
-              org.apache.commons.lang;version="[2.6,3)",
-              org.apache.velocity*;version="[1.7,2)",
-              org.codehaus.plexus.util;version="[3,4)",
-              org.springframework*;version="[3,4)",
-              org.apache.commons.io,
-              org.slf4j;resolution:=optional
-            </Import-Package>
-          </instructions>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

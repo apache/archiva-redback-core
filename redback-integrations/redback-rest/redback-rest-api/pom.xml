@@ -28,8 +28,6 @@
   </parent>
 
   <artifactId>redback-rest-api</artifactId>
-  <!-- DO NOT USE bundle packaging generated documentation is not included in the jar !!! -->
-  <packaging>jar</packaging>
   <name>Redback :: Integration :: REST :: Api</name>
 
   <properties>
@@ -60,60 +58,5 @@
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Export-Package>
-              org.apache.archiva.redback.rest.api*;version=${project.version};-split-package:=merge-first
-            </Export-Package>
-            <Import-Package>
-              javax.ws.rs,
-              javax.xml.bind.annotation,
-              org.apache.archiva.redback.authorization;version=${project.version},
-              org.apache.archiva.redback.integration.util;version=${project.version},
-              org.apache.archiva.redback.rbac;version=${project.version},
-              org.apache.archiva.redback.users;version=${project.version},
-              org.apache.commons.lang;version="[2.6,3)"
-            </Import-Package>
-          </instructions>
-        </configuration>
-        <executions>
-          <execution>
-            <id>create-manifest</id>
-            <phase>process-test-classes</phase>
-            <goals>
-              <goal>manifest</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>bind-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

@@ -28,7 +28,6 @@
   </parent>
 
   <artifactId>redback-system</artifactId>
-  <packaging>bundle</packaging>
   <properties>
     <site.staging.base>${project.parent.basedir}</site.staging.base>
   </properties>
@@ -87,14 +86,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

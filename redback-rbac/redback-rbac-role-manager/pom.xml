@@ -28,7 +28,6 @@
   </parent>
 
   <artifactId>redback-rbac-role-manager</artifactId>
-  <packaging>bundle</packaging>
   <properties>
     <site.staging.base>${project.parent.parent.basedir}</site.staging.base>
   </properties>
@@ -98,10 +97,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.modello</groupId>
         <artifactId>modello-maven-plugin</artifactId>
