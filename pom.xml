@@ -73,8 +73,6 @@
   <properties>
     <site.staging.base>${project.basedir}</site.staging.base>
     <springVersion>4.3.10.RELEASE</springVersion>
-    <slf4jVersion>1.7.25</slf4jVersion>
-    <log4j2Version>2.8.2</log4j2Version>
     <commons-collections.version>4.1</commons-collections.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -430,24 +428,24 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>${slf4jVersion}</version>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>${slf4jVersion}</version>
+        <version>${slf4j.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
-        <version>${slf4jVersion}</version>
+        <version>${slf4j.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jul-to-slf4j</artifactId>
-        <version>${slf4jVersion}</version>
+        <version>${slf4j.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
