@@ -32,7 +32,6 @@
 
   <properties>
     <site.staging.base>${project.parent.parent.parent.basedir}</site.staging.base>
-    <jetty.version>9.4.5.v20170502</jetty.version>
     <rest.test.timeout>1000000</rest.test.timeout>
   </properties>
 
