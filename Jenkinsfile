@@ -34,7 +34,7 @@ buildJdk11 = 'JDK 11 (latest)'
 def defaultPublishers = [artifactsPublisher(disabled: false), junitPublisher(ignoreAttachments: false, disabled: false),
                          findbugsPublisher(disabled: true), openTasksPublisher(disabled: true),
                          dependenciesFingerprintPublisher(disabled: false), invokerPublisher(disabled: true),
-                         pipelineGraphPublisher(disabled: false)]
+                         pipelineGraphPublisher(disabled: false),mavenLinkerPublisher(disabled: false)]
 
 pipeline {
     agent { label "${LABEL}" }
