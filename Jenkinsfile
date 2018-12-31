@@ -46,7 +46,7 @@ pipeline {
     }
 
     stages {
-        stage( 'BuildAndDeploy-JDK8' ) {
+        stage( 'JDK8' ) {
             steps {
                 script{
                     if (env.BRANCH_NAME == 'master')
@@ -60,17 +60,12 @@ pipeline {
                 }
             }
         }
-//                stage('JDK11') {
-//                    steps {
-//                        ws("${env.JOB_NAME}-JDK11") {
-//                            checkout scm
-//                            timeout(120) {
-//                                mavenBuild(buildJdk11,"clean install -U -fae",
-//                                           [junitPublisher(disabled: false, ignoreAttachments: false)])
-//                            }
-//                        }
-//                    }
-//                }
+        stage('JDK11') {
+            steps {
+                mavenBuild(buildJdk11,"clean install -U -fae -T3",[])
+                }
+            }
+        }
 
     }
 
