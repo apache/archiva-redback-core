@@ -64,7 +64,6 @@ pipeline {
             steps {
                 mavenBuild(buildJdk11,"clean install -U -fae -T3",[])
                 }
-            }
         }
 
     }
