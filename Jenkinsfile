@@ -62,8 +62,8 @@ pipeline {
         }
         stage('JDK11') {
             steps {
-                mavenBuild(buildJdk11,"clean install -U -fae -T3",[])
-                }
+                asfStandardBuild.mavenBuild(buildJdk11,"clean install -U -fae -T3",[])
+            }
         }
 
     }
