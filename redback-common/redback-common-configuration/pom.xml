@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one
   ~ or more contributor license agreements.  See the NOTICE file
@@ -17,24 +18,34 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
+    <artifactId>redback-common</artifactId>
     <groupId>org.apache.archiva.redback</groupId>
-    <artifactId>redback</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>redback-common</artifactId>
-  <name>Redback :: Commons</name>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>redback-common-configuration</artifactId>
   <packaging>pom</packaging>
-  <properties>
-    <site.staging.base>${project.parent.basedir}</site.staging.base>
-  </properties>
   <modules>
-    <module>redback-common-ldap</module>
-    <module>redback-common-test-resources</module>
-    <module>redback-common-jpa</module>
-    <module>redback-common-configuration</module>
+    <module>redback-common-configuration-api</module>
+    <module>redback-common-configuration-acc2</module>
   </modules>
+
+    <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skipTests>true</skipTests>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
