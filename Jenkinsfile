@@ -30,6 +30,7 @@
 LABEL = 'ubuntu'
 buildJdk = 'JDK 1.8 (latest)'
 buildJdk11 = 'JDK 11 (latest)'
+mavenVersion = 'Maven 3.5.2'
 
 def defaultPublishers = [artifactsPublisher(disabled: false), junitPublisher(ignoreAttachments: false, disabled: false),
                          findbugsPublisher(disabled: true), openTasksPublisher(disabled: true),
@@ -51,10 +52,10 @@ pipeline {
                 script{
                     if (env.BRANCH_NAME == 'master')
                     {
-                        asfStandardBuild.mavenBuild( buildJdk, "clean deploy -U -fae -T3", 'Maven 3.5.2',
+                        asfStandardBuild.mavenBuild( buildJdk, "clean deploy -U -fae -T3", mavenVersion,
                                                      defaultPublishers )
                     } else {
-                        asfStandardBuild.mavenBuild( buildJdk, "clean install -U -fae -T3", 'Maven 3.5.2',
+                        asfStandardBuild.mavenBuild( buildJdk, "clean install -U -fae -T3", mavenVersion,
                                                      defaultPublishers )
                     }
                 }
@@ -63,7 +64,7 @@ pipeline {
         stage('JDK11') {
             steps {
                 script {
-                    asfStandardBuild.mavenBuild(buildJdk11,"clean install -U -fae -T3",[])
+                    asfStandardBuild.mavenBuild(buildJdk11,"clean install -U -fae -T3",mavenVersion,[])
                 }
             }
         }
