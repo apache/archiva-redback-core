@@ -30,6 +30,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>redback-common-configuration-acc2</artifactId>
+  <name>Redback :: Common Configuration - Apache Commons Configuration 2</name>
+  <description>Implementation of Common Configuration API based on apache commons configuration version 2.</description>
 
   <dependencies>
     <dependency>
@@ -52,6 +54,7 @@
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>

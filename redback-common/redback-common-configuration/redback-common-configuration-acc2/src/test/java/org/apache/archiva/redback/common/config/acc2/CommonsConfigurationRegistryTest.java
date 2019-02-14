@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -151,7 +152,6 @@ public class CommonsConfigurationRegistryTest
         registry = getRegistry( "default" );
 
         registry.addConfigurationFromFile( "test.xml", Paths.get( "src/test/resources/test.xml" ) );
-        System.out.println(registry.dump());
         assertEquals( "Check system property default", System.getProperty( "user.dir" ),
                       registry.getString( "user.dir" ) );
         assertEquals( "Check other properties are loaded", "foo", registry.getString( "test.value" ) );
@@ -292,9 +292,9 @@ public class CommonsConfigurationRegistryTest
     public void testGetSection()
         throws Exception
     {
-        registry = getRegistry( "builder" );
-
-        ConfigRegistry registry = this.registry.getSource( "properties" );
+        this.registry = getRegistry( "builder" );
+        ConfigRegistry registry = this.registry.getPartOfCombined( "properties" );
+        assertNotNull(registry);
         assertNull( registry.getString( "test.value" ) );
         assertEquals( "baz", registry.getString( "foo.bar" ) );
     }
@@ -304,8 +304,8 @@ public class CommonsConfigurationRegistryTest
         throws Exception
     {
         registry = getRegistry( "builder" );
-
-        ConfigRegistry registry = this.registry.getSource( "properties" );
+        assertNotNull(registry);
+        ConfigRegistry registry = this.registry.getPartOfCombined( "properties" );
         assertEquals( "baz", registry.getString( "foo.bar" ) );
         registry.remove( "foo.bar" );
         assertNull( registry.getString( "foo.bar" ) );
@@ -316,11 +316,12 @@ public class CommonsConfigurationRegistryTest
         throws Exception
     {
         registry = getRegistry( "builder" );
+        assertNotNull(registry);
 
         registry.removeSubset( "strings" );
         assertEquals( Collections.EMPTY_LIST, registry.getList( "strings.string" ) );
 
-        ConfigRegistry registry = this.registry.getSource( "properties" );
+        ConfigRegistry registry = this.registry.getPartOfCombined( "properties" );
         assertEquals( "baz", registry.getString( "foo.bar" ) );
         registry.remove( "foo" );
         assertEquals( "baz", registry.getString( "foo.bar" ) );
@@ -347,7 +348,7 @@ public class CommonsConfigurationRegistryTest
     {
         registry = getRegistry( "noForceCreate" );
 
-        assertNull( registry.getSource( "foo" ) );
+        assertNull( registry.getPartOfCombined( "foo" ) );
     }
 
     @Test
@@ -356,11 +357,11 @@ public class CommonsConfigurationRegistryTest
     {
         Path src = Paths.get( "src/test/resources/test-save.xml" );
         Path dest = Paths.get( "target/test-classes/test-save.xml" );
-        Files.copy( src, dest );
+        Files.copy( src, dest, StandardCopyOption.REPLACE_EXISTING );
 
         registry = getRegistry( "test-save" );
 
-        ConfigRegistry registry = this.registry.getSource( "org.codehaus.plexus.registry" );
+        ConfigRegistry registry = this.registry.getPartOfCombined( "org.codehaus.plexus.registry" );
         assertEquals( "check list elements", Arrays.asList( new String[]{ "1", "2", "3" } ),
                       registry.getList( "listElements.listElement" ) );
 

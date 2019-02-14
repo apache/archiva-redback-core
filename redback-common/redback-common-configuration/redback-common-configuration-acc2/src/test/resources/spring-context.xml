@@ -27,7 +27,7 @@
   <alias name="acc2-configuration" alias="default"/>
 
   <bean name="builder" class="org.apache.archiva.redback.common.config.acc2.CommonsConfigurationRegistry">
-    <property name="properties">
+    <property name="combinedConfigurationDefinition">
       <value>
         <![CDATA[
           <configuration>
@@ -41,7 +41,7 @@
   </bean>
 
   <bean name="test-save" class="org.apache.archiva.redback.common.config.acc2.CommonsConfigurationRegistry">
-    <property name="properties">
+    <property name="combinedConfigurationDefinition">
       <value>
         <![CDATA[
         <configuration>
@@ -75,7 +75,7 @@
   </bean>
 
   <bean name="forceCreate" class="org.apache.archiva.redback.common.config.acc2.CommonsConfigurationRegistry">
-    <property name="properties">
+    <property name="combinedConfigurationDefinition">
       <value>
         <![CDATA[
         <configuration>
@@ -87,7 +87,7 @@
   </bean>
 
   <bean name="noForceCreate" class="org.apache.archiva.redback.common.config.acc2.CommonsConfigurationRegistry">
-    <property name="properties">
+    <property name="combinedConfigurationDefinition">
       <value>
         <![CDATA[
         <configuration>

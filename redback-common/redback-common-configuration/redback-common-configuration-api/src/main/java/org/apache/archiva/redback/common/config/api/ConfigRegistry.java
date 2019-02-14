@@ -207,7 +207,7 @@ public interface ConfigRegistry
      * @param name The source name of the configuration source.
      * @return the The config registry object that represents this source part.
      */
-    ConfigRegistry getSource( String name );
+    ConfigRegistry getPartOfCombined(String name );
 
     /**
      * Save any changes to the registry since it was loaded.
