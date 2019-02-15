@@ -21,6 +21,9 @@ package org.apache.archiva.redback.common.config.acc2;
 
 import org.apache.archiva.redback.common.config.api.ConfigRegistry;
 import org.apache.archiva.redback.common.config.api.RegistryException;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.rmi.registry.Registry;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -369,16 +373,20 @@ public class CommonsConfigurationRegistryTest
         registry.save();
 
         // @TODO: Migrate test implementation to commons config 2.4
-//        XMLConfiguration configuration = new XMLConfiguration( dest );
-//        assertEquals( Arrays.asList( new String[]{ "1", "3" } ), configuration.getList( "listElements.listElement" ) );
-//
-//        // file in ${basedir}/target/conf/shared.xml
-//        Registry section = this.registry.getSection( "org.apache.maven.shared.app.user" );
-//        section.setString( "foo", "zloug" );
-//        section.save();
-//
-//        configuration = new XMLConfiguration( new File( "target/conf/shared.xml" ) );
-//        assertNotNull( configuration.getString( "foo" ) );
+
+        FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>( XMLConfiguration.class)
+                .configure( new Parameters().xml().setFile(dest.toFile()) );
+        XMLConfiguration configuration = builder.getConfiguration();
+        assertEquals( Arrays.asList( new String[]{ "1", "3" } ), configuration.getList( "listElements.listElement" ) );
+
+        // file in ${basedir}/target/conf/shared.xml
+        ConfigRegistry section = this.registry.getPartOfCombined( "org.apache.maven.shared.app.user" );
+        section.setString( "foo", "zloug" );
+        section.save();
+        builder = new FileBasedConfigurationBuilder<>( XMLConfiguration.class)
+                .configure( new Parameters().xml().setFile( Paths.get("target/conf/shared.xml").toFile() ) );
+        configuration = builder.getConfiguration();
+        assertNotNull( configuration.getString( "foo" ) );
 
     }
 
