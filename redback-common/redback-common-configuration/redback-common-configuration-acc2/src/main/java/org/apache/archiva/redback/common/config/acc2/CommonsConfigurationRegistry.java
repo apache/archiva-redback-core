@@ -52,6 +52,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Implementation of the registry component using
@@ -67,6 +69,8 @@ import java.util.regex.Pattern;
 public class CommonsConfigurationRegistry
         implements ConfigRegistry
 {
+    private static final Pattern DOT_NAME_PATTERN = Pattern.compile( "([^.]+)(\\..*)*" );
+
     /**
      * The combined configuration instance that houses the registry.
      */
@@ -81,6 +85,7 @@ public class CommonsConfigurationRegistry
 
     private String propertyDelimiter = ".";
 
+    private boolean addSystemProperties = false;
 
     /**
      * The configuration properties for the registry. This should take the format of an input to the Commons
@@ -261,35 +266,18 @@ public class CommonsConfigurationRegistry
 
     public Collection<String> getKeys()
     {
-        Set<String> keys = new HashSet<String>( );
+        Iterable<String> iterable = () -> configuration.getKeys( );
+        return StreamSupport.stream( iterable.spliterator( ), false )
+                .map( k -> DOT_NAME_PATTERN.matcher( k ) )
+                .filter( k -> k.matches( ) )
+                .map( k -> k.group( 1 ) ).collect( Collectors.toSet( ) );
 
-        for ( Iterator<String> i = configuration.getKeys( ); i.hasNext( ); )
-        {
-            String key = i.next( );
-
-            int index = key.indexOf( '.' );
-            if ( index < 0 )
-            {
-                keys.add( key );
-            } else
-            {
-                keys.add( key.substring( 0, index ) );
-            }
-        }
-
-        return keys;
     }
 
     public Collection getFullKeys()
     {
-        Set<String> keys = new HashSet<String>( );
-
-        for ( Iterator<String> i = configuration.getKeys( ); i.hasNext( ); )
-        {
-            keys.add( i.next( ) );
-        }
-
-        return keys;
+        Iterable<String> iterable = () -> configuration.getKeys( );
+        return StreamSupport.stream( iterable.spliterator( ), false ).collect( Collectors.toSet( ) );
     }
 
     public void remove(String key)
@@ -491,7 +479,8 @@ public class CommonsConfigurationRegistry
             this.content = content;
         }
 
-        StringFileSystem(String encoding, String content) {
+        StringFileSystem(String encoding, String content)
+        {
             this.encoding = encoding;
             this.content = content;
         }
@@ -579,9 +568,7 @@ public class CommonsConfigurationRegistry
             CombinedConfiguration configuration;
             if ( StringUtils.isNotBlank( combinedConfigurationDefinition ) )
             {
-
-                // This part is mainly for backwards compatibility.
-                // It allows to use system properties in the XML declaration.
+                String interpolatedProps;
                 Parameters params = new Parameters( );
                 DefaultExpressionEngineSymbols symbols = new DefaultExpressionEngineSymbols.Builder( DefaultExpressionEngineSymbols.DEFAULT_SYMBOLS )
                         .setPropertyDelimiter( propertyDelimiter )
@@ -590,8 +577,11 @@ public class CommonsConfigurationRegistry
                         .setEscapedDelimiter( "\\" + propertyDelimiter )
                         .create( );
                 DefaultExpressionEngine expressionEngine = new DefaultExpressionEngine( symbols );
+
+                // It allows to use system properties in the XML declaration.
+
                 ConfigurationInterpolator interpolator = ConfigurationInterpolator.fromSpecification( new InterpolatorSpecification.Builder( ).withDefaultLookup( DefaultLookups.SYSTEM_PROPERTIES.getLookup( ) ).create( ) );
-                String interpolatedProps = interpolator.interpolate( combinedConfigurationDefinition ).toString( );
+                interpolatedProps = interpolator.interpolate( combinedConfigurationDefinition ).toString( );
                 logger.debug( "Loading configuration into commons-configuration, xml {}", interpolatedProps );
                 // This is the builder configuration for the XML declaration, that contains the definition
                 // for the sources that are used for the CombinedConfiguration.
@@ -600,7 +590,6 @@ public class CommonsConfigurationRegistry
                         new FileBasedConfigurationBuilder<>(
                                 XMLConfiguration.class )
                                 .configure( params.xml( )
-                                        .setInterpolator( interpolator )
                                         .setFileSystem( fs )
                                         .setFileName( "config.xml" )
                                         .setListDelimiterHandler(
@@ -624,14 +613,17 @@ public class CommonsConfigurationRegistry
             }
 
             // In the end, we add the system properties to the combined configuration
-            configuration.addConfiguration( new SystemConfiguration( ), "SystemProperties" );
+            if ( addSystemProperties )
+            {
+                configuration.addConfiguration( new SystemConfiguration( ), "SystemProperties" );
+            }
 
             this.configuration = configuration;
         }
         catch ( ConfigurationException e )
         {
-            logger.error("Fatal error, while reading the configuration definition: "+e.getMessage());
-            logger.error("The definition was:");
+            logger.error( "Fatal error, while reading the configuration definition: " + e.getMessage( ) );
+            logger.error( "The definition was:" );
             logger.error( combinedConfigurationDefinition );
             throw new RuntimeException( e.getMessage( ), e );
         }
@@ -661,5 +653,27 @@ public class CommonsConfigurationRegistry
     public void setConfigurationBuilder(ConfigurationBuilder<? extends Configuration> configurationBuilder)
     {
         this.configurationBuilder = configurationBuilder;
+    }
+
+    /**
+     * Returns true, if the system properties are added to the base configuration. Otherwise system properties
+     * can be interpolated by ${sys:var} syntax.
+     *
+     * @return
+     */
+    public boolean isAddSystemProperties()
+    {
+        return addSystemProperties;
+    }
+
+    /**
+     * Set to true, if the system properties should be added to the base configuration.
+     * If set to false, system properties are no direct part of the configuration.
+     *
+     * @param addSystemProperties
+     */
+    public void setAddSystemProperties(boolean addSystemProperties)
+    {
+        this.addSystemProperties = addSystemProperties;
     }
 }

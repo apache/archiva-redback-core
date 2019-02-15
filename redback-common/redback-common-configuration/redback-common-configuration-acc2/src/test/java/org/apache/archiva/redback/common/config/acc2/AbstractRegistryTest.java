@@ -52,10 +52,16 @@ public abstract class AbstractRegistryTest
         return getRegistry( getRoleHint() );
     }
 
-    public ConfigRegistry getRegistry( String name )
+    public ConfigRegistry getRegistry( String name ) throws Exception
+    {
+        return getRegistry(name, false);
+    }
+
+    public ConfigRegistry getRegistry( String name , boolean addSysProps )
         throws Exception
     {
-        ConfigRegistry registry = applicationContext.getBean( name, ConfigRegistry.class );
+        CommonsConfigurationRegistry registry = applicationContext.getBean( name, CommonsConfigurationRegistry.class );
+        registry.setAddSystemProperties( addSysProps );
         registry.initialize();
         return registry;
     }

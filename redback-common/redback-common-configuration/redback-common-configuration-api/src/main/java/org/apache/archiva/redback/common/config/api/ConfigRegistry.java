@@ -28,8 +28,14 @@ import java.util.regex.Pattern;
 /**
  * The configuration registry is a single source of external configuration.
  *
- * It can be used by components to source configuration, knowing that it can be used from within applications
- * without the information being hard coded into the component.
+ * Each configuration entry is accessible by a unique key. The keys may be hierarchical so, that
+ * you can build subsets of the configuration.
+ *
+ * A configuration may be combined by multiple sources. How the multiple sources are combined, is
+ * part of the implementation classes.
+ *
+ * You can register listeners that are notified, if the configuration changes. The syntax for filter
+ * of notifications is implementation specific.
  *
  */
 public interface ConfigRegistry
@@ -124,6 +130,7 @@ public interface ConfigRegistry
     /**
      * Load configuration from the given classloader resource.
      *
+     * @param name the unique name that identifies this configuration in the combined one
      * @param resource the location to load the configuration from
      * @throws RegistryException if a problem occurred reading the resource to add to the registry
      */
@@ -133,6 +140,7 @@ public interface ConfigRegistry
     /**
      * Load configuration from the given classloader resource.
      *
+     * @param name the unique name that identifies this configuration in the combined one
      * @param resource the location to load the configuration from
      * @param prefix   the location to add the configuration at in the registry
      * @throws RegistryException if a problem occurred reading the resource to add to the registry
@@ -143,6 +151,7 @@ public interface ConfigRegistry
     /**
      * Load configuration from the given file.
      *
+     * @param name the unique name that identifies this configuration in the combined one
      * @param file the location to load the configuration from
      * @throws RegistryException if a problem occurred reading the resource to add to the registry
      */
@@ -152,6 +161,7 @@ public interface ConfigRegistry
     /**
      * Load configuration from the given file.
      *
+     * @param name the unique name that identifies this configuration in the combined one
      * @param file   the location to load the configuration from
      * @param prefix the location to add the configuration at in the registry
      * @throws RegistryException if a problem occurred reading the resource to add to the registry
@@ -202,7 +212,8 @@ public interface ConfigRegistry
      * Get a configuration source part of the registry, identified by the given name. If it doesn't exist, <code>null</code> will be
      * returned.
      *
-     * Configurations can be combined from different sources. This gives the configuration of a specific source.
+     * Configurations can be combined from different sources. This returns the configuration of a specific source.
+     * The names are the ones given by the addConfiguration* methods or defined during the initialization process.
      *
      * @param name The source name of the configuration source.
      * @return the The config registry object that represents this source part.
@@ -260,5 +271,12 @@ public interface ConfigRegistry
      */
     void removeSubset( String key );
 
+    /**
+     * Initializes the given registry. The definition for the configuration sources is
+     * implementation specific. Implementations should provide methods and/or constructors
+     * that allows to define the configuration source.
+     *
+     * @throws RegistryException if the initialization was not successful
+     */
     void initialize( ) throws RegistryException;
 }

@@ -33,11 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.rmi.registry.Registry;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * Test the commons configuration registry.
@@ -70,7 +66,7 @@ public class CommonsConfigurationRegistryTest
     public void testDefaultConfiguration()
         throws Exception
     {
-        registry = getRegistry( "default" );
+        registry = getRegistry( "default" , true);
 
         assertEquals( "Check system property override", System.getProperty( "user.dir" ),
                       registry.getString( "user.dir" ) );
@@ -79,10 +75,35 @@ public class CommonsConfigurationRegistryTest
     }
 
     @Test
+    public void testGetKeys() throws Exception
+    {
+        registry = getRegistry( "builder" );
+        Collection<String> keys = registry.getKeys( );
+        HashSet<Object> expectedKeySet = new HashSet<>( );
+        expectedKeySet.add("test");
+        expectedKeySet.add("repository");
+        expectedKeySet.add("objects");
+        expectedKeySet.add("properties");
+        expectedKeySet.add("strings");
+        expectedKeySet.add("user");
+        expectedKeySet.add("foo");
+        expectedKeySet.add("string");
+        expectedKeySet.add("boolean");
+        expectedKeySet.add("subOne");
+        expectedKeySet.add( "two" );
+        assertEquals( expectedKeySet, keys );
+
+
+        expectedKeySet.clear();
+
+
+    }
+
+    @Test
     public void testBuilderConfiguration()
         throws Exception
     {
-        registry = getRegistry( "builder" );
+        registry = getRegistry( "builder", true );
 
         assertEquals( "Check system property override", "new user dir", registry.getString( "user.dir" ) );
         assertEquals( "Check system property default", System.getProperty( "user.home" ),
@@ -99,7 +120,8 @@ public class CommonsConfigurationRegistryTest
         registry = getRegistry( "default" );
 
         String dump = registry.dump();
-        assertTrue( dump.startsWith( "Configuration Dump.\n\"" ) );
+        System.out.println( dump );
+        assertTrue( dump.startsWith( "Configuration Dump." ) );
     }
 
     @Test
@@ -140,7 +162,7 @@ public class CommonsConfigurationRegistryTest
     public void testInterpolation()
         throws Exception
     {
-        registry = getRegistry( "builder" );
+        registry = getRegistry( "builder" , true );
 
         assertEquals( "Check system property interpolation", System.getProperty( "user.home" ) + "/.m2/repository",
                       registry.getString( "repository" ) );
@@ -153,7 +175,7 @@ public class CommonsConfigurationRegistryTest
     public void testAddConfigurationXmlFile()
         throws Exception
     {
-        registry = getRegistry( "default" );
+        registry = getRegistry( "default" , true);
 
         registry.addConfigurationFromFile( "test.xml", Paths.get( "src/test/resources/test.xml" ) );
         assertEquals( "Check system property default", System.getProperty( "user.dir" ),
@@ -165,7 +187,7 @@ public class CommonsConfigurationRegistryTest
     public void testAddConfigurationPropertiesFile()
         throws Exception
     {
-        registry = getRegistry( "default" );
+        registry = getRegistry( "default", true );
 
         registry.addConfigurationFromFile(
             "test.properties", Paths.get("src/test/resources/test.properties" ) );
@@ -180,7 +202,7 @@ public class CommonsConfigurationRegistryTest
     public void testAddConfigurationXmlResource()
         throws Exception
     {
-        registry = getRegistry( "default" );
+        registry = getRegistry( "default" , true);
 
         registry.addConfigurationFromResource( "test.xml-r", "test.xml" );
 
@@ -193,7 +215,7 @@ public class CommonsConfigurationRegistryTest
     public void testAddConfigurationPropertiesResource()
         throws Exception
     {
-        registry = getRegistry( "default" );
+        registry = getRegistry( "default", true );
 
         registry.addConfigurationFromResource( "test.properties-r", "test.properties" );
 
@@ -235,10 +257,19 @@ public class CommonsConfigurationRegistryTest
     public void testIsEmpty()
         throws Exception
     {
-        registry = getRegistry( "default" );
+        registry = getRegistry( "default", true );
 
         assertFalse( registry.isEmpty() );
         assertTrue( registry.getSubset( "foo" ).isEmpty() );
+    }
+
+    @Test
+    public void testIsEmptyWithoutSysProps()
+            throws Exception
+    {
+        registry = getRegistry( "default");
+
+        assertTrue( registry.isEmpty() );
     }
 
     @Test
@@ -371,8 +402,6 @@ public class CommonsConfigurationRegistryTest
 
         registry.remove( "listElements.listElement(1)" );
         registry.save();
-
-        // @TODO: Migrate test implementation to commons config 2.4
 
         FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>( XMLConfiguration.class)
                 .configure( new Parameters().xml().setFile(dest.toFile()) );
