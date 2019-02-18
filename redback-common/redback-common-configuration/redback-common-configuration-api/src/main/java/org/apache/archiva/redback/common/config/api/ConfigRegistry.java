@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
 /**
@@ -47,6 +48,14 @@ public interface ConfigRegistry
      * @return the registry contents
      */
     String dump( );
+
+    /**
+     * Get the original value stored in the registry. If not found, <code>null</code> is returned.
+     *
+     * @param key The key in the registry.
+     * @return The value.
+     */
+    Object getValue( String key);
 
     /**
      * Get a string value from the registry. If not found, <code>null</code> is returned.
@@ -81,7 +90,7 @@ public interface ConfigRegistry
      * @throws java.util.NoSuchElementException
      *          if the key is not found
      */
-    int getInt( String key );
+    int getInt( String key ) throws NoSuchElementException;
 
     /**
      * Get an integer value from the registry. If not found, the default value is used.
@@ -108,7 +117,7 @@ public interface ConfigRegistry
      * @throws java.util.NoSuchElementException
      *          if the key is not found
      */
-    boolean getBoolean( String key );
+    boolean getBoolean( String key ) throws NoSuchElementException;
 
     /**
      * Get a boolean value from the registry. If not found, the default value is used.
@@ -177,7 +186,7 @@ public interface ConfigRegistry
     boolean isEmpty( );
 
     /**
-     * Get a list of strings at the given key in the registry.
+     * Get a list of strings at the given key in the registry. If not found a empty list will be returned.
      *
      * @param key the key to lookup
      * @return the list of strings
@@ -198,7 +207,7 @@ public interface ConfigRegistry
      * @param key the key to take the subset from
      * @return the registry subset
      */
-    ConfigRegistry getSubset( String key );
+    ConfigRegistry getSubset( String key ) throws RegistryException;
 
     /**
      * Get a list of subsets of the registry, for all keys descended from the given key.
@@ -206,7 +215,7 @@ public interface ConfigRegistry
      * @param key the key to take the subsets from
      * @return the registry subsets
      */
-    List<ConfigRegistry> getSubsetList( String key );
+    List<ConfigRegistry> getSubsetList( String key ) throws RegistryException;
 
     /**
      * Get a configuration source part of the registry, identified by the given name. If it doesn't exist, <code>null</code> will be
@@ -234,7 +243,7 @@ public interface ConfigRegistry
      *
      * @param listener the listener
      */
-    void registerChangeListener( RegistryListener listener, Pattern... filter );
+    void registerChangeListener( RegistryListener listener, String prefix );
 
     /**
      * Unregister the change listener for all events.
@@ -245,17 +254,25 @@ public interface ConfigRegistry
     boolean unregisterChangeListener( RegistryListener listener );
 
     /**
-     * Get all the keys in this registry. Keys are only retrieved at a depth of 1.
+     * Get all keys on the base level in this registry. Keys are only retrieved at a depth of 1.
      *
      * @return the set of keys
      */
-    Collection<String> getKeys( );
+    Collection<String> getBaseKeys( );
 
     /**
      * Get all the keys in this registry.
      * @return the set of keys
      */
-    Collection<String> getFullKeys( );
+    Collection<String> getKeys( );
+
+    /**
+     * Return the keys that match the given prefix.
+     *
+     * @param prefix The prefix
+     * @return A collection of keys
+     */
+    Collection<String> getKeys( String prefix);
 
     /**
      * Remove a keyed element from the registry.

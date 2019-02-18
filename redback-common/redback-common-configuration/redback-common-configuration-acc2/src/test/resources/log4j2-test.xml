@@ -26,13 +26,17 @@
   </appenders>
 
   <loggers>
+    <logger name="org.apache.archiva.redback" level="INFO" />
+    <logger name="commons.beanutils" level="ERROR" />
+    <logger name="commons.beanutils.FluentPropertyBeanIntrospector" level="ERROR" />
     <logger name="org.apache.cxf" level="info"/>
-    <logger name="org.springframework" level="error"/>
-    <logger name="org.apache.archiva.redback.components.cache" level="error"/>
-    <logger name="org.apache.archiva.redback.rest" level="error"/>
+    <logger name="org.springframework" level="ERROR"/>
+    <logger name="org.apache.archiva.redback.components.cache" level="ERROR"/>
+    <logger name="org.apache.archiva.redback.rest" level="ERROR"/>
     <logger name="org.apache.catalina" level="off" />
     <logger name="JPOX" level="ERROR"/>
-    <root level="info">
+    <logger name="org.apache.archiva.redback.common.config.acc2.CfgListener" level="DEBUG" />
+    <root level="ERROR">
       <appender-ref ref="console"/>
     </root>
   </loggers>

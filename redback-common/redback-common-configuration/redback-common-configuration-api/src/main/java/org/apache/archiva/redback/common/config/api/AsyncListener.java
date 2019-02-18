@@ -19,25 +19,31 @@ package org.apache.archiva.redback.common.config.api;
  * under the License.
  */
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 /**
- * Receives notifications of configuration changes in thre registry.
+ *
+ * A annotation that marks a event listener method as asynchronous. That means the listener event methods
+ * are run in a separated thread. How tasks are executed is dependent on the implementation.
+ *
+ * @author Martin Stockhammer <martin_s@apache.org>
+ * @since 3.0
  */
-public interface RegistryListener
+
+@Target(value={METHOD, TYPE})
+@Retention(value=RUNTIME)
+@Documented
+public @interface AsyncListener
 {
-
     /**
-     * Notify the object that there has been a configuration change.
-     *
-     * The method may be annotated by the {@link AsyncListener @AsyncListener} annotation. Which means the method will be
-     * executed asynchronously.
-     *
-     * @param registry      the registry that was changed
-     * @param propertyName  the property what was changed
-     * @param propertyValue the value the property was changed to
-     * @param oldValue      The value the property had before
+     * May be set to set the executor. The meaning of this value is implementation specific.
+     * @return The value.
      */
-    void handleConfigurationChangeEvent( ConfigRegistry registry, EventType eventType, String propertyName, Object propertyValue, Object oldValue );
-
-
-
+    String value() default "";
 }

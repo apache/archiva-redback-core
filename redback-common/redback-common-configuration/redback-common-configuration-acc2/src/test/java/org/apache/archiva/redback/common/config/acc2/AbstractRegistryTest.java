@@ -82,7 +82,7 @@ public abstract class AbstractRegistryTest
         try
         {
             registry.getInt( "unknown" );
-            assertTrue( "no NoSuchElementException", false );
+            fail( "no NoSuchElementException" );
         }
         catch ( NoSuchElementException e )
         {
@@ -113,7 +113,7 @@ public abstract class AbstractRegistryTest
         throws Exception
     {
         ConfigRegistry registry = getRegistry();
-        assertEquals( "not true ", true, registry.getBoolean( "boolean" ) );
+        assertTrue( "not true ", registry.getBoolean( "boolean" ) );
     }
 
     @Test
@@ -124,7 +124,7 @@ public abstract class AbstractRegistryTest
         try
         {
             registry.getBoolean( "unknown" );
-            assertTrue( "no NoSuchElementException", false );
+            fail( "no NoSuchElementException" );
         }
         catch ( NoSuchElementException e )
         {

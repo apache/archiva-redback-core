@@ -20,24 +20,9 @@ package org.apache.archiva.redback.common.config.api;
  */
 
 /**
- * Receives notifications of configuration changes in thre registry.
+ * @author Martin Stockhammer <martin_s@apache.org>
  */
-public interface RegistryListener
+public enum EventType
 {
-
-    /**
-     * Notify the object that there has been a configuration change.
-     *
-     * The method may be annotated by the {@link AsyncListener @AsyncListener} annotation. Which means the method will be
-     * executed asynchronously.
-     *
-     * @param registry      the registry that was changed
-     * @param propertyName  the property what was changed
-     * @param propertyValue the value the property was changed to
-     * @param oldValue      The value the property had before
-     */
-    void handleConfigurationChangeEvent( ConfigRegistry registry, EventType eventType, String propertyName, Object propertyValue, Object oldValue );
-
-
-
+    PROPERTY_SET,PROPERTY_CLEARED,PROPERTY_ADDED,UNDEFINED
 }

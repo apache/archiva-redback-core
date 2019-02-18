@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.common.config.api;
+package org.apache.archiva.redback.common.config.acc2;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,25 +19,19 @@ package org.apache.archiva.redback.common.config.api;
  * under the License.
  */
 
+import org.apache.archiva.redback.common.config.api.ConfigRegistry;
+import org.apache.archiva.redback.common.config.api.EventType;
+import org.apache.archiva.redback.common.config.api.RegistryListener;
+
 /**
- * Receives notifications of configuration changes in thre registry.
+ * @author Martin Stockhammer <martin_s@apache.org>
  */
-public interface RegistryListener
+public class MockChangeListener implements RegistryListener
 {
+    @Override
+    public void handleConfigurationChangeEvent( ConfigRegistry registry, EventType eventType, String propertyName, Object propertyValue, Object oldValue )
+    {
 
-    /**
-     * Notify the object that there has been a configuration change.
-     *
-     * The method may be annotated by the {@link AsyncListener @AsyncListener} annotation. Which means the method will be
-     * executed asynchronously.
-     *
-     * @param registry      the registry that was changed
-     * @param propertyName  the property what was changed
-     * @param propertyValue the value the property was changed to
-     * @param oldValue      The value the property had before
-     */
-    void handleConfigurationChangeEvent( ConfigRegistry registry, EventType eventType, String propertyName, Object propertyValue, Object oldValue );
-
-
+    }
 
 }
