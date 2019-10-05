@@ -169,4 +169,14 @@ public interface UserConfigurationKeys
     String REST_CSRF_ENABLED = "rest.csrffilter.enabled";
 
     String REST_CSRF_DISABLE_TOKEN_VALIDATION = "rest.csrffilter.disableTokenValidation";
+
+    /**
+     * Encoding used for reading mail templates / Default is UTF-8
+     */
+    String MAIL_TEMPLATE_ENCODING = "mail.template.encoding";
+
+    /**
+     * The locale to use for sending mails and finding mail templates
+     */
+    String MAIL_DEFAULT_LOCALE = "mail.locale";
 }

@@ -36,9 +36,32 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
+ * Mail generator that uses freemarker templates.
+ *
+ * This implementation sets the following model values that can be used in templates:
+ * <ul>
+ *     <li>applicationUrl</li>
+ *     <li>urlPath</li>
+ *     <li>authKey</li>
+ *     <li>accountId</li>
+ *     <li>requestedOn</li>
+ *     <li>expiresOn</li>
+ * </ul>
+ *
+ * The additional template data is added for interpolation, if not <code>null</code>.
+ *
+ * This implementation is location enabled. That means, it will try to find templates in the following order:
+ * <ul>
+ *     <li><i>templateName</i>_<i>language</i>_<i>country</i>.ftl</li>
+ *     <li><i>templateName</i>_<i>language</i>.ftl</li>
+ *     <li><i>templateName</i>.ftl</li>
+ * </ul>
+ *
+ * The default encoding used for reading the template is UTF-8
+ *
  * @author Martin Stockhammer <martin_s@apache.org>
  */
-@Service("mailGenerator#freemarker")
+@Service( "mailGenerator#freemarker" )
 public class FreemarkerMailGenerator implements MailGenerator
 {
     private Logger log = LoggerFactory.getLogger( FreemarkerMailGenerator.class );
@@ -54,32 +77,67 @@ public class FreemarkerMailGenerator implements MailGenerator
 
     private String encoding;
 
-    private String getEncoding() {
-        if (this.encoding==null) {
-            this.encoding = config.getString( "mail.encoding", DEFAULT_ENCODING );
+    private String getEncoding( )
+    {
+        if ( this.encoding == null )
+        {
+            this.encoding = config.getString( UserConfigurationKeys.MAIL_TEMPLATE_ENCODING, DEFAULT_ENCODING );
         }
         return this.encoding;
     }
 
-    @Override
-    public String generateMail( String templateName, AuthenticationKey authkey, String baseUrl )
-    {
-        Map<String, String> context = createModel( authkey, baseUrl );
+    private Locale getMailLocale() {
+        String localeString = config.getString( UserConfigurationKeys.MAIL_DEFAULT_LOCALE );
+        if (localeString == null || "".equals(localeString)) {
+            return Locale.getDefault( );
+        } else {
+            return Locale.forLanguageTag( localeString );
+        }
+    }
 
-        StringBuffer content = new StringBuffer();
-        try{
+    /**
+     *
+     * @param templateName the template name without extension
+     * @param locale the locale used to find the template file
+     * @param authkey the authentication key
+     * @param baseUrl the base url
+     * @param templateData additional template data, may be <code>null</code>
+     * @return the string generated from the template
+     */
+    @Override
+    public String generateMail( String templateName, Locale locale, AuthenticationKey authkey, String baseUrl,
+                                Map<String, Object> templateData )
+    {
+        Map<String, Object> context = createModel( authkey, baseUrl, templateData );
+        StringBuffer content = new StringBuffer( );
+        try
+        {
             content.append( FreeMarkerTemplateUtils.processTemplateIntoString(
-                freemarkerConfiguration.getTemplate(templateName+".ftl"),context));
-            return content.toString();
-        }catch(Exception e){
-            System.out.println("Exception occured while processing fmtemplate:"+e.getMessage());
+                freemarkerConfiguration.getTemplate( templateName + ".ftl", locale, getEncoding( ) ), context ) );
+            return content.toString( );
+        }
+        catch ( Exception e )
+        {
+            log.error( "Could not parse the mail template {}: {}", templateName, e.getMessage( ), e );
         }
         return "";
     }
 
-    private Map<String, String> createModel( AuthenticationKey authkey, String appUrl )
+    @Override
+    public String generateMail( String templateName, AuthenticationKey authenticationKey, String baseUrl )
     {
-        Map<String, String> context = new HashMap<>( );
+        return generateMail( templateName, getMailLocale(), authenticationKey, baseUrl );
+    }
+
+    @Override
+    public String generateMail( String templateName, Locale locale, AuthenticationKey authenticationKey, String baseUrl )
+    {
+        return generateMail( templateName, locale, authenticationKey, baseUrl, null );
+    }
+
+    private Map<String, Object> createModel( AuthenticationKey authkey, String appUrl, Map<String, Object> templateData )
+    {
+        Map<String, Object> context = new HashMap<>( );
         context.put( "applicationUrl", config.getString( UserConfigurationKeys.APPLICATION_URL, appUrl ) );
 
         String feedback = config.getString( UserConfigurationKeys.EMAIL_FEEDBACK_PATH );
@@ -97,23 +155,32 @@ public class FreemarkerMailGenerator implements MailGenerator
         context.put( "urlPath",
             config.getString( UserConfigurationKeys.EMAIL_URL_PATH, "security/login!login.action" ) );
 
-        context.put( "authkey", authkey.getKey() );
+        context.put( "authkey", authkey.getKey( ) );
 
-        context.put( "accountId", authkey.getForPrincipal() );
+        context.put( "accountId", authkey.getForPrincipal( ) );
 
         SimpleDateFormat dateformatter =
             new SimpleDateFormat( config.getString( UserConfigurationKeys.APPLICATION_TIMESTAMP ), Locale.US );
 
-        context.put( "requestedOn", dateformatter.format( authkey.getDateCreated() ) );
+        context.put( "requestedOn", dateformatter.format( authkey.getDateCreated( ) ) );
 
-        if ( authkey.getDateExpires() != null )
+        if ( authkey.getDateExpires( ) != null )
         {
-            context.put( "expiresOn", dateformatter.format( authkey.getDateExpires() ) );
+            context.put( "expiresOn", dateformatter.format( authkey.getDateExpires( ) ) );
         }
         else
         {
             context.put( "expiresOn", "(does not expire)" );
         }
+
+        if (templateData!=null)
+        {
+            for ( Map.Entry<String, Object> entry : templateData.entrySet( ) )
+            {
+                context.put( entry.getKey( ), entry.getValue( ) );
+            }
+        }
+
         return context;
     }
 

@@ -21,6 +21,9 @@ package org.apache.archiva.redback.integration.mail;
 
 import org.apache.archiva.redback.keys.AuthenticationKey;
 
+import java.util.Locale;
+import java.util.Map;
+
 /**
  * Mail generator component.
  *
@@ -29,5 +32,45 @@ import org.apache.archiva.redback.keys.AuthenticationKey;
  */
 public interface MailGenerator
 {
+
+
+    /**
+     * Generates a mail string from a template. How the template will be located depends on the underlying
+     * implementation.
+     * It uses a default locale.
+     *
+     * @param templateName the template name without extension
+     * @param authkey the authentication key of the current user
+     * @param baseUrl  the base url
+     * @return A string for the mail body generated from the template
+     */
     String generateMail( String templateName, AuthenticationKey authkey, String baseUrl );
+
+    /**
+     * Generates a mail string from a template. The given locale is used for retrieving the template.
+     * How the template will be located depends on the underlying implementation.
+     *
+     * @param templateName the template name without extension
+     * @param locale the locale used to find the template file
+     * @param authenticationKey the authentication key of the current user
+     * @param baseUrl the base url
+     * @return a string for the mail body generated from the template
+     */
+    String generateMail( String templateName, Locale locale, AuthenticationKey authenticationKey, String baseUrl );
+
+    /**
+     * Generates a mail string from a template. The given locale is used for retrieving the template.
+     * How the template will be located depends on the underlying implementation.
+     * The templateData is used as model data that is interpolated from the template.
+     *
+     * @param templateName the template name without extension
+     * @param locale the locale used to find the template file
+     * @param authenticationKey the authentication key of the current user
+     * @param baseUrl the base url
+     * @param templateData additional data used for interpolation in the template
+     * @return a string for the mail body generated from the template
+     */
+    String generateMail( String templateName, Locale locale, AuthenticationKey authenticationKey, String baseUrl,
+                         Map<String, Object> templateData );
+
 }
