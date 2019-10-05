@@ -1,4 +1,5 @@
-#*
+<#--
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -15,20 +16,20 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *#
-
+ *
+ -->
 
 Welcome
 
-Username: $accountId
+Username: ${accountId}
 
-This account was requested on $requestedOn
+This account was requested on ${requestedOn}
 
 Use the following URL to validate your account.
 
-$applicationUrl/$urlPath?validateMe=$authkey
+${applicationUrl}/${urlPath}?validateMe=${authkey}
 
-This url will be valid until $expiresOn
+This url will be valid until ${expiresOn}
 
 Once validated, your account will only have the most basic rights on the system.
 Please contact the administrator to be assigned a more appropriate set of Roles
@@ -36,8 +37,8 @@ and Permissions.
 
 Please keep this email for future reference.
 
-#if ( $feedback )
-Questions/Comments? $feedback
-#end
+<#if feedback?? >
+Questions/Comments? ${feedback}
+</#if>
 
 

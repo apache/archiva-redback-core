@@ -19,45 +19,38 @@ package org.apache.archiva.redback.integration.mail;
  * under the License.
  */
 
+import freemarker.template.Configuration;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.keys.AuthenticationKey;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
- * Mail generator component implementation using velocity.
- *
- * @author <a href="mailto:brett@apache.org">Brett Porter</a>
+ * @author Martin Stockhammer <martin_s@apache.org>
  */
-@Service("mailGenerator#velocity")
-public class VelocityMailGenerator
-    implements MailGenerator
+@Service("mailGenerator#freemarker")
+public class FreemarkerMailGenerator implements MailGenerator
 {
-    private Logger log = LoggerFactory.getLogger( VelocityMailGenerator.class );
+    private Logger log = LoggerFactory.getLogger( FreemarkerMailGenerator.class );
 
     public static final String DEFAULT_ENCODING = "UTF-8";
 
     @Inject
-    @Named(value = "userConfiguration#default")
+    @Named( value = "userConfiguration#default" )
     private UserConfiguration config;
 
-    // FIXME use the spring directly 
     @Inject
-    @Named(value = "velocityEngine#redback")
-    private VelocityEngine velocityEngine;
+    Configuration freemarkerConfiguration;
 
     private String encoding;
 
@@ -68,43 +61,25 @@ public class VelocityMailGenerator
         return this.encoding;
     }
 
+    @Override
     public String generateMail( String templateName, AuthenticationKey authkey, String baseUrl )
     {
-        VelocityContext context = createVelocityContext( authkey, baseUrl );
+        Map<String, String> context = createModel( authkey, baseUrl );
 
-        String packageName = getClass().getPackage().getName().replace( '.', '/' );
-        String templateFile = packageName + "/template/" + templateName + ".vm";
-
-        StringWriter writer = new StringWriter();
-
-        try
-        {
-            velocityEngine.mergeTemplate( templateFile, getEncoding(), context, writer );
+        StringBuffer content = new StringBuffer();
+        try{
+            content.append( FreeMarkerTemplateUtils.processTemplateIntoString(
+                freemarkerConfiguration.getTemplate(templateName+".ftl"),context));
+            return content.toString();
+        }catch(Exception e){
+            System.out.println("Exception occured while processing fmtemplate:"+e.getMessage());
         }
-        catch ( ResourceNotFoundException e )
-        {
-            log.error( "No such template: '{}'.", templateFile );
-        }
-        catch ( ParseErrorException e )
-        {
-            log.error( "Unable to generate email for template '{}': {}", templateFile, e.getMessage(), e );
-        }
-        catch ( MethodInvocationException e )
-        {
-            log.error( "Unable to generate email for template '{}': {}", templateFile, e.getMessage(), e );
-        }
-        catch ( Exception e )
-        {
-            log.error( "Unable to generate email for template '{}': {}", templateFile, e.getMessage(), e );
-        }
-
-        return writer.getBuffer().toString();
+        return "";
     }
 
-    private VelocityContext createVelocityContext( AuthenticationKey authkey, String appUrl )
+    private Map<String, String> createModel( AuthenticationKey authkey, String appUrl )
     {
-        VelocityContext context = new VelocityContext();
-
+        Map<String, String> context = new HashMap<>( );
         context.put( "applicationUrl", config.getString( UserConfigurationKeys.APPLICATION_URL, appUrl ) );
 
         String feedback = config.getString( UserConfigurationKeys.EMAIL_FEEDBACK_PATH );
@@ -120,7 +95,7 @@ public class VelocityMailGenerator
         }
 
         context.put( "urlPath",
-                     config.getString( UserConfigurationKeys.EMAIL_URL_PATH, "security/login!login.action" ) );
+            config.getString( UserConfigurationKeys.EMAIL_URL_PATH, "security/login!login.action" ) );
 
         context.put( "authkey", authkey.getKey() );
 
@@ -142,8 +117,17 @@ public class VelocityMailGenerator
         return context;
     }
 
+    public Configuration getFreemarkerConfiguration( )
+    {
+        return freemarkerConfiguration;
+    }
 
-    public UserConfiguration getConfig()
+    public void setFreemarkerConfiguration( Configuration freemarkerConfiguration )
+    {
+        this.freemarkerConfiguration = freemarkerConfiguration;
+    }
+
+    public UserConfiguration getConfig( )
     {
         return config;
     }
@@ -151,15 +135,5 @@ public class VelocityMailGenerator
     public void setConfig( UserConfiguration config )
     {
         this.config = config;
-    }
-
-    public VelocityEngine getVelocityEngine()
-    {
-        return velocityEngine;
-    }
-
-    public void setVelocityEngine( VelocityEngine velocityEngine )
-    {
-        this.velocityEngine = velocityEngine;
     }
 }

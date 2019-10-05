@@ -36,9 +36,9 @@
     </property>
   </bean>
 
-  <bean name="mailGenerator#custom-url" class="org.apache.archiva.redback.integration.mail.VelocityMailGenerator">
+  <bean name="mailGenerator#custom-url" class="org.apache.archiva.redback.integration.mail.FreemarkerMailGenerator">
     <property name="config" ref="userConfiguration#custom-url"/>
-    <property name="velocityEngine" ref="velocityEngine#redback"/>
+    <property name="freemarkerConfiguration" ref="freemarkerConfiguration#redback"/>
   </bean>
 
   <alias name="userConfiguration#redback" alias="userConfiguration#default"/>

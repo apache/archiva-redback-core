@@ -30,15 +30,12 @@
   <context:annotation-config />
   <context:component-scan  base-package="org.apache.archiva.redback.integration"/>
 
-  <bean name="velocityEngine#redback" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
-    <property name="velocityProperties">
-      <props>
-        <prop key="resource.loader">classpath</prop>
-        <prop key="classpath.resource.loader.class">org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader</prop>
-        <prop key="classpath.resource.loader.class.cache">true</prop>
-        <prop key="resource.manager.logwhenfound">true</prop>
-      </props>
+  <bean name="freemarkerConfiguration#redback" class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean" >
+    <property name="templateLoaderPath">
+      <value>classpath:/org/apache/archiva/redback/integration/mail/template</value>
     </property>
   </bean>
+
+  <alias name="mailGenerator#freemarker" alias="mailGenerator#default" />
  
 </beans>

@@ -1,4 +1,5 @@
-#*
+<#--
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -15,23 +16,24 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *#
+ *
+-->
 
 
 Password Reset
 
-Username: $accountId
+Username: ${accountId}
 
-Someone requested a password reset for this account on $requestedOn
+Someone requested a password reset for this account on ${requestedOn}
 
 Use the following URL to reset the password on your account.
 
-$applicationUrl/$urlPath?resetPassword=$authkey
+${applicationUrl}/${urlPath}?resetPassword=${authkey}
 
-This url will be valid until $expiresOn
+This url will be valid until ${expiresOn}
 
-#if ( $feedback )
-Questions/Comments? $feedback
-#end
+<#if feedback?? >
+Questions/Comments? ${feedback}
+</#if>
 
 

@@ -57,7 +57,7 @@ public class MailerImpl
     protected Logger log = LoggerFactory.getLogger( getClass() );
 
     @Inject
-    @Named( value = "mailGenerator#velocity" )
+    @Named( value = "mailGenerator#default" )
     private MailGenerator generator;
 
     @Inject

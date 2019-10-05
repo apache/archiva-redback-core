@@ -45,7 +45,7 @@ public class MailGeneratorTest
     extends TestCase
 {
     @Inject
-    @Named(value = "mailGenerator#velocity")
+    @Named(value = "mailGenerator#freemarker")
     private MailGenerator generator;
 
     @Inject
