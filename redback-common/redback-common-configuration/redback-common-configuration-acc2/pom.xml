@@ -61,12 +61,6 @@
     </dependency>
 
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>jsr250-api</artifactId>
     </dependency>

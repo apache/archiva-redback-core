@@ -20,7 +20,7 @@ package org.apache.archiva.redback.authentication;
  */
 
 import org.apache.archiva.redback.authentication.AuthenticationDataSource;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 

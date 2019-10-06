@@ -20,7 +20,7 @@ import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.apache.archiva.redback.policy.PasswordEncodingException;
 import org.apache.archiva.redback.users.Messages;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;

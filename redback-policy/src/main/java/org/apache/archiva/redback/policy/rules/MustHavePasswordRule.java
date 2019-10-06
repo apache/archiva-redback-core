@@ -20,7 +20,7 @@ import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.policy.PasswordRuleViolations;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.users.User;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

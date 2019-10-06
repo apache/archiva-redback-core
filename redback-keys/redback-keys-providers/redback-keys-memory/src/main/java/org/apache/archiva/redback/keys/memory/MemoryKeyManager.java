@@ -23,7 +23,7 @@ import org.apache.archiva.redback.keys.AbstractKeyManager;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.keys.KeyManagerException;
 import org.apache.archiva.redback.keys.KeyNotFoundException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

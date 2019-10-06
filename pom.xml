@@ -80,6 +80,9 @@
     <cxf.version>3.0.3</cxf.version>
     <openjpa.version>2.4.1</openjpa.version>
 
+    <junit.platform.version>1.5.2</junit.platform.version>
+    <junit.jupiter.version>5.5.2</junit.jupiter.version>
+
     <!--
     <redbackTestJdbcUrl>jdbc:derby:memory:users-test;create=true</redbackTestJdbcUrl>
     <redbackTestJdbcDriver>org.apache.derby.jdbc.EmbeddedDriver</redbackTestJdbcDriver>
@@ -400,14 +403,9 @@
       </dependency>
       <!-- Other -->
       <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>2.6</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.5</version>
+        <version>${commons.lang3.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-digester</groupId>
@@ -425,6 +423,12 @@
         <!-- commons-configuration requires this version. -->
         <version>3.2</version>
       </dependency>
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons.codec.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-collections4</artifactId>
@@ -625,11 +629,33 @@
         <scope>provided</scope>
       </dependency>
 
+      <!-- JUNIT 5 -->
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.12</version>
+        <groupId>org.junit.platform</groupId>
+        <artifactId>junit-platform-launcher</artifactId>
+        <version>${junit.platform.version}</version>
+        <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>org.junit.platform</groupId>
+        <artifactId>junit-platform-console-standalone</artifactId>
+        <version>${junit.platform.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${junit.jupiter.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.vintage</groupId>
+        <artifactId>junit-vintage-engine</artifactId>
+        <version>${junit.jupiter.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+
       <dependency>
         <groupId>xmlunit</groupId>
         <artifactId>xmlunit</artifactId>

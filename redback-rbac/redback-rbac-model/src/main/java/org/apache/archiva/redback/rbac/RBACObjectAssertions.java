@@ -17,7 +17,7 @@ package org.apache.archiva.redback.rbac;
  */
 
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * RBACObjectAssertions 

@@ -60,6 +60,10 @@
       <artifactId>commons-io</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
       <artifactId>redback-rbac-memory</artifactId>
       <groupId>org.apache.archiva.redback</groupId>
       <scope>test</scope>

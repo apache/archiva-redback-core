@@ -19,29 +19,25 @@ package org.apache.archiva.redback.users.memory;
  * under the License.
  */
 
-import org.apache.archiva.redback.users.User;
-import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.users.AbstractUserManager;
 import org.apache.archiva.redback.users.PermanentUserException;
+import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
-import org.apache.archiva.redback.users.UserQuery;
 import org.apache.archiva.redback.users.UserNotFoundException;
+import org.apache.archiva.redback.users.UserQuery;
 import org.apache.archiva.redback.users.memory.util.UserSorter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URL;
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-
-import javax.annotation.Resource;
 
 /**
  *

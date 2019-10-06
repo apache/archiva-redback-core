@@ -33,7 +33,7 @@ import org.apache.archiva.redback.role.model.ModelResource;
 import org.apache.archiva.redback.role.model.ModelRole;
 import org.apache.archiva.redback.role.model.RedbackRoleModel;
 import org.apache.archiva.redback.role.util.RoleModelUtils;
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
