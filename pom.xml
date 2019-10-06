@@ -755,6 +755,14 @@
             <skipDeploy>true</skipDeploy>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.1.1</version>
+          <configuration>
+            <ignoredUnusedDeclaredDependencies>org.junit.platform:junit-platform-launcher,org.junit.jupiter:junit-jupiter-engine,org.junit.vintage:junit-vintage-engine</ignoredUnusedDeclaredDependencies>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
