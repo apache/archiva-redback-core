@@ -26,7 +26,7 @@ import org.apache.archiva.redback.common.ldap.user.UserMapper;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnectionFactory;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.archiva.redback.authentication.AuthenticationDataSource;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
