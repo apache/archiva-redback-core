@@ -51,6 +51,10 @@
       <artifactId>redback-common-jpa</artifactId>
     </dependency>
     <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.openjpa</groupId>
       <artifactId>openjpa</artifactId>
       <version>${openjpa.version}</version>
