@@ -30,7 +30,7 @@
 LABEL = 'ubuntu'
 buildJdk = 'JDK 1.8 (latest)'
 buildJdk11 = 'JDK 11 (latest)'
-mavenVersion = 'Maven 3.5.2'
+mavenVersion = 'Maven 3.5.4'
 
 def defaultPublishers = [artifactsPublisher(disabled: false), junitPublisher(ignoreAttachments: false, disabled: false),
                          findbugsPublisher(disabled: true), openTasksPublisher(disabled: true),
