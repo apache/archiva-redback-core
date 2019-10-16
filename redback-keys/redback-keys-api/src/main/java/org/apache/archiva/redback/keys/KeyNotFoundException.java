@@ -16,8 +16,6 @@ package org.apache.archiva.redback.keys;
  * limitations under the License.
  */
 
-import org.apache.archiva.redback.keys.KeyManagerException;
-
 /**
  * KeyNotFoundException 
  *

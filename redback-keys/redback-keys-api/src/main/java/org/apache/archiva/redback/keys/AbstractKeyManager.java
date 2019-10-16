@@ -16,16 +16,11 @@ package org.apache.archiva.redback.keys;
  * limitations under the License.
  */
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Random;
-import java.util.TimeZone;
-
-import org.codehaus.plexus.digest.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.SecureRandom;
+import java.util.*;
 
 /**
  * AbstractKeyManager 
@@ -58,45 +53,7 @@ public abstract class AbstractKeyManager
     protected String generateUUID()
         throws KeyManagerException
     {
-        byte vfour[] = new byte[KEY_LENGTH];
-
-        if ( isRandomMode() == SECURE )
-        {
-            if ( secureRandom == null )
-            {
-                try
-                {
-                    secureRandom = SecureRandom.getInstance( "SHA1PRNG" );
-                }
-                catch ( NoSuchAlgorithmException e )
-                {
-                    setRandomMode( !SECURE );
-                    log.warn( "Unable to use SecureRandom", e );
-                }
-            }
-
-            if ( isRandomMode() == SECURE )
-            {
-                secureRandom.nextBytes( vfour );
-            }
-        }
-
-        if ( isRandomMode() != SECURE )
-        {
-            if ( random == null )
-            {
-                random = new Random();
-            }
-
-            random.nextBytes( vfour );
-        }
-
-        vfour[6] &= 0x0F;
-        vfour[6] |= ( 4 << 4 );
-        vfour[8] &= 0x3F;
-        vfour[8] |= 0x80;
-
-        return Hex.encode( vfour );
+        return UUID.randomUUID().toString();
     }
 
     /**
