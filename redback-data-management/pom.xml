@@ -126,7 +126,6 @@
           <systemPropertyVariables>
             <basedir>${basedir}</basedir>
             <derby.system.home>${project.build.directory}/test-home</derby.system.home>
-            <plexus.home>${project.build.directory}/test-home</plexus.home>
             <openjpa.Log>${openjpa.Log}</openjpa.Log>
           </systemPropertyVariables>
         </configuration>
