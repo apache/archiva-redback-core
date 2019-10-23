@@ -72,7 +72,7 @@
 
   <properties>
     <site.staging.base>${project.basedir}</site.staging.base>
-    <springVersion>4.3.10.RELEASE</springVersion>
+    <springVersion>5.2.0.RELEASE</springVersion>
     <commons-collections.version>4.1</commons-collections.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
