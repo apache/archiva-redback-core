@@ -19,10 +19,10 @@ package org.apache.archiva.redback.configuration;
  * under the License.
  */
 
-import org.apache.archiva.redback.components.evaluator.DefaultExpressionEvaluator;
-import org.apache.archiva.redback.components.evaluator.EvaluatorException;
-import org.apache.archiva.redback.components.evaluator.ExpressionEvaluator;
-import org.apache.archiva.redback.components.evaluator.sources.SystemPropertyExpressionSource;
+import org.apache.archiva.components.evaluator.DefaultExpressionEvaluator;
+import org.apache.archiva.components.evaluator.EvaluatorException;
+import org.apache.archiva.components.evaluator.ExpressionEvaluator;
+import org.apache.archiva.components.evaluator.sources.SystemPropertyExpressionSource;
 import org.apache.archiva.redback.components.registry.Registry;
 import org.apache.archiva.redback.components.registry.RegistryException;
 import org.slf4j.Logger;

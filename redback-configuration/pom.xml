@@ -35,8 +35,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.archiva.redback.components</groupId>
-      <artifactId>expression-evaluator</artifactId>
+      <groupId>org.apache.archiva.components</groupId>
+      <artifactId>archiva-components-expression-evaluator</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback.components.registry</groupId>
