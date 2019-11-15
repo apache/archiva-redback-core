@@ -359,15 +359,9 @@
         <version>2.7.5</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.archiva.redback.components</groupId>
-        <artifactId>expression-evaluator</artifactId>
-        <version>${redback.comp.expression-evaluator.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-container-default</artifactId>
-          </exclusion>
-        </exclusions>
+        <groupId>org.apache.archiva.components</groupId>
+        <artifactId>archiva-components-expression-evaluator</artifactId>
+        <version>${archiva.comp.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.archiva.redback.components.registry</groupId>
@@ -556,9 +550,9 @@
       </dependency>
       -->
       <dependency>
-        <groupId>org.apache.archiva.redback.components</groupId>
-        <artifactId>spring-apacheds</artifactId>
-        <version>${redback.comp.spring-apacheds.version}</version>
+        <groupId>org.apache.archiva.components</groupId>
+        <artifactId>archiva-components-spring-apacheds</artifactId>
+        <version>${archiva.comp.version}</version>
       </dependency>
       <!--
       <dependency>

@@ -92,8 +92,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.archiva.redback.components</groupId>
-      <artifactId>spring-apacheds</artifactId>
+      <groupId>org.apache.archiva.components</groupId>
+      <artifactId>archiva-components-spring-apacheds</artifactId>
       <scope>test</scope>
     </dependency>
 

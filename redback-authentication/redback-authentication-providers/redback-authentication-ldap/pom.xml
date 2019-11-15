@@ -32,7 +32,6 @@
 
   <properties>
     <site.staging.base>${project.parent.parent.parent.basedir}</site.staging.base>
-    <apacheds.version>1.5.1</apacheds.version>
   </properties>
 
   <dependencies>
@@ -75,16 +74,10 @@
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core</artifactId>
-      <version>${apacheds.version}</version>
-      <scope>test</scope>
-    </dependency>
 
     <dependency>
-      <groupId>org.apache.archiva.redback.components</groupId>
-      <artifactId>spring-apacheds</artifactId>
+      <groupId>org.apache.archiva.components</groupId>
+      <artifactId>archiva-components-spring-apacheds</artifactId>
       <scope>test</scope>
     </dependency>
 

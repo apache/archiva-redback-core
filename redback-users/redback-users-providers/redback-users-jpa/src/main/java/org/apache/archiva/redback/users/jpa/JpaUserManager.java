@@ -28,7 +28,7 @@ import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.archiva.redback.users.UserQuery;
 import org.apache.archiva.redback.users.jpa.model.JpaUser;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -289,7 +289,7 @@ public class JpaUserManager extends AbstractUserManager {
                     " is not an instance of " + JpaUser.class.getName() );
         }
 
-        if ( org.codehaus.plexus.util.StringUtils.isEmpty( user.getUsername() ) )
+        if ( StringUtils.isEmpty( user.getUsername() ) )
         {
             throw new IllegalStateException(
                     Messages.getString( "user.manager.cannot.add.user.without.username" ) ); //$NON-NLS-1$
