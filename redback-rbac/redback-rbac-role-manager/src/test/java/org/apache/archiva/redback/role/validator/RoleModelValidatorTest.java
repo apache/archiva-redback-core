@@ -112,9 +112,9 @@ public class RoleModelValidatorTest
         
         assertTrue( checkForValidationError( modelValidator.getValidationErrors(), "test-template-missing-child-template" ) );
         
-        assertTrue( checkForValidationError( modelValidator.getValidationErrors(), "cycle detected" ) );
+        assertTrue( checkForValidationError( modelValidator.getValidationErrors(), "Cycle detected" ) );
      
-        assertTrue( checkForValidationError( modelValidator.getValidationErrors(), "template cycle detected" ) );
+        assertTrue( checkForValidationError( modelValidator.getValidationErrors(), "Template cycle detected" ) );
         
     }
 

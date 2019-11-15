@@ -19,16 +19,14 @@ package org.apache.archiva.redback.role.validator;
  * under the License.
  */
 
+import org.apache.archiva.components.graph.base.SimpleGraph;
+import org.apache.archiva.components.graph.base.SimpleNode;
+import org.apache.archiva.components.graph.util.Traversal;
 import org.apache.archiva.redback.role.RoleManagerException;
-import org.apache.archiva.redback.role.model.ModelApplication;
-import org.apache.archiva.redback.role.model.ModelOperation;
-import org.apache.archiva.redback.role.model.ModelPermission;
-import org.apache.archiva.redback.role.model.ModelResource;
-import org.apache.archiva.redback.role.model.ModelRole;
-import org.apache.archiva.redback.role.model.ModelTemplate;
-import org.apache.archiva.redback.role.model.RedbackRoleModel;
+import org.apache.archiva.redback.role.model.*;
 import org.apache.archiva.redback.role.util.RoleModelUtils;
-import org.codehaus.plexus.util.dag.CycleDetectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -38,51 +36,45 @@ import java.util.List;
  * DefaultRoleModelValidator: validates completeness of the model
  *
  * @author: Jesse McConnell
- *
  */
-@Service( "roleModelValidator" )
+@Service("roleModelValidator")
 public class DefaultRoleModelValidator
-    implements RoleModelValidator
-{
+        implements RoleModelValidator {
+
+    private static final Logger log = LoggerFactory.getLogger(DefaultRoleModelValidator.class);
+
     private List<String> validationErrors;
 
-    public boolean validate( RedbackRoleModel model )
-        throws RoleManagerException
-    {
+    public boolean validate(RedbackRoleModel model)
+            throws RoleManagerException {
         validationErrors = null;
 
-        validateRequiredStructure( model );
-        validateResourceClosure( model );
-        validateOperationClosure( model );
-        validateChildRoleClosure( model );
-        validateParentRoleClosure( model );
-        validateTemplateClosure( model );
-        validateNoRoleCycles( model );
-        validateNoTemplateCycles( model );
+        validateRequiredStructure(model);
+        validateResourceClosure(model);
+        validateOperationClosure(model);
+        validateChildRoleClosure(model);
+        validateParentRoleClosure(model);
+        validateTemplateClosure(model);
+        validateNoRoleCycles(model);
+        validateNoTemplateCycles(model);
 
-        if ( validationErrors == null )
-        {
+        if (validationErrors == null) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
-    public List<String> getValidationErrors()
-    {
+    public List<String> getValidationErrors() {
         return validationErrors;
     }
 
-    private void addValidationError( String error )
-    {
-        if ( validationErrors == null )
-        {
-            validationErrors = new ArrayList<String>( 0 );
+    private void addValidationError(String error) {
+        if (validationErrors == null) {
+            validationErrors = new ArrayList<String>(0);
         }
 
-        validationErrors.add( error );
+        validationErrors.add(error);
     }
 
     /**
@@ -91,125 +83,97 @@ public class DefaultRoleModelValidator
      *
      * @param model
      */
-    @SuppressWarnings( "unchecked" )
-    private void validateRequiredStructure( RedbackRoleModel model )
-    {
+    @SuppressWarnings("unchecked")
+    private void validateRequiredStructure(RedbackRoleModel model) {
         // validate model has name
 
-        for ( ModelApplication application : model.getApplications() )
-        {
-            if ( application.getId() == null )
-            {
-                addValidationError( "model is missing application name" );
+        for (ModelApplication application : model.getApplications()) {
+            if (application.getId() == null) {
+                addValidationError("model is missing application name");
             }
 
             // validate model has version
-            if ( application.getVersion() == null )
-            {
-                addValidationError( application.getId() + " is missing version" );
+            if (application.getVersion() == null) {
+                addValidationError(application.getId() + " is missing version");
             }
 
             // validate resource bits
-            for ( ModelResource resource : application.getResources() )
-            {
-                if ( resource.getName() == null )
-                {
-                    addValidationError( resource.toString() + " missing name" );
+            for (ModelResource resource : application.getResources()) {
+                if (resource.getName() == null) {
+                    addValidationError(resource.toString() + " missing name");
                 }
 
-                if ( resource.getId() == null )
-                {
-                    addValidationError( resource.toString() + " missing id" );
+                if (resource.getId() == null) {
+                    addValidationError(resource.toString() + " missing id");
                 }
             }
 
             // validate the operations
-            for ( ModelOperation operation : application.getOperations() )
-            {
-                if ( operation.getName() == null )
-                {
-                    addValidationError( operation.toString() + " missing name" );
+            for (ModelOperation operation : application.getOperations()) {
+                if (operation.getName() == null) {
+                    addValidationError(operation.toString() + " missing name");
                 }
 
-                if ( operation.getId() == null )
-                {
-                    addValidationError( operation.toString() + " missing id" );
+                if (operation.getId() == null) {
+                    addValidationError(operation.toString() + " missing id");
                 }
             }
 
-            for ( ModelRole role : application.getRoles() )
-            {
-                if ( role.getId() == null )
-                {
-                    addValidationError( role.toString() + " missing id" );
+            for (ModelRole role : application.getRoles()) {
+                if (role.getId() == null) {
+                    addValidationError(role.toString() + " missing id");
                 }
 
-                if ( role.getName() == null )
-                {
-                    addValidationError( role.toString() + " missing name" );
+                if (role.getName() == null) {
+                    addValidationError(role.toString() + " missing name");
                 }
 
-                if ( role.getPermissions() != null )
-                {
-                    for ( ModelPermission permission : role.getPermissions() )
-                    {
-                        if ( permission.getName() == null )
-                        {
-                            addValidationError( permission.toString() + " missing name" );
+                if (role.getPermissions() != null) {
+                    for (ModelPermission permission : role.getPermissions()) {
+                        if (permission.getName() == null) {
+                            addValidationError(permission.toString() + " missing name");
                         }
 
-                        if ( permission.getId() == null )
-                        {
-                            addValidationError( permission.toString() + " missing id" );
+                        if (permission.getId() == null) {
+                            addValidationError(permission.toString() + " missing id");
                         }
 
-                        if ( permission.getOperation() == null )
-                        {
-                            addValidationError( permission.toString() + " missing operations" );
+                        if (permission.getOperation() == null) {
+                            addValidationError(permission.toString() + " missing operations");
                         }
 
-                        if ( permission.getResource() == null )
-                        {
-                            addValidationError( permission.toString() + " missing resource" );
+                        if (permission.getResource() == null) {
+                            addValidationError(permission.toString() + " missing resource");
                         }
                     }
                 }
             }
 
-            for ( ModelTemplate template : application.getTemplates() )
-            {
-                if ( template.getId() == null )
-                {
-                    addValidationError( template.toString() + " missing id" );
+            for (ModelTemplate template : application.getTemplates()) {
+                if (template.getId() == null) {
+                    addValidationError(template.toString() + " missing id");
                 }
 
-                if ( template.getNamePrefix() == null )
-                {
-                    addValidationError( template.toString() + " missing name prefix" );
+                if (template.getNamePrefix() == null) {
+                    addValidationError(template.toString() + " missing name prefix");
                 }
 
-                if ( template.getPermissions() != null )
-                {
-                    for ( ModelPermission permission : template.getPermissions() )
-                    {
-                        if ( permission.getName() == null )
-                        {
-                            addValidationError( permission.toString() + " missing name" );
+                if (template.getPermissions() != null) {
+                    for (ModelPermission permission : template.getPermissions()) {
+                        if (permission.getName() == null) {
+                            addValidationError(permission.toString() + " missing name");
                         }
 
-                        if ( permission.getId() == null )
-                        {
-                            addValidationError( permission.toString() + " missing id" );
+                        if (permission.getId() == null) {
+                            addValidationError(permission.toString() + " missing id");
                         }
 
-                        if ( permission.getOperation() == null )
-                        {
-                            addValidationError( permission.toString() + " missing operations" );
+                        if (permission.getOperation() == null) {
+                            addValidationError(permission.toString() + " missing operations");
                         }
 
-                        if ( permission.getResource() == null )
-                        {
-                            addValidationError( permission.toString() + " missing resource" );
+                        if (permission.getResource() == null) {
+                            addValidationError(permission.toString() + " missing resource");
                         }
                     }
                 }
@@ -222,39 +186,29 @@ public class DefaultRoleModelValidator
      *
      * @param model
      */
-    private void validateOperationClosure( RedbackRoleModel model )
-    {
-        List<String> operationIdList = RoleModelUtils.getOperationIdList( model );
+    private void validateOperationClosure(RedbackRoleModel model) {
+        List<String> operationIdList = RoleModelUtils.getOperationIdList(model);
 
         // check the operations in role permissions
-        for ( ModelApplication application : model.getApplications() )
-        {
-            for ( ModelRole role : application.getRoles() )
-            {
-                if ( role.getPermissions() != null )
-                {
-                    for ( ModelPermission permission : role.getPermissions() )
-                    {
-                        if ( !operationIdList.contains( permission.getOperation() ) )
-                        {
-                            addValidationError( "missing operation: " + permission.getOperation() + " in permission "
-                                                    + permission.getId() );
+        for (ModelApplication application : model.getApplications()) {
+            for (ModelRole role : application.getRoles()) {
+                if (role.getPermissions() != null) {
+                    for (ModelPermission permission : role.getPermissions()) {
+                        if (!operationIdList.contains(permission.getOperation())) {
+                            addValidationError("missing operation: " + permission.getOperation() + " in permission "
+                                    + permission.getId());
                         }
                     }
                 }
             }
 
             // check the operations in template permissions
-            for ( ModelTemplate template : application.getTemplates() )
-            {
-                if ( template.getPermissions() != null )
-                {
-                    for ( ModelPermission permission : template.getPermissions() )
-                    {
-                        if ( !operationIdList.contains( permission.getOperation() ) )
-                        {
-                            addValidationError( "missing operation: " + permission.getOperation() + " in permission "
-                                                    + permission.getId() );
+            for (ModelTemplate template : application.getTemplates()) {
+                if (template.getPermissions() != null) {
+                    for (ModelPermission permission : template.getPermissions()) {
+                        if (!operationIdList.contains(permission.getOperation())) {
+                            addValidationError("missing operation: " + permission.getOperation() + " in permission "
+                                    + permission.getId());
                         }
                     }
                 }
@@ -262,21 +216,15 @@ public class DefaultRoleModelValidator
         }
     }
 
-    private void validateResourceClosure( RedbackRoleModel model )
-    {
-        List<String> resourceIdList = RoleModelUtils.getResourceIdList( model );
-        for ( ModelApplication application : model.getApplications() )
-        {
-            for ( ModelRole role : application.getRoles() )
-            {
-                if ( role.getPermissions() != null )
-                {
-                    for ( ModelPermission permission : role.getPermissions() )
-                    {
-                        if ( !resourceIdList.contains( permission.getResource() ) )
-                        {
-                            addValidationError( "missing operation: " + permission.getResource() + " in permission "
-                                                    + permission.getId() );
+    private void validateResourceClosure(RedbackRoleModel model) {
+        List<String> resourceIdList = RoleModelUtils.getResourceIdList(model);
+        for (ModelApplication application : model.getApplications()) {
+            for (ModelRole role : application.getRoles()) {
+                if (role.getPermissions() != null) {
+                    for (ModelPermission permission : role.getPermissions()) {
+                        if (!resourceIdList.contains(permission.getResource())) {
+                            addValidationError("missing operation: " + permission.getResource() + " in permission "
+                                    + permission.getId());
                         }
                     }
                 }
@@ -284,36 +232,26 @@ public class DefaultRoleModelValidator
         }
     }
 
-    private void validateChildRoleClosure( RedbackRoleModel model )
-    {
-        List<String> roleIdList = RoleModelUtils.getRoleIdList( model );
-        for ( ModelApplication application : model.getApplications() )
-        {
-            for ( ModelRole role : application.getRoles() )
-            {
-                if ( role.getChildRoles() != null )
-                {
-                    for ( String childRoleId : role.getChildRoles() )
-                    {
-                        if ( !roleIdList.contains( childRoleId ) )
-                        {
+    private void validateChildRoleClosure(RedbackRoleModel model) {
+        List<String> roleIdList = RoleModelUtils.getRoleIdList(model);
+        for (ModelApplication application : model.getApplications()) {
+            for (ModelRole role : application.getRoles()) {
+                if (role.getChildRoles() != null) {
+                    for (String childRoleId : role.getChildRoles()) {
+                        if (!roleIdList.contains(childRoleId)) {
                             addValidationError(
-                                "missing role id: " + childRoleId + " in child roles of role " + role.getId() );
+                                    "missing role id: " + childRoleId + " in child roles of role " + role.getId());
                         }
                     }
                 }
             }
 
-            for ( ModelTemplate template : application.getTemplates() )
-            {
-                if ( template.getChildRoles() != null )
-                {
-                    for ( String childRoleId : template.getChildRoles() )
-                    {
-                        if ( !roleIdList.contains( childRoleId ) )
-                        {
+            for (ModelTemplate template : application.getTemplates()) {
+                if (template.getChildRoles() != null) {
+                    for (String childRoleId : template.getChildRoles()) {
+                        if (!roleIdList.contains(childRoleId)) {
                             addValidationError(
-                                "missing role id: " + childRoleId + " in child roles of template " + template.getId() );
+                                    "missing role id: " + childRoleId + " in child roles of template " + template.getId());
                         }
                     }
                 }
@@ -321,38 +259,28 @@ public class DefaultRoleModelValidator
         }
     }
 
-    @SuppressWarnings( "unchecked" )
-    private void validateParentRoleClosure( RedbackRoleModel model )
-    {
-        List roleIdList = RoleModelUtils.getRoleIdList( model );
+    @SuppressWarnings("unchecked")
+    private void validateParentRoleClosure(RedbackRoleModel model) {
+        List roleIdList = RoleModelUtils.getRoleIdList(model);
 
-        for ( ModelApplication application : model.getApplications() )
-        {
-            for ( ModelRole role : application.getRoles() )
-            {
-                if ( role.getParentRoles() != null )
-                {
-                    for ( String parentRoleId : role.getParentRoles() )
-                    {
-                        if ( !roleIdList.contains( parentRoleId ) )
-                        {
+        for (ModelApplication application : model.getApplications()) {
+            for (ModelRole role : application.getRoles()) {
+                if (role.getParentRoles() != null) {
+                    for (String parentRoleId : role.getParentRoles()) {
+                        if (!roleIdList.contains(parentRoleId)) {
                             addValidationError(
-                                "missing role id: " + parentRoleId + " in parent roles of role " + role.getId() );
+                                    "missing role id: " + parentRoleId + " in parent roles of role " + role.getId());
                         }
                     }
                 }
             }
 
-            for ( ModelTemplate template : application.getTemplates() )
-            {
-                if ( template.getParentRoles() != null )
-                {
-                    for ( String parentRoleId : template.getParentRoles() )
-                    {
-                        if ( !roleIdList.contains( parentRoleId ) )
-                        {
-                            addValidationError( "missing role id: " + parentRoleId + " in parent roles of template "
-                                                    + template.getId() );
+            for (ModelTemplate template : application.getTemplates()) {
+                if (template.getParentRoles() != null) {
+                    for (String parentRoleId : template.getParentRoles()) {
+                        if (!roleIdList.contains(parentRoleId)) {
+                            addValidationError("missing role id: " + parentRoleId + " in parent roles of template "
+                                    + template.getId());
                         }
                     }
                 }
@@ -360,50 +288,38 @@ public class DefaultRoleModelValidator
         }
     }
 
-    private void validateTemplateClosure( RedbackRoleModel model )
-    {
-        List templateIdList = RoleModelUtils.getTemplateIdList( model );
+    private void validateTemplateClosure(RedbackRoleModel model) {
+        List templateIdList = RoleModelUtils.getTemplateIdList(model);
 
         // template name prefix must be unique
         List<String> templateNamePrefixList = new ArrayList<String>();
 
-        for ( ModelApplication application : model.getApplications() )
-        {
-            for ( ModelTemplate template : application.getTemplates() )
-            {
-                if ( template.getParentTemplates() != null )
-                {
-                    for ( String parentTemplateId : template.getParentTemplates() )
-                    {
-                        if ( !templateIdList.contains( parentTemplateId ) )
-                        {
+        for (ModelApplication application : model.getApplications()) {
+            for (ModelTemplate template : application.getTemplates()) {
+                if (template.getParentTemplates() != null) {
+                    for (String parentTemplateId : template.getParentTemplates()) {
+                        if (!templateIdList.contains(parentTemplateId)) {
                             addValidationError(
-                                "missing template id: " + parentTemplateId + " in parent templates of template "
-                                    + template.getId() );
+                                    "missing template id: " + parentTemplateId + " in parent templates of template "
+                                            + template.getId());
                         }
                     }
                 }
 
-                if ( template.getChildTemplates() != null )
-                {
-                    for ( String childTemplateId : template.getChildTemplates() )
-                    {
-                        if ( !templateIdList.contains( childTemplateId ) )
-                        {
+                if (template.getChildTemplates() != null) {
+                    for (String childTemplateId : template.getChildTemplates()) {
+                        if (!templateIdList.contains(childTemplateId)) {
                             addValidationError(
-                                "missing template id: " + childTemplateId + " in child templates of template "
-                                    + template.getId() );
+                                    "missing template id: " + childTemplateId + " in child templates of template "
+                                            + template.getId());
                         }
                     }
                 }
 
-                if ( !templateNamePrefixList.contains( template.getNamePrefix() ) )
-                {
-                    templateNamePrefixList.add( template.getNamePrefix() );
-                }
-                else
-                {
-                    addValidationError( "duplicate name prefix detected: " + template.getNamePrefix() );
+                if (!templateNamePrefixList.contains(template.getNamePrefix())) {
+                    templateNamePrefixList.add(template.getNamePrefix());
+                } else {
+                    addValidationError("duplicate name prefix detected: " + template.getNamePrefix());
                 }
             }
         }
@@ -414,15 +330,14 @@ public class DefaultRoleModelValidator
      *
      * @param model
      */
-    private void validateNoRoleCycles( RedbackRoleModel model )
-    {
-        try
-        {
-            RoleModelUtils.generateRoleGraph( model );
-        }
-        catch ( CycleDetectedException e )
-        {
-            addValidationError( "cycle detected: " + e.getMessage() );
+    private void validateNoRoleCycles(RedbackRoleModel model) {
+        log.debug("Validating cycles in role model");
+        SimpleGraph graph = RoleModelUtils.generateRoleGraph(model);
+        SimpleNode rootNode = graph.getNode(RoleModelUtils.ROOT);
+        SimpleNode n;
+        if ((n = Traversal.findFirstCycleNode(rootNode))!=null) {
+            log.debug("Adding template cycle validation error for node {}", n.getId());
+            addValidationError("Cycle detected at "+n.getId());
         }
     }
 
@@ -430,21 +345,20 @@ public class DefaultRoleModelValidator
      * We are not allowed to have cycles between template either, this method is to detect and
      * raise a red flag when that happens.  Templates are a bit more complex since they have both
      * child and parent roles, as well as runtime parent and child templates
-     *
+     * <p>
      * the id should be sufficient to test cycles here even though in runtime the id's do not need to be
      * unique since it is the binding of a namePrefix and a resource that makes them unique
      *
      * @param model
      */
-    private void validateNoTemplateCycles( RedbackRoleModel model )
-    {
-        try
-        {
-            RoleModelUtils.generateTemplateGraph( model );
-        }
-        catch ( CycleDetectedException e )
-        {
-            addValidationError( "template cycle detected: " + e.getMessage() );
+    private void validateNoTemplateCycles(RedbackRoleModel model) {
+        log.debug("Validating cycles in role template model ");
+        SimpleGraph graph = RoleModelUtils.generateTemplateGraph(model);
+        SimpleNode rootNode = graph.getNode(RoleModelUtils.ROOT);
+        SimpleNode n;
+        if ((n = Traversal.findFirstCycleNode(rootNode)) != null) {
+            log.debug("Adding template cycle validation error for node {}", n.getId());
+            addValidationError("Template cycle detected at "+n.getId());
         }
     }
 }

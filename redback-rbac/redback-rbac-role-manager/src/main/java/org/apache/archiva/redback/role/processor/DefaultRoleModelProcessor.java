@@ -34,7 +34,6 @@ import org.apache.archiva.redback.role.model.ModelRole;
 import org.apache.archiva.redback.role.model.RedbackRoleModel;
 import org.apache.archiva.redback.role.util.RoleModelUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -157,15 +156,7 @@ public class DefaultRoleModelProcessor
         StopWatch stopWatch = new StopWatch();
         stopWatch.reset();
         stopWatch.start();
-        List<String> sortedGraph;
-        try
-        {
-            sortedGraph = RoleModelUtils.reverseTopologicalSortedRoleList( model );
-        }
-        catch ( CycleDetectedException e )
-        {
-            throw new RoleManagerException( "cycle detected: this should have been caught in validation", e );
-        }
+        List<String> sortedGraph = RoleModelUtils.reverseTopologicalSortedRoleList(model);
 
         List<? extends Role> allRoles;
         try

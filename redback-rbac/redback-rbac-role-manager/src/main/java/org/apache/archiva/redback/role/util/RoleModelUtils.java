@@ -19,19 +19,25 @@ package org.apache.archiva.redback.role.util;
  * under the License.
  */
 
+import org.apache.archiva.components.graph.api.Category;
+import org.apache.archiva.components.graph.api.RelationType;
+import org.apache.archiva.components.graph.base.SimpleGraph;
+import org.apache.archiva.components.graph.base.SimpleNode;
+import org.apache.archiva.components.graph.util.Traversal;
 import org.apache.archiva.redback.role.model.ModelApplication;
 import org.apache.archiva.redback.role.model.ModelOperation;
 import org.apache.archiva.redback.role.model.ModelResource;
 import org.apache.archiva.redback.role.model.ModelRole;
 import org.apache.archiva.redback.role.model.ModelTemplate;
 import org.apache.archiva.redback.role.model.RedbackRoleModel;
-import org.codehaus.plexus.util.dag.CycleDetectedException;
-import org.codehaus.plexus.util.dag.DAG;
-import org.codehaus.plexus.util.dag.TopologicalSorter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * RoleModelUtils:
@@ -41,7 +47,17 @@ import java.util.List;
  */
 public class RoleModelUtils
 {
+    public enum RoleType implements Category {
+        ROLE,TEMPLATE
+    }
 
+    public enum RoleRelation implements RelationType {
+        ROLE_TO_ROLE,ROLE_TO_TEMPLATE,TEMPLATE_TO_ROLE,TEMPLATE_TO_TEMPLATE;
+    }
+
+    public static final String ROOT = ":archiva:node:root";
+
+    private static final Logger log = LoggerFactory.getLogger(RoleModelUtils.class);
 
     public static List<ModelRole> getRoles( RedbackRoleModel model )
     {
@@ -229,24 +245,36 @@ public class RoleModelUtils
     }
 
     @SuppressWarnings( "unchecked" )
-    public static DAG generateRoleGraph( RedbackRoleModel model )
-        throws CycleDetectedException
+    public static SimpleGraph generateRoleGraph(RedbackRoleModel model )
+
     {
-        DAG roleGraph = new DAG();
+        SimpleGraph roleGraph = new SimpleGraph();
+        SimpleNode rootNode = roleGraph.addNode(ROOT, ROOT);
+
+        log.debug("Created graph with root {}", rootNode);
 
         for ( ModelApplication application : model.getApplications() )
         {
+            log.debug("Application {}", application.getId());
             for ( ModelRole role : application.getRoles() )
             {
-                roleGraph.addVertex( role.getId() );
+                final String roleId = role.getId();
+                SimpleNode roleNode = roleGraph.addNode(roleId, roleId);
+                roleNode.addCategory(RoleType.ROLE);
+                if (role.getParentRoles()==null || role.getParentRoles().size()==0) {
+                    // We add it to the root node only, if it has no parent roles
+                    roleGraph.addEdge("root:" + roleId, "root -> " + roleId, rootNode, roleNode);
+                }
 
                 if ( role.getChildRoles() != null )
                 {
                     for ( String childRole : role.getChildRoles() )
                     {
-                        roleGraph.addVertex( childRole );
+                        SimpleNode childNode = roleGraph.addNode(childRole, childRole);
+                        childNode.addCategory(RoleType.ROLE);
+                        roleGraph.addEdge( RoleRelation.ROLE_TO_ROLE, roleId+":"+childRole,
+                                roleId+" -> "+childRole, roleNode, childNode );
 
-                        roleGraph.addEdge( role.getId(), childRole );
                     }
                 }
 
@@ -254,9 +282,10 @@ public class RoleModelUtils
                 {
                     for ( String parentRole : role.getParentRoles() )
                     {
-                        roleGraph.addVertex( parentRole );
-
-                        roleGraph.addEdge( parentRole, role.getId() );
+                        SimpleNode parentNode = roleGraph.addNode( parentRole, parentRole );
+                        parentNode.addCategory(RoleType.ROLE);
+                        roleGraph.addEdge( RoleRelation.ROLE_TO_ROLE, parentRole+":"+roleId,
+                                parentRole + " -> "+ roleId, parentNode, roleNode);
                     }
                 }
             }
@@ -266,24 +295,31 @@ public class RoleModelUtils
     }
 
     @SuppressWarnings( "unchecked" )
-    public static DAG generateTemplateGraph( RedbackRoleModel model )
-        throws CycleDetectedException
+    public static SimpleGraph generateTemplateGraph( RedbackRoleModel model )
+
     {
-        DAG templateGraph = generateRoleGraph( model );
+        SimpleGraph templateGraph = generateRoleGraph( model );
+        SimpleNode rootNode = templateGraph.getNode(ROOT);
 
         for ( ModelApplication application : model.getApplications() )
         {
             for ( ModelTemplate template : application.getTemplates() )
             {
-                templateGraph.addVertex( template.getId() );
+                final String templId = template.getId();
+                SimpleNode templateNode = templateGraph.addNode(templId, templId);
+                templateNode.addCategory(RoleType.TEMPLATE);
+                if ((template.getParentRoles() == null || template.getParentRoles().size()==0)
+                && ( template.getParentTemplates() == null || template.getParentTemplates().size()==0) ) {
+                    templateGraph.addEdge("root:" + templId, "root -> " + templId, rootNode, templateNode);
+                }
 
                 if ( template.getChildRoles() != null )
                 {
                     for ( String childRole : template.getChildRoles() )
                     {
-                        templateGraph.addVertex( childRole );
-
-                        templateGraph.addEdge( template.getId(), childRole );
+                        SimpleNode childNode = templateGraph.addNode(childRole, childRole);
+                        childNode.addCategory(RoleType.ROLE);
+                        templateGraph.addEdge( RoleRelation.TEMPLATE_TO_ROLE, templId+":"+childNode, templId+" -> "+childNode, templateNode, childNode );
                     }
                 }
 
@@ -291,9 +327,10 @@ public class RoleModelUtils
                 {
                     for ( String parentRole : template.getParentRoles() )
                     {
-                        templateGraph.addVertex( parentRole );
-
-                        templateGraph.addEdge( parentRole, template.getId() );
+                        SimpleNode parentNode = templateGraph.addNode(parentRole, parentRole);
+                        parentNode.addCategory(RoleType.ROLE);
+                        templateGraph.addEdge( RoleRelation.ROLE_TO_TEMPLATE, parentRole+":"+templId,
+                                parentRole+" -> "+templId, parentNode, templateNode);
                     }
                 }
 
@@ -301,9 +338,10 @@ public class RoleModelUtils
                 {
                     for ( String childTemplate : template.getChildTemplates() )
                     {
-                        templateGraph.addVertex( childTemplate );
-
-                        templateGraph.addEdge( template.getId(), childTemplate );
+                        SimpleNode childTemplNode = templateGraph.addNode(childTemplate, childTemplate);
+                        childTemplNode.addCategory(RoleType.TEMPLATE);
+                        templateGraph.addEdge( RoleRelation.TEMPLATE_TO_TEMPLATE, templId+":"+childTemplate,
+                                templId+" -> "+childTemplate, templateNode, childTemplNode);
                     }
                 }
 
@@ -311,9 +349,11 @@ public class RoleModelUtils
                 {
                     for ( String parentTemplate : template.getParentTemplates() )
                     {
-                        templateGraph.addVertex( parentTemplate );
-
-                        templateGraph.addEdge( parentTemplate, template.getId() );
+                        SimpleNode parentTemplNode = templateGraph.addNode( parentTemplate, parentTemplate );
+                        parentTemplNode.addCategory(RoleType.TEMPLATE);
+                        templateGraph.addEdge( RoleRelation.TEMPLATE_TO_TEMPLATE,
+                                parentTemplate+":"+templId, parentTemplate+" -> "+templId,
+                                parentTemplNode, templateNode);
                     }
                 }
             }
@@ -324,18 +364,12 @@ public class RoleModelUtils
 
     @SuppressWarnings( "unchecked" )
     public static List<String> reverseTopologicalSortedRoleList( RedbackRoleModel model )
-        throws CycleDetectedException
     {
-        LinkedList<String> sortedGraph =
-            (LinkedList<String>) TopologicalSorter.sort( RoleModelUtils.generateRoleGraph( model ) );
-        List<String> resortedGraph = new LinkedList<String>();
-
-        while ( !sortedGraph.isEmpty() )
-        {
-            resortedGraph.add( sortedGraph.removeLast() );
-        }
-
-        return resortedGraph;
+        SimpleGraph graph = generateRoleGraph(model);
+        List<String> sortedGraph = Traversal.topologialSort(graph.getNode(ROOT)).stream().map(n -> n.getId())
+                .filter(id -> !ROOT.equals(id)).collect(Collectors.toList());
+        Collections.reverse(sortedGraph);
+        return sortedGraph;
     }
 
 }
