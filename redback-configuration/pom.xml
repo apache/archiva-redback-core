@@ -39,37 +39,27 @@
       <artifactId>archiva-components-expression-evaluator</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.archiva.redback.components.registry</groupId>
-      <artifactId>spring-registry-api</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.apache.archiva.components.registry</groupId>
+      <artifactId>archiva-components-spring-registry-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.archiva.redback.components.registry</groupId>
-      <artifactId>spring-registry-commons</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.apache.archiva.components.registry</groupId>
+      <artifactId>archiva-components-spring-registry-commons</artifactId>
+      <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>   
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <scope>test</scope>
-    </dependency>   
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>javax.inject</groupId>
@@ -77,9 +67,23 @@
     </dependency>
     <dependency>
       <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
+      <artifactId>javax.annotation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-jcl</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-launcher</artifactId>

@@ -18,9 +18,6 @@ package org.apache.archiva.redback.configuration;
  * under the License.
  */
 
-import org.apache.archiva.redback.components.registry.RegistryException;
-
-import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.List;
 
