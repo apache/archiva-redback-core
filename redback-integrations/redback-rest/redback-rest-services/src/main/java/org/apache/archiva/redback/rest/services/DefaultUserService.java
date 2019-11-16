@@ -38,7 +38,6 @@ import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
-import org.apache.archiva.redback.rbac.RbacObjectNotFoundException;
 import org.apache.archiva.redback.rbac.UserAssignment;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Operation;
@@ -897,7 +896,7 @@ public class DefaultUserService
 
         try
         {
-            if ( !org.codehaus.plexus.util.StringUtils.isEmpty( user.getEmail() ) )
+            if ( !StringUtils.isEmpty( user.getEmail() ) )
             {
                 new InternetAddress( user.getEmail(), true );
             }
@@ -925,7 +924,7 @@ public class DefaultUserService
 
             securitySystem.getPolicy().validatePassword( tmpuser );
 
-            if ( ( org.codehaus.plexus.util.StringUtils.isEmpty( user.getPassword() ) ) )
+            if ( ( StringUtils.isEmpty( user.getPassword() ) ) )
             {
                 throw new RedbackServiceException( new ErrorMessage( "password.required", null ) );
             }

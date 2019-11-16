@@ -321,28 +321,6 @@
         <version>2.5</version>
         <scope>provided</scope>
       </dependency>
-      <!-- Plexus -->
-      <!--dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-api</artifactId>
-        <version>1.0-alpha-20</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-container-default</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency-->
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-utils</artifactId>
-        <version>3.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-interpolation</artifactId>
-        <version>1.9</version>
-      </dependency>
       <dependency>
         <groupId>org.apache.archiva.redback.components.cache</groupId>
         <artifactId>spring-cache-api</artifactId>
@@ -372,28 +350,6 @@
         <groupId>org.apache.archiva.redback.components.registry</groupId>
         <artifactId>spring-registry-commons</artifactId>
         <version>${redback.comp.spring-registry.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-digest</artifactId>
-        <version>1.1</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-container-default</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-slf4j-logging</artifactId>
-        <version>1.1-alpha-1</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-container-default</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <!-- Other -->
       <dependency>
@@ -1045,7 +1001,7 @@
           <plugin>
             <groupId>org.gaul</groupId>
             <artifactId>modernizer-maven-plugin</artifactId>
-            <version>1.5.0</version>
+            <version>1.9.0</version>
             <configuration>
               <javaVersion>1.8</javaVersion>
             </configuration>

@@ -237,26 +237,13 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clean-plugin</artifactId>
-        <configuration>
-          <filesets>
-            <fileset>
-              <directory>${basedir}/${plexus.home}</directory>
-            </fileset>
-          </filesets>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <excludes>
             <exclude>**/FakeCreateAdminService**.java</exclude>
           </excludes>
           <systemPropertyVariables>
-            <plexus.home>${project.build.directory}/test-home</plexus.home>
             <derby.system.home>${project.build.directory}/test-home</derby.system.home>
-            <test.useTomcat>${test.useTomcat}</test.useTomcat>
             <redback.jdbc.url>${redbackTestJdbcUrl}</redback.jdbc.url>
             <redback.jdbc.driver.name>${redbackTestJdbcDriver}</redback.jdbc.driver.name>
             <ldapPort>${ldapPort}</ldapPort>
