@@ -51,6 +51,12 @@
       <artifactId>redback-common-jpa</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.archiva.components.registry</groupId>
+      <artifactId>archiva-components-spring-registry-commons</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
     </dependency>

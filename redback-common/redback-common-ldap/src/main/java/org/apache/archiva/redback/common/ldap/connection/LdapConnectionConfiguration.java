@@ -19,7 +19,7 @@ package org.apache.archiva.redback.common.ldap.connection;
  * under the License.
  */
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;

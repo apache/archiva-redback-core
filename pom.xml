@@ -342,14 +342,14 @@
         <version>${archiva.comp.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.archiva.redback.components.registry</groupId>
-        <artifactId>spring-registry-api</artifactId>
-        <version>${redback.comp.spring-registry.version}</version>
+        <groupId>org.apache.archiva.components.registry</groupId>
+        <artifactId>archiva-components-spring-registry-api</artifactId>
+        <version>${archiva.comp.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.archiva.redback.components.registry</groupId>
-        <artifactId>spring-registry-commons</artifactId>
-        <version>${redback.comp.spring-registry.version}</version>
+        <groupId>org.apache.archiva.components.registry</groupId>
+        <artifactId>archiva-components-spring-registry-commons</artifactId>
+        <version>${archiva.comp.version}</version>
       </dependency>
       <!-- Other -->
       <dependency>

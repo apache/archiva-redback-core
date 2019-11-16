@@ -43,6 +43,11 @@
       <artifactId>redback-users-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.archiva.components.registry</groupId>
+      <artifactId>archiva-components-spring-registry-commons</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
     </dependency>   

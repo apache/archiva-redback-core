@@ -51,6 +51,11 @@
       <artifactId>redback-users-cached</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.archiva.components.registry</groupId>
+      <artifactId>archiva-components-spring-registry-commons</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
     </dependency>   

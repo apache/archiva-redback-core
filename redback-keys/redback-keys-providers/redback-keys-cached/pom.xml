@@ -51,6 +51,11 @@
       <artifactId>redback-configuration</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.archiva.components.registry</groupId>
+      <artifactId>archiva-components-spring-registry-commons</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
     </dependency>    
