@@ -19,7 +19,7 @@ package org.apache.archiva.redback.rbac.ldap;
  * under the License.
  */
 
-import org.apache.archiva.redback.components.apacheds.ApacheDs;
+import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.apache.archiva.redback.policy.encoders.SHA1PasswordEncoder;
 import org.apache.archiva.redback.rbac.Role;

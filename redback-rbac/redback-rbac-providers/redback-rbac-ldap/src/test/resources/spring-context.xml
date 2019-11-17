@@ -32,7 +32,7 @@
   <alias name="rbacManager#memory" alias="rbacManager#default"/>
   <alias name="userManager#ldap" alias="userManager#default"/>
 
-  <bean name="apacheDS#test" class="org.apache.archiva.redback.components.apacheds.DefaultApacheDs"
+  <bean name="apacheDS#test" class="org.apache.archiva.components.apacheds.DefaultApacheDs"
         scope="prototype">
     <property name="basedir" value="${basedir}/target/apacheds"/>
     <property name="port" value="${ldapPort}"/>

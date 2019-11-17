@@ -18,7 +18,7 @@ package org.apache.archiva.redback.rest.services;
  * under the License.
  */
 
-import org.apache.archiva.redback.components.apacheds.ApacheDs;
+import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.rest.api.model.LdapGroupMapping;
 import org.apache.archiva.redback.rest.api.services.LdapGroupMappingService;
 import org.apache.commons.lang.StringUtils;

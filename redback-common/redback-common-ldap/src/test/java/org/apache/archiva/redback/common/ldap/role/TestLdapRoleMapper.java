@@ -22,7 +22,7 @@ package org.apache.archiva.redback.common.ldap.role;
 import junit.framework.TestCase;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnection;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnectionFactory;
-import org.apache.archiva.redback.components.apacheds.ApacheDs;
+import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.apache.archiva.redback.policy.encoders.SHA1PasswordEncoder;
 import static org.assertj.core.api.Assertions.assertThat;
