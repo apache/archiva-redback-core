@@ -50,7 +50,7 @@ pipeline {
         stage( 'JDK8' ) {
             steps {
                 script{
-                    if (env.BRANCH_NAME == 'master')
+                    if (env.NONAPACHEORG_RUN != 'y' && env.BRANCH_NAME == 'master')
                     {
                         asfStandardBuild.mavenBuild( buildJdk, "clean deploy -U -fae -T3", mavenVersion,
                                                      defaultPublishers )
