@@ -19,7 +19,7 @@ package org.apache.archiva.redback.rbac.cached;
  * under the License.
  */
 
-import org.apache.archiva.redback.components.cache.Cache;
+import org.apache.archiva.components.cache.Cache;
 import org.apache.archiva.redback.rbac.Operation;
 import org.apache.archiva.redback.rbac.Permission;
 import org.apache.archiva.redback.rbac.RBACManager;

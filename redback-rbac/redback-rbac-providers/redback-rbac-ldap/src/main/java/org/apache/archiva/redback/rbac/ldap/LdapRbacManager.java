@@ -25,7 +25,7 @@ import org.apache.archiva.redback.common.ldap.connection.LdapConnectionFactory;
 import org.apache.archiva.redback.common.ldap.connection.LdapException;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapper;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapperConfiguration;
-import org.apache.archiva.redback.components.cache.Cache;
+import org.apache.archiva.components.cache.Cache;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.rbac.AbstractRBACManager;

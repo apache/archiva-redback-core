@@ -20,7 +20,7 @@ package org.apache.archiva.redback.users.ldap.service;
  */
 
 import org.apache.archiva.redback.common.ldap.user.LdapUser;
-import org.apache.archiva.redback.components.cache.Cache;
+import org.apache.archiva.components.cache.Cache;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

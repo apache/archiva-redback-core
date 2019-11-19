@@ -19,7 +19,7 @@ package org.apache.archiva.redback.keys.cached;
  * under the License.
  */
 
-import org.apache.archiva.redback.components.cache.Cache;
+import org.apache.archiva.components.cache.Cache;
 import org.apache.archiva.redback.keys.AbstractKeyManager;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.keys.KeyManager;

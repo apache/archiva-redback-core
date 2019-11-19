@@ -19,7 +19,7 @@ package org.apache.archiva.redback.users.cached;
  * under the License.
  */
 
-import org.apache.archiva.redback.components.cache.Cache;
+import org.apache.archiva.components.cache.Cache;
 import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserManagerListener;

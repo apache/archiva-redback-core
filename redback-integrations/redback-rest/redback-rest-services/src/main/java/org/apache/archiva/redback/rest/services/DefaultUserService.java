@@ -22,7 +22,7 @@ package org.apache.archiva.redback.rest.services;
 import net.sf.ehcache.CacheManager;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.TokenBasedAuthenticationDataSource;
-import org.apache.archiva.redback.components.cache.Cache;
+import org.apache.archiva.components.cache.Cache;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;

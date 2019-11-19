@@ -52,12 +52,12 @@
       <artifactId>spring-context-support</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.archiva.redback.components.cache</groupId>
-      <artifactId>spring-cache-api</artifactId>
+      <groupId>org.apache.archiva.components.cache</groupId>
+      <artifactId>archiva-components-spring-cache-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.archiva.redback.components.cache</groupId>
-      <artifactId>spring-cache-ehcache</artifactId>
+      <groupId>org.apache.archiva.components.cache</groupId>
+      <artifactId>archiva-components-spring-cache-ehcache</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.annotation</groupId>

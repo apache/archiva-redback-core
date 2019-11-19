@@ -17,24 +17,29 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<enunciate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://enunciate.codehaus.org/schemas/enunciate-2.0.0.xsd">
+<enunciate
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://enunciate.webcohesion.com/schemas/enunciate-2.12.0.xsd">
 
-  <services>
-    <rest defaultRestSubcontext="redbackServices"/>
-  </services>
-
+  <title>Apache Archiva Redback REST API</title>
   <modules>
+    <jaxrs>
+      <application path="redbackServices" />
+    </jaxrs>
 
     <cxf disabled="false"/>
-    <jersey disabled="true" />
+    <jersey disabled="true"/>
     <c disabled="true"/>
     <csharp disabled="true"/>
     <obj-c disabled="true"/>
     <jaxws-ri disabled="true"/>
     <jaxws-support disabled="true"/>
+    <jaxon1 disabled="true"/>
+    <jackson1 disabled="true"/>
+    <java-json-client disabled="true"/>
 
-    <docs disabled="false" title="Apache Archiva Redback REST API" includeExampleXml="true" includeExampleJson="true"
-          includeDefaultDownloads="false" docsSubdir="" freemarkerTemplate="${project.basedir}/src/enunciate/archiva.fmt" css="${project.basedir}/src/enunciate/archiva.css">
+    <docs disabled="false"
+          docsSubdir="" freemarkerTemplate="${project.basedir}/src/enunciate/archiva.fmt" css="${project.basedir}/src/enunciate/archiva.css">
      <!-- <war docsDir="apidocs" /> -->
     </docs>
 

@@ -322,19 +322,19 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.apache.archiva.redback.components.cache</groupId>
-        <artifactId>spring-cache-api</artifactId>
-        <version>${redback.comp.spring-cache.version}</version>
+        <groupId>org.apache.archiva.components.cache</groupId>
+        <artifactId>archiva-components-spring-cache-api</artifactId>
+        <version>${archiva.comp.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.archiva.redback.components.cache</groupId>
-        <artifactId>spring-cache-ehcache</artifactId>
-        <version>${redback.comp.spring-cache.version}</version>
+        <groupId>org.apache.archiva.components.cache</groupId>
+        <artifactId>archiva-components-spring-cache-ehcache</artifactId>
+        <version>${archiva.comp.version}</version>
       </dependency>
       <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache</artifactId>
-        <version>2.7.5</version>
+        <version>2.10.6</version>
       </dependency>
       <dependency>
         <groupId>org.apache.archiva.components</groupId>
