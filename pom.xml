@@ -872,6 +872,7 @@
             <exclude>.repository/**</exclude>
             <exclude>**/.site-content/**</exclude>
             <exclude>**/git-sparse-checkout-pattern</exclude>
+            <exclude>**/site.css</exclude>
 
             <!-- Netbeans files -->
             <exclude>nb-configuration.xml</exclude>
