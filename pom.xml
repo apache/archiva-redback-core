@@ -36,7 +36,7 @@
   <description>Redback is a authorization and authentication framework used by Archiva.
     It is developed by the Apache Archiva team.</description>
 
-  <url>http://archiva.apache.org/redback/core</url>
+  <url>http://archiva.apache.org/redback/core/${project.version}</url>
   <inceptionYear>2006</inceptionYear>
 
   <issueManagement>
@@ -753,7 +753,7 @@
           <inputEncoding>UTF-8</inputEncoding>
           <outputEncoding>UTF-8</outputEncoding>
           <skipDeploy>true</skipDeploy>
-          <stagingDirectory>${site.staging.base}/target/staging/redback/core/${version}</stagingDirectory>
+          <stagingDirectory>${site.staging.base}/target/staging/redback/core/${project.version}</stagingDirectory>
         </configuration>
         <executions>
           <execution>
