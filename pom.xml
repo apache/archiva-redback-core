@@ -73,7 +73,7 @@
   </distributionManagement>
 
   <properties>
-    <springVersion>4.3.10.RELEASE</springVersion>
+    <springVersion>5.2.1.RELEASE</springVersion>
     <commons-collections.version>4.1</commons-collections.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
