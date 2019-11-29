@@ -33,6 +33,8 @@
 
   <packaging>pom</packaging>
   <name>Apache Archiva Redback</name>
+  <description>Redback is a authorization and authentication framework used by Archiva.
+    It is developed by the Apache Archiva team.</description>
 
   <url>http://archiva.apache.org/redback/core</url>
   <inceptionYear>2006</inceptionYear>
@@ -71,7 +73,6 @@
   </distributionManagement>
 
   <properties>
-    <site.staging.base>${project.basedir}</site.staging.base>
     <springVersion>4.3.10.RELEASE</springVersion>
     <commons-collections.version>4.1</commons-collections.version>
 
@@ -92,11 +93,11 @@
 
     <openjpa.Log>DefaultLevel=INFO,Runtime=ERROR,Tool=ERROR,SQL=ERROR,Schema=ERROR,MetaData=ERROR</openjpa.Log>
 
-    <scmPubCheckoutDirectory>${basedir}/.site-content</scmPubCheckoutDirectory>
+    <site.staging.base>${project.basedir}</site.staging.base>
+    <scmPubCheckoutDirectory>.site-content</scmPubCheckoutDirectory>
+    <scmPublishBranch>asf-staging</scmPublishBranch>
     <!-- The git repository, where the site content is placed -->
     <siteRepositoryUrl>scm:git:https://gitbox.apache.org/repos/asf/archiva-web-content.git</siteRepositoryUrl>
-
-    <site.staging.base>${project.basedir}</site.staging.base>
 
   </properties>
 
@@ -721,10 +722,12 @@
         <artifactId>maven-scm-publish-plugin</artifactId>
         <inherited>false</inherited>
         <configuration>
-          <checkinComment>Apache Archiva versioned module docs for ${project.version}</checkinComment>
+          <checkinComment>Apache Redback versioned module docs for ${project.version}</checkinComment>
           <skipDeletedFiles>true</skipDeletedFiles>
           <content>${project.build.directory}/staging/</content>
+          <scmBranch>${scmPublishBranch}</scmBranch>
           <tryUpdate>true</tryUpdate>
+          <content>${project.build.directory}/staging</content>
           <!--
                     <ignorePathsToDelete>
                       <path>%regex[^(?!docs/).*$]</path>
@@ -746,8 +749,11 @@
         <artifactId>maven-site-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
+          <locales>en</locales>
+          <inputEncoding>UTF-8</inputEncoding>
+          <outputEncoding>UTF-8</outputEncoding>
           <skipDeploy>true</skipDeploy>
-          <stagingDirectory>${site.staging.base}/target/staging/redback/core/</stagingDirectory>
+          <stagingDirectory>${site.staging.base}/target/staging/redback/core/${version}</stagingDirectory>
         </configuration>
         <executions>
           <execution>
@@ -947,9 +953,18 @@
         <version>${javadocPluginVersion}</version>
         <inherited>false</inherited>
         <configuration>
-          <javadocVersion>1.8</javadocVersion>
-          <source>1.8</source>
+          <notimestamp>true</notimestamp>
+          <javadocVersion>${javaFullVersion}</javadocVersion>
+          <source>${compiler.source}</source>
           <doclint>none</doclint>
+          <detectLinks>true</detectLinks>
+          <detectJavaApiLink>true</detectJavaApiLink>
+          <linksource>true</linksource>
+          <show>protected</show>
+          <quiet>true</quiet>
+          <doctitle>Archiva Redback API</doctitle>
+          <isOffline>false</isOffline>
+          <excludePackageNames>*.test</excludePackageNames>
         </configuration>
         <reportSets>
           <reportSet>
@@ -1052,6 +1067,8 @@ The executor runs a shell script.
                   <arguments>
                     <argument>-d</argument>
                     <argument>${scmPubCheckoutDirectory}</argument>
+                    <argument>-b</argument>
+                    <argument>${scmPublishBranch}</argument>
                     <argument>${siteRepositoryUrl}</argument>
                   </arguments>
                 </configuration>

@@ -26,6 +26,7 @@
   </parent>
   <artifactId>redback-rbac</artifactId>
   <name>Redback :: Role Based Access Control</name>
+  <description>Redback RBAC API and data model.</description>
   <packaging>pom</packaging>
   <properties>
     <site.staging.base>${project.parent.basedir}</site.staging.base>

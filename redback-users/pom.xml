@@ -26,6 +26,7 @@
   </parent>
   <artifactId>redback-users</artifactId>
   <name>Redback :: User Management</name>
+  <description>Redback User model</description>
   <packaging>pom</packaging>
   <properties>
     <site.staging.base>${project.parent.basedir}</site.staging.base>

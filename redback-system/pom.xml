@@ -28,6 +28,8 @@
   </parent>
 
   <artifactId>redback-system</artifactId>
+  <description>Redback system components</description>
+
   <properties>
     <site.staging.base>${project.parent.basedir}</site.staging.base>
   </properties>

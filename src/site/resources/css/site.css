@@ -1,0 +1,166 @@
+body {
+    padding-top: 1px;
+}
+
+a.externalLink[href^="https"] {
+    background: url('../images/external-link-12x12.png') right center no-repeat;
+    padding-right: 18px;
+}
+
+#leftColumn {
+  display: none !important
+}
+
+#bodyColumn {
+  margin-left: 1.5em;
+}
+
+div#rhs {
+  float: right;
+  text-align: center;
+}
+
+div.mainBox {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  width: 75%;
+  background-color: #ccc;
+  position: relative;
+  padding-left: 5em;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+div.mainBox div {
+  padding: 0.4em;
+}
+
+div.newsBox {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  width: 75%;
+  background-color: #ccc;
+  position: relative;
+  padding-left: 8em;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+div.newsBox div {
+  padding: 0.6em;
+}
+
+div.mainBox span + p a {
+  background: url(../images/arrow.png) no-repeat;
+  background-size: 16px 16px;
+  background-position: right;
+  padding-right: 20px;
+}
+
+div.mainBox span + p a {
+  font-size: 1.5em;
+  /*color: black;*/ 
+}
+
+div.mainBox span + p a:hover {
+  /*color: blue;*/
+}
+
+.bignumber {
+  position: absolute;
+  color: white;
+  left: 0.25em;
+  font-size: 1.9em;
+}
+
+div.linkBox p {
+  text-align: right;
+  margin-bottom: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+#banner {
+  background: none;
+}
+
+#banner img {
+  margin: 10px;
+}
+
+div.jqmWindow h2, div.jqmWindow p {
+  text-align: center;
+}
+
+span.jqmClose {
+  position: absolute;
+  cursor: pointer;
+  right: 4px;
+  top: 6px;
+}
+
+
+ div.section {
+  margin-right: 110px;
+  margin-left: 10px;
+ }
+ 
+.hero-unit p {
+ /* font-weight: inherit;*/
+}
+
+.archivascreenshots {
+  border: 1px solid silver; 
+  margin-left: 0.25em; 
+  margin-bottom: 0.25em
+}
+
+.rhs span {
+  display: block; 
+  font-size: 13px; 
+  font-weight: bold; 
+  margin-top: 1.5em; 
+  margin-bottom: 1.5em;    
+}
+
+.container ul li iframe {
+  margin-top: 4px;
+  margin-right: 4px;
+}
+
+.modal-body table {
+  border: 0px;
+}
+
+
+.features-preview:after {
+    background-color: #F5F5F5;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px 0 4px 0;
+    color: #9DA0A4;
+    content: "New web UI";
+    font-size: 12px;
+    font-weight: bold;
+    left: -1px;
+    padding: 3px 7px;
+    position: absolute;
+    top: -1px;
+
+}
+.features-preview {
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px 4px 4px 4px;
+    margin: 15px 0;
+    padding: 39px 19px 14px;
+    position: relative;
+    min-height: 450px;
+}
+
+.carousel .item > img {
+  min-height: 400px;
+}

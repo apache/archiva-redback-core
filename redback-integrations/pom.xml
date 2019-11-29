@@ -26,6 +26,7 @@
   </parent>
   <artifactId>redback-integrations</artifactId>
   <name>Redback :: Integrations</name>
+  <description>Redback integration modules for security and REST</description>
   <packaging>pom</packaging>
   <properties>
     <site.staging.base>${project.parent.basedir}</site.staging.base>

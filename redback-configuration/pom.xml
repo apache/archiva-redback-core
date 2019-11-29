@@ -28,10 +28,12 @@
   </parent>
 
   <artifactId>redback-configuration</artifactId>
+
   <properties>
     <site.staging.base>${project.parent.basedir}</site.staging.base>
   </properties>
   <name>Redback :: Configuration</name>
+  <description>Redback Configuration API</description>
 
   <dependencies>
     <dependency>

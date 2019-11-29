@@ -26,6 +26,7 @@
   </parent>
   <artifactId>redback-keys</artifactId>
   <name>Redback :: Key Management</name>
+  <description>Management of authentication keys</description>
   <packaging>pom</packaging>
   <properties>
     <site.staging.base>${project.parent.basedir}</site.staging.base>

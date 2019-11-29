@@ -26,25 +26,22 @@
   <custom>
     <fluidoSkin>
       <topBarEnabled>true</topBarEnabled>
+      <copyrightStyle>pull-right</copyrightStyle>
       <sideBarEnabled>false</sideBarEnabled>
       <skipGenerationDate>true</skipGenerationDate>
       <googleSearch>
         <sitesearch>https://archiva.apache.org/redback</sitesearch>
       </googleSearch>
-      <twitter>
-        <user>archiva</user>
-        <showUser>true</showUser>
-        <showFollowers>false</showFollowers>
-      </twitter>
       <ohloh>
         <projectId>8659</projectId>
         <widget>thin-badge</widget>
       </ohloh>
       <gitHub>
-        <projectId>apache/archiva-redback-core</projectId>
+        <projectId>apache/archiva</projectId>
         <ribbonOrientation>right</ribbonOrientation>
-        <ribbonColor>black</ribbonColor>
+        <ribbonColor>gray</ribbonColor>
       </gitHub>
+
     </fluidoSkin>
 
   </custom>
@@ -53,14 +50,20 @@
   <version position="right" />
  
   <body>
+    <head>
+      <![CDATA[<link rel="stylesheet" href="../css/site.css" type="text/css" />]]>
+    </head>
+
     <breadcrumbs>
       <item name="Apache" href="https://www.apache.org" />
-      <item name="Archiva" href="https://archiva.apache.org" />
-      <item name="Redback" href="index.html" />
+      <item name="Archiva" href="../../index.html" />
+      <item name="Redback" href="../index.html" />
+      <item name="Redback Modules" href="index.html" />
     </breadcrumbs>
 
     <menu ref="reports" />
     <menu ref="modules" />
+
 
     <menu name="ASF" inherit="bottom">
       <item name="How Apache Works" href="http://www.apache.org/foundation/how-it-works.html"/>
