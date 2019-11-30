@@ -51,7 +51,7 @@
  
   <body>
     <head>
-      <![CDATA[<link rel="stylesheet" href="../css/site.css" type="text/css" />]]>
+      <![CDATA[<link rel="stylesheet" href="/css/site.css" type="text/css" />]]>
     </head>
 
     <breadcrumbs>

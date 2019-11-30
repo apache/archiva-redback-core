@@ -96,6 +96,7 @@
     <site.staging.base>${project.basedir}</site.staging.base>
     <scmPubCheckoutDirectory>.site-content</scmPubCheckoutDirectory>
     <scmPublishBranch>asf-staging</scmPublishBranch>
+    <scmPublishPath>/redback/core/${project.version}</scmPublishPath>
     <!-- The git repository, where the site content is placed -->
     <siteRepositoryUrl>scm:git:https://gitbox.apache.org/repos/asf/archiva-web-content.git</siteRepositoryUrl>
 
@@ -753,7 +754,7 @@
           <inputEncoding>UTF-8</inputEncoding>
           <outputEncoding>UTF-8</outputEncoding>
           <skipDeploy>true</skipDeploy>
-          <stagingDirectory>${site.staging.base}/target/staging/redback/core/${project.version}</stagingDirectory>
+          <stagingDirectory>${site.staging.base}/target/staging${scmPublishPath}/</stagingDirectory>
         </configuration>
         <executions>
           <execution>
