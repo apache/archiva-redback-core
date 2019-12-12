@@ -133,7 +133,7 @@ public class DefaultUserConfiguration
                 }
                 log.info( "Attempting to find configuration [{}] (resolved to [{}])", configName, configName );
 
-                registry.addConfigurationFromFile(Paths.get(configName).toFile(), PREFIX );
+                registry.addConfigurationFromFile(Paths.get(configName), configName, PREFIX );
             }
         }
     }
