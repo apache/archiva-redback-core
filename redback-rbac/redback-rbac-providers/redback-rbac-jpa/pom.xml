@@ -107,6 +107,11 @@
             <!-- set the version to be the same as the level in your runtime -->
             <version>${openjpa.version}</version>
           </dependency>
+          <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons.logging.version}</version>
+          </dependency>
         </dependencies>
       </plugin>
     </plugins>
