@@ -18,11 +18,12 @@ package org.apache.archiva.redback.common.ldap.role;
  * under the License.
  */
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import org.apache.archiva.redback.common.ldap.MappingException;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
+import org.apache.commons.collections4.MultiMap;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,7 @@ public class DefaultLdapRoleMapperConfiguration
 
     public Map<String, Collection<String>> getLdapGroupMappings()
     {
-        Multimap<String, String> map = ArrayListMultimap.create();
+        MultiValuedMap<String, String> map = new ArrayListValuedHashMap<>( );
 
         Collection<String> keys = userConf.getKeys();
 
