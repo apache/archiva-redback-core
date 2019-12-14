@@ -34,21 +34,36 @@
   <name>Redback :: Users Provider :: Configurable</name>
 
   <dependencies>
+
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-policy</artifactId>
+      <artifactId>redback-configuration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>javax.annotation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-users-tests</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
-    </dependency>   
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
-    </dependency>     
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-users-tests</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
