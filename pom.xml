@@ -92,7 +92,7 @@
     <redbackTestJdbcUrl>jdbc:hsqldb:mem:redback-test</redbackTestJdbcUrl>
     <redbackTestJdbcDriver>org.hsqldb.jdbcDriver</redbackTestJdbcDriver>
 
-    <openjpa.Log>DefaultLevel=INFO,Runtime=ERROR,Tool=ERROR,SQL=ERROR,Schema=ERROR,MetaData=ERROR</openjpa.Log>
+    <openjpa.Log>slf4j</openjpa.Log>
 
     <site.staging.base>${project.basedir}</site.staging.base>
     <scmPubCheckoutDirectory>.site-content</scmPubCheckoutDirectory>
@@ -140,6 +140,23 @@
       </snapshots>
     </pluginRepository>
   </pluginRepositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
 
   <dependencyManagement>
     <dependencies>
@@ -409,12 +426,7 @@
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>${slf4j.version}</version>
-        <scope>test</scope>
-      </dependency>
+
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>

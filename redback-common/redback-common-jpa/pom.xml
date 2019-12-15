@@ -35,6 +35,9 @@
   <name>Redback :: JPA Common Package</name>
 
   <dependencies>
+
+    <!-- Dependencies here are dependencies that are needed by all projects that need jpa -->
+
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-model</artifactId>
@@ -44,6 +47,8 @@
       <artifactId>redback-users-api</artifactId>
     </dependency>
 
+
+    <!-- We exclude the api dependencies and use the official ones -->
     <dependency>
       <groupId>org.apache.openjpa</groupId>
       <artifactId>openjpa</artifactId>
@@ -79,17 +84,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-orm</artifactId>
+      <scope>runtime</scope>
     </dependency>
 
 
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-jcl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
+    <!-- Commons logging is used by OpenJPA (openjpa.Log=commons) -->
+
+
 
     <dependency>
       <groupId>org.hsqldb</groupId>

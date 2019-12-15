@@ -36,7 +36,7 @@
       <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)" />
       <property name="openjpa.jdbc.MappingDefaults"
                 value="ForeignKeyDeleteAction=restrict,JoinForeignKeyDeleteAction=restrict"/>
-      <property name="openjpa.Log" value="DefaultLevel=INFO,Runtime=INFO,Tool=INFO,SQL=ERROR,Schema=ERROR,MetaData=ERROR"/>
+      <property name="openjpa.Log" value="slf4j"/>
       <property name="openjpa.jdbc.DBDictionary" value="(disableSchemaFactoryColumnTypeErrors=true,BitTypeName=CHAR(1),BooleanTypeName=CHAR(1),BooleanRepresentation=STRING_YN)"/>
 
     </properties>
