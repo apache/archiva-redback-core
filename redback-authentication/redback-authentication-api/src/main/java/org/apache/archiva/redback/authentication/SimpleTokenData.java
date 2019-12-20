@@ -82,7 +82,7 @@ public final class SimpleTokenData implements Serializable, TokenData {
 
     @Override
     public boolean isValid() {
-        return (new Date().getTime())<validBefore.getTime();
+        return (System.currentTimeMillis())<validBefore.getTime();
     }
 
 }
