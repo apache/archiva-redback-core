@@ -37,33 +37,29 @@
     <dependency>
       <groupId>org.apache.archiva.components</groupId>
       <artifactId>archiva-components-graph</artifactId>
-      <version>3.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-rbac-model</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.archiva.components.registry</groupId>
       <artifactId>archiva-components-spring-registry-commons</artifactId>
-      <scope>test</scope>
+      <scope>runtime</scope>
     </dependency>
+
     <dependency>
-      <groupId>net.java.dev.stax-utils</groupId>
-      <artifactId>stax-utils</artifactId>
-      <version>20060502</version>
-      <exclusions>
-        <!-- Can't use BEA's proprietary java.xml.stream provider.
-             Using woodstox provider instead (see below) -->
-        <exclusion>
-          <groupId>com.bea.xml</groupId>
-          <artifactId>jsr173-ri</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
+      <artifactId>spring-context</artifactId>
     </dependency>   
     <dependency>
       <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
+      <artifactId>javax.annotation-api</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -73,22 +69,35 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-rbac-jpa</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <artifactId>redback-rbac-memory</artifactId>
       <groupId>org.apache.archiva.redback</groupId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-rbac-model</artifactId>
-    </dependency>
+
+
+
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-cached</artifactId>
       <scope>test</scope>
     </dependency>
-
-
     <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
@@ -134,7 +143,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <forkMode>always</forkMode>
+          <forkCount>1</forkCount>
           <systemPropertyVariables>
             <basedir>${basedir}</basedir>
             <openjpa.Log>${openjpa.Log}</openjpa.Log>

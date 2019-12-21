@@ -36,14 +36,6 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-system</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-authorization-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-model</artifactId>
     </dependency>
     <dependency>
@@ -51,20 +43,16 @@
       <artifactId>archiva-components-spring-cache-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.archiva.components.cache</groupId>
-      <artifactId>archiva-components-spring-cache-ehcache</artifactId>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-users-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-    </dependency>     
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-policy</artifactId>
+    </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
-    </dependency>   
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-configuration</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
@@ -74,9 +62,56 @@
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-users-ldap</artifactId>
     </dependency>
+
+
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>javax.annotation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+
+
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-cached</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.components.cache</groupId>
+      <artifactId>archiva-components-spring-cache-ehcache</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-rbac-jpa</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>

@@ -19,15 +19,30 @@ package org.apache.archiva.redback.rbac.jpa;
  * under the License.
  */
 
-import org.apache.archiva.redback.rbac.*;
-import org.apache.archiva.redback.rbac.jpa.model.*;
-import org.apache.openjpa.persistence.Type;
+import org.apache.archiva.redback.rbac.AbstractRBACManager;
+import org.apache.archiva.redback.rbac.Operation;
+import org.apache.archiva.redback.rbac.Permission;
+import org.apache.archiva.redback.rbac.RBACObjectAssertions;
+import org.apache.archiva.redback.rbac.RbacManagerException;
+import org.apache.archiva.redback.rbac.RbacObjectInvalidException;
+import org.apache.archiva.redback.rbac.RbacObjectNotFoundException;
+import org.apache.archiva.redback.rbac.RbacPermanentException;
+import org.apache.archiva.redback.rbac.Resource;
+import org.apache.archiva.redback.rbac.Role;
+import org.apache.archiva.redback.rbac.UserAssignment;
+import org.apache.archiva.redback.rbac.jpa.model.JpaOperation;
+import org.apache.archiva.redback.rbac.jpa.model.JpaPermission;
+import org.apache.archiva.redback.rbac.jpa.model.JpaResource;
+import org.apache.archiva.redback.rbac.jpa.model.JpaRole;
+import org.apache.archiva.redback.rbac.jpa.model.JpaUserAssignment;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

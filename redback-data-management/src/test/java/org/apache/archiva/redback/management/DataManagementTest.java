@@ -30,7 +30,6 @@ import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.SystemUtils;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -450,7 +449,7 @@ public class DataManagementTest
     private static Path createBackupDirectory() throws IOException {
         String timestamp = new SimpleDateFormat( "yyyyMMdd.HHmmss", Locale.US ).format( new Date() );
 
-        Path targetDirectory = Paths.get( SystemUtils.getJavaIoTmpDir().toString(), "./target/backups/" + timestamp );
+        Path targetDirectory = Files.createTempDirectory( "redback-test" ).resolve( "./target/backups/" + timestamp );
         Files.createDirectories(targetDirectory);
 
         return targetDirectory;

@@ -34,12 +34,12 @@ import javax.inject.Named;
  * @author: Jesse McConnell
  */
 @RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration( locations = { "classpath*:/META-INF/spring-context.xml", "classpath:/jpox-spring-context.xml" } )
-public class JpoxRoleManagerTest
+@ContextConfiguration( locations = { "classpath*:/META-INF/spring-context.xml", "classpath:/jpa-spring-context.xml" } )
+public class JpaRoleManagerTest
     extends AbstractRoleManagerTest
 {
 
-    @Inject @Named(value = "roleManager#jpox")
+    @Inject @Named(value = "roleManager#jpa")
     DefaultRoleManager roleManagerInjected;
 
     @Inject

@@ -43,7 +43,7 @@
     <property name="templateProcessor" ref="roleTemplateProcessor#jpox"/>
     <property name="rbacManager" ref="rbacManager#jpa"/>
   </bean>
-  <alias name="roleManager" alias="roleManager#jpox"/>
+  <alias name="roleManager" alias="roleManager#jpa"/>
 
   <bean name="userConfiguration#default" class="org.apache.archiva.redback.configuration.DefaultUserConfiguration">
     <property name="registry" ref="test-conf"/>

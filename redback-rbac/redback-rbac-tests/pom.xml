@@ -32,14 +32,6 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-system</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-authorization-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-model</artifactId>
     </dependency>
 
@@ -50,6 +42,11 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
     </dependency>
 
     <dependency>

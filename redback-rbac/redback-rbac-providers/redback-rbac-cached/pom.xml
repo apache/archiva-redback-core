@@ -36,44 +36,52 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-system</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-authorization-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-model</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.components.cache</groupId>
       <artifactId>archiva-components-spring-cache-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.components.cache</groupId>
-      <artifactId>archiva-components-spring-cache-ehcache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.components.registry</groupId>
-      <artifactId>archiva-components-spring-registry-commons</artifactId>
-      <scope>test</scope>
-    </dependency>
+
+
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
     </dependency>     
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
-    </dependency>   
+      <artifactId>spring-context</artifactId>
+    </dependency>
     <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
-    </dependency>    
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.archiva.components.registry</groupId>
+      <artifactId>archiva-components-spring-registry-commons</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.components.cache</groupId>
+      <artifactId>archiva-components-spring-cache-ehcache</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-jpa</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>

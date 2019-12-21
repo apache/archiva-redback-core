@@ -388,6 +388,11 @@
         <artifactId>archiva-components-spring-registry-commons</artifactId>
         <version>${archiva.comp.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.archiva.components</groupId>
+        <artifactId>archiva-components-graph</artifactId>
+        <version>${archiva.comp.version}</version>
+      </dependency>
       <!-- Other -->
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -712,6 +717,12 @@
         <artifactId>log4j-jcl</artifactId>
         <version>2.9.1</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa</artifactId>
+        <version>${openjpa.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -843,6 +854,7 @@
         <configuration>
           <argLine>-Xmx256m -Xms256m</argLine>
           <runOrder>alphabetical</runOrder>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
       </plugin>
       <plugin>
