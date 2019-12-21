@@ -71,6 +71,7 @@
           <artifactId>geronimo-jta_1.1_spec</artifactId>
         </exclusion>
       </exclusions>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
