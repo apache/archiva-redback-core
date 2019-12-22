@@ -64,9 +64,12 @@
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-common-jpa</artifactId>
     </dependency>
+
+
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
+      <scope>runtime</scope>
     </dependency>
 
 

@@ -17,7 +17,6 @@ package org.apache.archiva.redback.policy;
  */
 
 import junit.framework.TestCase;
-import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
