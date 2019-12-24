@@ -42,25 +42,7 @@
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-authorization-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-rbac-cached</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-rbac-memory</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-users-configurable</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-users-memory</artifactId>
-      <scope>test</scope>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-model</artifactId>
@@ -72,13 +54,44 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
+      <artifactId>spring-context</artifactId>
     </dependency>   
     <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>javax.annotation-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
 
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-users-configurable</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-rbac-cached</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-rbac-memory</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-users-memory</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>javax.persistence</groupId>
       <artifactId>javax.persistence-api</artifactId>

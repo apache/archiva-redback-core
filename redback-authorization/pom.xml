@@ -31,12 +31,6 @@
   <properties>
     <site.staging.base>${project.parent.basedir}</site.staging.base>
   </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-users-api</artifactId>
-    </dependency>
-  </dependencies>
   <modules>
     <module>redback-authorization-api</module>
     <module>redback-authorization-providers</module>
