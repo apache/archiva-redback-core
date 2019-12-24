@@ -19,7 +19,7 @@ package org.apache.archiva.redback.integration;
  * under the License.
  */
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Properties;
 

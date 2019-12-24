@@ -23,7 +23,7 @@ package org.apache.archiva.redback.integration.filter.authentication.digest;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.archiva.redback.integration.HttpUtils;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticationException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;

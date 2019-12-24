@@ -31,7 +31,7 @@ import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticationException;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

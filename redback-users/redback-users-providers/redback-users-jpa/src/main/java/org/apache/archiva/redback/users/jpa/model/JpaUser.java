@@ -19,9 +19,6 @@ package org.apache.archiva.redback.users.jpa.model;
  * under the License.
  */
 
-import org.apache.openjpa.persistence.ExternalValues;
-import org.apache.openjpa.persistence.Type;
-
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -29,7 +26,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import java.util.ArrayList;
