@@ -54,7 +54,6 @@
     <module>redback-system</module>
     <module>redback-keys</module>
     <module>redback-users</module>
-    <module>redback-data-management</module>
     <module>redback-integrations</module>
   </modules>
 
