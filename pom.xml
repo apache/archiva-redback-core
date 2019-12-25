@@ -101,6 +101,8 @@
 
     <javax.servlet.version>4.0.1</javax.servlet.version>
 
+    <jacksonVersion>2.9.10</jacksonVersion>
+
   </properties>
 
   <repositories>

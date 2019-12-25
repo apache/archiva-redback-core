@@ -59,6 +59,14 @@
       <artifactId>redback-authentication-ldap</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-authentication-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-users-api</artifactId>
+    </dependency>
     <!-- Keys Management / Authentication -->
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
@@ -72,9 +80,21 @@
     <!-- RBAC Management / Authorization -->
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-common-ldap</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-authorization-rbac</artifactId>
       <scope>runtime</scope>
     </dependency> 
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-authorization-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-rbac-model</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-role-manager</artifactId>
@@ -97,22 +117,6 @@
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-integrations-security</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-authentication-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-users-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-rbac-model</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-authorization-api</artifactId>
     </dependency>
 
     <dependency>
@@ -163,7 +167,7 @@
     <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>javax.annotation-api</artifactId>
-    </dependency>      
+    </dependency>
 
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -182,6 +186,11 @@
     </dependency>
 
     <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
@@ -189,6 +198,7 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
+
 
     <!-- === Test Dependencies ======================= -->
     <dependency>
