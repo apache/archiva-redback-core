@@ -43,18 +43,36 @@
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-keys-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-keys-cached</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
-    </dependency>   
+      <artifactId>spring-context</artifactId>
+    </dependency>
     <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>javax.annotation-api</artifactId>
-    </dependency>    
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-users-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-policy</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-keys-cached</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <scope>test</scope>
+    </dependency>   
   </dependencies>
 
 </project>

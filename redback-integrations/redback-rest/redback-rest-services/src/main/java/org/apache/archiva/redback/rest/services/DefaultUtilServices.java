@@ -19,7 +19,7 @@ package org.apache.archiva.redback.rest.services;
  */
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.UtilServices;
 import org.slf4j.Logger;

@@ -18,8 +18,8 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;

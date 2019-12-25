@@ -19,7 +19,7 @@ package org.apache.archiva.redback.rest.services.utils;
  */
 
 import org.apache.archiva.redback.system.check.EnvironmentCheck;
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;

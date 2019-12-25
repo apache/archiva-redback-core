@@ -23,9 +23,9 @@ import org.apache.archiva.redback.keys.KeyNotFoundException;
 import org.apache.archiva.redback.keys.jpa.model.JpaAuthenticationKey;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;

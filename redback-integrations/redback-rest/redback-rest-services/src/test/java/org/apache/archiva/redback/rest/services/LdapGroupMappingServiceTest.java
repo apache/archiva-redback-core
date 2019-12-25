@@ -21,7 +21,7 @@ package org.apache.archiva.redback.rest.services;
 import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.rest.api.model.LdapGroupMapping;
 import org.apache.archiva.redback.rest.api.services.LdapGroupMappingService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Condition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
