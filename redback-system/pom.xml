@@ -38,10 +38,6 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-configuration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-authentication-api</artifactId>
     </dependency>
     <dependency>
@@ -54,25 +50,43 @@
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-users-cached</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-keys-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-keys-cached</artifactId>
+      <artifactId>redback-policy</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
+      <artifactId>spring-context</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-configuration</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-users-cached</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-keys-cached</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.archiva.components.registry</groupId>
       <artifactId>archiva-components-spring-registry-commons</artifactId>
