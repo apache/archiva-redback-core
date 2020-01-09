@@ -99,6 +99,8 @@
     <!-- The git repository, where the site content is placed -->
     <siteRepositoryUrl>scm:git:https://gitbox.apache.org/repos/asf/archiva-web-content.git</siteRepositoryUrl>
 
+    <javax.servlet.version>4.0.1</javax.servlet.version>
+
   </properties>
 
   <repositories>
@@ -542,6 +544,7 @@
         <artifactId>javax.ws.rs-api</artifactId>
         <version>2.0</version>
       </dependency>
+
       <!--
       <dependency>
         <groupId>org.codehaus.jackson</groupId>
@@ -668,7 +671,7 @@
 
       <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
+        <artifactId>javax.servlet-api</artifactId>
         <version>${javax.servlet.version}</version>
         <scope>provided</scope>
       </dependency>
