@@ -42,20 +42,34 @@
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
+      <artifactId>redback-users-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-common-integrations</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
-      <artifactId>redback-integrations-security</artifactId>
+      <artifactId>redback-rbac-model</artifactId>
     </dependency>
+
+
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
     </dependency>
     <!-- normally not needed but here for wadl feature currently in cxf -->
+    <!--
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    -->
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
   </dependencies>
 
