@@ -124,7 +124,7 @@ public class UserServiceTest
 
             WebClient.client( service ).header( "Authorization", authorizationHeader );
 
-            assertTrue( service.testAuthzWithoutKarmasNeededButAuthz().booleanValue() );
+            assertTrue( service.testAuthzWithoutKarmasNeededButAuthz() );
 
         }
         catch ( ForbiddenException e )

@@ -77,7 +77,10 @@
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <gpg.useagent>true</gpg.useagent>
-    <cxf.version>3.0.3</cxf.version>
+
+    <cxf.version>3.2.11</cxf.version>
+    <jackson.version>2.9.10</jackson.version>
+    <javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 
     <junit.platform.version>1.5.2</junit.platform.version>
     <junit.jupiter.version>5.5.2</junit.jupiter.version>
@@ -539,10 +542,12 @@
         <artifactId>stax-api</artifactId>
         <version>1.0-2</version>
       </dependency>
+
       <dependency>
         <groupId>javax.ws.rs</groupId>
         <artifactId>javax.ws.rs-api</artifactId>
-        <version>2.0</version>
+        <version>${javax.ws.rs.version}</version>
+        <scope>provided</scope>
       </dependency>
 
       <!--

@@ -33,11 +33,13 @@
   -->
   <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
 
-
   <jaxrs:server id="testServices" address="/fakeCreateAdminService">
     <jaxrs:serviceBeans>
       <ref bean="fakeCreateAdminService"/>
     </jaxrs:serviceBeans>
+    <jaxrs:providers>
+      <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider"/>
+    </jaxrs:providers>
 
    </jaxrs:server>
 
