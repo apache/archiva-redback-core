@@ -31,7 +31,6 @@ import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
-import org.apache.cxf.jaxrs.model.Parameter;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
@@ -50,8 +49,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.List;
 
 /**
  * @author Olivier Lamy
@@ -94,7 +91,7 @@ public class PermissionsInterceptor
             if ( permissions != null && permissions.length > 0 //
                 && !( permissions.length == 1 && StringUtils.isEmpty( permissions[0] ) ) )
             {
-                HttpServletRequest request = getHttpServletRequest( message );
+                HttpServletRequest request = getHttpServletRequest( );
                 SecuritySession securitySession = httpAuthenticator.getSecuritySession( request.getSession() );
                 AuthenticationResult authenticationResult = message.get( AuthenticationResult.class );
 
@@ -105,7 +102,7 @@ public class PermissionsInterceptor
                     try
                     {
                         authenticationResult =
-                            httpAuthenticator.getAuthenticationResult( request, getHttpServletResponse( message ) );
+                            httpAuthenticator.getAuthenticationResult( request, getHttpServletResponse( ) );
 
                         log.debug( "authenticationResult from request: {}", authenticationResult );
                     }

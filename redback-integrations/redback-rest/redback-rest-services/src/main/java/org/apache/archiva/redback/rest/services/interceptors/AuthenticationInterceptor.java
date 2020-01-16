@@ -34,8 +34,6 @@ import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
-import org.apache.cxf.jaxrs.utils.JAXRSUtils;
-import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -46,6 +44,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
@@ -71,25 +71,28 @@ public class AuthenticationInterceptor
     @Named(value = "httpAuthenticator#basic")
     private HttpBasicAuthentication httpAuthenticator;
 
+    @Context
+    private ResourceInfo resourceInfo;
+
     private final Logger log = LoggerFactory.getLogger( getClass() );
 
     public void filter( ContainerRequestContext containerRequestContext )
     {
 
-        Message message = JAXRSUtils.getCurrentMessage();
+        // Message message = JAXRSUtils.getCurrentMessage();
 
-        RedbackAuthorization redbackAuthorization = getRedbackAuthorization( message );
+        RedbackAuthorization redbackAuthorization = getRedbackAuthorization( resourceInfo );
         if ( redbackAuthorization == null )
         {
             log.warn( "http path {} doesn't contain any informations regarding permissions ",
-                      message.get( Message.REQUEST_URI ) );
+                      containerRequestContext.getUriInfo().getRequestUri());
             // here we failed to authenticate so 403 as there is no detail on karma for this
             // it must be marked as it's exposed
             containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
             return;
         }
-        HttpServletRequest request = getHttpServletRequest( message );
-        HttpServletResponse response = getHttpServletResponse( message );
+        HttpServletRequest request = getHttpServletRequest( );
+        HttpServletResponse response = getHttpServletResponse( );
 
         if ( redbackAuthorization.noRestriction() )
         {
@@ -122,7 +125,7 @@ public class AuthenticationInterceptor
                         new RedbackRequestInformation( user, request.getRemoteAddr() );
 
                     RedbackAuthenticationThreadLocal.set( redbackRequestInformation );
-                    message.put( AuthenticationResult.class, authenticationResult );
+                    // message.put( AuthenticationResult.class, authenticationResult );
                 }
                 catch ( Exception e )
                 {
@@ -149,29 +152,29 @@ public class AuthenticationInterceptor
                 new RedbackRequestInformation( user, request.getRemoteAddr() );
 
             RedbackAuthenticationThreadLocal.set( redbackRequestInformation );
-            message.put( AuthenticationResult.class, authenticationResult );
+            // message.put( AuthenticationResult.class, authenticationResult );
 
             return;
         }
         catch ( UserNotFoundException e )
         {
-            log.debug( "UserNotFoundException for path {}", message.get( Message.REQUEST_URI ) );
+            log.debug( "UserNotFoundException for path {}", containerRequestContext.getUriInfo().getRequestUri() );
         }
         catch ( AccountLockedException e )
         {
-            log.debug( "account locked for path {}", message.get( Message.REQUEST_URI ) );
+            log.debug( "account locked for path {}", containerRequestContext.getUriInfo().getRequestUri() );
         }
         catch ( MustChangePasswordException e )
         {
-            log.debug( "must change password for path {}", message.get( Message.REQUEST_URI ) );
+            log.debug( "must change password for path {}", containerRequestContext.getUriInfo().getRequestUri() );
         }
         catch ( AuthenticationException e )
         {
-            log.debug( "failed to authenticate for path {}", message.get( Message.REQUEST_URI ) );
+            log.debug( "failed to authenticate for path {}", containerRequestContext.getUriInfo().getRequestUri() );
         }
         catch ( UserManagerException e )
         {
-            log.debug( "UserManagerException: {} for path", e.getMessage(), message.get( Message.REQUEST_URI ) );
+            log.debug( "UserManagerException: {} for path", e.getMessage(), containerRequestContext.getUriInfo().getRequestUri() );
         }
         containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
     }

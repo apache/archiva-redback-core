@@ -24,9 +24,11 @@ import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.AnnotationUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import java.lang.reflect.Method;
 
@@ -45,12 +47,12 @@ public abstract class AbstractInterceptor
     @Context
     private HttpServletResponse httpServletResponse;
 
-    public HttpServletRequest getHttpServletRequest( Message message )
+    public HttpServletRequest getHttpServletRequest( )
     {
         return httpServletRequest;
     }
 
-    public HttpServletResponse getHttpServletResponse( Message message )
+    public HttpServletResponse getHttpServletResponse( )
     {
         return httpServletResponse;
     }
@@ -73,6 +75,16 @@ public abstract class AbstractInterceptor
                    method, //
                    redbackAuthorization );
 
+        return redbackAuthorization;
+    }
+
+    public RedbackAuthorization getRedbackAuthorization( ResourceInfo resourceInfo ) {
+        Method method = resourceInfo.getResourceMethod( );
+        RedbackAuthorization redbackAuthorization = AnnotationUtils.findAnnotation( method, RedbackAuthorization.class );
+        log.debug( "resourceClass {}, method {}, redbackAuthorization {}", //
+                resourceInfo.getResourceClass( ), //
+                method, //
+                redbackAuthorization );
         return redbackAuthorization;
     }
 }

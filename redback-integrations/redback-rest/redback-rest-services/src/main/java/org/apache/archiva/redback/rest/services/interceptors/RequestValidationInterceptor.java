@@ -506,7 +506,7 @@ public class RequestValidationInterceptor
         else
         {
             Message message = JAXRSUtils.getCurrentMessage();
-            return getHttpServletRequest( message );
+            return getHttpServletRequest( );
         }
     }
 
@@ -627,7 +627,7 @@ public class RequestValidationInterceptor
             try
             {
                 authenticationResult =
-                    httpAuthenticator.getAuthenticationResult( request, getHttpServletResponse( message ) );
+                    httpAuthenticator.getAuthenticationResult( request, getHttpServletResponse( ) );
 
                 log.debug( "authenticationResult from request: {}", authenticationResult );
             }
