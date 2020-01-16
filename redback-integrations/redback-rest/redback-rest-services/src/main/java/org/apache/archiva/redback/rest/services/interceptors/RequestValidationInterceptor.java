@@ -27,13 +27,12 @@ import org.apache.archiva.redback.authentication.TokenManager;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
+import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
 import org.apache.archiva.redback.integration.filter.authentication.basic.HttpBasicAuthentication;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.users.User;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.jaxrs.utils.JAXRSUtils;
-import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,6 +43,8 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
@@ -108,6 +109,9 @@ public class RequestValidationInterceptor
     @Inject
     @Named( value = "tokenManager#default" )
     TokenManager tokenManager;
+
+    @Context
+    private ResourceInfo resourceInfo;
 
     private UserConfiguration config;
 
@@ -450,8 +454,7 @@ public class RequestValidationInterceptor
      */
     private void checkValidationToken( ContainerRequestContext containerRequestContext, HttpServletRequest request )
     {
-        Message message = JAXRSUtils.getCurrentMessage();
-        RedbackAuthorization redbackAuthorization = getRedbackAuthorization( message );
+        RedbackAuthorization redbackAuthorization = getRedbackAuthorization( resourceInfo );
         // We check only services that are restricted
         if ( !redbackAuthorization.noRestriction() )
         {
@@ -466,7 +469,7 @@ public class RequestValidationInterceptor
             try
             {
                 TokenData td = tokenManager.decryptToken( tokenString );
-                AuthenticationResult auth = getAuthenticationResult( message, request );
+                AuthenticationResult auth = getAuthenticationResult( containerRequestContext, httpAuthenticator, request );
                 if ( auth == null )
                 {
                     log.error( "Not authentication data found" );
@@ -505,7 +508,6 @@ public class RequestValidationInterceptor
         }
         else
         {
-            Message message = JAXRSUtils.getCurrentMessage();
             return getHttpServletRequest( );
         }
     }
@@ -617,33 +619,4 @@ public class RequestValidationInterceptor
         this.httpRequest = request;
     }
 
-    private AuthenticationResult getAuthenticationResult( Message message, HttpServletRequest request )
-    {
-        AuthenticationResult authenticationResult = message.get( AuthenticationResult.class );
-
-        log.debug( "authenticationResult from message: {}", authenticationResult );
-        if ( authenticationResult == null )
-        {
-            try
-            {
-                authenticationResult =
-                    httpAuthenticator.getAuthenticationResult( request, getHttpServletResponse( ) );
-
-                log.debug( "authenticationResult from request: {}", authenticationResult );
-            }
-            catch ( AuthenticationException e )
-            {
-                log.debug( "failed to authenticate for path {}", message.get( Message.REQUEST_URI ) );
-            }
-            catch ( AccountLockedException e )
-            {
-                log.debug( "account locked for path {}", message.get( Message.REQUEST_URI ) );
-            }
-            catch ( MustChangePasswordException e )
-            {
-                log.debug( "must change password for path {}", message.get( Message.REQUEST_URI ) );
-            }
-        }
-        return authenticationResult;
-    }
 }

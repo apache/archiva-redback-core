@@ -126,6 +126,7 @@ public class AuthenticationInterceptor
 
                     RedbackAuthenticationThreadLocal.set( redbackRequestInformation );
                     // message.put( AuthenticationResult.class, authenticationResult );
+                    containerRequestContext.setProperty( AUTHENTICATION_RESULT, authenticationResult );
                 }
                 catch ( Exception e )
                 {
