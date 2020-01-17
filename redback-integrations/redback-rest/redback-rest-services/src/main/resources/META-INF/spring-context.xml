@@ -56,9 +56,11 @@
       <ref bean="passwordService#rest"/>
       <ref bean="ldapGroupMappingService#rest"/>
     </jaxrs:serviceBeans>
+    <!--
     <jaxrs:outInterceptors>
       <ref bean="threadLocalUserCleaner#rest"/>
     </jaxrs:outInterceptors>
+    -->
     <jaxrs:providers>
       <ref bean="jsonProvider"/>
       <ref bean="authenticationInterceptor#rest"/>

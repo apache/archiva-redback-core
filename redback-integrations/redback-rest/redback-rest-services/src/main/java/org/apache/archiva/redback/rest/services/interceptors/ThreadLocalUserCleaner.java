@@ -20,19 +20,17 @@ package org.apache.archiva.redback.rest.services.interceptors;
 
 
 import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
-import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.jaxrs.interceptor.JAXRSInInterceptor;
-import org.apache.cxf.jaxrs.model.OperationResourceInfo;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
-import org.apache.cxf.phase.Phase;
-import org.apache.cxf.phase.PhaseInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.core.Response;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.ext.Provider;
+import java.io.IOException;
 
 /**
  * @author Olivier Lamy
@@ -40,31 +38,15 @@ import javax.ws.rs.ext.Provider;
  */
 @Service( "threadLocalUserCleaner#rest" )
 @Provider
+@PreMatching
 public class ThreadLocalUserCleaner
-    extends AbstractPhaseInterceptor<Message>
-    implements PhaseInterceptor<Message>
+    implements ContainerResponseFilter
 {
     private final Logger log = LoggerFactory.getLogger( getClass() );
-
-    public ThreadLocalUserCleaner( String phase )
-    {
-        super( phase );
-        addAfter( JAXRSInInterceptor.class.getName() );
-    }
 
 
     public ThreadLocalUserCleaner()
     {
-        super( Phase.PRE_STREAM );
-        addAfter( JAXRSInInterceptor.class.getName() );
-    }
-
-
-    public Response handleResponse( Message message, OperationResourceInfo operationResourceInfo, Response response )
-    {
-        log.debug( "handleResponse" );
-        cleanup();
-        return null;
     }
 
     private void cleanup()
@@ -72,10 +54,10 @@ public class ThreadLocalUserCleaner
         RedbackAuthenticationThreadLocal.set( null );
     }
 
-    public void handleMessage( Message message )
-        throws Fault
+    @Override
+    public void filter( ContainerRequestContext requestContext, ContainerResponseContext responseContext ) throws IOException
     {
-        log.debug( "handleMessage" );
+        log.debug( "ThreadLocalUserCleaner cleanup" );
         cleanup();
     }
 }
