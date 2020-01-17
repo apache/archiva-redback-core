@@ -19,14 +19,13 @@ package org.apache.archiva.redback.integration.mail;
  * under the License.
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.mail.internet.MimeMessage;
-
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+
+import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Olivier Lamy

@@ -18,15 +18,15 @@ package org.apache.archiva.redback.rest.services.utils;
  * under the License.
  */
 
+import org.apache.archiva.redback.policy.PasswordEncoder;
+import org.apache.archiva.redback.policy.PasswordRuleViolationException;
 import org.apache.archiva.redback.policy.PasswordRuleViolations;
+import org.apache.archiva.redback.rest.api.model.ErrorMessage;
+import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
+import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
-import org.apache.archiva.redback.policy.PasswordEncoder;
-import org.apache.archiva.redback.policy.PasswordRuleViolationException;
-import org.apache.archiva.redback.system.SecuritySystem;
-import org.apache.archiva.redback.rest.api.model.ErrorMessage;
-import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

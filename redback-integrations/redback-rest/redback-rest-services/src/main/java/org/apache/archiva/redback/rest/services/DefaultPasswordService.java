@@ -18,21 +18,21 @@ package org.apache.archiva.redback.rest.services;
  * under the License.
  */
 
+import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
+import org.apache.archiva.redback.keys.AuthenticationKey;
+import org.apache.archiva.redback.keys.KeyManagerException;
 import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.apache.archiva.redback.policy.PasswordRuleViolationException;
 import org.apache.archiva.redback.policy.PasswordRuleViolations;
-import org.apache.archiva.redback.users.User;
-import org.apache.archiva.redback.users.UserManagerException;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.archiva.redback.keys.AuthenticationKey;
-import org.apache.archiva.redback.keys.KeyManagerException;
-import org.apache.archiva.redback.system.SecuritySystem;
-import org.apache.archiva.redback.users.UserNotFoundException;
-import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.services.PasswordService;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.services.utils.PasswordValidator;
+import org.apache.archiva.redback.system.SecuritySystem;
+import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserManagerException;
+import org.apache.archiva.redback.users.UserNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

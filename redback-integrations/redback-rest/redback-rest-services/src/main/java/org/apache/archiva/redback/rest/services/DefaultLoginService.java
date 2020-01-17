@@ -24,7 +24,6 @@ import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationFailureCause;
 import org.apache.archiva.redback.authentication.EncryptionFailedException;
 import org.apache.archiva.redback.authentication.PasswordBasedAuthenticationDataSource;
-import org.apache.archiva.redback.authentication.TokenManager;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.keys.KeyManager;
@@ -56,7 +55,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
 /**

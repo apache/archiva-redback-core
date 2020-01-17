@@ -20,9 +20,9 @@ package org.apache.archiva.redback.integration.filter.authorization;
  */
 
 import org.apache.archiva.redback.authorization.AuthorizationException;
+import org.apache.archiva.redback.integration.filter.SpringServletFilter;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
-import org.apache.archiva.redback.integration.filter.SpringServletFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

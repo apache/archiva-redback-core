@@ -19,6 +19,7 @@ package org.apache.archiva.redback.rest.services.interceptors;
  */
 
 
+import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.interceptor.JAXRSInInterceptor;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
@@ -26,7 +27,6 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
-import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -19,10 +19,10 @@ package org.apache.archiva.redback.integration.filter.authentication;
  * under the License.
  */
 
+import org.apache.archiva.redback.integration.filter.SpringServletFilter;
+
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-
-import org.apache.archiva.redback.integration.filter.SpringServletFilter;
 
 /**
  * AbstractHttpAuthenticationFilter

@@ -21,7 +21,6 @@ package org.apache.archiva.redback.rest.api.model;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * @author Olivier Lamy

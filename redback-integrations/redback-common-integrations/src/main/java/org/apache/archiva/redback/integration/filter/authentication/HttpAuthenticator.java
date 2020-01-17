@@ -19,18 +19,17 @@ package org.apache.archiva.redback.integration.filter.authentication;
  * under the License.
  */
 
-import org.apache.archiva.redback.authentication.AuthenticationException;
-import org.apache.archiva.redback.policy.MustChangePasswordException;
-import org.apache.archiva.redback.users.User;
-import org.apache.archiva.redback.users.UserManagerException;
-import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.archiva.redback.authentication.AuthenticationDataSource;
+import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
 import org.apache.archiva.redback.policy.AccountLockedException;
+import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.archiva.redback.system.SecuritySystemConstants;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserManagerException;
+import org.apache.archiva.redback.users.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

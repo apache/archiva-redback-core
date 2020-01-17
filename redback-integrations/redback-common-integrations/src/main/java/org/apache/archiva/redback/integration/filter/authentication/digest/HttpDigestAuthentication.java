@@ -20,17 +20,17 @@ package org.apache.archiva.redback.integration.filter.authentication.digest;
  */
 
 import org.apache.archiva.redback.authentication.AuthenticationException;
-import org.apache.archiva.redback.policy.MustChangePasswordException;
-import org.apache.archiva.redback.users.User;
-import org.apache.archiva.redback.users.UserManagerException;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
 import org.apache.archiva.redback.authentication.TokenBasedAuthenticationDataSource;
-import org.apache.archiva.redback.policy.AccountLockedException;
-import org.apache.archiva.redback.users.UserManager;
-import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticationException;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
+import org.apache.archiva.redback.policy.AccountLockedException;
+import org.apache.archiva.redback.policy.MustChangePasswordException;
+import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserManager;
+import org.apache.archiva.redback.users.UserManagerException;
+import org.apache.archiva.redback.users.UserNotFoundException;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 

@@ -19,14 +19,11 @@ package org.apache.archiva.redback.rest.services.interceptors;
  * under the License.
  */
 
-import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
 import org.apache.archiva.redback.authorization.AuthorizationException;
 import org.apache.archiva.redback.authorization.AuthorizationResult;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.filter.authentication.basic.HttpBasicAuthentication;
-import org.apache.archiva.redback.policy.AccountLockedException;
-import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.commons.lang3.StringUtils;

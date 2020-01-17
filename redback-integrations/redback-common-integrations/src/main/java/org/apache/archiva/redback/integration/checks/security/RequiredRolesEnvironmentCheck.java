@@ -19,16 +19,15 @@ package org.apache.archiva.redback.integration.checks.security;
  * under the License.
  */
 
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
 import org.apache.archiva.redback.system.check.EnvironmentCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.util.List;
 
 /**
  * RequiredRolesEnvironmentCheck: this environment check will check that the

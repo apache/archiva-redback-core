@@ -19,22 +19,21 @@ package org.apache.archiva.redback.integration.filter.authentication.basic;
  * under the License.
  */
 
-import java.io.IOException;
+import org.apache.archiva.redback.authentication.AuthenticationException;
+import org.apache.archiva.redback.authentication.AuthenticationResult;
+import org.apache.archiva.redback.authentication.PasswordBasedAuthenticationDataSource;
+import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
+import org.apache.archiva.redback.policy.AccountLockedException;
+import org.apache.archiva.redback.policy.MustChangePasswordException;
+import org.apache.archiva.redback.system.SecuritySession;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.archiva.redback.authentication.AuthenticationException;
-import org.apache.archiva.redback.policy.AccountLockedException;
-import org.apache.archiva.redback.policy.MustChangePasswordException;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.archiva.redback.authentication.AuthenticationResult;
-import org.apache.archiva.redback.authentication.PasswordBasedAuthenticationDataSource;
-import org.apache.archiva.redback.system.SecuritySession;
-import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
+import java.io.IOException;
 
 /**
  * HttpBasicAuthentication

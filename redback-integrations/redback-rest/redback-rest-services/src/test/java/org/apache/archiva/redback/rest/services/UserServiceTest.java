@@ -25,7 +25,6 @@ import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.UserRegistrationRequest;
-import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
 import org.apache.archiva.redback.rest.services.mock.ServicesAssert;

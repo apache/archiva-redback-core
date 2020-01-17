@@ -22,14 +22,13 @@ package org.apache.archiva.redback.integration.checks.security;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
-import org.apache.archiva.redback.role.RoleManagerException;
-import org.apache.archiva.redback.users.User;
-import org.apache.archiva.redback.users.UserManagerException;
-import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.archiva.redback.role.RoleManager;
+import org.apache.archiva.redback.role.RoleManagerException;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.archiva.redback.system.check.EnvironmentCheck;
+import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
+import org.apache.archiva.redback.users.UserManagerException;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

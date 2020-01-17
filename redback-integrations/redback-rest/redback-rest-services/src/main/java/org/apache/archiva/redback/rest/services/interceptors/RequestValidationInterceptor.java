@@ -19,7 +19,6 @@ package org.apache.archiva.redback.rest.services.interceptors;
  */
 
 
-import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
 import org.apache.archiva.redback.authentication.InvalidTokenException;
 import org.apache.archiva.redback.authentication.TokenData;
@@ -27,10 +26,7 @@ import org.apache.archiva.redback.authentication.TokenManager;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
-import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
 import org.apache.archiva.redback.integration.filter.authentication.basic.HttpBasicAuthentication;
-import org.apache.archiva.redback.policy.AccountLockedException;
-import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.users.User;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

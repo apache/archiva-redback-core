@@ -19,8 +19,8 @@ package org.apache.archiva.redback.integration.model;
  * under the License.
  */
 
-import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.integration.util.DateUtils;
+import org.apache.archiva.redback.users.User;
 
 /**
  * EditUserCredentials

@@ -19,11 +19,9 @@ package org.apache.archiva.redback.integration;
  * under the License.
  */
 
-import java.util.Properties;
-
 import junit.framework.TestCase;
 
-import org.apache.archiva.redback.integration.HttpUtils;
+import java.util.Properties;
 
 /**
  * HttpUtilsTest

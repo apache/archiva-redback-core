@@ -18,11 +18,21 @@ package org.apache.archiva.redback.rest.services;
  * under the License.
  */
 
+import org.apache.archiva.redback.integration.model.AdminEditUserCredentials;
+import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
+import org.apache.archiva.redback.integration.util.RoleSorter;
 import org.apache.archiva.redback.rbac.Permission;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.Resource;
 import org.apache.archiva.redback.rbac.UserAssignment;
+import org.apache.archiva.redback.rest.api.model.Application;
+import org.apache.archiva.redback.rest.api.model.ApplicationRoles;
+import org.apache.archiva.redback.rest.api.model.ErrorMessage;
+import org.apache.archiva.redback.rest.api.model.Role;
+import org.apache.archiva.redback.rest.api.model.RoleTemplate;
+import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
+import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
 import org.apache.archiva.redback.role.model.ModelApplication;
@@ -33,16 +43,6 @@ import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.archiva.redback.integration.model.AdminEditUserCredentials;
-import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
-import org.apache.archiva.redback.integration.util.RoleSorter;
-import org.apache.archiva.redback.rest.api.model.Application;
-import org.apache.archiva.redback.rest.api.model.ApplicationRoles;
-import org.apache.archiva.redback.rest.api.model.ErrorMessage;
-import org.apache.archiva.redback.rest.api.model.Role;
-import org.apache.archiva.redback.rest.api.model.RoleTemplate;
-import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
-import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
