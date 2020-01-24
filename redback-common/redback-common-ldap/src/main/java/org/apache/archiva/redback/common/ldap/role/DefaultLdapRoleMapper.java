@@ -48,6 +48,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,7 +67,7 @@ public class DefaultLdapRoleMapper
     implements LdapRoleMapper
 {
 
-    private Logger log = LoggerFactory.getLogger( getClass() );
+    private Logger log = LoggerFactory.getLogger( getClass( ) );
 
     @Inject
     @Named( value = "ldapConnectionFactory#configurable" )
@@ -96,7 +97,7 @@ public class DefaultLdapRoleMapper
 
     private String baseDn;
 
-    private String ldapGroupMember = "uniqueMember";
+    private String ldapGroupMemberAttribute = "uniqueMember";
 
     private boolean useDefaultRoleName = false;
 
@@ -106,12 +107,27 @@ public class DefaultLdapRoleMapper
      * possible to user cn=beer or uid=beer or sn=beer etc
      * so make it configurable
      */
-    private String userIdAttribute = "uid";
+    public static String DEFAULT_USER_ID_ATTRIBUTE = "uid";
+    private String userIdAttribute = DEFAULT_USER_ID_ATTRIBUTE;
+
+    public static String DEFAULT_GROUP_NAME_ATTRIBUTE = "cn";
+    private String groupNameAttribute = DEFAULT_GROUP_NAME_ATTRIBUTE;
+
+    // True, if the member attribute stores the DN, otherwise the userkey is used as entry value
+    private boolean useDnAsMemberValue = true;
+
+    private static final String POSIX_GROUP = "posixGroup";
 
     @PostConstruct
-    public void initialize()
+    public void initialize( )
     {
         this.ldapGroupClass = userConf.getString( UserConfigurationKeys.LDAP_GROUPS_CLASS, this.ldapGroupClass );
+
+        if (StringUtils.equalsIgnoreCase( POSIX_GROUP, this.ldapGroupClass )) {
+            this.useDnAsMemberValue = false;
+        }
+
+        this.useDnAsMemberValue = userConf.getBoolean( UserConfigurationKeys.LDAP_GROUPS_USE_DN_AS_MEMBER_VALUE, this.useDnAsMemberValue );
 
         this.baseDn = userConf.getConcatenatedList( UserConfigurationKeys.LDAP_BASEDN, this.baseDn );
 
@@ -127,11 +143,30 @@ public class DefaultLdapRoleMapper
         this.useDefaultRoleName =
             userConf.getBoolean( UserConfigurationKeys.LDAP_GROUPS_USE_ROLENAME, this.useDefaultRoleName );
 
-        this.userIdAttribute = userConf.getString( UserConfigurationKeys.LDAP_USER_ID_ATTRIBUTE, this.userIdAttribute );
+        this.userIdAttribute = userConf.getString( UserConfigurationKeys.LDAP_USER_ID_ATTRIBUTE, DEFAULT_USER_ID_ATTRIBUTE );
 
-        this.ldapGroupMember = userConf.getString( UserConfigurationKeys.LDAP_GROUPS_MEMBER, this.ldapGroupMember );
+        this.ldapGroupMemberAttribute = userConf.getString( UserConfigurationKeys.LDAP_GROUPS_MEMBER, this.ldapGroupMemberAttribute );
 
         this.dnAttr = userConf.getString( UserConfigurationKeys.LDAP_DN_ATTRIBUTE, this.dnAttr );
+
+        this.groupNameAttribute = userConf.getString( UserConfigurationKeys.LDAP_GROUP_NAME_ATTRIBUTE, DEFAULT_GROUP_NAME_ATTRIBUTE );
+    }
+
+
+    private String getGroupNameFromResult( SearchResult searchResult ) throws NamingException
+    {
+        Attribute gNameAtt = searchResult.getAttributes( ).get( groupNameAttribute );
+        if ( gNameAtt != null )
+        {
+            return gNameAtt.get( ).toString( );
+        }
+        else
+        {
+            log.error( "Could not get group name from attribute {}. Group DN: {}", groupNameAttribute, searchResult.getNameInNamespace( ) );
+            return "";
+        }
+
+
     }
 
     public List<String> getAllGroups( DirContext context )
@@ -142,45 +177,43 @@ public class DefaultLdapRoleMapper
         try
         {
 
-            SearchControls searchControls = new SearchControls();
+            SearchControls searchControls = new SearchControls( );
 
             searchControls.setDerefLinkFlag( true );
             searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            searchControls.setReturningAttributes( new String[]{ this.getLdapDnAttribute(), "objectClass", groupNameAttribute} );
 
-            String filter = "objectClass=" + getLdapGroupClass();
+            String filter = "objectClass=" + getLdapGroupClass( );
 
             if ( !StringUtils.isEmpty( this.groupFilter ) )
             {
                 filter = "(&(" + filter + ")(" + this.groupFilter + "))";
             }
 
-            namingEnumeration = context.search( getGroupsDn(), filter, searchControls );
+            namingEnumeration = context.search( getGroupsDn( ), filter, searchControls );
 
-            List<String> allGroups = new ArrayList<String>();
+            List<String> allGroups = new ArrayList<String>( );
 
-            while ( namingEnumeration.hasMore() )
+            while ( namingEnumeration.hasMore( ) )
             {
-                SearchResult searchResult = namingEnumeration.next();
-
-                String groupName = searchResult.getName();
-                // cn=blabla we only want bla bla
-                groupName = StringUtils.substringAfter( groupName, "=" );
-
-                log.debug( "found groupName: '{}", groupName );
-
-                allGroups.add( groupName );
-
+                SearchResult searchResult = namingEnumeration.next( );
+                String groupName = getGroupNameFromResult( searchResult );
+                if ( StringUtils.isNotEmpty( groupName ) )
+                {
+                    log.debug( "Found groupName: '{}", groupName );
+                    allGroups.add( groupName );
+                }
             }
 
             return allGroups;
         }
         catch ( LdapException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
         catch ( NamingException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
 
         finally
@@ -195,7 +228,7 @@ public class DefaultLdapRoleMapper
         {
             try
             {
-                namingEnumeration.close();
+                namingEnumeration.close( );
             }
             catch ( NamingException e )
             {
@@ -225,16 +258,16 @@ public class DefaultLdapRoleMapper
         try
         {
 
-            SearchControls searchControls = new SearchControls();
+            SearchControls searchControls = new SearchControls( );
 
             searchControls.setDerefLinkFlag( true );
             searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-            String filter = "objectClass=" + getLdapGroupClass();
+            String filter = "objectClass=" + getLdapGroupClass( );
 
-            namingEnumeration = context.search( "cn=" + groupName + "," + getGroupsDn(), filter, searchControls );
+            namingEnumeration = context.search( groupNameAttribute + "=" + groupName + "," + getGroupsDn( ), filter, searchControls );
 
-            return namingEnumeration.hasMore();
+            return namingEnumeration.hasMore( );
         }
         catch ( NameNotFoundException e )
         {
@@ -243,11 +276,11 @@ public class DefaultLdapRoleMapper
         }
         catch ( LdapException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
         catch ( NamingException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
 
         finally
@@ -261,14 +294,14 @@ public class DefaultLdapRoleMapper
     {
         List<String> groups = getAllGroups( context );
 
-        if ( groups.isEmpty() )
+        if ( groups.isEmpty( ) )
         {
-            return Collections.emptyList();
+            return Collections.emptyList( );
         }
 
-        Set<String> roles = new HashSet<String>( groups.size() );
+        Set<String> roles = new HashSet<String>( groups.size( ) );
 
-        Map<String, Collection<String>> mapping = ldapRoleMapperConfiguration.getLdapGroupMappings();
+        Map<String, Collection<String>> mapping = ldapRoleMapperConfiguration.getLdapGroupMappings( );
 
         for ( String group : groups )
         {
@@ -293,29 +326,29 @@ public class DefaultLdapRoleMapper
         try
         {
 
-            SearchControls searchControls = new SearchControls();
+            SearchControls searchControls = new SearchControls( );
 
             searchControls.setDerefLinkFlag( true );
             searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-            String filter = "objectClass=" + getLdapGroupClass();
+            String filter = "objectClass=" + getLdapGroupClass( );
 
-            namingEnumeration = context.search( "cn=" + group + "," + getGroupsDn(), filter, searchControls );
+            namingEnumeration = context.search( groupNameAttribute + "=" + group + "," + getGroupsDn( ), filter, searchControls );
 
-            List<String> allMembers = new ArrayList<String>();
+            List<String> allMembers = new ArrayList<String>( );
 
-            while ( namingEnumeration.hasMore() )
+            while ( namingEnumeration.hasMore( ) )
             {
-                SearchResult searchResult = namingEnumeration.next();
+                SearchResult searchResult = namingEnumeration.next( );
 
-                Attribute uniqueMemberAttr = searchResult.getAttributes().get( getLdapGroupMember() );
+                Attribute uniqueMemberAttr = searchResult.getAttributes( ).get( getLdapGroupMemberAttribute( ) );
 
                 if ( uniqueMemberAttr != null )
                 {
-                    NamingEnumeration<?> allMembersEnum = uniqueMemberAttr.getAll();
-                    while ( allMembersEnum.hasMore() )
+                    NamingEnumeration<?> allMembersEnum = uniqueMemberAttr.getAll( );
+                    while ( allMembersEnum.hasMore( ) )
                     {
-                        String userName = allMembersEnum.next().toString();
+                        String userName = allMembersEnum.next( ).toString( );
                         // uid=blabla we only want bla bla
                         userName = StringUtils.substringAfter( userName, "=" );
                         userName = StringUtils.substringBefore( userName, "," );
@@ -333,11 +366,11 @@ public class DefaultLdapRoleMapper
         }
         catch ( LdapException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
         catch ( NamingException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
 
         finally
@@ -346,32 +379,39 @@ public class DefaultLdapRoleMapper
         }
     }
 
+    private String getUserDnFromId(String userKey) {
+        return new StringBuilder().append( this.userIdAttribute ).append( "=" ).append( userKey ).append( "," ).append(
+            getBaseDn( ) ).toString();
+    }
+
     public List<String> getGroups( String username, DirContext context )
         throws MappingException
     {
 
-        List<String> userGroups = new ArrayList<String>();
+        Set<String> userGroups = new HashSet<String>( );
 
         NamingEnumeration<SearchResult> namingEnumeration = null;
         try
         {
 
-            SearchControls searchControls = new SearchControls();
+            SearchControls searchControls = new SearchControls( );
 
             searchControls.setDerefLinkFlag( true );
             searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+
             String groupEntry = null;
             try
             {
                 //try to look the user up
                 User user = userManager.findUser( username );
-                if ( user instanceof LdapUser )
+                if ( user != null && user instanceof LdapUser )
                 {
-                    LdapUser ldapUser = LdapUser.class.cast( user );
-                    Attribute dnAttribute = ldapUser.getOriginalAttributes().get( getLdapDnAttribute() );
+                    LdapUser ldapUser = (LdapUser) user ;
+                    Attribute dnAttribute = ldapUser.getOriginalAttributes( ).get( getLdapDnAttribute( ) );
                     if ( dnAttribute != null )
                     {
-                        groupEntry = String.class.cast( dnAttribute.get() );
+                        groupEntry = dnAttribute.get( ).toString();
                     }
 
                 }
@@ -387,82 +427,48 @@ public class DefaultLdapRoleMapper
             if ( groupEntry == null )
             {
                 //failed to look up the user's groupEntry directly
-                StringBuilder builder = new StringBuilder();
-                String posixGroup = "posixGroup";
-                if ( posixGroup.equals( getLdapGroupClass() ) )
+
+                if ( this.useDnAsMemberValue )
                 {
-                    builder.append( username );
+                    groupEntry = getUserDnFromId( username );
                 }
                 else
                 {
-                    builder.append( this.userIdAttribute ).append( "=" ).append( username ).append( "," ).append(
-                        getBaseDn() );
+                    groupEntry = username;
                 }
-                groupEntry = builder.toString();
             }
 
             String filter =
-                new StringBuilder().append( "(&" ).append( "(objectClass=" + getLdapGroupClass() + ")" ).append(
-                    "(" ).append( getLdapGroupMember() ).append( "=" ).append( Rdn.escapeValue(groupEntry) ).append( ")" ).append(
-                    ")" ).toString();
+                new StringBuilder( ).append( "(&" ).append( "(objectClass=" + getLdapGroupClass( ) + ")" ).append(
+                    "(" ).append( getLdapGroupMemberAttribute( ) ).append( "=" ).append( Rdn.escapeValue( groupEntry ) ).append( ")" ).append(
+                    ")" ).toString( );
 
             log.debug( "filter: {}", filter );
 
-            namingEnumeration = context.search( getGroupsDn(), filter, searchControls );
+            namingEnumeration = context.search( getGroupsDn( ), filter, searchControls );
 
-            while ( namingEnumeration.hasMore() )
+            while ( namingEnumeration.hasMore( ) )
             {
-                SearchResult searchResult = namingEnumeration.next();
+                SearchResult groupSearchResult = namingEnumeration.next( );
 
-                List<String> allMembers = new ArrayList<String>();
+                String groupName = getGroupNameFromResult( groupSearchResult );
 
-                Attribute uniqueMemberAttr = searchResult.getAttributes().get( getLdapGroupMember() );
-
-                if ( uniqueMemberAttr != null )
-                {
-                    NamingEnumeration<?> allMembersEnum = uniqueMemberAttr.getAll();
-                    while ( allMembersEnum.hasMore() )
-                    {
-
-                        String userName = allMembersEnum.next().toString();
-                        //the original dn
-                        allMembers.add( userName );
-                        // uid=blabla we only want bla bla
-                        userName = StringUtils.substringAfter( userName, "=" );
-                        userName = StringUtils.substringBefore( userName, "," );
-                        allMembers.add( userName );
-                    }
-                    close( allMembersEnum );
-                }
-
-                if ( allMembers.contains( username ) )
-                {
-                    String groupName = searchResult.getName();
-                    // cn=blabla we only want bla bla
-                    groupName = StringUtils.substringAfter( groupName, "=" );
-                    userGroups.add( groupName );
-
-                }
-                else if ( allMembers.contains( groupEntry ) )
-                {
-                    String groupName = searchResult.getName();
-                    // cn=blabla we only want bla bla
-                    groupName = StringUtils.substringAfter( groupName, "=" );
+                if (StringUtils.isNotEmpty( groupName )) {
                     userGroups.add( groupName );
                 }
 
 
             }
 
-            return userGroups;
+            return new ArrayList( userGroups );
         }
         catch ( LdapException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
         catch ( NamingException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
         finally
         {
@@ -475,9 +481,9 @@ public class DefaultLdapRoleMapper
     {
         List<String> groups = getGroups( username, context );
 
-        Map<String, Collection<String>> rolesMapping = ldapRoleMapperConfiguration.getLdapGroupMappings();
+        Map<String, Collection<String>> rolesMapping = ldapRoleMapperConfiguration.getLdapGroupMappings( );
 
-        Set<String> roles = new HashSet<String>( groups.size() );
+        Set<String> roles = new HashSet<String>( groups.size( ) );
 
         for ( String group : groups )
         {
@@ -504,26 +510,26 @@ public class DefaultLdapRoleMapper
         {
             try
             {
-                namingEnumeration.close();
+                namingEnumeration.close( );
             }
             catch ( NamingException e )
             {
-                log.warn( "fail to close namingEnumeration: {}", e.getMessage() );
+                log.warn( "fail to close namingEnumeration: {}", e.getMessage( ) );
             }
         }
     }
 
-    public String getGroupsDn()
+    public String getGroupsDn( )
     {
         return this.groupsDn;
     }
 
-    public String getLdapGroupClass()
+    public String getLdapGroupClass( )
     {
         return this.ldapGroupClass;
     }
 
-    public String getLdapDnAttribute()
+    public String getLdapDnAttribute( )
     {
         return this.dnAttr;
     }
@@ -564,16 +570,16 @@ public class DefaultLdapRoleMapper
         objectClass.add( "top" );
         objectClass.add( "groupOfUniqueNames" );
         attributes.put( objectClass );
-        attributes.put( "cn", groupName );
+        attributes.put( this.groupNameAttribute, groupName );
 
         // attribute mandatory when created a group so add admin as default member
-        BasicAttribute basicAttribute = new BasicAttribute( getLdapGroupMember() );
-        basicAttribute.add( this.userIdAttribute + "=admin," + getBaseDn() );
+        BasicAttribute basicAttribute = new BasicAttribute( getLdapGroupMemberAttribute( ) );
+        basicAttribute.add( this.userIdAttribute + "=admin," + getBaseDn( ) );
         attributes.put( basicAttribute );
 
         try
         {
-            String dn = "cn=" + groupName + "," + this.groupsDn;
+            String dn = this.groupNameAttribute + "=" + groupName + "," + this.groupsDn;
 
             context.createSubcontext( dn, attributes );
 
@@ -588,12 +594,12 @@ public class DefaultLdapRoleMapper
         }
         catch ( LdapException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
 
         }
         catch ( NamingException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
     }
 
@@ -612,31 +618,31 @@ public class DefaultLdapRoleMapper
         NamingEnumeration<SearchResult> namingEnumeration = null;
         try
         {
-            SearchControls searchControls = new SearchControls();
+            SearchControls searchControls = new SearchControls( );
 
             searchControls.setDerefLinkFlag( true );
             searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-            String filter = "objectClass=" + getLdapGroupClass();
+            String filter = "objectClass=" + getLdapGroupClass( );
 
-            namingEnumeration = context.search( "cn=" + groupName + "," + getGroupsDn(), filter, searchControls );
+            namingEnumeration = context.search( this.groupNameAttribute + "=" + groupName + "," + getGroupsDn( ), filter, searchControls );
 
-            if ( namingEnumeration.hasMore() )
+            if ( namingEnumeration.hasMore( ) )
             {
-                SearchResult searchResult = namingEnumeration.next();
-                Attribute attribute = searchResult.getAttributes().get( getLdapGroupMember() );
+                SearchResult searchResult = namingEnumeration.next( );
+                Attribute attribute = searchResult.getAttributes( ).get( getLdapGroupMemberAttribute( ) );
                 if ( attribute == null )
                 {
-                    BasicAttribute basicAttribute = new BasicAttribute( getLdapGroupMember() );
-                    basicAttribute.add( this.userIdAttribute + "=" + username + "," + getBaseDn() );
-                    context.modifyAttributes( "cn=" + groupName + "," + getGroupsDn(), new ModificationItem[]{
-                        new ModificationItem( DirContext.ADD_ATTRIBUTE, basicAttribute ) } );
+                    BasicAttribute basicAttribute = new BasicAttribute( getLdapGroupMemberAttribute( ) );
+                    basicAttribute.add( this.userIdAttribute + "=" + username + "," + getBaseDn( ) );
+                    context.modifyAttributes( this.groupNameAttribute + "=" + groupName + "," + getGroupsDn( ), new ModificationItem[]{
+                        new ModificationItem( DirContext.ADD_ATTRIBUTE, basicAttribute )} );
                 }
                 else
                 {
-                    attribute.add( this.userIdAttribute + "=" + username + "," + getBaseDn() );
-                    context.modifyAttributes( "cn=" + groupName + "," + getGroupsDn(), new ModificationItem[]{
-                        new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attribute ) } );
+                    attribute.add( this.userIdAttribute + "=" + username + "," + getBaseDn( ) );
+                    context.modifyAttributes( this.groupNameAttribute + "=" + groupName + "," + getGroupsDn( ), new ModificationItem[]{
+                        new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attribute )} );
                 }
                 return true;
             }
@@ -645,11 +651,11 @@ public class DefaultLdapRoleMapper
         }
         catch ( LdapException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
         catch ( NamingException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
 
         finally
@@ -658,7 +664,7 @@ public class DefaultLdapRoleMapper
             {
                 try
                 {
-                    namingEnumeration.close();
+                    namingEnumeration.close( );
                 }
                 catch ( NamingException e )
                 {
@@ -683,25 +689,25 @@ public class DefaultLdapRoleMapper
         try
         {
 
-            SearchControls searchControls = new SearchControls();
+            SearchControls searchControls = new SearchControls( );
 
             searchControls.setDerefLinkFlag( true );
             searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-            String filter = "objectClass=" + getLdapGroupClass();
+            String filter = "objectClass=" + getLdapGroupClass( );
 
-            namingEnumeration = context.search( "cn=" + groupName + "," + getGroupsDn(), filter, searchControls );
+            namingEnumeration = context.search( groupNameAttribute + "=" + groupName + "," + getGroupsDn( ), filter, searchControls );
 
-            if ( namingEnumeration.hasMore() )
+            if ( namingEnumeration.hasMore( ) )
             {
-                SearchResult searchResult = namingEnumeration.next();
-                Attribute attribute = searchResult.getAttributes().get( getLdapGroupMember() );
+                SearchResult searchResult = namingEnumeration.next( );
+                Attribute attribute = searchResult.getAttributes( ).get( getLdapGroupMemberAttribute( ) );
                 if ( attribute != null )
                 {
-                    BasicAttribute basicAttribute = new BasicAttribute( getLdapGroupMember() );
-                    basicAttribute.add( this.userIdAttribute + "=" + username + "," + getGroupsDn() );
-                    context.modifyAttributes( "cn=" + groupName + "," + getGroupsDn(), new ModificationItem[]{
-                        new ModificationItem( DirContext.REMOVE_ATTRIBUTE, basicAttribute ) } );
+                    BasicAttribute basicAttribute = new BasicAttribute( getLdapGroupMemberAttribute( ) );
+                    basicAttribute.add( this.userIdAttribute + "=" + username + "," + getGroupsDn( ) );
+                    context.modifyAttributes( groupNameAttribute + "=" + groupName + "," + getGroupsDn( ), new ModificationItem[]{
+                        new ModificationItem( DirContext.REMOVE_ATTRIBUTE, basicAttribute )} );
                 }
                 return true;
             }
@@ -710,11 +716,11 @@ public class DefaultLdapRoleMapper
         }
         catch ( LdapException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
         catch ( NamingException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
 
         finally
@@ -723,7 +729,7 @@ public class DefaultLdapRoleMapper
             {
                 try
                 {
-                    namingEnumeration.close();
+                    namingEnumeration.close( );
                 }
                 catch ( NamingException e )
                 {
@@ -733,33 +739,58 @@ public class DefaultLdapRoleMapper
         }
     }
 
+
+
     public void removeAllRoles( DirContext context )
         throws MappingException
     {
         //all mapped roles
-        Collection<String> groups = ldapRoleMapperConfiguration.getLdapGroupMappings().keySet();
+        Collection<String> groups = ldapRoleMapperConfiguration.getLdapGroupMappings( ).keySet( );
 
         try
         {
             for ( String groupName : groups )
             {
-
-                String dn = "cn=" + groupName + "," + this.groupsDn;
-
-                context.unbind( dn );
-
-                log.debug( "deleted group with dn:'{}", dn );
+                removeGroupByName( context, groupName );
             }
 
         }
         catch ( LdapException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
 
         }
         catch ( NamingException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
+        }
+    }
+
+    private void removeGroupByName( DirContext context, String groupName ) throws NamingException
+    {
+        NamingEnumeration<SearchResult> namingEnumeration = null;
+        try
+        {
+            SearchControls searchControls = new SearchControls( );
+
+            searchControls.setDerefLinkFlag( true );
+            searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            String filter = "(&(objectClass=" + getLdapGroupClass( ) + ")(" + groupNameAttribute + "=" + Rdn.escapeValue( groupName ) + "))";
+            // String filter = "(&(objectClass=" + getLdapGroupClass( ) + "))";
+            namingEnumeration = context.search(  getGroupsDn( ), filter, searchControls );
+
+            // We delete only the first found group
+            if ( namingEnumeration != null && namingEnumeration.hasMore( ) )
+            {
+                SearchResult result = namingEnumeration.next( );
+                String dn = result.getNameInNamespace( );
+                context.unbind( new LdapName( dn ) );
+                log.debug( "Deleted group with dn:'{}", dn );
+            }
+        }
+        finally
+        {
+            closeNamingEnumeration( namingEnumeration );
         }
     }
 
@@ -768,25 +799,24 @@ public class DefaultLdapRoleMapper
     {
 
         String groupName = findGroupName( roleName );
-
+        if (StringUtils.isEmpty( groupName )) {
+            log.warn( "No group for the given role found: role={}", roleName );
+            return;
+        }
         try
         {
 
-            String dn = "cn=" + groupName + "," + this.groupsDn;
-
-            context.unbind( dn );
-
-            log.info( "deleted group with dn:'{}", dn );
+            removeGroupByName( context, groupName );
 
         }
         catch ( LdapException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
 
         }
         catch ( NamingException e )
         {
-            throw new MappingException( e.getMessage(), e );
+            throw new MappingException( e.getMessage( ), e );
         }
     }
 
@@ -819,7 +849,7 @@ public class DefaultLdapRoleMapper
         this.ldapConnectionFactory = ldapConnectionFactory;
     }
 
-    public String getBaseDn()
+    public String getBaseDn( )
     {
         return baseDn;
     }
@@ -829,14 +859,14 @@ public class DefaultLdapRoleMapper
         this.baseDn = baseDn;
     }
 
-    public String getLdapGroupMember()
+    public String getLdapGroupMemberAttribute( )
     {
-        return ldapGroupMember;
+        return ldapGroupMemberAttribute;
     }
 
-    public void setLdapGroupMember( String ldapGroupMember )
+    public void setLdapGroupMemberAttribute( String ldapGroupMemberAttribute )
     {
-        this.ldapGroupMember = ldapGroupMember;
+        this.ldapGroupMemberAttribute = ldapGroupMemberAttribute;
     }
 
     //-------------------
@@ -846,20 +876,20 @@ public class DefaultLdapRoleMapper
     protected String findGroupName( String role )
         throws MappingException
     {
-        Map<String, Collection<String>> mapping = ldapRoleMapperConfiguration.getLdapGroupMappings();
+        Map<String, Collection<String>> mapping = ldapRoleMapperConfiguration.getLdapGroupMappings( );
 
-        for ( Map.Entry<String, Collection<String>> entry : mapping.entrySet() )
+        for ( Map.Entry<String, Collection<String>> entry : mapping.entrySet( ) )
         {
-            if ( entry.getValue().contains( role ) )
+            if ( entry.getValue( ).contains( role ) )
             {
-                return entry.getKey();
+                return entry.getKey( );
             }
         }
         return null;
     }
 
 
-    public String getUserIdAttribute()
+    public String getUserIdAttribute( )
     {
         return userIdAttribute;
     }
@@ -869,7 +899,7 @@ public class DefaultLdapRoleMapper
         this.userIdAttribute = userIdAttribute;
     }
 
-    public boolean isUseDefaultRoleName()
+    public boolean isUseDefaultRoleName( )
     {
         return useDefaultRoleName;
     }

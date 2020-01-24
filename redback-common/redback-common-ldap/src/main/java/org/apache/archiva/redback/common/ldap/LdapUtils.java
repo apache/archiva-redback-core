@@ -19,10 +19,14 @@ package org.apache.archiva.redback.common.ldap;
  * under the License.
  */
 
+import javax.naming.CompositeName;
+import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 /**
  * 
@@ -128,5 +132,44 @@ public final class LdapUtils
         }
 
         return null;
+    }
+
+    /**
+     * Returns a LDAP name from a given RDN string. The  <code>name</code> parameter must be a string
+     * representation of a composite name (as returned by ldapsearch result getName())
+     * @param name The string of the RDN (may be escaped)
+     * @return The LdapName that corresponds to this string
+     * @throws InvalidNameException If the string cannot be parsed as LDAP name
+     */
+    public static LdapName getLdapNameFromString(final String name) throws InvalidNameException
+    {
+        CompositeName coName = new CompositeName( name );
+        LdapName ldapName = new LdapName( "" );
+        ldapName.addAll( coName );
+        return ldapName;
+    }
+
+    /**
+     * Returns the first RDN value that matches the given type.
+     * E.g. for the RDN ou=People,dc=test,dc=de, and type dc it will return 'test'.
+     *
+     * @param name the ldap name
+     * @param type the type of the RDN entry
+     * @return
+     */
+    public static String findFirstRdnValue(LdapName name, String type) {
+        for ( Rdn rdn : name.getRdns() )
+        {
+            if ( rdn.getType( ).equals( type ) )
+            {
+                Object val = rdn.getValue( );
+                if (val!=null) {
+                    return val.toString( );
+                } else {
+                    return "";
+                }
+            }
+        }
+        return "";
     }
 }

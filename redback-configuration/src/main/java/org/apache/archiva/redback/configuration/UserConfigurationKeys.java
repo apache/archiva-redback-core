@@ -92,9 +92,13 @@ public interface UserConfigurationKeys
 
     String LDAP_GROUPS_USE_ROLENAME = "ldap.config.groups.use.rolename";
 
+    String LDAP_GROUPS_USE_DN_AS_MEMBER_VALUE = "ldap.config.groups.useDnAsMemberValue";
+
     String LDAP_WRITABLE = "ldap.config.writable";
 
     String LDAP_USER_ID_ATTRIBUTE = "ldap.config.user.attribute";
+
+    String LDAP_GROUP_NAME_ATTRIBUTE = "ldap.config.groups.name.attribute";
 
     String APPLICATION_URL = "application.url";
 
