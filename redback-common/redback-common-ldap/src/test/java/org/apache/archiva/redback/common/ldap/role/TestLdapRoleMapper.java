@@ -88,7 +88,7 @@ public class TestLdapRoleMapper
     LdapConnectionFactory ldapConnectionFactory;
 
     List<String> roleNames =
-        Arrays.asList( "Archiva System Administrator", "Internal Repo Manager", "Internal Repo Observer" );
+        Arrays.asList( "Archiva System Administrator", "Internal Repo Manager", "Internal Repo Observer", "Ldap Group Test Role" );
 
     LdapConnection ldapConnection;
 
@@ -109,6 +109,7 @@ public class TestLdapRoleMapper
         usersPerGroup.put( "internal-repo-manager", Arrays.asList( "admin", "user.9" ) );
         usersPerGroup.put( "internal-repo-observer", Arrays.asList( "admin", "user.7", "user.8" ) );
         usersPerGroup.put( "archiva-admin", Arrays.asList( "admin", "user.7" ) );
+        usersPerGroup.put( "archiva/group-with-slash", Arrays.asList( "user.8", "user.9" ) );
 
         users = new ArrayList<String>( 4 );
         users.add( "admin" );
@@ -161,7 +162,12 @@ public class TestLdapRoleMapper
 
         for ( Map.Entry<String, List<String>> group : usersPerGroup.entrySet() )
         {
-            context.unbind( createGroupDn( group.getKey() ) );
+            try
+            {
+                context.unbind( createGroupDn( group.getKey( ) ) );
+            } catch (Exception ex) {
+                // Ignore
+            }
         }
 
         context.unbind( suffix );
@@ -298,7 +304,7 @@ public class TestLdapRoleMapper
 
         log.info( "allGroups: {}", allGroups );
 
-        assertThat( allGroups ).isNotNull().isNotEmpty().contains( "archiva-admin",
+        assertThat( allGroups ).isNotNull().isNotEmpty().contains( "archiva/group-with-slash", "archiva-admin",
                                                                               "internal-repo-manager" );
     }
 
@@ -331,7 +337,7 @@ public class TestLdapRoleMapper
 
         groups = ldapRoleMapper.getGroups( "user.8", getDirContext() );
 
-        assertThat( groups ).isNotNull().isNotEmpty().hasSize( 1 ).contains( "internal-repo-observer" );
+        assertThat( groups ).isNotNull().isNotEmpty().hasSize( 2 ).contains( "internal-repo-observer", "archiva/group-with-slash" );
 
         groups = ldapRoleMapper.getGroups( "user.7", getDirContext() );
 
@@ -362,7 +368,7 @@ public class TestLdapRoleMapper
 
         log.info( "roles for user.8: {}", roles );
 
-        assertThat( roles ).isNotNull().isNotEmpty().hasSize( 1 ).contains( "Internal Repo Observer" );
+        assertThat( roles ).isNotNull().isNotEmpty().hasSize( 2 ).contains( "Internal Repo Observer" );
 
     }
 
@@ -380,5 +386,19 @@ public class TestLdapRoleMapper
         assertFalse( ldapRoleMapper.hasRole( getDirContext(), "Australian wine is good but not as French! " ) );
     }
 
+    @Test
+    public void removeRole() throws Exception
+    {
+        assertTrue( ldapRoleMapper.getAllGroups( getDirContext( ) ).contains( "archiva-admin" ) );
+        ldapRoleMapper.removeRole( "Archiva System Administrator", getDirContext() );
+        assertFalse( ldapRoleMapper.getAllGroups( getDirContext( ) ).contains( "archiva-admin" ) );
+    }
 
+    @Test
+    public void removeAllRoles() throws Exception
+    {
+        assertEquals( 4, ldapRoleMapper.getAllGroups( getDirContext( ) ).size() );
+        ldapRoleMapper.removeAllRoles( getDirContext() );
+        assertEquals( 0, ldapRoleMapper.getAllGroups( getDirContext( ) ).size() );
+    }
 }
