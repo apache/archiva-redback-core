@@ -43,7 +43,9 @@ pipeline {
     triggers { 
         upstream(upstreamProjects: 'Archiva-TLP-Gitbox/archiva-parent/archiva-2.x', threshold: hudson.model.Result.SUCCESS) 
     }
-
+    parameters {
+        string(name: 'THREADS', defaultValue: '1', description: 'Number of threads for the mvn build (-T option). Must be a integer value>0.')
+    }
     options {
         disableConcurrentBuilds()
         durabilityHint('PERFORMANCE_OPTIMIZED')
@@ -57,10 +59,10 @@ pipeline {
                 script{
                     if (env.NONAPACHEORG_RUN != 'y' && ( env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'redback-2.6.x' ) )
                     {
-                        asfStandardBuild.mavenBuild( buildJdk, "clean deploy -U -fae -T3", mavenVersion,
+                        asfStandardBuild.mavenBuild( buildJdk, "clean deploy -U -fae -T${THREADS}", mavenVersion,
                                                      defaultPublishers )
                     } else {
-                        asfStandardBuild.mavenBuild( buildJdk, "clean install -U -fae -T3", mavenVersion,
+                        asfStandardBuild.mavenBuild( buildJdk, "clean install -U -fae -T${THREADS}", mavenVersion,
                                                      defaultPublishers )
                     }
                 }
