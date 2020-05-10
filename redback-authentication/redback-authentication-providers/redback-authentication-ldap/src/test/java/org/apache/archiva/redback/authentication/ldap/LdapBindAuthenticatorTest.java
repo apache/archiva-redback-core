@@ -137,6 +137,17 @@ public class LdapBindAuthenticatorTest
         assertTrue( result.isAuthenticated() );
     }
 
+    @Test
+    public void testAuthenticationWithInvalidChar()
+        throws Exception
+    {
+        PasswordBasedAuthenticationDataSource authDs = new PasswordBasedAuthenticationDataSource();
+        authDs.setPrincipal( "jesse)(mail=foo" );
+        authDs.setPassword( passwordEncoder.encodePassword( "foo" ) );
+        AuthenticationResult result = authnr.authenticate( authDs );
+        assertFalse( result.isAuthenticated() );
+    }
+
     // REDBACK-289/MRM-1488
     @Test
     public void testAuthenticationFromCache()

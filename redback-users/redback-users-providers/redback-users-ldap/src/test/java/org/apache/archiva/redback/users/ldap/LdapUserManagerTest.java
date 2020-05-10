@@ -234,6 +234,21 @@ public class LdapUserManagerTest
     }
 
     @Test
+    public void testUserWithInvalidChars()
+        throws Exception
+    {
+        try
+        {
+            userManager.findUser( "jesse)(mail=jesse@apache.org" );
+            fail( "UserNotFoundException should be thrown, if invalid filter chars are in the username" );
+        }
+        catch ( UserNotFoundException e )
+        {
+            // cool it works !
+        }
+    }
+
+    @Test
     public void testWithManyUsers()
         throws Exception
     {
