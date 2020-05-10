@@ -19,6 +19,7 @@ package org.apache.archiva.redback.users.ldap;
  * under the License.
  */
 
+import org.apache.archiva.redback.common.ldap.LdapUtils;
 import org.apache.archiva.redback.common.ldap.user.UserMapper;
 import org.apache.archiva.redback.users.AbstractUserQuery;
 
@@ -49,13 +50,13 @@ public class LdapUserQuery
         String filter = "";
         if (this.getEmail() != null )
         {
-            filter += "(" + mapper.getEmailAddressAttribute() + "=" + this.getEmail() + ")";
+            filter += "(" + mapper.getEmailAddressAttribute() + "=" + LdapUtils.encodeFilterValue( this.getEmail() ) + ")";
         }
         if ( this.getFullName() != null )
         {
-            filter += "(" + mapper.getUserFullNameAttribute() + "=" + this.getFullName() + ")";
+            filter += "(" + mapper.getUserFullNameAttribute() + "=" + LdapUtils.encodeFilterValue( this.getFullName() ) + ")";
         }
-        filter += "(" + mapper.getUserIdAttribute() + "=" + ( this.getUsername() != null ? this.getUsername() : "*" ) + ")";
+        filter += "(" + mapper.getUserIdAttribute() + "=" + ( this.getUsername() != null ? LdapUtils.encodeFilterValue( this.getUsername() ) : "*" ) + ")";
         
         return filter;
     }

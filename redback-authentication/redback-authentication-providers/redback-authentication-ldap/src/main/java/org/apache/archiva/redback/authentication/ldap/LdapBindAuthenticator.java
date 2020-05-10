@@ -20,6 +20,7 @@ package org.apache.archiva.redback.authentication.ldap;
  */
 
 import org.apache.archiva.redback.authentication.AbstractAuthenticator;
+import org.apache.archiva.redback.common.ldap.LdapUtils;
 import org.apache.archiva.redback.common.ldap.connection.DefaultLdapConnection;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnection;
 import org.apache.archiva.redback.common.ldap.user.UserMapper;
@@ -100,7 +101,7 @@ public class LdapBindAuthenticator
 
         String filter = "(&(objectClass=" + mapper.getUserObjectClass() + ")" + ( mapper.getUserFilter() != null
             ? mapper.getUserFilter()
-            : "" ) + "(" + mapper.getUserIdAttribute() + "=" + source.getUsername() + "))";
+            : "" ) + "(" + mapper.getUserIdAttribute() + "=" + LdapUtils.encodeFilterValue( source.getUsername() ) + "))";
 
         log.debug( "Searching for users with filter: '{}' from base dn: {}", filter, mapper.getUserBaseDn() );
 
