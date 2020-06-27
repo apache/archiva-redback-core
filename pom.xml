@@ -72,19 +72,9 @@
   </distributionManagement>
 
   <properties>
-    <springVersion>4.3.10.RELEASE</springVersion>
-    <commons-collections.version>4.1</commons-collections.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <gpg.useagent>true</gpg.useagent>
-
-    <cxf.version>3.2.11</cxf.version>
-    <jackson.version>2.9.10</jackson.version>
-    <javax.ws.rs.version>2.1.1</javax.ws.rs.version>
-
-    <junit.platform.version>1.5.2</junit.platform.version>
-    <junit.jupiter.version>5.5.2</junit.jupiter.version>
-    <junit.4.version>4.12</junit.4.version>
 
     <!--
     <redbackTestJdbcUrl>jdbc:derby:memory:users-test;create=true</redbackTestJdbcUrl>
@@ -101,8 +91,6 @@
     <scmPublishPath>/redback/core/${project.version}</scmPublishPath>
     <!-- The git repository, where the site content is placed -->
     <siteRepositoryUrl>scm:git:https://gitbox.apache.org/repos/asf/archiva-web-content.git</siteRepositoryUrl>
-
-    <javax.servlet.version>4.0.1</javax.servlet.version>
 
   </properties>
 
@@ -410,7 +398,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-collections4</artifactId>
-        <version>${commons-collections.version}</version>
+        <version>${commons.collections.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -446,27 +434,27 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
-        <version>${springVersion}</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-aop</artifactId>
-        <version>${springVersion}</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-web</artifactId>
-        <version>${springVersion}</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
-        <version>${springVersion}</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>${springVersion}</version>
+        <version>${spring.version}</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -477,27 +465,27 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context-support</artifactId>
-        <version>${springVersion}</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-expression</artifactId>
-        <version>${springVersion}</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
-        <version>${springVersion}</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-tx</artifactId>
-        <version>${springVersion}</version>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-orm</artifactId>
-        <version>${springVersion}</version>
+        <version>${spring.version}</version>
       </dependency>
 
       <dependency>
@@ -509,11 +497,6 @@
         <groupId>org.apache.archiva.redback</groupId>
         <artifactId>redback-rest-services</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>13.0.1</version>
       </dependency>
       <!--
       using apacheds client api rather than com.sun.jndi.ldap
@@ -537,16 +520,11 @@
         <version>1.4</version>
       </dependency>
       -->
-      <dependency>
-        <groupId>javax.xml.stream</groupId>
-        <artifactId>stax-api</artifactId>
-        <version>1.0-2</version>
-      </dependency>
 
       <dependency>
         <groupId>javax.ws.rs</groupId>
         <artifactId>javax.ws.rs-api</artifactId>
-        <version>${javax.ws.rs.version}</version>
+        <version>${javax.jaxrs.version}</version>
         <scope>provided</scope>
       </dependency>
 
@@ -607,7 +585,7 @@
       <dependency>
         <groupId>javax.mail</groupId>
         <artifactId>mail</artifactId>
-        <version>1.4</version>
+        <version>${javax.mail.version}</version>
         <scope>provided</scope>
       </dependency>
 
@@ -642,18 +620,11 @@
         <version>${junit.jupiter.version}</version>
         <scope>test</scope>
       </dependency>
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit.4.version}</version>
-        <scope>test</scope>
-      </dependency>
-
 
       <dependency>
         <groupId>xmlunit</groupId>
         <artifactId>xmlunit</artifactId>
-        <version>1.3</version>
+        <version>${xmlunit.version}</version>
       </dependency>
       <dependency>
         <groupId>org.assertj</groupId>
