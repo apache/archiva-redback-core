@@ -30,9 +30,7 @@
   <context:property-placeholder system-properties-mode="OVERRIDE"/>
 
   <bean name="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-    <property name="jpaVendorAdapter" >
-      <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter" />
-    </property>
+
     <property name="persistenceXmlLocation" value="classpath:META-INF/persistence-hsqldb.xml" />
     <property name="jpaPropertyMap">
       <map>
