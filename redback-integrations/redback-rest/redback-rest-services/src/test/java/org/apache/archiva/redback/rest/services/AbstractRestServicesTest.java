@@ -161,7 +161,7 @@ public abstract class AbstractRestServicesTest
         adminUser.setPassword( FakeCreateAdminServiceImpl.ADMIN_TEST_PWD );
         adminUser.setFullName( "the admin user" );
         adminUser.setEmail( "toto@toto.fr" );
-        Boolean res = userService.createAdminUser( adminUser );
+        Boolean res = userService.createAdminUser( adminUser ).isSuccess();
 
         FakeCreateAdminService fakeCreateAdminService = getFakeCreateAdminService();
         //assertTrue( res.booleanValue() );

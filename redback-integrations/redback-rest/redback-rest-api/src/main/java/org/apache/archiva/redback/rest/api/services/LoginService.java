@@ -20,7 +20,11 @@ package org.apache.archiva.redback.rest.api.services;
  */
 
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
+import org.apache.archiva.redback.keys.AuthenticationKey;
+import org.apache.archiva.redback.rest.api.model.ActionStatus;
+import org.apache.archiva.redback.rest.api.model.AuthenticationKeyResult;
 import org.apache.archiva.redback.rest.api.model.LoginRequest;
+import org.apache.archiva.redback.rest.api.model.PingResult;
 import org.apache.archiva.redback.rest.api.model.User;
 
 import javax.ws.rs.GET;
@@ -38,9 +42,9 @@ public interface LoginService
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
     @RedbackAuthorization( noRestriction = true )
-    String addAuthenticationKey( @QueryParam( "providerKey" ) String providedKey,
-                                 @QueryParam( "principal" ) String principal, @QueryParam( "purpose" ) String purpose,
-                                 @QueryParam( "expirationMinutes" ) int expirationMinutes )
+    AuthenticationKeyResult addAuthenticationKey( @QueryParam( "providerKey" ) String providedKey,
+                                                  @QueryParam( "principal" ) String principal, @QueryParam( "purpose" ) String purpose,
+                                                  @QueryParam( "expirationMinutes" ) int expirationMinutes )
         throws RedbackServiceException;
 
 
@@ -48,7 +52,7 @@ public interface LoginService
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
     @RedbackAuthorization( noRestriction = true )
-    Boolean ping()
+    PingResult ping()
         throws RedbackServiceException;
 
 
@@ -56,7 +60,7 @@ public interface LoginService
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
     @RedbackAuthorization( noRestriction = false, noPermission = true )
-    Boolean pingWithAutz()
+    PingResult pingWithAutz()
         throws RedbackServiceException;
 
     /**
@@ -89,6 +93,6 @@ public interface LoginService
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
-    Boolean logout()
+    ActionStatus logout()
         throws RedbackServiceException;
 }

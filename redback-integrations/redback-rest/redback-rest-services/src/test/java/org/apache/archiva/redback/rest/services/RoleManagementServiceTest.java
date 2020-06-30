@@ -49,8 +49,8 @@ public class RoleManagementServiceTest
     public void roleExist()
         throws Exception
     {
-        assertTrue( getRoleManagementService( authorizationHeader ).roleExists( "guest" ) );
-        assertFalse( getRoleManagementService( authorizationHeader ).roleExists( "foo" ) );
+        assertTrue( getRoleManagementService( authorizationHeader ).roleExists( "guest" ).isExists() );
+        assertFalse( getRoleManagementService( authorizationHeader ).roleExists( "foo" ).isExists() );
     }
 
     @Test( expected = ForbiddenException.class )
@@ -59,7 +59,7 @@ public class RoleManagementServiceTest
     {
         try
         {
-            assertTrue( getRoleManagementService( null ).roleExists( "guest" ) );
+            assertTrue( getRoleManagementService( null ).roleExists( "guest" ).isExists() );
         }
         catch ( ForbiddenException e )
         {

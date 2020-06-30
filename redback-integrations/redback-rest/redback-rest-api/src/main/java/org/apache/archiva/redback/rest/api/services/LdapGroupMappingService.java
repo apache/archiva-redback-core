@@ -18,8 +18,10 @@ package org.apache.archiva.redback.rest.api.services;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
+import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.LdapGroupMapping;
 import org.apache.archiva.redback.rest.api.model.LdapGroupMappingUpdateRequest;
 import org.apache.archiva.redback.rest.api.model.StringList;
@@ -40,6 +42,7 @@ import java.util.List;
  * @since 2.1
  */
 @Path("/ldapGroupMappingService/")
+@Tag( name = "LDAP", description = "LDAP Service" )
 public interface LdapGroupMappingService
 {
     @Path("ldapGroups")
@@ -61,7 +64,7 @@ public interface LdapGroupMappingService
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @RedbackAuthorization(permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION)
-    Boolean addLdapGroupMapping( LdapGroupMapping ldapGroupMapping )
+    ActionStatus addLdapGroupMapping( LdapGroupMapping ldapGroupMapping )
         throws RedbackServiceException;
 
     @DELETE
@@ -69,14 +72,14 @@ public interface LdapGroupMappingService
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @RedbackAuthorization(permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION)
-    Boolean removeLdapGroupMapping( @PathParam("group") String group )
+    ActionStatus removeLdapGroupMapping( @PathParam("group") String group )
         throws RedbackServiceException;
 
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @RedbackAuthorization(permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION)
-    Boolean updateLdapGroupMapping( LdapGroupMappingUpdateRequest ldapGroupMappingUpdateRequest )
+    ActionStatus updateLdapGroupMapping( LdapGroupMappingUpdateRequest ldapGroupMappingUpdateRequest )
         throws RedbackServiceException;
 
 }

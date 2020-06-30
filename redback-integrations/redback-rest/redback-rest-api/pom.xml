@@ -71,7 +71,28 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
+
+
+
+
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>target/generated</exclude>
+            <exclude>src/main/resources/templates/*</exclude>
+            <exclude>src/main/resources/openapi-codegen-ignore</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
 
   <!--
   The jaxb dependency is needed by the enunciate plugin starting with JDK9.

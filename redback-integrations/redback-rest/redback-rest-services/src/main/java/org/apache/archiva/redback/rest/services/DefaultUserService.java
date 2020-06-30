@@ -39,14 +39,19 @@ import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.UserAssignment;
+import org.apache.archiva.redback.rest.api.model.ActionStatus;
+import org.apache.archiva.redback.rest.api.model.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Operation;
+import org.apache.archiva.redback.rest.api.model.PasswordStatus;
 import org.apache.archiva.redback.rest.api.model.Permission;
+import org.apache.archiva.redback.rest.api.model.PingResult;
 import org.apache.archiva.redback.rest.api.model.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.Resource;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.UserRegistrationRequest;
+import org.apache.archiva.redback.rest.api.model.VerificationStatus;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.archiva.redback.rest.services.utils.PasswordValidator;
@@ -141,7 +146,8 @@ public class DefaultUserService
     }
 
 
-    public Boolean createUser( User user )
+    @Override
+    public ActionStatus createUser( User user )
         throws RedbackServiceException
     {
 
@@ -216,10 +222,11 @@ public class DefaultUserService
         {
             throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean deleteUser( String username )
+    @Override
+    public ActionStatus deleteUser( String username )
         throws RedbackServiceException
     {
 
@@ -241,7 +248,7 @@ public class DefaultUserService
         try
         {
             userManager.deleteUser( username );
-            return Boolean.TRUE;
+            return ActionStatus.SUCCESS;
         }
         catch ( UserNotFoundException e )
         {
@@ -259,6 +266,7 @@ public class DefaultUserService
     }
 
 
+    @Override
     public User getUser( String username )
         throws RedbackServiceException
     {
@@ -277,6 +285,7 @@ public class DefaultUserService
         }
     }
 
+    @Override
     public List<User> getUsers()
         throws RedbackServiceException
     {
@@ -298,7 +307,8 @@ public class DefaultUserService
         }
     }
 
-    public Boolean updateMe( User user )
+    @Override
+    public ActionStatus updateMe( User user )
         throws RedbackServiceException
     {
         // check username == one in the session
@@ -365,10 +375,11 @@ public class DefaultUserService
 
         updateUser( realUser );
 
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean updateUser( User user )
+    @Override
+    public ActionStatus updateUser( User user )
         throws RedbackServiceException
     {
         try
@@ -383,7 +394,7 @@ public class DefaultUserService
             rawUser.setPermanent( user.isPermanent() );
 
             userManager.updateUser( rawUser );
-            return Boolean.TRUE;
+            return ActionStatus.SUCCESS;
         }
         catch ( UserNotFoundException e )
         {
@@ -395,7 +406,8 @@ public class DefaultUserService
         }
     }
 
-    public int removeFromCache( String userName )
+    @Override
+    public ActionStatus removeFromCache( String userName )
         throws RedbackServiceException
     {
         if ( userAssignmentsCache != null )
@@ -421,9 +433,10 @@ public class DefaultUserService
             }
         }
 
-        return 0;
+        return ActionStatus.SUCCESS;
     }
 
+    @Override
     public User getGuestUser()
         throws RedbackServiceException
     {
@@ -438,6 +451,7 @@ public class DefaultUserService
         }
     }
 
+    @Override
     public User createGuestUser()
         throws RedbackServiceException
     {
@@ -475,10 +489,11 @@ public class DefaultUserService
         }
     }
 
-    public Boolean ping()
+    @Override
+    public PingResult ping()
         throws RedbackServiceException
     {
-        return Boolean.TRUE;
+        return new PingResult( true );
     }
 
     private User getSimpleUser( org.apache.archiva.redback.users.User user )
@@ -490,12 +505,13 @@ public class DefaultUserService
         return new User( user );
     }
 
-    public Boolean createAdminUser( User adminUser )
+    @Override
+    public ActionStatus createAdminUser( User adminUser )
         throws RedbackServiceException
     {
-        if ( isAdminUserExists() )
+        if ( isAdminUserExists().isExists() )
         {
-            return Boolean.FALSE;
+            return ActionStatus.FAIL;
         }
         log.debug("Creating admin admin user '{}'", adminUser.getUsername());
         if (!RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME.equals(adminUser.getUsername())) {
@@ -526,16 +542,17 @@ public class DefaultUserService
         {
             throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean isAdminUserExists()
+    @Override
+    public AvailabilityStatus isAdminUserExists()
         throws RedbackServiceException
     {
         try
         {
             userManager.findUser( config.getString( UserConfigurationKeys.DEFAULT_ADMIN ) );
-            return Boolean.TRUE;
+            return new AvailabilityStatus( true );
         }
         catch ( UserNotFoundException e )
         {
@@ -547,14 +564,15 @@ public class DefaultUserService
 
             if ( cause != null && cause instanceof UserNotFoundException )
             {
-                return Boolean.FALSE;
+                return new AvailabilityStatus( false );
             }
             throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
         }
-        return Boolean.FALSE;
+        return new AvailabilityStatus( false );
     }
 
-    public Boolean resetPassword( ResetPasswordRequest resetPasswordRequest )
+    @Override
+    public ActionStatus resetPassword( ResetPasswordRequest resetPasswordRequest )
         throws RedbackServiceException
     {
         String username = resetPasswordRequest.getUsername();
@@ -598,9 +616,10 @@ public class DefaultUserService
             throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
         }
 
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
+    @Override
     public RegistrationKey registerUser( UserRegistrationRequest userRegistrationRequest )
         throws RedbackServiceException
     {
@@ -715,7 +734,8 @@ public class DefaultUserService
 
     }
 
-    public Boolean validateUserFromKey( String key )
+    @Override
+    public VerificationStatus validateUserFromKey( String key )
         throws RedbackServiceException
     {
         String principal = null;
@@ -744,7 +764,7 @@ public class DefaultUserService
 
             log.info( "account validated for user {}", user.getUsername() );
 
-            return Boolean.TRUE;
+            return new VerificationStatus( true );
         }
         catch ( MustChangePasswordException | AccountLockedException | AuthenticationException e )
         {
@@ -771,6 +791,7 @@ public class DefaultUserService
         }
     }
 
+    @Override
     public Collection<Permission> getCurrentUserPermissions()
         throws RedbackServiceException
     {
@@ -788,6 +809,7 @@ public class DefaultUserService
         return getUserPermissions( userName );
     }
 
+    @Override
     public Collection<Operation> getCurrentUserOperations()
         throws RedbackServiceException
     {
@@ -805,6 +827,7 @@ public class DefaultUserService
         return getUserOperations( userName );
     }
 
+    @Override
     public Collection<Operation> getUserOperations( String userName )
         throws RedbackServiceException
     {
@@ -822,6 +845,7 @@ public class DefaultUserService
         return operations;
     }
 
+    @Override
     public Collection<Permission> getUserPermissions( String userName )
         throws RedbackServiceException
     {
@@ -950,7 +974,8 @@ public class DefaultUserService
         return null;
     }
 
-    public Boolean unlockUser( String username )
+    @Override
+    public ActionStatus unlockUser( String username )
         throws RedbackServiceException
     {
         User user = getUser( username );
@@ -958,12 +983,13 @@ public class DefaultUserService
         {
             user.setLocked( false );
             updateUser( user );
-            return Boolean.TRUE;
+            return ActionStatus.SUCCESS;
         }
-        return Boolean.FALSE;
+        return ActionStatus.FAIL;
     }
 
-    public Boolean lockUser( String username )
+    @Override
+    public ActionStatus lockUser( String username )
         throws RedbackServiceException
     {
         User user = getUser( username );
@@ -971,12 +997,13 @@ public class DefaultUserService
         {
             user.setLocked( true );
             updateUser( user );
-            return Boolean.TRUE;
+            return ActionStatus.SUCCESS;
         }
-        return Boolean.FALSE;
+        return ActionStatus.FAIL;
     }
 
-    public Boolean passwordChangeRequired( String username )
+    @Override
+    public PasswordStatus passwordChangeRequired( String username )
         throws RedbackServiceException
     {
         User user = getUser( username );
@@ -984,21 +1011,9 @@ public class DefaultUserService
         {
             user.setPasswordChangeRequired( true );
             updateUser( user );
-            return Boolean.TRUE;
+            return new PasswordStatus( true );
         }
-        return Boolean.FALSE;
+        return new PasswordStatus( false );
     }
 
-    public Boolean passwordChangeNotRequired( String username )
-        throws RedbackServiceException
-    {
-        User user = getUser( username );
-        if ( user == null )
-        {
-            user.setPasswordChangeRequired( false );
-            updateUser( user );
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
-    }
 }

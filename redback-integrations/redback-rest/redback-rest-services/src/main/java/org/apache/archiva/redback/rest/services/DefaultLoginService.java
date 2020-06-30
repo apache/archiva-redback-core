@@ -32,8 +32,11 @@ import org.apache.archiva.redback.keys.memory.MemoryAuthenticationKey;
 import org.apache.archiva.redback.keys.memory.MemoryKeyManager;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
+import org.apache.archiva.redback.rest.api.model.ActionStatus;
+import org.apache.archiva.redback.rest.api.model.AuthenticationKeyResult;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.LoginRequest;
+import org.apache.archiva.redback.rest.api.model.PingResult;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.services.LoginService;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
@@ -87,7 +90,7 @@ public class DefaultLoginService
     }
 
 
-    public String addAuthenticationKey( String providedKey, String principal, String purpose, int expirationMinutes )
+    public AuthenticationKeyResult addAuthenticationKey( String providedKey, String principal, String purpose, int expirationMinutes )
         throws RedbackServiceException
     {
         KeyManager keyManager = securitySystem.getKeyManager();
@@ -118,19 +121,19 @@ public class DefaultLoginService
 
         keyManager.addKey( key );
 
-        return key.getKey();
+        return new AuthenticationKeyResult( key.getKey( ) );
     }
 
-    public Boolean ping()
+    public PingResult ping()
         throws RedbackServiceException
     {
-        return Boolean.TRUE;
+        return new PingResult( true);
     }
 
-    public Boolean pingWithAutz()
+    public PingResult pingWithAutz()
         throws RedbackServiceException
     {
-        return Boolean.TRUE;
+        return new PingResult( true );
     }
 
     public User logIn( LoginRequest loginRequest )
@@ -220,7 +223,7 @@ public class DefaultLoginService
         return isLogged && securitySession.getUser() != null ? buildRestUser( securitySession.getUser() ) : null;
     }
 
-    public Boolean logout()
+    public ActionStatus logout()
         throws RedbackServiceException
     {
         HttpSession httpSession = httpServletRequest.getSession();
@@ -228,7 +231,7 @@ public class DefaultLoginService
         {
             httpSession.invalidate();
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
     private Calendar getNowGMT()

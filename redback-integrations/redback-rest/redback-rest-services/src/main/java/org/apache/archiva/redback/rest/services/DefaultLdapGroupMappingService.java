@@ -24,6 +24,7 @@ import org.apache.archiva.redback.common.ldap.connection.LdapConnectionFactory;
 import org.apache.archiva.redback.common.ldap.connection.LdapException;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapper;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapperConfiguration;
+import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.LdapGroupMapping;
 import org.apache.archiva.redback.rest.api.model.LdapGroupMappingUpdateRequest;
 import org.apache.archiva.redback.rest.api.model.StringList;
@@ -111,7 +112,7 @@ public class DefaultLdapGroupMappingService
         }
     }
 
-    public Boolean addLdapGroupMapping( LdapGroupMapping ldapGroupMapping )
+    public ActionStatus addLdapGroupMapping( LdapGroupMapping ldapGroupMapping )
         throws RedbackServiceException
     {
         try
@@ -124,10 +125,10 @@ public class DefaultLdapGroupMappingService
             log.error( e.getMessage(), e );
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean removeLdapGroupMapping( String group )
+    public ActionStatus removeLdapGroupMapping( String group )
         throws RedbackServiceException
     {
         try
@@ -139,10 +140,10 @@ public class DefaultLdapGroupMappingService
             log.error( e.getMessage(), e );
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean updateLdapGroupMapping( LdapGroupMappingUpdateRequest ldapGroupMappingUpdateRequest )
+    public ActionStatus updateLdapGroupMapping( LdapGroupMappingUpdateRequest ldapGroupMappingUpdateRequest )
         throws RedbackServiceException
     {
         try
@@ -158,7 +159,7 @@ public class DefaultLdapGroupMappingService
             log.error( e.getMessage(), e );
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
     //------------------

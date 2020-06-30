@@ -26,11 +26,14 @@ import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.Resource;
 import org.apache.archiva.redback.rbac.UserAssignment;
+import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Application;
 import org.apache.archiva.redback.rest.api.model.ApplicationRoles;
+import org.apache.archiva.redback.rest.api.model.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Role;
 import org.apache.archiva.redback.rest.api.model.RoleTemplate;
+import org.apache.archiva.redback.rest.api.model.VerificationStatus;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.apache.archiva.redback.role.RoleManager;
@@ -90,7 +93,7 @@ public class DefaultRoleManagementService
         log.debug( "use userManager impl: {}", userManager.getClass().getName() );
     }
 
-    public Boolean createTemplatedRole( String templateId, String resource )
+    public ActionStatus createTemplatedRole( String templateId, String resource )
         throws RedbackServiceException
     {
         try
@@ -101,10 +104,10 @@ public class DefaultRoleManagementService
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean removeTemplatedRole( String templateId, String resource )
+    public ActionStatus removeTemplatedRole( String templateId, String resource )
         throws RedbackServiceException
     {
 
@@ -116,10 +119,10 @@ public class DefaultRoleManagementService
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean updateRole( String templateId, String oldResource, String newResource )
+    public ActionStatus updateRole( String templateId, String oldResource, String newResource )
         throws RedbackServiceException
     {
         try
@@ -130,10 +133,10 @@ public class DefaultRoleManagementService
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean assignRole( String roleId, String principal )
+    public ActionStatus assignRole( String roleId, String principal )
         throws RedbackServiceException
     {
         try
@@ -144,10 +147,10 @@ public class DefaultRoleManagementService
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean assignRoleByName( String roleName, String principal )
+    public ActionStatus assignRoleByName( String roleName, String principal )
         throws RedbackServiceException
     {
         try
@@ -158,10 +161,10 @@ public class DefaultRoleManagementService
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean assignTemplatedRole( String templateId, String resource, String principal )
+    public ActionStatus assignTemplatedRole( String templateId, String resource, String principal )
         throws RedbackServiceException
     {
         try
@@ -172,10 +175,10 @@ public class DefaultRoleManagementService
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean unassignRole( String roleId, String principal )
+    public ActionStatus unassignRole( String roleId, String principal )
         throws RedbackServiceException
     {
         try
@@ -186,10 +189,10 @@ public class DefaultRoleManagementService
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean unassignRoleByName( String roleName, String principal )
+    public ActionStatus unassignRoleByName( String roleName, String principal )
         throws RedbackServiceException
     {
         try
@@ -200,15 +203,15 @@ public class DefaultRoleManagementService
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean roleExists( String roleId )
+    public AvailabilityStatus roleExists( String roleId )
         throws RedbackServiceException
     {
         try
         {
-            return roleManager.roleExists( roleId );
+            return new AvailabilityStatus( roleManager.roleExists( roleId ) );
         }
         catch ( RoleManagerException e )
         {
@@ -216,12 +219,12 @@ public class DefaultRoleManagementService
         }
     }
 
-    public Boolean templatedRoleExists( String templateId, String resource )
+    public AvailabilityStatus templatedRoleExists( String templateId, String resource )
         throws RedbackServiceException
     {
         try
         {
-            return roleManager.templatedRoleExists( templateId, resource );
+            return new AvailabilityStatus( roleManager.templatedRoleExists( templateId, resource ) );
         }
         catch ( RoleManagerException e )
         {
@@ -230,7 +233,7 @@ public class DefaultRoleManagementService
 
     }
 
-    public Boolean verifyTemplatedRole( String templateId, String resource )
+    public VerificationStatus verifyTemplatedRole( String templateId, String resource )
         throws RedbackServiceException
     {
         try
@@ -241,7 +244,7 @@ public class DefaultRoleManagementService
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return Boolean.TRUE;
+        return new VerificationStatus( true );
     }
 
     public List<Role> getEffectivelyAssignedRoles( String username )
@@ -460,7 +463,7 @@ public class DefaultRoleManagementService
         }
     }
 
-    public Boolean updateRoleDescription( String roleName, String description )
+    public ActionStatus updateRoleDescription( String roleName, String description )
         throws RedbackServiceException
     {
         try
@@ -473,10 +476,10 @@ public class DefaultRoleManagementService
         {
             throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
         }
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
-    public Boolean updateRoleUsers( Role role )
+    public ActionStatus updateRoleUsers( Role role )
         throws RedbackServiceException
     {
 
@@ -562,7 +565,7 @@ public class DefaultRoleManagementService
             }
         }
 
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
     }
 
     public List<ApplicationRoles> getApplicationRoles( String username )
@@ -671,7 +674,7 @@ public class DefaultRoleManagementService
         }
     }
 
-    public Boolean updateUserRoles( org.apache.archiva.redback.rest.api.model.User user )
+    public ActionStatus updateUserRoles( org.apache.archiva.redback.rest.api.model.User user )
         throws RedbackServiceException
     {
 
@@ -736,7 +739,7 @@ public class DefaultRoleManagementService
             throw redbackServiceException;
         }
 
-        return Boolean.TRUE;
+        return ActionStatus.SUCCESS;
 
     }
 
