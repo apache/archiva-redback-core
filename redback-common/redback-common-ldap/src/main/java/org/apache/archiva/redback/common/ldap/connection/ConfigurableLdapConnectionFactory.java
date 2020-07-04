@@ -72,6 +72,10 @@ public class ConfigurableLdapConnectionFactory
     @Named(value = "userConfiguration#default")
     private UserConfiguration userConf;
 
+    public ConfigurableLdapConnectionFactory() {
+
+    }
+
     // ----------------------------------------------------------------------
     // Component Lifecycle
     // ----------------------------------------------------------------------

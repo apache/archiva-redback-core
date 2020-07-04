@@ -22,6 +22,7 @@ package org.apache.archiva.redback.authentication.ldap;
 import junit.framework.TestCase;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
 import org.apache.archiva.redback.authentication.PasswordBasedAuthenticationDataSource;
+import org.apache.archiva.redback.common.ldap.connection.LdapException;
 import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.apache.archiva.redback.policy.encoders.SHA1PasswordEncoder;
 import org.apache.archiva.redback.users.ldap.service.LdapCacheService;
@@ -210,6 +211,11 @@ public class LdapBindAuthenticatorTest
         attributes.put( "mail", "foo" );
         attributes.put( "userPassword", passwordEncoder.encodePassword( "foo" ) );
         attributes.put( "givenName", "foo" );
+        try {
+            context.destroySubcontext( dn );
+        } catch ( Exception e ) {
+            //
+        }
         context.createSubcontext( dn, attributes );
     }
 
