@@ -180,7 +180,7 @@ public class LdapUserMapper
         return null;
     }
 
-    public LdapUser getUser( Attributes attributes )
+    public LdapUser getUser( String dn, Attributes attributes )
         throws MappingException
     {
         String userIdAttribute = getUserIdAttribute();
@@ -191,6 +191,7 @@ public class LdapUserMapper
         String userId = LdapUtils.getAttributeValue( attributes, userIdAttribute, "username" );
 
         LdapUser user = new LdapUser( userId );
+        user.setDn( dn );
         user.setOriginalAttributes( attributes );
 
         user.setEmail( LdapUtils.getAttributeValue( attributes, emailAddressAttribute, "email address" ) );

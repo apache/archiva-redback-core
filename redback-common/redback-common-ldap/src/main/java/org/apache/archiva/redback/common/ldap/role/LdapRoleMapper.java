@@ -43,6 +43,14 @@ public interface LdapRoleMapper
         throws MappingException;
 
     /**
+     * read all groups from ldap
+     *
+     * @return all LDAP groups
+     */
+    List<LdapGroup> getAllGroupObjects( DirContext context )
+        throws MappingException;
+
+    /**
      * read all ldap groups then map to corresponding role (if no mapping found group is ignored)
      *
      * @return all roles
@@ -74,6 +82,9 @@ public interface LdapRoleMapper
         throws MappingException;
 
     List<String> getGroups( String username, DirContext context )
+        throws MappingException;
+
+    List<LdapGroup> getGroupObjects( String username, DirContext context )
         throws MappingException;
 
     List<String> getRoles( String username, DirContext context, Collection<String> realRoles )

@@ -29,7 +29,7 @@ import javax.naming.directory.Attributes;
  */
 public interface UserMapper
 {
-    LdapUser getUser( Attributes attributes )
+    LdapUser getUser( String dn, Attributes attributes )
         throws MappingException;
 
     Attributes getCreationAttributes( User user, boolean encodePasswordIfChanged )

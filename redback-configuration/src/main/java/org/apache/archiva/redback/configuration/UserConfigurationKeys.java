@@ -100,6 +100,8 @@ public interface UserConfigurationKeys
 
     String LDAP_GROUP_NAME_ATTRIBUTE = "ldap.config.groups.name.attribute";
 
+    String LDAP_GROUP_DESCRIPTION_ATTRIBUTE = "ldap.config.groups.description.attribute";
+
     String APPLICATION_URL = "application.url";
 
     String EMAIL_URL_PATH = "email.url.path";

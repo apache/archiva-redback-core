@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -108,5 +109,19 @@ public class DefaultLdapRoleMapperConfiguration
 
         Map<String, Collection<String>> mappings = map.asMap();
         return mappings;
+    }
+
+    @Override
+    public Collection<String> getLdapGroupMapping( String groupName ) throws MappingException
+    {
+        if (this.ldapMappings.containsKey( groupName )) {
+            return this.ldapMappings.get( groupName );
+        } else {
+            String value = userConf.getString( UserConfigurationKeys.LDAP_GROUPS_ROLE_START_KEY + groupName );
+            if ( value != null) {
+                return Arrays.asList( StringUtils.split( "," ) );
+            }
+        }
+        throw new MappingException( "Mapping for group " + groupName + " not found" );
     }
 }

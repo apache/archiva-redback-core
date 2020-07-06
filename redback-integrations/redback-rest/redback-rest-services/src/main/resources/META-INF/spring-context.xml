@@ -74,4 +74,26 @@
     </jaxrs:providers>
    </jaxrs:server>
 
+  <jaxrs:server address="/redback/v2">
+    <jaxrs:serviceBeans>
+      <ref bean="userService#rest"/>
+      <ref bean="loginService#rest"/>
+      <ref bean="roleManagementService#rest"/>
+      <ref bean="utilServices#rest"/>
+      <ref bean="passwordService#rest"/>
+      <ref bean="v2.groupService#rest"/>
+    </jaxrs:serviceBeans>
+
+    <jaxrs:providers>
+      <ref bean="jsonProvider"/>
+      <ref bean="xmlProvider"/>
+      <ref bean="authenticationInterceptor#rest"/>
+      <ref bean="permissionInterceptor#rest"/>
+      <ref bean="redbackServiceExceptionMapper"/>
+      <ref bean="passwordRuleViolationExceptionMapper"/>
+      <ref bean="requestValidationInterceptor#rest" />
+      <ref bean="threadLocalUserCleaner#rest"/>
+    </jaxrs:providers>
+  </jaxrs:server>
+
 </beans>

@@ -43,6 +43,7 @@ import java.util.List;
  */
 @Path("/ldapGroupMappingService/")
 @Tag( name = "LDAP", description = "LDAP Service" )
+@Deprecated
 public interface LdapGroupMappingService
 {
     @Path("ldapGroups")

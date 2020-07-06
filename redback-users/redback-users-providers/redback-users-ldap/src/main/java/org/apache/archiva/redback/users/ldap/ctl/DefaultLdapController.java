@@ -204,7 +204,7 @@ public class DefaultLdapController
             {
                 SearchResult result = results.nextElement();
 
-                users.add( mapper.getUser( result.getAttributes() ) );
+                users.add( mapper.getUser( result.getNameInNamespace(), result.getAttributes() ) );
             }
 
             return users;
@@ -247,7 +247,7 @@ public class DefaultLdapController
             {
                 SearchResult result = results.nextElement();
 
-                users.add( mapper.getUser( result.getAttributes() ) );
+                users.add( mapper.getUser( result.getNameInNamespace(), result.getAttributes() ) );
             }
 
             return users;
@@ -360,7 +360,7 @@ public class DefaultLdapController
 
                 log.info( "Found user: {}", username );
 
-                return mapper.getUser( next.getAttributes() );
+                return mapper.getUser( next.getNameInNamespace(), next.getAttributes() );
             }
             else
             {

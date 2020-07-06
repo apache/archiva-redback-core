@@ -31,6 +31,7 @@ import java.util.List;
 public class LdapUser
     implements User, Serializable
 {
+    private String dn;
 
     private String username;
 
@@ -249,4 +250,13 @@ public class LdapUser
         return userManagerId;
     }
 
+    public String getDn( )
+    {
+        return dn;
+    }
+
+    public void setDn( String dn )
+    {
+        this.dn = dn;
+    }
 }
