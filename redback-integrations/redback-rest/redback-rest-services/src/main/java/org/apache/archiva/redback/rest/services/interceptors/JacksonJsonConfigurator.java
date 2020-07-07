@@ -54,6 +54,7 @@ public class JacksonJsonConfigurator
         objectMapper.setDateFormat( new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ) );
 
         xmlMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
+        xmlMapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( xmlMapper.getTypeFactory( ) ) );
 
     }
 }
