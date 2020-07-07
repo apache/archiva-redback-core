@@ -51,7 +51,7 @@ public class JacksonJsonConfigurator
         objectMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
         objectMapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( objectMapper.getTypeFactory() ) );
         objectMapper.registerModule( new JavaTimeModule( ) );
-        objectMapper.setDateFormat( new SimpleDateFormat( "yyyyMMdd'T'HHmmss.SSSZ" ) );
+        objectMapper.setDateFormat( new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ) );
 
         xmlMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
 
