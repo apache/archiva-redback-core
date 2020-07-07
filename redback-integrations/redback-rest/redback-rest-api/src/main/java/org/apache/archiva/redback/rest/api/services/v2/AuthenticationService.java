@@ -24,7 +24,9 @@ import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.AuthenticationKeyResult;
 import org.apache.archiva.redback.rest.api.model.LoginRequest;
 import org.apache.archiva.redback.rest.api.model.PingResult;
+import org.apache.archiva.redback.rest.api.model.Token;
 import org.apache.archiva.redback.rest.api.model.User;
+import org.apache.archiva.redback.rest.api.model.UserLogin;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
 import javax.ws.rs.GET;
@@ -34,23 +36,27 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * Version 2 of authentication service
+ */
 @Path( "/auth" )
-public interface LoginService
+public interface AuthenticationService
 {
 
     @Path( "requestkey" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
-    AuthenticationKeyResult addAuthenticationKey( @QueryParam( "providerKey" ) String providedKey,
-                                                  @QueryParam( "principal" ) String principal, @QueryParam( "purpose" ) String purpose,
-                                                  @QueryParam( "expirationMinutes" ) int expirationMinutes )
+    Token requestOnetimeToken( @QueryParam( "providerKey" ) String providedKey,
+                        @QueryParam( "principal" ) String principal,
+                        @QueryParam( "purpose" ) String purpose,
+                        @QueryParam( "expirationSeconds" ) int expirationSeconds )
         throws RedbackServiceException;
 
 
     @Path( "ping" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
     PingResult ping()
         throws RedbackServiceException;
@@ -58,7 +64,7 @@ public interface LoginService
 
     @Path( "ping/authenticated" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = false, noPermission = true )
     PingResult pingWithAutz()
         throws RedbackServiceException;
@@ -70,8 +76,8 @@ public interface LoginService
     @Path( "authenticate" )
     @POST
     @RedbackAuthorization( noRestriction = true, noPermission = true )
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    User logIn( LoginRequest loginRequest )
+    @Produces( { MediaType.APPLICATION_JSON } )
+    UserLogin logIn( LoginRequest loginRequest )
         throws RedbackServiceException;
 
     /**
@@ -80,7 +86,7 @@ public interface LoginService
      */
     @Path( "isAuthenticated" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
+    @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
     User isLogged()
         throws RedbackServiceException;
@@ -91,7 +97,7 @@ public interface LoginService
      */
     @Path( "logout" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
     ActionStatus logout()
         throws RedbackServiceException;

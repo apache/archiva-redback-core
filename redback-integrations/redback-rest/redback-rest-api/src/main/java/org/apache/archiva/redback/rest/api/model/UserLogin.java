@@ -18,60 +18,54 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Base64;
 
 /**
- *
- * Informational attributes for pagination.
- *
  * @author Martin Stockhammer <martin_s@apache.org>
  */
-@XmlRootElement(name="pagination")
-public class PaginationInfo
+@XmlRootElement(name="userLogin")
+public class UserLogin extends User
 {
-    long totalCount;
-    long offset;
-    long limit;
 
-    public PaginationInfo() {
+    String authToken;
+    String base64AuthToken;
 
+    public UserLogin( )
+    {
     }
 
-    public PaginationInfo( long totalCount, long offset, long limit )
+    public UserLogin( String username, String fullName, String email, boolean validated, boolean locked, String authToken )
     {
-        this.totalCount = totalCount;
-        this.offset = offset;
-        this.limit = limit;
+        super( username, fullName, email, validated, locked );
+        this.authToken = authToken;
+        this.base64AuthToken = Base64.getEncoder( ).encodeToString( authToken.getBytes( ) );
     }
 
-    public long getTotalCount( )
+    public UserLogin( org.apache.archiva.redback.users.User user, String authToken )
     {
-        return totalCount;
+        super( user );
+        this.authToken = authToken;
+        this.base64AuthToken = Base64.getEncoder( ).encodeToString( authToken.getBytes( ) );
     }
 
-    public void setTotalCount( long totalCount )
+    public String getAuthToken( )
     {
-        this.totalCount = totalCount;
+        return authToken;
     }
 
-    public long getOffset( )
+    public void setAuthToken( String authToken )
     {
-        return offset;
+        this.authToken = authToken;
     }
 
-    public void setOffset( long offset )
+    public String getBase64AuthToken( )
     {
-        this.offset = offset;
+        return base64AuthToken;
     }
 
-    public long getLimit( )
+    public void setBase64AuthToken( String base64AuthToken )
     {
-        return limit;
-    }
-
-    public void setLimit( long limit )
-    {
-        this.limit = limit;
+        this.base64AuthToken = base64AuthToken;
     }
 }

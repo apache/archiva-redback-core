@@ -49,6 +49,11 @@
 
   <bean id="redbackJacksonJsonMapper" class="com.fasterxml.jackson.databind.ObjectMapper" >
     <property name="annotationIntrospector" ref="jacksonAnnotationIntrospector"/>
+    <property name="dateFormat">
+      <bean class="java.text.SimpleDateFormat">
+        <constructor-arg type="java.lang.String" value="yyyyMMdd'T'HHmmss.SSSZ"/>
+      </bean>
+    </property>
   </bean>
   <bean id="redbackJacksonXMLMapper" class="com.fasterxml.jackson.dataformat.xml.XmlMapper" >
     <property name="annotationIntrospector" ref="jacksonAnnotationIntrospector"/>
@@ -58,7 +63,7 @@
 
 
 
-  <jaxrs:server id="redbackServices" address="/redbackServices">
+  <jaxrs:server name="redbackServices" address="/redbackServices">
 
     <jaxrs:serviceBeans>
       <ref bean="userService#rest"/>
@@ -81,10 +86,10 @@
     </jaxrs:providers>
    </jaxrs:server>
 
-  <jaxrs:server address="/redback/v2">
+  <jaxrs:server address="/v2/redback">
     <jaxrs:serviceBeans>
       <ref bean="userService#rest"/>
-      <ref bean="loginService#rest"/>
+      <ref bean="v2.authenticationService#rest"/>
       <ref bean="roleManagementService#rest"/>
       <ref bean="utilServices#rest"/>
       <ref bean="passwordService#rest"/>

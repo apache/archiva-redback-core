@@ -73,7 +73,7 @@ public class GroupServiceTest
     protected GroupService getGroupService( String authzHeader )
     {
         GroupService service =
-            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/redback/v2/",
+            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/v2/redback/",
                 GroupService.class,
                 Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
@@ -193,7 +193,7 @@ public class GroupServiceTest
         {
             GroupService service = getGroupService( authorizationHeader );
 
-            List<String> allGroups = service.getGroups( Long.valueOf( 0 ), Long.valueOf( Long.MAX_VALUE ) ).getData().stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
+            List<String> allGroups = service.getGroups( Integer.valueOf( 0 ), Integer.valueOf( Integer.MAX_VALUE ) ).getData().stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
 
             assertThat( allGroups ).isNotNull().isNotEmpty().hasSize( 3 ).containsAll( groups );
         }

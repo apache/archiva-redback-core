@@ -21,6 +21,8 @@ package org.apache.archiva.redback.rest.services.interceptors;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.text.SimpleDateFormat;
 
 /**
  * to setup some ObjectMapper configuration
@@ -46,6 +49,10 @@ public class JacksonJsonConfigurator
     {
         log.info( "configure jackson ObjectMapper" );
         objectMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
+        objectMapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( objectMapper.getTypeFactory() ) );
+        objectMapper.registerModule( new JavaTimeModule( ) );
+        objectMapper.setDateFormat( new SimpleDateFormat( "yyyyMMdd'T'HHmmss.SSSZ" ) );
+
         xmlMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
 
     }

@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.rest.services;
+package org.apache.archiva.redback.rest.services.v2;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -33,13 +33,14 @@ import org.apache.archiva.redback.keys.memory.MemoryKeyManager;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
-import org.apache.archiva.redback.rest.api.model.AuthenticationKeyResult;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.LoginRequest;
 import org.apache.archiva.redback.rest.api.model.PingResult;
+import org.apache.archiva.redback.rest.api.model.Token;
 import org.apache.archiva.redback.rest.api.model.User;
-import org.apache.archiva.redback.rest.api.services.LoginService;
+import org.apache.archiva.redback.rest.api.model.UserLogin;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
+import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.archiva.redback.users.UserManagerException;
@@ -54,24 +55,30 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
 /**
- * @deprecated You should use new REST API version {@link org.apache.archiva.redback.rest.api.services.v2.AuthenticationService}
+ *
+ * Authentication service provides REST methods for authentication and verification.
+ *
  * @author Olivier Lamy
- * @since 1.3
+ * @author Martin Stockhammer
+ * @since 3.0
  */
-@Deprecated
-@Service( "loginService#rest" )
-public class DefaultLoginService
-    implements LoginService
+@Service( "v2.authenticationService#rest" )
+public class DefaultAuthenticationService
+    implements AuthenticationService
 {
 
-    private Logger log = LoggerFactory.getLogger( getClass() );
+    private static final Logger log = LoggerFactory.getLogger( DefaultAuthenticationService.class );
 
     private SecuritySystem securitySystem;
 
@@ -84,15 +91,16 @@ public class DefaultLoginService
     long tokenLifetime = 1000*3600*3;
 
     @Inject
-    public DefaultLoginService( SecuritySystem securitySystem,
-                                @Named( "httpAuthenticator#basic" ) HttpAuthenticator httpAuthenticator )
+    public DefaultAuthenticationService( SecuritySystem securitySystem,
+                                         @Named( "httpAuthenticator#basic" ) HttpAuthenticator httpAuthenticator )
     {
         this.securitySystem = securitySystem;
         this.httpAuthenticator = httpAuthenticator;
     }
 
 
-    public String addAuthenticationKey( String providedKey, String principal, String purpose, int expirationMinutes )
+    @Override
+    public Token requestOnetimeToken( String providedKey, String principal, String purpose, int expirationSeconds )
         throws RedbackServiceException
     {
         KeyManager keyManager = securitySystem.getKeyManager();
@@ -111,34 +119,34 @@ public class DefaultLoginService
         key.setForPrincipal( principal );
         key.setPurpose( purpose );
 
-        Calendar now = getNowGMT();
-        key.setDateCreated( now.getTime() );
+        Instant now = Instant.now( );
+        key.setDateCreated( Date.from( now ) );
 
-        if ( expirationMinutes >= 0 )
+        if ( expirationSeconds >= 0 )
         {
-            Calendar expiration = getNowGMT();
-            expiration.add( Calendar.MINUTE, expirationMinutes );
-            key.setDateExpires( expiration.getTime() );
+            Duration expireDuration = Duration.ofSeconds( expirationSeconds );
+            key.setDateExpires( Date.from( now.plus( expireDuration ) ) );
         }
-
         keyManager.addKey( key );
-
-        return key.getKey( );
+        return Token.of( key );
     }
 
+    @Override
     public PingResult ping()
         throws RedbackServiceException
     {
         return new PingResult( true);
     }
 
+    @Override
     public PingResult pingWithAutz()
         throws RedbackServiceException
     {
         return new PingResult( true );
     }
 
-    public User logIn( LoginRequest loginRequest )
+    @Override
+    public UserLogin logIn( LoginRequest loginRequest )
         throws RedbackServiceException
     {
         String userName = loginRequest.getUsername(), password = loginRequest.getPassword();
@@ -158,7 +166,7 @@ public class DefaultLoginService
                     log.info( "user {} not validated", user.getUsername() );
                     return null;
                 }
-                User restUser = buildRestUser( user );
+                UserLogin restUser = buildRestUser( user );
                 restUser.setReadOnly( securitySystem.userManagerReadOnly() );
                 // validationToken only set during login
                 try {
@@ -216,6 +224,7 @@ public class DefaultLoginService
 
     }
 
+    @Override
     public User isLogged()
         throws RedbackServiceException
     {
@@ -225,6 +234,7 @@ public class DefaultLoginService
         return isLogged && securitySession.getUser() != null ? buildRestUser( securitySession.getUser() ) : null;
     }
 
+    @Override
     public ActionStatus logout()
         throws RedbackServiceException
     {
@@ -241,9 +251,9 @@ public class DefaultLoginService
         return Calendar.getInstance( TimeZone.getTimeZone( "GMT" ) );
     }
 
-    private User buildRestUser( org.apache.archiva.redback.users.User user )
+    private UserLogin buildRestUser( org.apache.archiva.redback.users.User user )
     {
-        User restUser = new User();
+        UserLogin restUser = new UserLogin();
         restUser.setEmail( user.getEmail() );
         restUser.setUsername( user.getUsername() );
         restUser.setPasswordChangeRequired( user.isPasswordChangeRequired() );

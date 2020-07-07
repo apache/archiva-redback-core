@@ -53,6 +53,7 @@ import java.util.List;
 public interface GroupService
 {
 
+
     @Path( "" )
     @GET
     @Produces( {MediaType.APPLICATION_JSON} )
@@ -62,8 +63,8 @@ public interface GroupService
             @ApiResponse( description = "List of group objects. The number of returned results depend on the pagination parameters offset and limit." )
         }
     )
-    PagedResult<Group> getGroups( @QueryParam( "offset" ) @DefaultValue( "0" ) Long offset,
-                                  @QueryParam( "limit" ) @DefaultValue( value = Long.MAX_VALUE+"" ) Long limit)
+    PagedResult<List<Group>> getGroups( @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
+                                  @QueryParam( "limit" ) @DefaultValue( value = Integer.MAX_VALUE+"" ) Integer limit)
         throws RedbackServiceException;
 
 
@@ -87,7 +88,7 @@ public interface GroupService
     @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
     @Operation( summary = "Adds a group mapping",
         responses = {
-            @ApiResponse( description = "The status of the add action" ),
+            @ApiResponse( responseCode = "201", description = "The status of the add action" ),
             @ApiResponse( responseCode = "405", description = "Invalid input" )
         }
     )

@@ -40,6 +40,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -59,6 +62,9 @@ public class DefaultGroupService
     implements GroupService
 {
     private final Logger log = LoggerFactory.getLogger( getClass() );
+
+    @Context  //injected response proxy supporting multiple threads
+    private HttpServletResponse response;
 
     @Inject
     @Named(value = "ldapRoleMapper#default")
@@ -82,7 +88,7 @@ public class DefaultGroupService
     }
 
     @Override
-    public PagedResult<Group> getGroups( Long offset, Long limit ) throws RedbackServiceException
+    public PagedResult<List<Group>> getGroups( Integer offset, Integer limit ) throws RedbackServiceException
     {
         LdapConnection ldapConnection = null;
 
@@ -93,7 +99,7 @@ public class DefaultGroupService
             ldapConnection = ldapConnectionFactory.getConnection();
             context = ldapConnection.getDirContext();
             List<LdapGroup> groups = ldapRoleMapper.getAllGroupObjects( context );
-            return PagedResult.ofSegment( groups.size( ), offset, limit, groups.stream( ).skip( offset ).limit( limit ).map( DefaultGroupService::getGroupFromLdap ).collect( Collectors.toList( ) ) );
+            return PagedResult.of( groups.size( ), offset, limit, groups.stream( ).skip( offset ).limit( limit ).map( DefaultGroupService::getGroupFromLdap ).collect( Collectors.toList( ) ) );
         }
         catch ( LdapException | MappingException e )
         {
@@ -138,6 +144,7 @@ public class DefaultGroupService
         {
             ldapRoleMapperConfiguration.addLdapMapping( ldapGroupMapping.getGroup(),
                                                         new ArrayList<>( ldapGroupMapping.getRoleNames() ) );
+            response.setStatus( Response.Status.CREATED.getStatusCode() );
         }
         catch ( MappingException e )
         {

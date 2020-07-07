@@ -22,37 +22,34 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
+ * A Paged result puts the data into an envelope
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="pagedResult")
 public class PagedResult<T>
 {
     PaginationInfo pagination;
-    List<T> data;
+    T data;
 
     public PagedResult() {
 
     }
 
-    public PagedResult( long totalCount, long offset, long limit, List<T> data ) {
+    public PagedResult( long totalCount, long offset, long limit, T data ) {
         this.data = data;
         this.pagination = new PaginationInfo( totalCount, offset, limit );
     }
 
-    public static final <T> PagedResult<T> ofAllElements(long offset, long limit, List<T> elements) {
-        return new PagedResult( elements.size( ), offset, limit, elements.subList( (int)offset, (int)offset + (int)limit ) );
+    public static final <T> PagedResult<T> of(long totalSize, long offset, long limit, T element) {
+        return new PagedResult( totalSize, offset, limit, element);
     }
 
-    public static final <T> PagedResult<T> ofSegment(long totalSize, long offset, long limit, List<T> elements) {
-        return new PagedResult( totalSize, offset, limit, elements);
-    }
-
-    public List<T> getData( )
+    public T getData( )
     {
         return data;
     }
 
-    public void setData( List<T> data )
+    public void setData( T data )
     {
         this.data = data;
     }

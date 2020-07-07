@@ -19,6 +19,7 @@ package org.apache.archiva.redback.rest.api.services;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
@@ -34,20 +35,23 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+@Deprecated
 @Path( "/loginService/" )
 public interface LoginService
 {
 
+    @Operation( deprecated = true )
     @Path( "addAuthenticationKey" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
     @RedbackAuthorization( noRestriction = true )
-    AuthenticationKeyResult addAuthenticationKey( @QueryParam( "providerKey" ) String providedKey,
+    String addAuthenticationKey( @QueryParam( "providerKey" ) String providedKey,
                                                   @QueryParam( "principal" ) String principal, @QueryParam( "purpose" ) String purpose,
                                                   @QueryParam( "expirationMinutes" ) int expirationMinutes )
         throws RedbackServiceException;
 
 
+    @Operation( deprecated = true )
     @Path( "ping" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
@@ -56,6 +60,7 @@ public interface LoginService
         throws RedbackServiceException;
 
 
+    @Operation( deprecated = true )
     @Path( "pingWithAutz" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
@@ -67,6 +72,7 @@ public interface LoginService
      * check username/password and create a http session.
      * So no more need of reuse username/password for all ajaxRequest
      */
+    @Operation( deprecated = true )
     @Path( "logIn" )
     @POST
     @RedbackAuthorization( noRestriction = true, noPermission = true )
@@ -78,6 +84,7 @@ public interface LoginService
      * simply check if current user has an http session opened with authz passed and return user data
      * @since 1.4
      */
+    @Operation( deprecated = true )
     @Path( "isLogged" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
@@ -89,6 +96,7 @@ public interface LoginService
      * clear user http session
      * @since 1.4
      */
+    @Operation( deprecated = true )
     @Path( "logout" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )

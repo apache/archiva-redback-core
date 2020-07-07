@@ -46,9 +46,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * @deprecated Use new API version {@link org.apache.archiva.redback.rest.services.v2.DefaultGroupService}
  * @author Olivier Lamy
  * @since 2.1
  */
+@Deprecated
 @Service("ldapGroupMappingService#rest")
 public class DefaultLdapGroupMappingService
     implements LdapGroupMappingService

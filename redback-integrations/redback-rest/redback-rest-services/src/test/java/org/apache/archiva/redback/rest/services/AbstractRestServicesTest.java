@@ -27,6 +27,7 @@ import org.apache.archiva.redback.rest.api.services.LdapGroupMappingService;
 import org.apache.archiva.redback.rest.api.services.LoginService;
 import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.apache.archiva.redback.rest.api.services.UserService;
+import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.cxf.common.util.Base64Utility;
@@ -241,6 +242,27 @@ public abstract class AbstractRestServicesTest
         LoginService service =
             JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/redbackServices/",
                                        LoginService.class, Collections.singletonList( new JacksonJaxbJsonProvider() ) );
+
+        // for debuging purpose
+        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );
+
+        if ( authzHeader != null )
+        {
+            WebClient.client( service ).header( "Authorization", authzHeader );
+        }
+        WebClient.client(service).header("Referer","http://localhost:"+getServerPort());
+
+        WebClient.client( service ).accept( MediaType.APPLICATION_JSON_TYPE );
+        WebClient.client( service ).type( MediaType.APPLICATION_JSON_TYPE );
+
+        return service;
+    }
+
+    protected AuthenticationService getLoginServiceV2( String authzHeader )
+    {
+        AuthenticationService service =
+            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/v2/redback/",
+                AuthenticationService.class, Collections.singletonList( new JacksonJaxbJsonProvider() ) );
 
         // for debuging purpose
         WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );

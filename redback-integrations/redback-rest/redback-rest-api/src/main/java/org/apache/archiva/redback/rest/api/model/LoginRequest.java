@@ -70,7 +70,7 @@ public class LoginRequest
         final StringBuilder sb = new StringBuilder();
         sb.append( "LoginRequest" );
         sb.append( "{username='" ).append( username ).append( '\'' );
-        sb.append( ", password='" ).append( password ).append( '\'' );
+        sb.append( ", password='" ).append( "*********" ).append( '\'' );
         sb.append( '}' );
         return sb.toString();
     }
