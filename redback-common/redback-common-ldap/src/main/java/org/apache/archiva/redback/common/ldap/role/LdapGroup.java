@@ -20,6 +20,7 @@ package org.apache.archiva.redback.common.ldap.role;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,8 +31,8 @@ import java.util.List;
 public class LdapGroup
 {
     String dn = "";
-    String name;
-    String description;
+    String name = "";
+    String description = "";
     List<String> memberList;
 
     public LdapGroup( )
@@ -92,6 +93,9 @@ public class LdapGroup
     }
 
     public List<String> getMemberList() {
+        if (memberList==null) {
+            return Collections.EMPTY_LIST;
+        }
         return memberList;
     }
 

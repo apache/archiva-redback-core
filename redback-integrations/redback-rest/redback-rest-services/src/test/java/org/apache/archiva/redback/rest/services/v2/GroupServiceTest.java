@@ -193,7 +193,7 @@ public class GroupServiceTest
         {
             GroupService service = getGroupService( authorizationHeader );
 
-            List<String> allGroups = service.getGroups( Long.valueOf( 0 ), Long.valueOf( Long.MAX_VALUE ) ).stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
+            List<String> allGroups = service.getGroups( Long.valueOf( 0 ), Long.valueOf( Long.MAX_VALUE ) ).getData().stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
 
             assertThat( allGroups ).isNotNull().isNotEmpty().hasSize( 3 ).containsAll( groups );
         }

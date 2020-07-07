@@ -21,6 +21,7 @@ package org.apache.archiva.redback.rest.api.model;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Olivier Lamy
@@ -32,14 +33,14 @@ public class GroupMapping
 {
     private String group;
 
-    private Collection<String> roleNames;
+    private List<String> roleNames;
 
     public GroupMapping()
     {
         // no op
     }
 
-    public GroupMapping( String group, Collection<String> roleNames )
+    public GroupMapping( String group, List<String> roleNames )
     {
         this.group = group;
         this.roleNames = roleNames;
@@ -60,7 +61,7 @@ public class GroupMapping
         return roleNames;
     }
 
-    public void setRoleNames( Collection<String> roleNames )
+    public void setRoleNames( List<String> roleNames )
     {
         this.roleNames = roleNames;
     }

@@ -18,6 +18,7 @@ package org.apache.archiva.redback.rest.api.services;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
@@ -46,14 +47,17 @@ import java.util.List;
 @Deprecated
 public interface LdapGroupMappingService
 {
-    @Path("ldapGroups")
+
+    @Operation( deprecated = true )
+    @Path( "ldapGroups" )
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @RedbackAuthorization(permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION)
-    StringList getLdapGroups()
+    @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML} )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
+    StringList getLdapGroups( )
         throws RedbackServiceException;
 
 
+    @Operation( deprecated = true )
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @RedbackAuthorization(permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION)
@@ -61,6 +65,7 @@ public interface LdapGroupMappingService
         throws RedbackServiceException;
 
 
+    @Operation( deprecated = true )
     @PUT
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -68,6 +73,7 @@ public interface LdapGroupMappingService
     ActionStatus addLdapGroupMapping( LdapGroupMapping ldapGroupMapping )
         throws RedbackServiceException;
 
+    @Operation( deprecated = true )
     @DELETE
     @Path("{group}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -76,6 +82,7 @@ public interface LdapGroupMappingService
     ActionStatus removeLdapGroupMapping( @PathParam("group") String group )
         throws RedbackServiceException;
 
+    @Operation( deprecated = true )
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

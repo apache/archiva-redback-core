@@ -47,8 +47,15 @@
     <property name="mapper" ref="redbackJacksonXMLMapper"/>
   </bean>
 
-  <bean id="redbackJacksonJsonMapper" class="com.fasterxml.jackson.databind.ObjectMapper" />
-  <bean id="redbackJacksonXMLMapper" class="com.fasterxml.jackson.dataformat.xml.XmlMapper" />
+  <bean id="redbackJacksonJsonMapper" class="com.fasterxml.jackson.databind.ObjectMapper" >
+    <property name="annotationIntrospector" ref="jacksonAnnotationIntrospector"/>
+  </bean>
+  <bean id="redbackJacksonXMLMapper" class="com.fasterxml.jackson.dataformat.xml.XmlMapper" >
+    <property name="annotationIntrospector" ref="jacksonAnnotationIntrospector"/>
+  </bean>
+
+  <bean id="jacksonAnnotationIntrospector" class="com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector" />
+
 
 
   <jaxrs:server id="redbackServices" address="/redbackServices">

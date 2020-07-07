@@ -29,7 +29,7 @@ import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Group;
 import org.apache.archiva.redback.rest.api.model.GroupMapping;
 import org.apache.archiva.redback.rest.api.model.GroupMappingUpdateRequest;
-import org.apache.archiva.redback.rest.api.model.StringList;
+import org.apache.archiva.redback.rest.api.model.PagedResult;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.GroupService;
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public class DefaultGroupService
     }
 
     @Override
-    public List<Group> getGroups( Long offset, Long limit ) throws RedbackServiceException
+    public PagedResult<Group> getGroups( Long offset, Long limit ) throws RedbackServiceException
     {
         LdapConnection ldapConnection = null;
 
@@ -92,7 +92,8 @@ public class DefaultGroupService
         {
             ldapConnection = ldapConnectionFactory.getConnection();
             context = ldapConnection.getDirContext();
-            return ldapRoleMapper.getAllGroupObjects( context ).stream( ).skip( offset ).limit( limit ).map( DefaultGroupService::getGroupFromLdap ).collect( Collectors.toList( ) );
+            List<LdapGroup> groups = ldapRoleMapper.getAllGroupObjects( context );
+            return PagedResult.ofSegment( groups.size( ), offset, limit, groups.stream( ).skip( offset ).limit( limit ).map( DefaultGroupService::getGroupFromLdap ).collect( Collectors.toList( ) ) );
         }
         catch ( LdapException | MappingException e )
         {
@@ -116,7 +117,7 @@ public class DefaultGroupService
             List<GroupMapping> ldapGroupMappings = new ArrayList<>( map.size( ) );
             for ( Map.Entry<String, Collection<String>> entry : map.entrySet() )
             {
-                GroupMapping ldapGroupMapping = new GroupMapping( entry.getKey(), entry.getValue() );
+                GroupMapping ldapGroupMapping = new GroupMapping( entry.getKey( ), new ArrayList<>( entry.getValue( ) ) );
                 ldapGroupMappings.add( ldapGroupMapping );
             }
 

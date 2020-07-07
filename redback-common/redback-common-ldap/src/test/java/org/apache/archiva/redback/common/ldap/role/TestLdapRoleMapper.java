@@ -53,6 +53,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Olivier Lamy
@@ -306,6 +307,21 @@ public class TestLdapRoleMapper
 
         assertThat( allGroups ).isNotNull().isNotEmpty().contains( "archiva/group-with-slash", "archiva-admin",
                                                                               "internal-repo-manager" );
+    }
+
+    @Test
+    public void getAllGroupObjects()
+        throws Exception
+    {
+        List<LdapGroup> allGroups = ldapRoleMapper.getAllGroupObjects( getDirContext() );
+
+        log.info( "allGroups: {}", allGroups );
+
+        assertThat( allGroups ).isNotNull( ).isNotEmpty( );
+        assertThat( allGroups.stream().map(group -> group.getName()).collect( Collectors.toList()) ).contains( "archiva/group-with-slash", "archiva-admin",
+            "internal-repo-manager" );
+        assertThat( allGroups.stream().map(group -> group.getDn()).collect( Collectors.toList()) ).contains( "cn=archiva/group-with-slash,"+groupSuffix, "cn=archiva-admin,"+groupSuffix,
+            "cn=internal-repo-manager,"+groupSuffix );
     }
 
     @Test

@@ -28,6 +28,7 @@ import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Group;
 import org.apache.archiva.redback.rest.api.model.GroupMapping;
 import org.apache.archiva.redback.rest.api.model.GroupMappingUpdateRequest;
+import org.apache.archiva.redback.rest.api.model.PagedResult;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
 import javax.ws.rs.Consumes;
@@ -61,8 +62,8 @@ public interface GroupService
             @ApiResponse( description = "List of group objects. The number of returned results depend on the pagination parameters offset and limit." )
         }
     )
-    List<Group> getGroups( @QueryParam( "offset" ) @DefaultValue( "0" ) Long offset,
-                           @QueryParam( "limit" ) @DefaultValue( value = Long.MAX_VALUE+"" ) Long limit)
+    PagedResult<Group> getGroups( @QueryParam( "offset" ) @DefaultValue( "0" ) Long offset,
+                                  @QueryParam( "limit" ) @DefaultValue( value = Long.MAX_VALUE+"" ) Long limit)
         throws RedbackServiceException;
 
 
