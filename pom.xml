@@ -55,7 +55,6 @@
     <module>redback-keys</module>
     <module>redback-users</module>
     <module>redback-integrations</module>
-    <module>redback-authentication-jwt</module>
   </modules>
 
   <scm>

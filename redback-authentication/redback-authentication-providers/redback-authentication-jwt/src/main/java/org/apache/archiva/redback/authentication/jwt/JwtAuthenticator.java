@@ -19,7 +19,6 @@ package org.apache.archiva.redback.authentication.jwt;
  * under the License.
  */
 
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.apache.archiva.redback.authentication.AbstractAuthenticator;
@@ -32,6 +31,8 @@ import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -41,11 +42,19 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Properties;
 
@@ -53,8 +62,13 @@ import java.util.Properties;
 @Service("authenticator#jwt")
 public class JwtAuthenticator extends AbstractAuthenticator implements Authenticator
 {
+    private static final Logger log = LoggerFactory.getLogger( JwtAuthenticator.class );
+
     public static final String ID = "JwtAuthenticator";
-    public static final String PROP_ALG = "algorithm";
+    public static final String PROP_PRIV_ALG = "privateAlgorithm";
+    public static final String PROP_PRIV_FORMAT = "privateFormat";
+    public static final String PROP_PUB_ALG = "publicAlgorithm";
+    public static final String PROP_PUB_FORMAT = "publicFormat";
     public static final String PROP_PRIVATEKEY = "privateKey";
     public static final String PROP_PUBLICKEY = "publicKey";
 
@@ -65,7 +79,7 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
 
     boolean symmetricAlg = true;
     Key key;
-    KeyPair keyPair;
+    Key publicKey;
     String sigAlg;
     String keystoreType;
     Path keystoreFilePath;
@@ -92,8 +106,9 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
             {
                 this.key = createNewSecretKey( this.sigAlg );
             } else {
-                this.keyPair = createNewKeyPair( this.sigAlg );
-                this.keyPair.getPublic();
+                KeyPair pair = createNewKeyPair( this.sigAlg );
+                this.key = pair.getPrivate( );
+                this.publicKey = pair.getPublic( );
             }
         }
     }
@@ -113,7 +128,7 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
             try ( InputStream in = Files.newInputStream( filePath )) {
                 props.loadFromXML( in );
             }
-            String algorithm = props.getProperty( PROP_ALG ).trim( );
+            String algorithm = props.getProperty( PROP_PRIV_ALG ).trim( );
             String secretKey = props.getProperty( PROP_PRIVATEKEY ).trim( );
             byte[] keyData = Base64.getDecoder( ).decode( secretKey.getBytes() );
             return new SecretKeySpec(keyData, algorithm);
@@ -122,9 +137,71 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
         }
     }
 
-    private KeyPair loadPairFromFile(Path filePath) throws IOException
+
+    private KeyPair loadPairFromFile(Path filePath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
     {
-        return null;
+        if (Files.exists( filePath )) {
+            Properties props = new Properties( );
+            try ( InputStream in = Files.newInputStream( filePath )) {
+                props.loadFromXML( in );
+            }
+            String algorithm = props.getProperty( PROP_PRIV_ALG ).trim( );
+            String secretKeyBase64 = props.getProperty( PROP_PRIVATEKEY ).trim( );
+            String publicKeyBase64 = props.getProperty( PROP_PUBLICKEY ).trim( );
+            byte[] privateBytes = Base64.getDecoder( ).decode( secretKeyBase64 );
+            byte[] publicBytes = Base64.getDecoder( ).decode( publicKeyBase64 );
+
+            PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec( privateBytes );
+            X509EncodedKeySpec publicSpec = new X509EncodedKeySpec( publicBytes );
+            PrivateKey privateKey = KeyFactory.getInstance( algorithm ).generatePrivate( privateSpec );
+            PublicKey publicKey = KeyFactory.getInstance( algorithm ).generatePublic( publicSpec );
+
+            return new KeyPair( publicKey, privateKey );
+        } else {
+            throw new RuntimeException( "Could not load key file from " + filePath );
+        }
+    }
+
+    private void writeSecretKey(Path filePath, SecretKey key) throws IOException
+    {
+        log.info( "Writing secret key algorithm=" + key.getAlgorithm( ) + ", format=" + key.getFormat( ) + " to file " + filePath );
+        Properties props = new Properties( );
+        props.setProperty( PROP_PRIV_ALG, key.getAlgorithm( ) );
+        if ( key.getFormat( ) != null )
+        {
+            props.setProperty( PROP_PRIV_FORMAT, key.getFormat( ) );
+        }
+        props.setProperty( PROP_PRIVATEKEY, String.valueOf( Base64.getEncoder( ).encode( key.getEncoded( ) ) ) );
+        try ( OutputStream out = Files.newOutputStream( filePath ) )
+        {
+            props.storeToXML( out, "Key for JWT signing" );
+        }
+        try
+        {
+            Files.setPosixFilePermissions( filePath, PosixFilePermissions.fromString( "600" ) );
+        } catch (Exception e) {
+            log.error( "Could not set file permissions for " + filePath );
+        }
+    }
+
+    private void writeKeyPair(Path filePath, PrivateKey privateKey, PublicKey publicKey) {
+        log.info( "Writing private key algorithm=" + privateKey.getAlgorithm( ) + ", format=" + privateKey.getFormat( ) + " to file " + filePath );
+        log.info( "Writing public key algorithm=" + publicKey.getAlgorithm( ) + ", format=" + publicKey.getFormat( ) + " to file " + filePath );
+        Properties props = new Properties( );
+        props.setProperty( PROP_PRIV_ALG, privateKey.getAlgorithm( ) );
+        if (privateKey.getFormat()!=null) {
+            props.setProperty( PROP_PRIV_FORMAT, privateKey.getFormat( ) );
+        }
+        props.setProperty( PROP_PUB_ALG, publicKey.getAlgorithm( ) );
+        if (publicKey.getFormat()!=null) {
+            props.setProperty( PROP_PUB_FORMAT, publicKey.getFormat( ) );
+        }
+        PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec( privateKey.getEncoded( ) );
+        X509EncodedKeySpec publicSpec = new X509EncodedKeySpec( publicKey.getEncoded( ) );
+        props.setProperty( PROP_PRIVATEKEY, Base64.getEncoder( ).encodeToString( privateSpec.getEncoded( ) ) );
+        props.setProperty( PROP_PUBLICKEY, Base64.getEncoder( ).encodeToString( publicSpec.getEncoded( ) ) );
+
+
     }
 
     @Override
