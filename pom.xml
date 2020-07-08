@@ -55,6 +55,7 @@
     <module>redback-keys</module>
     <module>redback-users</module>
     <module>redback-integrations</module>
+    <module>redback-authentication-jwt</module>
   </modules>
 
   <scm>
@@ -91,6 +92,9 @@
     <scmPublishPath>/redback/core/${project.version}</scmPublishPath>
     <!-- The git repository, where the site content is placed -->
     <siteRepositoryUrl>scm:git:https://gitbox.apache.org/repos/asf/archiva-web-content.git</siteRepositoryUrl>
+
+
+    <jjwt.version>0.11.2</jjwt.version>
 
   </properties>
 
@@ -779,6 +783,24 @@
           </exclusion>
         </exclusions>
 
+      </dependency>
+
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>${jjwt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>${jjwt.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId> <!-- or jjwt-gson if Gson is preferred -->
+        <version>${jjwt.version}</version>
+        <scope>runtime</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

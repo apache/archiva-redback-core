@@ -185,4 +185,68 @@ public interface UserConfigurationKeys
      * The locale to use for sending mails and finding mail templates
      */
     String MAIL_DEFAULT_LOCALE = "mail.locale";
+
+    /**
+     * Defines, where the key for JWT encryption / decryption is stored.
+     * Currently only memory and plainfile are supported
+     */
+    String AUTHENTICATION_JWT_KEYSTORETYPE = "authentication.jwt.keystoreType";
+    String AUTHENTICATION_JWT_KEYSTORETYPE_MEMORY = "memory";
+    String AUTHENTICATION_JWT_KEYSTORETYPE_PLAINFILE = "plainfile";
+    String AUTHENTICATION_JWT_SIGALG = "authentication.jwt.signatureAlgorithm";
+    /**
+     * HMAC using SHA-256
+     */
+    String AUTHENTICATION_JWT_SIGALG_HS256 = "HS256";
+    /**
+     * HMAC using SHA-384
+     */
+    String AUTHENTICATION_JWT_SIGALG_HS384 = "HS384";
+    /**
+     * HMAC using SHA-512
+     */
+    String AUTHENTICATION_JWT_SIGALG_HS512 = "HS512";
+    /**
+     * ECDSA using P-256 and SHA-256
+     */
+    String AUTHENTICATION_JWT_SIGALG_ES256 = "ES256";
+    /**
+     * ECDSA using P-384 and SHA-384
+     */
+    String AUTHENTICATION_JWT_SIGALG_ES384 = "ES384";
+    /**
+     * ECDSA using P-521 and SHA-512
+     */
+    String AUTHENTICATION_JWT_SIGALG_ES512 = "ES512";
+    /**
+     * RSASSA-PKCS-v1_5 using SHA-256
+     */
+    String AUTHENTICATION_JWT_SIGALG_RS256 = "RS256";
+    /**
+     * RSASSA-PKCS-v1_5 using SHA-384
+     */
+    String AUTHENTICATION_JWT_SIGALG_RS384 = "RS384";
+    /**
+     * RSASSA-PKCS-v1_5 using SHA-512
+     */
+    String AUTHENTICATION_JWT_SIGALG_RS512 = "RS512";
+    /**
+     * RSASSA-PSS using SHA-256 and MGF1 with SHA-256
+     */
+    String AUTHENTICATION_JWT_SIGALG_PS256 = "PS256";
+    /**
+     * RSASSA-PSS using SHA-384 and MGF1 with SHA-384
+     */
+    String AUTHENTICATION_JWT_SIGALG_PS384 = "PS384";
+    /**
+     * RSASSA-PSS using SHA-512 and MGF1 with SHA-512
+     */
+    String AUTHENTICATION_JWT_SIGALG_PS512 = "PS512";
+
+
+    /**
+     * Path to the file where the JWT key is stored
+     */
+    String AUTHENTICATION_JWT_KEYFILE = "authentication.jwt.keyfile";
+
 }
