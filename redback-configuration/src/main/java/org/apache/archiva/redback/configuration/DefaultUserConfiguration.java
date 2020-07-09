@@ -57,7 +57,7 @@ public class DefaultUserConfiguration
 
     private Registry lookupRegistry;
 
-    private static final String PREFIX = "org.apache.archiva.redback";
+    public static final String PREFIX = "org.apache.archiva.redback";
 
     @Inject
     @Named(value = "commons-configuration")

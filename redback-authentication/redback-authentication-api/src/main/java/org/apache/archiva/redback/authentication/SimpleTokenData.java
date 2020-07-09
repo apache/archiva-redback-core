@@ -20,6 +20,8 @@ package org.apache.archiva.redback.authentication;
  */
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -39,10 +41,9 @@ public final class SimpleTokenData implements Serializable, TokenData {
     private static final long serialVersionUID = 5907745449771921813L;
 
     private final String user;
-    private final Date created;
-    private final Date validBefore;
+    private final Instant created;
+    private final Instant validBefore;
     private final long nonce;
-
 
     /**
      * Creates a new token info instance for the given user.
@@ -55,8 +56,8 @@ public final class SimpleTokenData implements Serializable, TokenData {
      */
     public SimpleTokenData(final String user, final long lifetime, final long nonce) {
         this.user=user;
-        this.created=new Date();
-        this.validBefore =new Date(created.getTime()+lifetime);
+        this.created = Instant.now( );
+        this.validBefore = created.plus( Duration.ofMillis( lifetime ) );
         this.nonce = nonce;
     }
 
@@ -66,12 +67,12 @@ public final class SimpleTokenData implements Serializable, TokenData {
     }
 
     @Override
-    public final Date created() {
+    public final Instant created() {
         return created;
     }
 
     @Override
-    public final Date validBefore() {
+    public final Instant validBefore() {
         return validBefore;
     }
 
@@ -82,7 +83,7 @@ public final class SimpleTokenData implements Serializable, TokenData {
 
     @Override
     public boolean isValid() {
-        return (System.currentTimeMillis())<validBefore.getTime();
+        return Instant.now( ).isBefore( validBefore );
     }
 
 }

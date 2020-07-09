@@ -194,6 +194,8 @@ public interface UserConfigurationKeys
     String AUTHENTICATION_JWT_KEYSTORETYPE_MEMORY = "memory";
     String AUTHENTICATION_JWT_KEYSTORETYPE_PLAINFILE = "plainfile";
     String AUTHENTICATION_JWT_SIGALG = "authentication.jwt.signatureAlgorithm";
+    String AUTHENTICATION_JWT_MAX_KEYS = "authentication.jwt.maxInMemoryKeys";
+
     /**
      * HMAC using SHA-256
      */
@@ -248,5 +250,10 @@ public interface UserConfigurationKeys
      * Path to the file where the JWT key is stored
      */
     String AUTHENTICATION_JWT_KEYFILE = "authentication.jwt.keyfile";
+
+    /**
+     * The lifetime in ms of the generated tokens.
+     */
+    String AUTHENTICATION_JWT_LIFETIME_MS = "authentication.jwt.lifetimeMs";
 
 }

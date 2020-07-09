@@ -10,7 +10,6 @@ package org.apache.archiva.redback.authentication;
  * with the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,48 +18,36 @@ package org.apache.archiva.redback.authentication;
  * under the License.
  */
 
-import java.time.Instant;
-
 /**
+ * Simple token implementation. This implementation is immutable.
  *
- * This contains the token payload that is used for verification of tokens.
- *
- * Created by Martin Stockhammer on 11.02.17.
+ * @author Martin Stockhammer <martin_s@apache.org>
  */
-public interface TokenData {
+public class StringToken implements Token
+{
+    final TokenData metadata;
+    final String token;
 
-    /**
-     * Returns the user name.
-     *
-     * @return The username property.
-     */
-    String getUser();
+    public StringToken(String tokenData, TokenData metadata) {
+        this.token = tokenData;
+        this.metadata = metadata;
+    }
 
-    /**
-     * The date the token was created.
-     *
-     * @return The creation date.
-     */
-    Instant created();
+    @Override
+    public String getData( )
+    {
+        return token;
+    }
 
-    /**
-     * The date after that the token is invalid.
-     *
-     * @return The invalidation date.
-     */
-    Instant validBefore();
+    @Override
+    public byte[] getBytes( )
+    {
+        return token.getBytes( );
+    }
 
-    /**
-     * The nonce that is stored in the token.
-     *
-     * @return The nonce.
-     */
-    long getNonce();
-
-    /**
-     * Returns true, if the token is valid.
-     *
-     * @return True, if valid, otherwise false.
-     */
-    boolean isValid();
+    @Override
+    public TokenData getMetadata( )
+    {
+        return metadata;
+    }
 }
