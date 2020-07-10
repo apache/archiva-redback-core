@@ -19,6 +19,9 @@ package org.apache.archiva.redback.rest.api.services.v2;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.AuthenticationKeyResult;
@@ -70,15 +73,38 @@ public interface AuthenticationService
         throws RedbackServiceException;
 
     /**
-     * check username/password and create a http session.
-     * So no more need of reuse username/password for all ajaxRequest
+     * Check username/password and return a bearer token.
+     * The bearer token can be added to the HTTP header on further requests to authenticate.
+     *
      */
     @Path( "authenticate" )
     @POST
     @RedbackAuthorization( noRestriction = true, noPermission = true )
     @Produces( { MediaType.APPLICATION_JSON } )
-    UserLogin logIn( LoginRequest loginRequest )
+    @Operation( summary = "Authenticate by user/password login and return a bearer token, usable for further requests",
+        responses = {
+            @ApiResponse( description = "The bearer token. The token data contains the token string that should be added to the Bearer header" )
+        }
+    )
+    Token logIn( LoginRequest loginRequest )
         throws RedbackServiceException;
+
+    /**
+     * Renew the bearer token. The request must send a bearer token in the HTTP header
+     *
+     */
+    @Path( "authenticate" )
+    @GET
+    @RedbackAuthorization( noRestriction = false, noPermission = true )
+    @Produces( { MediaType.APPLICATION_JSON } )
+    @Operation( summary = "Creates a new bearer token. The requestor must present a still valid bearer token in the HTTP header.",
+        responses = {
+            @ApiResponse( description = "The new bearer token," )
+        }
+    )
+    Token renewToken( )
+        throws RedbackServiceException;
+
 
     /**
      * simply check if current user has an http session opened with authz passed and return user data

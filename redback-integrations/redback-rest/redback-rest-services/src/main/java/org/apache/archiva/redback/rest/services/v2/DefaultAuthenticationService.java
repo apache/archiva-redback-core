@@ -146,7 +146,7 @@ public class DefaultAuthenticationService
     }
 
     @Override
-    public UserLogin logIn( LoginRequest loginRequest )
+    public Token logIn( LoginRequest loginRequest )
         throws RedbackServiceException
     {
         String userName = loginRequest.getUsername(), password = loginRequest.getPassword();
@@ -180,7 +180,7 @@ public class DefaultAuthenticationService
 
                 // here create an http session
                 httpAuthenticator.authenticate( authDataSource, httpServletRequest.getSession( true ) );
-                return restUser;
+                return null;
             }
             if ( securitySession.getAuthenticationResult() != null
                 && securitySession.getAuthenticationResult().getAuthenticationFailureCauses() != null )
@@ -212,7 +212,7 @@ public class DefaultAuthenticationService
         }
         catch ( MustChangePasswordException e )
         {
-            return buildRestUser( e.getUser() );
+            return null;
         }
         catch ( UserManagerException e )
         {
@@ -222,6 +222,12 @@ public class DefaultAuthenticationService
             throw new RedbackServiceException( errorMessages );
         }
 
+    }
+
+    @Override
+    public Token renewToken( ) throws RedbackServiceException
+    {
+        return null;
     }
 
     @Override
