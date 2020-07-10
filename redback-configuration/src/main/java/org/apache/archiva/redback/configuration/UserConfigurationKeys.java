@@ -189,11 +189,24 @@ public interface UserConfigurationKeys
     /**
      * Defines, where the key for JWT encryption / decryption is stored.
      * Currently only memory and plainfile are supported
+     * {@value}
      */
     String AUTHENTICATION_JWT_KEYSTORETYPE = "authentication.jwt.keystoreType";
+    /**
+     * Keystore type name for memory keystore: {@value}
+     */
     String AUTHENTICATION_JWT_KEYSTORETYPE_MEMORY = "memory";
+    /**
+     * Keystore type name for plain file keystore: {@value}
+     */
     String AUTHENTICATION_JWT_KEYSTORETYPE_PLAINFILE = "plainfile";
+    /**
+     * Defines the used signature algorithm for JWT signing: {@value}
+     */
     String AUTHENTICATION_JWT_SIGALG = "authentication.jwt.signatureAlgorithm";
+    /**
+     * Defines the maximum number of keys to keep in memory for verificatio: {@value}
+     */
     String AUTHENTICATION_JWT_MAX_KEYS = "authentication.jwt.maxInMemoryKeys";
 
     /**
@@ -247,12 +260,12 @@ public interface UserConfigurationKeys
 
 
     /**
-     * Path to the file where the JWT key is stored
+     * Path to the file where the JWT key is stored: {@value}
      */
     String AUTHENTICATION_JWT_KEYFILE = "authentication.jwt.keyfile";
 
     /**
-     * The lifetime in ms of the generated tokens.
+     * The lifetime in ms of the generated tokens: {@value}
      */
     String AUTHENTICATION_JWT_LIFETIME_MS = "authentication.jwt.lifetimeMs";
 

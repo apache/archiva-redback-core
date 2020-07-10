@@ -40,6 +40,7 @@ import org.apache.archiva.redback.authentication.Token;
 import org.apache.archiva.redback.authentication.TokenBasedAuthenticationDataSource;
 import org.apache.archiva.redback.authentication.TokenData;
 import org.apache.archiva.redback.configuration.UserConfiguration;
+import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +92,42 @@ import static org.apache.archiva.redback.configuration.UserConfigurationKeys.*;
  * You can renew the used key ({@link #renewSigningKey()}). The authenticator keeps a fixed
  * sized list of the last keys used and stores the key identifier in the JWT header.
  * <p>
- * The default algorithm for the JWT is currently {@link org.apache.archiva.redback.configuration.UserConfigurationKeys#AUTHENTICATION_JWT_SIGALG_ES384}
+ * The default algorithm used for the JWT is currently {@link org.apache.archiva.redback.configuration.UserConfigurationKeys#AUTHENTICATION_JWT_SIGALG_ES384}
+ *
+ * If the <code>plainfile</code> keystore is used, only the most recent key is saved to the file. Not the
+ * complete list.
+ *
+ * The JWT tokens have a lifetime set (14400 seconds - 4 hours).
+ *
+ * The following configuration keys are used to setup this authenticator:
+ * <dl>
+ *     <dt>{@value UserConfigurationKeys#AUTHENTICATION_JWT_KEYSTORETYPE}</dt>
+ *     <dd>The type of the keystore, either <code>{@value UserConfigurationKeys#AUTHENTICATION_JWT_KEYSTORETYPE_MEMORY}</code>
+ *     (key is lost, if the jvm stops) or <code>{@value UserConfigurationKeys#AUTHENTICATION_JWT_KEYSTORETYPE_PLAINFILE}</code></dd>
+ *     <dt>{@value UserConfigurationKeys#AUTHENTICATION_JWT_SIGALG}</dt>
+ *     <dd>The signature algorithm for the JWT.
+ *     <ul>
+ *           <li>HS256: HMAC using SHA-256</li>
+ *           <li>HS384: HMAC using SHA-384</li>
+ *           <li>HS512: HMAC using SHA-512</li>
+ *           <li>ES256: ECDSA using P-256 and SHA-256</li>
+ *           <li>ES384: ECDSA using P-384 and SHA-384</li>
+ *           <li>ES512: ECDSA using P-521 and SHA-512</li>
+ *           <li>RS256: RSASSA-PKCS-v1_5 using SHA-256</li>
+ *           <li>RS384: RSASSA-PKCS-v1_5 using SHA-384</li>
+ *           <li>RS512: RSASSA-PKCS-v1_5 using SHA-512</li>
+ *           <li>PS256: RSASSA-PSS using SHA-256 and MGF1 with SHA-256</li>
+ *           <li>PS384: RSASSA-PSS using SHA-384 and MGF1 with SHA-384</li>
+ *           <li>PS512: RSASSA-PSS using SHA-512 and MGF1 with SHA-512</li>
+ *     </ul>
+ *     </dd>
+ *     <dt>{@value UserConfigurationKeys#AUTHENTICATION_JWT_MAX_KEYS}</dt>
+ *     <dd>The maximum number of signature keys to keep in memory for verification</dd>
+ *     <dt>{@value UserConfigurationKeys#AUTHENTICATION_JWT_KEYFILE}</dt>
+ *     <dd>The key file. Either a full path to the file, or a single filename, which means it is stored in the working directory</dd>
+ *     <dt>{@value UserConfigurationKeys#AUTHENTICATION_JWT_LIFETIME_MS}</dt>
+ *     <dd>The default token lifetime in milliseconds</dd>
+ * </dl>
  */
 @Service( "authenticator#jwt" )
 public class JwtAuthenticator extends AbstractAuthenticator implements Authenticator
@@ -356,6 +392,7 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
     {
         if ( Files.exists( filePath ) )
         {
+            log.info( "Loading secret key from file storage {}", filePath );
             Properties props = new Properties( );
             try ( InputStream in = Files.newInputStream( filePath ) )
             {
@@ -383,6 +420,7 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
     {
         if ( Files.exists( filePath ) )
         {
+            log.info( "Loading key pair from file storage {}", filePath );
             Properties props = new Properties( );
             try ( InputStream in = Files.newInputStream( filePath ) )
             {
@@ -477,12 +515,23 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
 
     }
 
+    /**
+     * Returns <code>true</code>, if the source is a instance of {@link TokenBasedAuthenticationDataSource}
+     * @param source the source to check
+     * @return <code>true</code>, if the given source is a instance of {@link TokenBasedAuthenticationDataSource}
+     */
     @Override
     public boolean supportsDataSource( AuthenticationDataSource source )
     {
         return ( source instanceof TokenBasedAuthenticationDataSource );
     }
 
+    /**
+     * Tries to verify the represented token and returns the result
+     * @param source the authentication source, which must be a {@link TokenBasedAuthenticationDataSource}
+     * @return the authentication result
+     * @throws AuthenticationException if the source is no {@link TokenBasedAuthenticationDataSource}
+     */
     @Override
     public AuthenticationResult authenticate( AuthenticationDataSource source ) throws AuthenticationException
     {
@@ -541,6 +590,9 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
         return id;
     }
 
+    /**
+     * Simple internal DTO for keeping key data and its key id.
+     */
     private static class KeyHolder {
         final Long id;
         final SecretKey secretKey;
@@ -668,7 +720,8 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
     }
 
     /**
-     * Removes all signing keys and creates a new one.
+     * Removes all signing keys and creates a new one. If you call this method, all JWT tokens generated before,
+     * will be invalid.
      */
     public void revokeSigningKeys() {
         lock.writeLock( ).lock( );
@@ -687,31 +740,55 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
         return this.resolver;
     }
 
+    /**
+     * Returns <code>true</code>, if the signature algorithm ist a symmetric one, otherwise <code>false</code>
+     * @return <code>true</code>, if symmetric algorithm, otherwise <code>false</code>
+     */
     public boolean usesSymmetricAlgorithm( )
     {
         return symmetricAlgorithm;
     }
 
+    /**
+     * Returns the signature algorithm used for signing JWT tokens
+     * @return the string representation of the signature algorithm
+     */
     public String getSignatureAlgorithm( )
     {
         return signatureAlgorithm;
     }
 
+    /**
+     * Returns the keystore type that is setup for the authenticator
+     * @return either <code>memory</code> or <code>plainfile</code>
+     */
     public String getKeystoreType( )
     {
         return keystoreType;
     }
 
+    /**
+     * Returns the path to the keystore file or <code>null</code>, if the keystore type is <code>memory</code>
+     * @return the path to the keystore file, or <code>null</code>
+     */
     public Path getKeystoreFilePath( )
     {
         return keystoreFilePath;
     }
 
+    /**
+     * Returns the maximum number of signature keys to store in memory for verification
+     * @return the maximum number of signature keys to keep in memory
+     */
     public int getMaxInMemoryKeys( )
     {
         return maxInMemoryKeys;
     }
 
+    /**
+     * Returns the current size of the in memory key list
+     * @return the number of memory stored signature keys
+     */
     public int getCurrentKeyListSize() {
         if (symmetricAlgorithm) {
             return secretKey.size( );
@@ -720,14 +797,26 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
         }
     }
 
+    /**
+     * Returns the current used key identifier.
+     * @return the key identifier
+     */
     public Long getCurrentKeyId() {
         return keyCounter.get( );
     }
 
+    /**
+     * Returns the default token lifetime of generated tokens.
+     * @return the lifetime as duration
+     */
     public Duration getTokenLifetime() {
         return this.lifetime;
     }
 
+    /**
+     * Sets the default token lifetime of generated tokens.
+     * @param lifetime the lifetime as duration
+     */
     public void setTokenLifetime(Duration lifetime) {
         this.lifetime = lifetime;
     }
