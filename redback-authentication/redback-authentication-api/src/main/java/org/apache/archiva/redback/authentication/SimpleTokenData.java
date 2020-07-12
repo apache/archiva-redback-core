@@ -61,6 +61,22 @@ public final class SimpleTokenData implements Serializable, TokenData {
         this.nonce = nonce;
     }
 
+    /**
+     * Creates a new token info instance for the given user.
+     * The lifetime in milliseconds defines the invalidation date by
+     * adding the lifetime to the current time of instantiation.
+     *
+     * @param user The user name
+     * @param lifetime The number of milliseconds after that the token is invalid
+     * @param nonce Should be a random number and different for each instance.
+     */
+    public SimpleTokenData(final String user, final Duration lifetime, final long nonce) {
+        this.user=user;
+        this.created = Instant.now( );
+        this.validBefore = created.plus( lifetime );
+        this.nonce = nonce;
+    }
+
     @Override
     public final String getUser() {
         return user;

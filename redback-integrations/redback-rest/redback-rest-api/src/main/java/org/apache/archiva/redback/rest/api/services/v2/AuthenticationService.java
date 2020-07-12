@@ -25,7 +25,10 @@ import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.LoginRequest;
 import org.apache.archiva.redback.rest.api.model.PingResult;
+import org.apache.archiva.redback.rest.api.model.RefreshTokenRequest;
+import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
 import org.apache.archiva.redback.rest.api.model.Token;
+import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
@@ -42,17 +45,6 @@ import javax.ws.rs.core.MediaType;
 @Path( "/auth" )
 public interface AuthenticationService
 {
-
-    @Path( "requestkey" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
-    @RedbackAuthorization( noRestriction = true )
-    Token requestOnetimeToken( @QueryParam( "providerKey" ) String providedKey,
-                        @QueryParam( "principal" ) String principal,
-                        @QueryParam( "purpose" ) String purpose,
-                        @QueryParam( "expirationSeconds" ) int expirationSeconds )
-        throws RedbackServiceException;
-
 
     @Path( "ping" )
     @GET
@@ -74,7 +66,7 @@ public interface AuthenticationService
      * The bearer token can be added to the HTTP header on further requests to authenticate.
      *
      */
-    @Path( "authenticate" )
+    @Path( "token" )
     @POST
     @RedbackAuthorization( noRestriction = true, noPermission = true )
     @Produces( { MediaType.APPLICATION_JSON } )
@@ -83,23 +75,23 @@ public interface AuthenticationService
             @ApiResponse( description = "The bearer token. The token data contains the token string that should be added to the Bearer header" )
         }
     )
-    Token logIn( LoginRequest loginRequest )
+    TokenResponse logIn( RequestTokenRequest loginRequest )
         throws RedbackServiceException;
 
     /**
      * Renew the bearer token. The request must send a bearer token in the HTTP header
      *
      */
-    @Path( "authenticate" )
-    @GET
+    @Path( "refresh" )
+    @POST
     @RedbackAuthorization( noRestriction = false, noPermission = true )
     @Produces( { MediaType.APPLICATION_JSON } )
-    @Operation( summary = "Creates a new bearer token. The requestor must present a still valid bearer token in the HTTP header.",
+    @Operation( summary = "Creates a new bearer token. The requester must present a still valid bearer token in the HTTP header.",
         responses = {
             @ApiResponse( description = "The new bearer token," )
         }
     )
-    Token renewToken( )
+    TokenResponse refreshToken( RefreshTokenRequest refreshTokenRequest )
         throws RedbackServiceException;
 
 
@@ -107,21 +99,11 @@ public interface AuthenticationService
      * simply check if current user has an http session opened with authz passed and return user data
      * @since 1.4
      */
-    @Path( "isAuthenticated" )
+    @Path( "authenticated" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
-    User isLogged()
+    User getAuthenticatedUser()
         throws RedbackServiceException;
 
-    /**
-     * clear user http session
-     * @since 1.4
-     */
-    @Path( "logout" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
-    @RedbackAuthorization( noRestriction = true, noPermission = true )
-    ActionStatus logout()
-        throws RedbackServiceException;
 }

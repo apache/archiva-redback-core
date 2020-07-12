@@ -126,16 +126,16 @@ public class DefaultLoginService
         return key.getKey( );
     }
 
-    public PingResult ping()
+    public Boolean ping()
         throws RedbackServiceException
     {
-        return new PingResult( true);
+        return Boolean.TRUE;
     }
 
-    public PingResult pingWithAutz()
+    public Boolean pingWithAutz()
         throws RedbackServiceException
     {
-        return new PingResult( true );
+        return Boolean.TRUE;
     }
 
     public User logIn( LoginRequest loginRequest )

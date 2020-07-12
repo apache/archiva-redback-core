@@ -151,7 +151,7 @@ public interface UserService
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
     @RedbackAuthorization( noRestriction = true )
-    PingResult ping()
+    Boolean ping()
         throws RedbackServiceException;
 
     @Path( "removeFromCache/{userName}" )

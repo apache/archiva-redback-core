@@ -29,6 +29,7 @@ import org.apache.archiva.redback.authentication.BearerTokenAuthenticationDataSo
 import org.apache.archiva.redback.authentication.PasswordBasedAuthenticationDataSource;
 import org.apache.archiva.redback.authentication.Token;
 import org.apache.archiva.redback.authentication.TokenBasedAuthenticationDataSource;
+import org.apache.archiva.redback.authentication.TokenType;
 import org.apache.archiva.redback.configuration.DefaultUserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationException;
 import org.apache.commons.configuration2.BaseConfiguration;
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -117,12 +119,6 @@ public abstract class AbstractJwtTest
 
         assertTrue( Instant.now( ).isAfter( token.getMetadata( ).created( ) ) );
         assertTrue( Instant.now( ).isBefore( token.getMetadata( ).validBefore( ) ) );
-    }
-
-
-    @Test
-    void authenticate( )
-    {
     }
 
     @Test
@@ -229,6 +225,33 @@ public abstract class AbstractJwtTest
         AuthenticationResult result = jwtAuthenticator.authenticate( source );
         assertNotNull( result );
         assertFalse( result.isAuthenticated( ) );
+    }
+
+    @Test
+    void refreshToken() throws TokenAuthenticationException
+    {
+        Token token = jwtAuthenticator.generateToken( "bilbo_baggins" , TokenType.REFRESH_TOKEN);
+        assertNotNull( token );
+        assertTrue( token.getType( ).equals( TokenType.REFRESH_TOKEN ) );
+        UUID tokenId = UUID.fromString( token.getId( ) );
+        assertNotNull( tokenId );
+        Token accessToken = jwtAuthenticator.refreshAccessToken( token.getData() );
+        assertNotNull( accessToken );
+        assertTrue( accessToken.getType( ).equals( TokenType.ACCESS_TOKEN ) );
+
+    }
+
+    @Test
+    void invalidRefreshWithAccessToken() throws TokenAuthenticationException
+    {
+        Token token = jwtAuthenticator.generateToken( "bilbo_baggins");
+        assertNotNull( token );
+        assertTrue( token.getType( ).equals( TokenType.ACCESS_TOKEN ) );
+        TokenAuthenticationException thrownException = assertThrows( TokenAuthenticationException.class, ( ) -> {
+            jwtAuthenticator.refreshAccessToken( token.getData( ) );
+        } );
+        assertEquals( BearerError.INVALID_TOKEN, thrownException.getError( ) );
+        assertTrue( thrownException.getMessage( ).contains( "the token type is not correct - expected claim " + TokenType.REFRESH_TOKEN.getClaim( ) ) );
     }
 
 

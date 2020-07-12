@@ -26,28 +26,51 @@ package org.apache.archiva.redback.authentication;
 public class StringToken implements Token
 {
     final TokenData metadata;
-    final String token;
+    final String data;
+    final String id;
+    final TokenType type;
 
-    public StringToken(String tokenData, TokenData metadata) {
-        this.token = tokenData;
+    public StringToken(String id, String tokenData, TokenData metadata) {
+        this.id = id;
+        this.data = tokenData;
         this.metadata = metadata;
+        this.type = TokenType.ACCESS_TOKEN;
+    }
+
+    public StringToken(TokenType type, String id, String tokenData, TokenData metadata) {
+        this.id = id;
+        this.data = tokenData;
+        this.metadata = metadata;
+        this.type = type;
     }
 
     @Override
     public String getData( )
     {
-        return token;
+        return data;
     }
 
     @Override
     public byte[] getBytes( )
     {
-        return token.getBytes( );
+        return data.getBytes( );
     }
 
     @Override
     public TokenData getMetadata( )
     {
         return metadata;
+    }
+
+    @Override
+    public String getId( )
+    {
+        return id;
+    }
+
+    @Override
+    public TokenType getType( )
+    {
+        return type;
     }
 }

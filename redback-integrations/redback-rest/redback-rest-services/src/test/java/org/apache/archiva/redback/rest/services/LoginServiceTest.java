@@ -45,6 +45,13 @@ public class LoginServiceTest
     }
 
     @Test
+    public void ping()
+        throws Exception
+    {
+        assertNotNull( getLoginService( null ).ping( ) );
+    }
+
+    @Test
     public void createUserThenLog()
         throws Exception
     {

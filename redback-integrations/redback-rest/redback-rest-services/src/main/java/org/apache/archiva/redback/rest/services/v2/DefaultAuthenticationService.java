@@ -23,20 +23,18 @@ import org.apache.archiva.redback.authentication.AuthenticationConstants;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationFailureCause;
 import org.apache.archiva.redback.authentication.PasswordBasedAuthenticationDataSource;
+import org.apache.archiva.redback.authentication.Token;
+import org.apache.archiva.redback.authentication.TokenType;
 import org.apache.archiva.redback.authentication.jwt.JwtAuthenticator;
+import org.apache.archiva.redback.authentication.jwt.TokenAuthenticationException;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
-import org.apache.archiva.redback.keys.AuthenticationKey;
-import org.apache.archiva.redback.keys.KeyManager;
-import org.apache.archiva.redback.keys.jpa.model.JpaAuthenticationKey;
-import org.apache.archiva.redback.keys.memory.MemoryAuthenticationKey;
-import org.apache.archiva.redback.keys.memory.MemoryKeyManager;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
-import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
-import org.apache.archiva.redback.rest.api.model.LoginRequest;
 import org.apache.archiva.redback.rest.api.model.PingResult;
-import org.apache.archiva.redback.rest.api.model.Token;
+import org.apache.archiva.redback.rest.api.model.RefreshTokenRequest;
+import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
+import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.UserLogin;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
@@ -53,17 +51,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  *
@@ -106,37 +98,6 @@ public class DefaultAuthenticationService
 
 
     @Override
-    public Token requestOnetimeToken( String providedKey, String principal, String purpose, int expirationSeconds )
-    {
-        KeyManager keyManager = securitySystem.getKeyManager();
-        AuthenticationKey key;
-
-        if ( keyManager instanceof MemoryKeyManager )
-        {
-            key = new MemoryAuthenticationKey();
-        }
-        else
-        {
-            key = new JpaAuthenticationKey();
-        }
-
-        key.setKey( providedKey );
-        key.setForPrincipal( principal );
-        key.setPurpose( purpose );
-
-        Instant now = Instant.now( );
-        key.setDateCreated( Date.from( now ) );
-
-        if ( expirationSeconds >= 0 )
-        {
-            Duration expireDuration = Duration.ofSeconds( expirationSeconds );
-            key.setDateExpires( Date.from( now.plus( expireDuration ) ) );
-        }
-        keyManager.addKey( key );
-        return Token.of( key );
-    }
-
-    @Override
     public PingResult ping()
     {
         return new PingResult( true);
@@ -148,15 +109,11 @@ public class DefaultAuthenticationService
         return new PingResult( true );
     }
 
-    private Token getRestToken( org.apache.archiva.redback.authentication.Token token ) {
-        return Token.of( token.getData( ), token.getMetadata( ).created( ), token.getMetadata( ).validBefore( ), token.getMetadata( ).getUser( ), "rest-auth" );
-    }
-
     @Override
-    public Token logIn( LoginRequest loginRequest )
+    public TokenResponse logIn( RequestTokenRequest loginRequest )
         throws RedbackServiceException
     {
-        String userName = loginRequest.getUsername(), password = loginRequest.getPassword();
+        String userName = loginRequest.getUserId(), password = loginRequest.getPassword();
         PasswordBasedAuthenticationDataSource authDataSource =
             new PasswordBasedAuthenticationDataSource( userName, password );
         log.debug("Login for {}",userName);
@@ -177,8 +134,10 @@ public class DefaultAuthenticationService
                 }
                 // Stateless services no session
                 // httpAuthenticator.authenticate( authDataSource, httpServletRequest.getSession( true ) );
-                Token restToken = getRestToken( token );
-                return restToken;
+                org.apache.archiva.redback.authentication.Token refreshToken = jwtAuthenticator.generateToken( user.getUsername( ), TokenType.REFRESH_TOKEN );
+                response.setHeader( "Cache-Control", "no-store" );
+                response.setHeader( "Pragma", "no-cache" );
+                return new TokenResponse(token, refreshToken, "", loginRequest.getState());
             } else if ( securitySession.getAuthenticationResult() != null
                 && securitySession.getAuthenticationResult().getAuthenticationFailureCauses() != null )
             {
@@ -231,36 +190,31 @@ public class DefaultAuthenticationService
     }
 
     @Override
-    public Token renewToken( ) throws RedbackServiceException
+    public TokenResponse refreshToken( RefreshTokenRequest request ) throws RedbackServiceException
     {
-        return null;
+        if (!"refresh_token".equals(request.getGrantType().toLowerCase())) {
+            throw new RedbackServiceException( "redback:bad_grant", Response.Status.FORBIDDEN.getStatusCode( ) );
+        }
+        try
+        {
+            Token accessToken = jwtAuthenticator.refreshAccessToken( request.getRefreshToken( ) );
+            Token refreshToken = jwtAuthenticator.tokenFromString( request.getRefreshToken( ) );
+            return new TokenResponse( accessToken, refreshToken );
+        }
+        catch ( TokenAuthenticationException e )
+        {
+            throw new RedbackServiceException( e.getError( ).getError( ), Response.Status.UNAUTHORIZED.getStatusCode( ) );
+        }
     }
 
     @Override
-    public User isLogged()
+    public User getAuthenticatedUser()
         throws RedbackServiceException
     {
         SecuritySession securitySession = httpAuthenticator.getSecuritySession( httpServletRequest.getSession( true ) );
         Boolean isLogged = securitySession != null;
         log.debug( "isLogged {}", isLogged );
         return isLogged && securitySession.getUser() != null ? buildRestUser( securitySession.getUser() ) : null;
-    }
-
-    @Override
-    public ActionStatus logout()
-        throws RedbackServiceException
-    {
-        HttpSession httpSession = httpServletRequest.getSession();
-        if ( httpSession != null )
-        {
-            httpSession.invalidate();
-        }
-        return ActionStatus.SUCCESS;
-    }
-
-    private Calendar getNowGMT()
-    {
-        return Calendar.getInstance( TimeZone.getTimeZone( "GMT" ) );
     }
 
     private UserLogin buildRestUser( org.apache.archiva.redback.users.User user )

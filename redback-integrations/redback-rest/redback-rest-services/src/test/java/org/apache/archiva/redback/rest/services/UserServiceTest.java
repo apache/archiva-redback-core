@@ -57,7 +57,7 @@ public class UserServiceTest
     public void ping()
         throws Exception
     {
-        Boolean res = getUserService().ping().isSuccess();
+        Boolean res = getUserService().ping();
         assertTrue( res.booleanValue() );
     }
 

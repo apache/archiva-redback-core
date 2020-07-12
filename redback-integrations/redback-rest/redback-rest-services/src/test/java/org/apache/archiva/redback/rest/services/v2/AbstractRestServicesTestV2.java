@@ -22,10 +22,10 @@ package org.apache.archiva.redback.rest.services.v2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.apache.archiva.redback.authentication.Token;
 import org.apache.archiva.redback.authentication.jwt.JwtAuthenticator;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
-import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
 import org.apache.archiva.redback.rest.services.FakeCreateAdminService;
 import org.apache.archiva.redback.rest.services.FakeCreateAdminServiceImpl;
@@ -56,6 +56,7 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.ws.rs.core.MediaType;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -137,6 +138,8 @@ public abstract class AbstractRestServicesTestV2
         JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider( );
         ObjectMapper mapper = new ObjectMapper( );
         mapper.registerModule( new JavaTimeModule( ) );
+        mapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( mapper.getTypeFactory() ) );
+        mapper.setDateFormat( new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ) );
         provider.setMapper( mapper );
         return provider;
     }
@@ -227,7 +230,7 @@ public abstract class AbstractRestServicesTestV2
 
     protected String getRestServicesPath()
     {
-        return "restServices";
+        return "api";
     }
 
     public void startServer()

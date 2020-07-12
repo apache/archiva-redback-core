@@ -18,44 +18,60 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.time.OffsetDateTime;
 
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
  */
-@XmlRootElement(name="pingResult")
-public class PingResult
+@XmlRootElement(name="refreshToken")
+public class RefreshTokenRequest
 {
-    boolean success;
-    OffsetDateTime requestTime;
+    String grantType;
+    String refreshToken;
+    String scope;
 
-    public PingResult() {
-        this.requestTime = OffsetDateTime.now( );
-    }
-
-    public PingResult( boolean success ) {
-        this.success = success;
-        this.requestTime = OffsetDateTime.now( );
-    }
-
-    public boolean isSuccess( )
+    public RefreshTokenRequest( )
     {
-        return success;
     }
 
-    public void setSuccess( boolean success )
+    public RefreshTokenRequest( String grantType, String refreshToken, String scope )
     {
-        this.success = success;
+        this.grantType = grantType;
+        this.refreshToken = refreshToken;
+        this.scope = scope;
     }
 
-    public OffsetDateTime getRequestTime( )
+    @XmlElement(name = "grant_type")
+    public String getGrantType( )
     {
-        return requestTime;
+        return grantType;
     }
 
-    public void setRequestTime( OffsetDateTime requestTime )
+    public void setGrantType( String grantType )
     {
-        this.requestTime = requestTime;
+        this.grantType = grantType;
+    }
+
+    @XmlElement(name="refresh_token")
+    public String getRefreshToken( )
+    {
+        return refreshToken;
+    }
+
+    public void setRefreshToken( String refreshToken )
+    {
+        this.refreshToken = refreshToken;
+    }
+
+    @XmlElement(name="scope")
+    public String getScope( )
+    {
+        return scope;
+    }
+
+    public void setScope( String scope )
+    {
+        this.scope = scope;
     }
 }

@@ -19,41 +19,30 @@ package org.apache.archiva.redback.authentication;
  */
 
 /**
- * This interface represents a token including its metadata.
- *
  * @author Martin Stockhammer <martin_s@apache.org>
  */
-public interface Token
+public enum TokenType
 {
+    REFRESH_TOKEN("refresh_token"), ACCESS_TOKEN( "access_token" ), ALL( "*" ),;
 
-    /**
-     * The token id, if it exists, otherwise a empty string.
-     * @return
-     */
-    String getId();
+    private String claim;
 
-    /**
-     * Returns the token type (access or refresh token)
-     * @return the token type
-     */
-    TokenType getType();
+    TokenType( String claim )
+    {
+        this.claim = claim;
+    }
 
-    /**
-     * The string representation of the token data. It depends on the token algorithm,
-     * what kind of string conversion is used (e.g. Base64)
-     * @return the token string
-     */
-    String getData();
+    public String getClaim() {
+        return this.claim;
+    }
 
-    /**
-     * The token as byte array
-     * @return
-     */
-    byte[] getBytes();
-
-    /**
-     * The token meta data, like expiration time.
-     * @return the metadata
-     */
-    TokenData getMetadata();
+    public static TokenType ofClaim(String claim) {
+        TokenType[] vals = values( );
+        for (int i=0; i< vals.length; i++) {
+            if (vals[i].getClaim().equals(claim)) {
+                return vals[i];
+            }
+        }
+        return null;
+    }
 }

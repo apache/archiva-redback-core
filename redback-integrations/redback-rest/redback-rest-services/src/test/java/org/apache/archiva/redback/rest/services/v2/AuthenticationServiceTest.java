@@ -20,7 +20,9 @@ package org.apache.archiva.redback.rest.services.v2;
 
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.model.LoginRequest;
+import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
 import org.apache.archiva.redback.rest.api.model.Token;
+import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.archiva.redback.rest.services.FakeCreateAdminService;
@@ -64,7 +66,7 @@ public class AuthenticationServiceTest
     public void loginAdmin()
         throws Exception
     {
-        assertNotNull( getLoginServiceV2( null ).logIn( new LoginRequest( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME,
+        assertNotNull( getLoginServiceV2( null ).logIn( new RequestTokenRequest( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME,
                                                                         FakeCreateAdminService.ADMIN_TEST_PWD ) ) );
     }
 
@@ -117,8 +119,8 @@ public class AuthenticationServiceTest
             user.setPasswordChangeRequired( false );
             um.updateUser( user );
             // END SNIPPET: create-user
-            LoginRequest request = new LoginRequest( "toto", "foo123" );
-            Token result = getLoginServiceV2( "" ).logIn( request );
+            RequestTokenRequest request = new RequestTokenRequest( "toto", "foo123" );
+            TokenResponse result = getLoginServiceV2( "" ).logIn( request );
             // assertNotNull( result );
             // assertEquals( "toto", result.getUsername( ) );
 

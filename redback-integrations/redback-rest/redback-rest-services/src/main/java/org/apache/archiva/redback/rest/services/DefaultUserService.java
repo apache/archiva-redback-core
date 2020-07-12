@@ -490,10 +490,10 @@ public class DefaultUserService
     }
 
     @Override
-    public PingResult ping()
+    public Boolean ping()
         throws RedbackServiceException
     {
-        return new PingResult( true );
+        return Boolean.TRUE;
     }
 
     private User getSimpleUser( org.apache.archiva.redback.users.User user )

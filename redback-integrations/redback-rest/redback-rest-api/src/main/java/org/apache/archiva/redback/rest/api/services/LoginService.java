@@ -56,7 +56,7 @@ public interface LoginService
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
     @RedbackAuthorization( noRestriction = true )
-    PingResult ping()
+    Boolean ping()
         throws RedbackServiceException;
 
 
@@ -65,7 +65,7 @@ public interface LoginService
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
     @RedbackAuthorization( noRestriction = false, noPermission = true )
-    PingResult pingWithAutz()
+    Boolean pingWithAutz()
         throws RedbackServiceException;
 
     /**

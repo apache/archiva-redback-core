@@ -21,12 +21,14 @@ package org.apache.archiva.redback.authentication.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.IncorrectClaimException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.MissingClaimException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -44,6 +46,7 @@ import org.apache.archiva.redback.authentication.StringToken;
 import org.apache.archiva.redback.authentication.Token;
 import org.apache.archiva.redback.authentication.TokenBasedAuthenticationDataSource;
 import org.apache.archiva.redback.authentication.TokenData;
+import org.apache.archiva.redback.authentication.TokenType;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.commons.lang3.StringUtils;
@@ -78,9 +81,11 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -140,7 +145,10 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
 {
     private static final Logger log = LoggerFactory.getLogger( JwtAuthenticator.class );
 
+    // 4 hours for standard tokens
     public static final String DEFAULT_LIFETIME = "14400000";
+    // 7 days for refresh tokens
+    public static final String DEFAULT_REFRESH_LIFETIME = "604800000";
     public static final String DEFAULT_KEYFILE = "jwt-key.xml";
     public static final String ID = "JwtAuthenticator";
     public static final String PROP_PRIV_ALG = "privateAlgorithm";
@@ -151,6 +159,7 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
     public static final String PROP_PUBLICKEY = "publicKey";
     public static final String PROP_KEYID = "keyId";
     private static final String ISSUER = "archiva.apache.org/redback";
+    private static final String TOKEN_TYPE = "token_type";
 
 
     @Inject
@@ -168,9 +177,14 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
     AtomicLong keyCounter;
     final SigningKeyResolver resolver = new SigningKeyResolver( );
     final ReadWriteLock lock = new ReentrantReadWriteLock( );
-    private JwtParser parser;
-    private Duration lifetime;
+    private Duration tokenLifetime;
+    private Duration refreshTokenLifetime;
+    private Map<TokenType, JwtParser> parserMap = new HashMap<>( );
 
+
+    private JwtParser getParser(TokenType type) {
+        return parserMap.get( type );
+    }
     public class SigningKeyResolver extends SigningKeyResolverAdapter
     {
 
@@ -242,12 +256,24 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
             // In memory key store is the default
             addNewKey( );
         }
-        this.parser = Jwts.parserBuilder( )
+        this.parserMap.put(TokenType.ALL,  Jwts.parserBuilder( )
             .setSigningKeyResolver( getResolver( ) )
             .requireIssuer( ISSUER )
-            .build( );
+            .build( ));
+        this.parserMap.put(TokenType.ACCESS_TOKEN,  Jwts.parserBuilder( )
+            .setSigningKeyResolver( getResolver( ) )
+            .requireIssuer( ISSUER )
+            .require( TOKEN_TYPE, TokenType.ACCESS_TOKEN.getClaim() )
+            .build( ));
+        this.parserMap.put(TokenType.REFRESH_TOKEN,  Jwts.parserBuilder( )
+            .setSigningKeyResolver( getResolver( ) )
+            .requireIssuer( ISSUER )
+            .require( TOKEN_TYPE, TokenType.REFRESH_TOKEN.getClaim() )
+            .build( ));
 
-        lifetime = Duration.ofMillis( Long.parseLong( userConfiguration.getString( AUTHENTICATION_JWT_LIFETIME_MS, DEFAULT_LIFETIME ) ) );
+
+        tokenLifetime = Duration.ofMillis( Long.parseLong( userConfiguration.getString( AUTHENTICATION_JWT_LIFETIME_MS, DEFAULT_LIFETIME ) ) );
+        refreshTokenLifetime = Duration.ofMillis( Long.parseLong( userConfiguration.getString( AUTHENTICATION_JWT_REFRESH_LIFETIME_MS, DEFAULT_REFRESH_LIFETIME ) ) );
     }
 
     private void addNewSecretKey( Long id, SecretKey key )
@@ -661,33 +687,94 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
     {
         final KeyHolder signerKey = getSignerKey( );
         Instant now = Instant.now( );
-        Instant expiration = now.plus( lifetime );
+        Instant expiration = now.plus( tokenLifetime );
         final String token = Jwts.builder( )
             .setSubject( userId )
             .setIssuer( ISSUER )
+            .claim( TOKEN_TYPE, TokenType.ACCESS_TOKEN.getClaim( ) )
             .setIssuedAt( Date.from( now ) )
             .setExpiration( Date.from( expiration ) )
             .setHeaderParam( JwsHeader.KEY_ID, signerKey.getId( ).toString( ) )
             .signWith( signerKey.getSignerKey( ) ).compact( );
-        TokenData metadata = new SimpleTokenData( userId, lifetime.toMillis( ), 0 );
-        return new StringToken( token, metadata );
+        TokenData metadata = new SimpleTokenData( userId, tokenLifetime, 0 );
+        return new StringToken("", token, metadata );
+    }
+
+    /**
+     * Creates a token for the given user id. The token contains the following data:
+     * <ul>
+     *     <li>the userid as subject</li>
+     *     <li>a issuer archiva.apache.org/redback</li>
+     *     <li>a id header with the key id</li>
+     * </ul>the user id as subject.
+     *
+     * @param userId the user identifier to set as subject
+     * @param type the token type that indicates if this token is a access or refresh token
+     * @return the token string
+     */
+    public Token generateToken( String userId, TokenType type )
+    {
+        if (type==TokenType.ACCESS_TOKEN) {
+            return generateToken( userId );
+        } else if (type == TokenType.REFRESH_TOKEN)
+        {
+            return generateRefreshToken( userId );
+        } else {
+            throw new RuntimeException( "Invalid token type requested" );
+        }
+    }
+
+    private Token generateRefreshToken(String userId) {
+        final KeyHolder signerKey = getSignerKey( );
+        Instant now = Instant.now( );
+        Instant expiration = now.plus( refreshTokenLifetime );
+        final String id = UUID.randomUUID( ).toString( );
+        final String token = Jwts.builder( )
+            .setSubject( userId )
+            .setIssuer( ISSUER )
+            .setIssuedAt( Date.from( now ) )
+            .setId( id )
+            .claim( TOKEN_TYPE, TokenType.REFRESH_TOKEN.getClaim() )
+            .setExpiration( Date.from( expiration ) )
+            .setHeaderParam( JwsHeader.KEY_ID, signerKey.getId( ).toString( ) )
+            .signWith( signerKey.getSignerKey( ) ).compact( );
+        TokenData metadata = new SimpleTokenData( userId, refreshTokenLifetime, 0 );
+        return new StringToken( TokenType.REFRESH_TOKEN, id, token, metadata );
+    }
+
+    /**
+     * Returns a token object from the given token String
+     *
+     * @param tokenData the string representation of the token
+     * @return the token instance
+     */
+    public Token tokenFromString(String tokenData) {
+        Jws<Claims> parsedToken = parseToken( tokenData );
+        String userId = parsedToken.getBody( ).getSubject( );
+        TokenType type = TokenType.ofClaim( parsedToken.getBody( ).get( TOKEN_TYPE, String.class ) );
+        String id = parsedToken.getBody( ).getId( );
+        Instant expiration = parsedToken.getBody( ).getExpiration( ).toInstant( );
+        Instant issuedAt = parsedToken.getBody( ).getIssuedAt( ).toInstant( );
+        long lifetime = Duration.between( issuedAt, expiration ).toMillis( );
+        TokenData metadata = new SimpleTokenData( userId, lifetime, 0 );
+        return new StringToken( type, id, tokenData, metadata );
     }
 
     /**
      * Allows to renew a token based on the origin token. If the presented <code>origin</code>
      * is valid, a new token with refreshed expiration time will be returned.
      *
-     * @param origin the origin token
+     * @param refreshToken the refresh token
      * @return the newly created token
      * @throws AuthenticationException if the given origin token is not valid
      */
-    public Token renewToken(String origin) throws AuthenticationException {
+    public Token refreshAccessToken( String refreshToken) throws TokenAuthenticationException {
         try
         {
-            Jws<Claims> signature = this.parser.parseClaimsJws( origin );
-            return generateToken( signature.getBody( ).getSubject( ) );
-        } catch (JwtException e) {
-            throw new AuthenticationException( "Could not renew the token " + e.getMessage( ) );
+            String subject = verify( refreshToken, TokenType.REFRESH_TOKEN );
+            return generateToken( subject );
+        } catch ( JwtException e) {
+            throw new TokenAuthenticationException( BearerError.INVALID_TOKEN, "unknown error " + e.getMessage( ) );
         }
     }
 
@@ -699,21 +786,26 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
      * @throws JwtException if the token data is not valid anymore
      */
     public Jws<Claims> parseToken( String token) throws JwtException {
-        return parser.parseClaimsJws( token );
+        return getParser(TokenType.ALL).parseClaimsJws( token );
     }
 
     /**
      * Verifies the given JWT Token and returns the stored subject, if successful
-     * If the verification failed a AuthenticationException is thrown.
+     * If the verification failed a TokenAuthenticationException is thrown.
      * @param token the JWT representation
      * @return the subject of the JWT
-     * @throws AuthenticationException if the verification failed
+     * @throws TokenAuthenticationException if the verification failed
      */
     public String verify( String token ) throws TokenAuthenticationException
     {
+        return verify( token, TokenType.ACCESS_TOKEN );
+    }
+
+    public String verify( String token, TokenType type ) throws TokenAuthenticationException
+    {
         try
         {
-            Jws<Claims> signature = this.parser.parseClaimsJws( token );
+            Jws<Claims> signature = getParser(type).parseClaimsJws( token );
             String subject = signature.getBody( ).getSubject( );
             if ( StringUtils.isEmpty( subject ) )
             {
@@ -737,6 +829,9 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
         }
         catch (JwtKeyIdNotFoundException e) {
             throw new TokenAuthenticationException( BearerError.INVALID_TOKEN, "signer key does not exist" );
+        }
+        catch ( MissingClaimException |IncorrectClaimException e ) {
+            throw new TokenAuthenticationException( BearerError.INVALID_TOKEN, "the token type is not correct - expected claim "+type.getClaim() );
         }
         catch ( JwtException e) {
             log.debug( "Unknown JwtException {}, {}", e.getClass( ), e.getMessage( ) );
@@ -836,7 +931,7 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
      * @return the lifetime as duration
      */
     public Duration getTokenLifetime() {
-        return this.lifetime;
+        return this.tokenLifetime;
     }
 
     /**
@@ -844,7 +939,7 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
      * @param lifetime the lifetime as duration
      */
     public void setTokenLifetime(Duration lifetime) {
-        this.lifetime = lifetime;
+        this.tokenLifetime = lifetime;
     }
 
     public UserConfiguration getUserConfiguration( )
