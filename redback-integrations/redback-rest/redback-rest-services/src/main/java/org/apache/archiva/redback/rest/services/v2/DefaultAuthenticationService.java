@@ -113,6 +113,9 @@ public class DefaultAuthenticationService
     public TokenResponse logIn( RequestTokenRequest loginRequest )
         throws RedbackServiceException
     {
+        if (!"authorization_code".equals(loginRequest.getGrantType())) {
+            throw new RedbackServiceException( "redback:bad_authorization_code", Response.Status.FORBIDDEN.getStatusCode( ) );
+        }
         String userName = loginRequest.getUserId(), password = loginRequest.getPassword();
         PasswordBasedAuthenticationDataSource authDataSource =
             new PasswordBasedAuthenticationDataSource( userName, password );
@@ -199,6 +202,8 @@ public class DefaultAuthenticationService
         {
             Token accessToken = jwtAuthenticator.refreshAccessToken( request.getRefreshToken( ) );
             Token refreshToken = jwtAuthenticator.tokenFromString( request.getRefreshToken( ) );
+            response.setHeader( "Cache-Control", "no-store" );
+            response.setHeader( "Pragma", "no-cache" );
             return new TokenResponse( accessToken, refreshToken );
         }
         catch ( TokenAuthenticationException e )

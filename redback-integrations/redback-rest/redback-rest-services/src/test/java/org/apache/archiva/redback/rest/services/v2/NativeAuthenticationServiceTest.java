@@ -34,11 +34,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.core.annotation.MergedAnnotations.from;
 
@@ -85,6 +88,47 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
         Instant afterCall = Instant.now( );
         assertTrue( dateTime.toInstant( ).isAfter( beforeCall ) );
         assertTrue( dateTime.toInstant( ).isBefore( afterCall ) );
+    }
+
+    @Test
+    void tokenLogin() {
+        Map<String, Object> jsonAsMap = new HashMap<>();
+        jsonAsMap.put( "grant_type", "authorization_code" );
+        jsonAsMap.put("user_id", getAdminUser());
+        jsonAsMap.put("password", getAdminPwd() );
+        Response result = given( ).spec( getRequestSpec( ) )
+            .contentType( JSON )
+            .body( jsonAsMap )
+            .when( ).post( "/token").then( ).statusCode( 200 )
+            .extract( ).response( );
+        assertNotNull( result.body( ).jsonPath( ).getString( "access_token" ) );
+        assertNotNull( result.body( ).jsonPath( ).getString( "refresh_token" ) );
+    }
+
+    @Test
+    void invalidGrantTypeLogin() {
+        Map<String, Object> jsonAsMap = new HashMap<>();
+        jsonAsMap.put( "grant_type", "bad_code" );
+        jsonAsMap.put("user_id", getAdminUser());
+        jsonAsMap.put("password", getAdminPwd() );
+        Response result = given( ).spec( getRequestSpec( ) )
+            .contentType( JSON )
+            .body( jsonAsMap )
+            .when( ).post( "/token").then( ).statusCode( 403 )
+            .extract( ).response( );
+    }
+
+    @Test
+    void invalidPasswordLogin() {
+        Map<String, Object> jsonAsMap = new HashMap<>();
+        jsonAsMap.put( "grant_type", "authorization_code" );
+        jsonAsMap.put("user_id", getAdminUser());
+        jsonAsMap.put("password", "xxxx" );
+        Response result = given( ).spec( getRequestSpec( ) )
+            .contentType( JSON )
+            .body( jsonAsMap )
+            .when( ).post( "/token").then( ).statusCode( 401 )
+            .extract( ).response( );
     }
 
 }

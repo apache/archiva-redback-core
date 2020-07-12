@@ -32,7 +32,7 @@ import java.time.Instant;
 public class TokenResponse
 {
     String accessToken;
-    String tokenType = "bearer";
+    String tokenType = "Bearer";
     long expiresIn;
     String refreshToken;
     String scope;

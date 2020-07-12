@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="refreshToken")
 public class RequestTokenRequest
 {
-    String grantType = "authorization_code";
+    String grantType = "";
     String clientId;
     String clientSecret;
     String code;
@@ -116,6 +116,7 @@ public class RequestTokenRequest
         return password;
     }
 
+    @XmlElement(name="password", required = true, nillable = false)
     public void setPassword( String password )
     {
         this.password = password;
@@ -153,4 +154,5 @@ public class RequestTokenRequest
     {
         this.state = state;
     }
+
 }

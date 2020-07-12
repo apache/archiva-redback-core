@@ -63,11 +63,13 @@ public abstract class AbstractNativeRestServices
     public static final String SYSPROP_START_SERVER = "archiva.rest.start.server";
     public static final String SYSPROP_SERVER_PORT = "archiva.rest.server.port";
     public static final String SYSPROP_SERVER_BASE_URI = "archiva.rest.server.baseuri";
+    public static final String SYSPROP_SERVER_ADMIN_PWD = "archiva.rest.server.admin_pwd";
     public static final int STOPPED = 0;
     public static final int STOPPING = 1;
     public static final int STARTING = 2;
     public static final int STARTED = 3;
     public static final int ERROR = 4;
+    public static final String DEFAULT_ADMIN_PWD = "Ackd245_aer9sdfa#sjDfn";
 
     private RequestSpecification requestSpec;
     protected Logger log = LoggerFactory.getLogger( getClass() );
@@ -77,7 +79,12 @@ public abstract class AbstractNativeRestServices
     private static AtomicInteger serverStarted = new AtomicInteger( STOPPED );
     private UserManager userManager;
     private RoleManager roleManager;
+    private String adminPwd;
 
+    public AbstractNativeRestServices( )
+    {
+        this.adminPwd = System.getProperty( SYSPROP_SERVER_ADMIN_PWD, DEFAULT_ADMIN_PWD );
+    }
 
     protected abstract String getServicePath();
 
@@ -154,22 +161,31 @@ public abstract class AbstractNativeRestServices
         return this.roleManager;
     }
 
+    protected String getAdminPwd() {
+        return this.adminPwd;
+    }
+
+    protected String getAdminUser() {
+        return RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME;
+    }
+
     private void setupAdminUser() throws UserManagerException, RoleManagerException
     {
+
         UserManager um = getUserManager( );
 
         User adminUser = null;
         try
         {
-            adminUser = um.findUser( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME );
+            adminUser = um.findUser( getAdminUser() );
         } catch ( UserNotFoundException e ) {
             // ignore
         }
         if (adminUser==null)
         {
-            adminUser = um.createUser( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME, "Administrator", "admin@local.home" );
-            adminUser.setUsername( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME );
-            adminUser.setPassword( FakeCreateAdminServiceImpl.ADMIN_TEST_PWD );
+            adminUser = um.createUser( getAdminUser(), "Administrator", "admin@local.home" );
+            adminUser.setUsername( getAdminUser() );
+            adminUser.setPassword( getAdminPwd() );
             adminUser.setFullName( "the admin user" );
             adminUser.setEmail( "toto@toto.fr" );
             adminUser.setPermanent( true );
