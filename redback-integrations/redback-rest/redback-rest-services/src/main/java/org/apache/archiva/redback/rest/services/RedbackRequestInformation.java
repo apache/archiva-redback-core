@@ -18,20 +18,32 @@ package org.apache.archiva.redback.rest.services;
  * under the License.
  */
 
+import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.users.User;
 
 /**
  * @author Olivier Lamy
+ * @author Martin Stockhammer
  * @since 1.4
+ *
  */
 public class RedbackRequestInformation
 {
+    private SecuritySession securitySession;
+
     private User user;
 
     private String remoteAddr;
 
     public RedbackRequestInformation( User user, String remoteAddr )
     {
+        this.user = user;
+        this.remoteAddr = remoteAddr;
+    }
+
+    public RedbackRequestInformation( SecuritySession securitySession, User user, String remoteAddr )
+    {
+        this.securitySession = securitySession;
         this.user = user;
         this.remoteAddr = remoteAddr;
     }
@@ -54,5 +66,15 @@ public class RedbackRequestInformation
     public void setRemoteAddr( String remoteAddr )
     {
         this.remoteAddr = remoteAddr;
+    }
+
+    public SecuritySession getSecuritySession( )
+    {
+        return securitySession;
+    }
+
+    public void setSecuritySession( SecuritySession securitySession )
+    {
+        this.securitySession = securitySession;
     }
 }

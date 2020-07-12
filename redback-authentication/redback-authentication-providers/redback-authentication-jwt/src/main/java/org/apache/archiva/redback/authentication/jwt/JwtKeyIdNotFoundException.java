@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.authentication;
+package org.apache.archiva.redback.authentication.jwt;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -10,7 +10,6 @@ package org.apache.archiva.redback.authentication;
  * with the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,30 +18,21 @@ package org.apache.archiva.redback.authentication;
  * under the License.
  */
 
+import io.jsonwebtoken.JwtException;
+
 /**
- * Contants class used for authentication
- *
+ * Exception is thrown, when a key with the given id is not in the current list
+ * @author Martin Stockhammer <martin_s@apache.org>
  */
-public class AuthenticationConstants
+public class JwtKeyIdNotFoundException extends JwtException
 {
+    public JwtKeyIdNotFoundException( String message )
+    {
+        super( message );
+    }
 
-    // for User Manager Authenticator
-    public static final int AUTHN_NO_SUCH_USER = 1;
-
-    /**
-     * @since 2.1
-     */
-    public static final int AUTHN_RUNTIME_EXCEPTION = 2;
-
-    /**
-     * @since 2.1
-     */
-    public static final int AUTHN_LOCKED_USER_EXCEPTION = 3;
-
-    /**
-     * @since 2.1
-     */
-    public static final int AUTHN_MUST_CHANGE_PASSWORD_EXCEPTION = 4;
-
-
+    public JwtKeyIdNotFoundException( String message, Throwable cause )
+    {
+        super( message, cause );
+    }
 }

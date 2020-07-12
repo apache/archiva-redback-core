@@ -22,8 +22,8 @@ package org.apache.archiva.redback.rest.services.v2;
 import org.apache.archiva.redback.authentication.AuthenticationConstants;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationFailureCause;
-import org.apache.archiva.redback.authentication.EncryptionFailedException;
 import org.apache.archiva.redback.authentication.PasswordBasedAuthenticationDataSource;
+import org.apache.archiva.redback.authentication.jwt.JwtAuthenticator;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.keys.KeyManager;
@@ -52,12 +52,12 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -87,6 +87,12 @@ public class DefaultAuthenticationService
     @Context
     private HttpServletRequest httpServletRequest;
 
+    @Context
+    private HttpServletResponse response;
+
+    @Inject
+    private JwtAuthenticator jwtAuthenticator;
+
     // validation token lifetime: 3 hours
     long tokenLifetime = 1000*3600*3;
 
@@ -101,7 +107,6 @@ public class DefaultAuthenticationService
 
     @Override
     public Token requestOnetimeToken( String providedKey, String principal, String purpose, int expirationSeconds )
-        throws RedbackServiceException
     {
         KeyManager keyManager = securitySystem.getKeyManager();
         AuthenticationKey key;
@@ -133,16 +138,18 @@ public class DefaultAuthenticationService
 
     @Override
     public PingResult ping()
-        throws RedbackServiceException
     {
         return new PingResult( true);
     }
 
     @Override
     public PingResult pingWithAutz()
-        throws RedbackServiceException
     {
         return new PingResult( true );
+    }
+
+    private Token getRestToken( org.apache.archiva.redback.authentication.Token token ) {
+        return Token.of( token.getData( ), token.getMetadata( ).created( ), token.getMetadata( ).validBefore( ), token.getMetadata( ).getUser( ), "rest-auth" );
     }
 
     @Override
@@ -157,32 +164,22 @@ public class DefaultAuthenticationService
         {
             SecuritySession securitySession = securitySystem.authenticate( authDataSource );
             log.debug("Security session {}", securitySession);
-            if ( securitySession.getAuthenticationResult().isAuthenticated() )
+            if ( securitySession.getAuthenticationResult() != null
+            && securitySession.getAuthenticationResult().isAuthenticated() )
             {
                 org.apache.archiva.redback.users.User user = securitySession.getUser();
-                log.debug("user {} authenticated", user.getUsername());
+                org.apache.archiva.redback.authentication.Token token = jwtAuthenticator.generateToken( user.getUsername( ) );
+                log.debug("User {} authenticated", user.getUsername());
                 if ( !user.isValidated() )
                 {
                     log.info( "user {} not validated", user.getUsername() );
-                    return null;
+                    throw new RedbackServiceException( "redback:user-not-validated", Response.Status.FORBIDDEN.getStatusCode() );
                 }
-                UserLogin restUser = buildRestUser( user );
-                restUser.setReadOnly( securitySystem.userManagerReadOnly() );
-                // validationToken only set during login
-                try {
-                    String validationToken = securitySystem.getTokenManager().encryptToken(user.getUsername(), tokenLifetime);
-                    restUser.setValidationToken(validationToken);
-                    log.debug("Validation Token set {}",validationToken);
-
-                } catch (EncryptionFailedException e) {
-                    log.error("Validation token could not be created "+e.getMessage());
-                }
-
-                // here create an http session
-                httpAuthenticator.authenticate( authDataSource, httpServletRequest.getSession( true ) );
-                return null;
-            }
-            if ( securitySession.getAuthenticationResult() != null
+                // Stateless services no session
+                // httpAuthenticator.authenticate( authDataSource, httpServletRequest.getSession( true ) );
+                Token restToken = getRestToken( token );
+                return restToken;
+            } else if ( securitySession.getAuthenticationResult() != null
                 && securitySession.getAuthenticationResult().getAuthenticationFailureCauses() != null )
             {
                 List<ErrorMessage> errorMessages = new ArrayList<ErrorMessage>();
@@ -190,33 +187,42 @@ public class DefaultAuthenticationService
                 {
                     if ( authenticationFailureCause.getCause() == AuthenticationConstants.AUTHN_NO_SUCH_USER )
                     {
-                        errorMessages.add( new ErrorMessage( "incorrect.username.password" ) );
+                        errorMessages.add( new ErrorMessage( "redback:incorrect.username.password" ) );
                     }
                     else
                     {
-                        errorMessages.add( new ErrorMessage().message( authenticationFailureCause.getMessage() ) );
+                        errorMessages.add( new ErrorMessage().message( "redback:"+authenticationFailureCause.getMessage() ) );
                     }
                 }
-
-                throw new RedbackServiceException( errorMessages );
+                response.setHeader( "WWW-Authenticate", "redback-login realm="+httpServletRequest.getRemoteHost() );
+                throw new RedbackServiceException( errorMessages , Response.Status.UNAUTHORIZED.getStatusCode());
             }
-            return null;
+            response.setHeader( "WWW-Authenticate", "redback-login realm="+httpServletRequest.getRemoteHost() );
+            throw new RedbackServiceException( "redback:login-failed", Response.Status.UNAUTHORIZED.getStatusCode() );
         }
+
         catch ( AuthenticationException e )
         {
-            throw new RedbackServiceException( e.getMessage(), Response.Status.FORBIDDEN.getStatusCode() );
+            log.debug( "Authentication error: {}", e.getMessage( ), e );
+            throw new RedbackServiceException( "redback:login-failed", Response.Status.UNAUTHORIZED.getStatusCode() );
         }
-        catch ( UserNotFoundException | AccountLockedException e )
+        catch ( UserNotFoundException e )
         {
-            throw new RedbackServiceException( e.getMessage() );
+            log.debug( "User not found: {}", e.getMessage( ), e );
+            throw new RedbackServiceException( "redback:login-failed", Response.Status.UNAUTHORIZED.getStatusCode() );
+        }
+        catch (AccountLockedException e) {
+            log.info( "Account locked: {}", e.getMessage( ), e );
+            throw new RedbackServiceException( "redback:account-locked", Response.Status.FORBIDDEN.getStatusCode() );
         }
         catch ( MustChangePasswordException e )
         {
-            return null;
+            log.debug( "Password change required: {}", e.getMessage( ), e );
+            throw new RedbackServiceException( "redback:password-change-required", Response.Status.FORBIDDEN.getStatusCode( ) );
         }
         catch ( UserManagerException e )
         {
-            log.info( "UserManagerException: {}", e.getMessage() );
+            log.warn( "UserManagerException: {}", e.getMessage() );
             List<ErrorMessage> errorMessages =
                 Arrays.asList( new ErrorMessage().message( "UserManagerException: " + e.getMessage() ) );
             throw new RedbackServiceException( errorMessages );

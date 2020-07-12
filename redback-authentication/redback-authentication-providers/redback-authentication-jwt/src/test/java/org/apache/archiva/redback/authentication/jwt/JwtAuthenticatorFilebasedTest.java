@@ -19,6 +19,7 @@ package org.apache.archiva.redback.authentication.jwt;
  */
 
 import org.apache.archiva.components.registry.RegistryException;
+import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.configuration.UserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -48,7 +49,7 @@ class JwtAuthenticatorFilebasedTest extends AbstractJwtTest
 {
 
     @BeforeEach
-    void init() throws RegistryException, UserConfigurationException
+    void init() throws RegistryException, UserConfigurationException, AuthenticationException
     {
         Map<String, String> params = new HashMap<>();
         params.put( AUTHENTICATION_JWT_KEYSTORETYPE, AUTHENTICATION_JWT_KEYSTORETYPE_PLAINFILE );

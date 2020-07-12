@@ -24,13 +24,17 @@ import org.apache.archiva.redback.authorization.AuthorizationException;
 import org.apache.archiva.redback.authorization.AuthorizationResult;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.filter.authentication.basic.HttpBasicAuthentication;
+import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
+import org.apache.archiva.redback.rest.services.RedbackRequestInformation;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
+import org.apache.archiva.redback.users.User;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +52,7 @@ import javax.ws.rs.ext.Provider;
  */
 @Service( "permissionInterceptor#rest" )
 @Provider
+@Priority( Priorities.AUTHORIZATION )
 public class PermissionsInterceptor
     extends AbstractInterceptor
     implements ContainerRequestFilter
@@ -68,7 +73,7 @@ public class PermissionsInterceptor
 
     public void filter( ContainerRequestContext containerRequestContext )
     {
-
+        log.debug( "Filtering request" );
         RedbackAuthorization redbackAuthorization = getRedbackAuthorization( resourceInfo );
 
         if ( redbackAuthorization != null )
@@ -85,14 +90,14 @@ public class PermissionsInterceptor
                 && !( permissions.length == 1 && StringUtils.isEmpty( permissions[0] ) ) )
             {
                 HttpServletRequest request = getHttpServletRequest( );
-                SecuritySession securitySession = httpAuthenticator.getSecuritySession( request.getSession() );
+                SecuritySession securitySession = getSecuritySession( containerRequestContext, httpAuthenticator, request );
                 AuthenticationResult authenticationResult = getAuthenticationResult( containerRequestContext, httpAuthenticator, request );
-
                 log.debug( "authenticationResult from message: {}", authenticationResult );
 
                 if ( authenticationResult != null && authenticationResult.isAuthenticated() )
                 {
 
+                    User userObject = securitySession == null ? authenticationResult.getUser( ) : securitySession.getUser( );
                     for ( String permission : permissions )
                     {
                         log.debug( "check permission: {} with securitySession {}", permission, securitySession );
@@ -108,10 +113,13 @@ public class PermissionsInterceptor
                                 log.debug("Found resource from annotated parameter: {}",resource);
                             }
 
-                            AuthorizationResult authorizationResult =
-                                securitySystem.authorize( authenticationResult.getUser(), permission, //
-                                                          StringUtils.isBlank( resource ) //
-                                                              ? null : resource );
+                            AuthorizationResult authorizationResult = null;
+                            if (userObject!=null)
+                            {
+                                authorizationResult = securitySystem.authorize( userObject, permission, //
+                                    StringUtils.isBlank( resource ) //
+                                        ? null : resource );
+                            }
                              if ( authenticationResult != null && authorizationResult.isAuthorized() )
                             {
                                 log.debug( "isAuthorized for permission {}", permission );

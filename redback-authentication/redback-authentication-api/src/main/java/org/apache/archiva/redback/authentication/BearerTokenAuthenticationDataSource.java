@@ -10,7 +10,6 @@ package org.apache.archiva.redback.authentication;
  * with the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,29 +19,46 @@ package org.apache.archiva.redback.authentication;
  */
 
 /**
- * Contants class used for authentication
+ * Datasource used for authentication by Bearer token (JWT)
  *
+ * @author Martin Stockhammer <martin_s@apache.org>
+ * @since 3.0
  */
-public class AuthenticationConstants
+public class BearerTokenAuthenticationDataSource implements AuthenticationDataSource
 {
+    private String tokenData;
+    private String principal;
 
-    // for User Manager Authenticator
-    public static final int AUTHN_NO_SUCH_USER = 1;
+    public BearerTokenAuthenticationDataSource( )
+    {
+    }
 
-    /**
-     * @since 2.1
-     */
-    public static final int AUTHN_RUNTIME_EXCEPTION = 2;
+    public BearerTokenAuthenticationDataSource( String principal, String tokenData )
+    {
+        this.tokenData = tokenData;
+        this.principal = principal;
+    }
 
-    /**
-     * @since 2.1
-     */
-    public static final int AUTHN_LOCKED_USER_EXCEPTION = 3;
+    @Override
+    public String getUsername( )
+    {
+        return principal;
+    }
 
-    /**
-     * @since 2.1
-     */
-    public static final int AUTHN_MUST_CHANGE_PASSWORD_EXCEPTION = 4;
+    @Override
+    public boolean isEnforcePasswordChange( )
+    {
+        return false;
+    }
 
+    public String getTokenData( )
+    {
+        return tokenData;
+    }
+
+    public void setTokenData( String tokenData )
+    {
+        this.tokenData = tokenData;
+    }
 
 }

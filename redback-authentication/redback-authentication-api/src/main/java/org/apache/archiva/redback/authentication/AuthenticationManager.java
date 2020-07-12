@@ -27,14 +27,50 @@ import java.util.List;
 /**
  * AuthenticationManager:
  *
- * @author: Jesse McConnell
+ * @author Jesse McConnell
+ * @author Martin Stockhammer
  */
 public interface AuthenticationManager
 {
+    /**
+     * Returns the identifier of this authentication manager
+     * @return the identifier string
+     */
     String getId();
 
+    /**
+     * Returns the list of authenticators in the same order as they are called for authentication
+     * @return the list of authenticators.
+     */
     List<Authenticator> getAuthenticators();
 
+    /**
+     * Authenticates by calling all authenticators in the defined order.
+     *
+     * @param source the authentication data
+     * @return the result that gives information, if the authentication was successful
+     * @throws AccountLockedException if the account is locked
+     * @throws AuthenticationException if something unexpected happend during authentication
+     * @throws MustChangePasswordException if the user has to change his password
+     */
     AuthenticationResult authenticate( AuthenticationDataSource source )
         throws AccountLockedException, AuthenticationException, MustChangePasswordException;
+
+    /**
+     * Returns the authenticator controls that are used to control the order and actions during authentication.
+     * @return the list of controls
+     */
+    List<AuthenticatorControl> getControls();
+
+    /**
+     * Sets the list of authenticator controls
+     * @param controlList the list of control instances
+     */
+    void setControls( List<AuthenticatorControl> controlList);
+
+    /**
+     * Modifies the control for a single authenticator
+     * @param control the authenticator control
+     */
+    void modifyControl(AuthenticatorControl control);
 }

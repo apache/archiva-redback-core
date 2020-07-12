@@ -22,6 +22,8 @@ import org.apache.archiva.redback.keys.AuthenticationKey;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -33,8 +35,8 @@ import java.util.Date;
 public class Token
 {
     String key;
-    Instant created;
-    Instant expires;
+    OffsetDateTime created;
+    OffsetDateTime expires;
     String principal;
     String purpose;
 
@@ -45,8 +47,8 @@ public class Token
     public static Token of( AuthenticationKey key ) {
         Token token = new Token( );
         token.setKey( key.getKey() );
-        token.setCreated( key.getDateCreated().toInstant() );
-        token.setExpires( key.getDateExpires().toInstant() );
+        token.setCreatedFromInstant( key.getDateCreated().toInstant() );
+        token.setExpiresFromInstant( key.getDateExpires().toInstant() );
         token.setPrincipal( key.getForPrincipal() );
         token.setPurpose( key.getPurpose() );
         return token;
@@ -56,8 +58,8 @@ public class Token
     {
         Token token = new Token( );
         token.setKey( key );
-        token.setCreated( created.toInstant( ) );
-        token.setExpires( expires.toInstant( ) );
+        token.setCreatedFromInstant( created.toInstant( ) );
+        token.setExpiresFromInstant( expires.toInstant( ) );
         token.setPrincipal( principal );
         token.setPrincipal( purpose );
         return token;
@@ -67,8 +69,8 @@ public class Token
     {
         Token token = new Token( );
         token.setKey( key );
-        token.setCreated( created );
-        token.setExpires( expires );
+        token.setCreatedFromInstant( created );
+        token.setExpiresFromInstant( expires );
         token.setPrincipal( principal );
         token.setPrincipal( purpose );
         return token;
@@ -84,22 +86,31 @@ public class Token
         this.key = key;
     }
 
-    public Instant getCreated( )
+    public OffsetDateTime getCreated( )
     {
         return created;
     }
 
-    public void setCreated( Instant created )
+    public void setCreatedFromInstant( Instant created )
+    {
+        this.created = OffsetDateTime.ofInstant( created, ZoneId.of( "UTC" ) );
+    }
+
+    public void setCreated( OffsetDateTime created )
     {
         this.created = created;
     }
-
-    public Instant getExpires( )
+    public OffsetDateTime getExpires( )
     {
         return expires;
     }
 
-    public void setExpires( Instant expires )
+    public void setExpiresFromInstant( Instant expires )
+    {
+        this.expires = OffsetDateTime.ofInstant( expires, ZoneId.of( "UTC" ) );
+    }
+
+    public void setExpires( OffsetDateTime expires )
     {
         this.expires = expires;
     }

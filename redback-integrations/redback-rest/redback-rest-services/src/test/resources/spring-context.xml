@@ -47,6 +47,8 @@
     </property>
   </bean>
 
+  <alias name="authenticator#jwt" alias="jwtAuthenticator#default" />
+
 
 
   <alias name="authorizer#rbac" alias="authorizer#default"/>

@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.rest.services;
+package org.apache.archiva.redback.rest.services.v2;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -22,15 +22,18 @@ package org.apache.archiva.redback.rest.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import junit.framework.TestCase;
+import org.apache.archiva.redback.authentication.Token;
+import org.apache.archiva.redback.authentication.jwt.JwtAuthenticator;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
-import org.apache.archiva.redback.rest.api.model.User;
-import org.apache.archiva.redback.rest.api.services.LdapGroupMappingService;
-import org.apache.archiva.redback.rest.api.services.LoginService;
 import org.apache.archiva.redback.rest.api.services.RoleManagementService;
-import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.archiva.redback.rest.services.FakeCreateAdminService;
+import org.apache.archiva.redback.rest.services.FakeCreateAdminServiceImpl;
+import org.apache.archiva.redback.role.RoleManager;
+import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserManager;
+import org.apache.archiva.redback.users.UserManagerException;
+import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
@@ -42,31 +45,46 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.context.ContextLoaderListener;
 
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
 import javax.ws.rs.core.MediaType;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 /**
  * @author Olivier Lamy
  */
-@RunWith(JUnit4.class)
-public abstract class AbstractRestServicesTest
-    extends TestCase
+@ExtendWith( SpringExtension.class )
+@ContextConfiguration( locations = { "classpath*:/META-INF/spring-context.xml", "classpath*:/spring-context.xml" } )
+public abstract class AbstractRestServicesTestV2
 {
+
+    private JwtAuthenticator jwtAuthenticator;
+    private UserManager userManager;
+
     protected Logger log = LoggerFactory.getLogger( getClass() );
 
     private static AtomicReference<Server> server = new AtomicReference<>();
     private static AtomicReference<ServerConnector> serverConnector = new AtomicReference<>();
+    private RoleManager roleManager;
 
-    public String authorizationHeader = getAdminAuthzHeader();
+    protected void init() {
+    }
+
+    protected void destroy() {
+        this.jwtAuthenticator = null;
+        this.userManager = null;
+    }
 
     /**
      * Returns the server that was started, or null if not initialized before.
@@ -85,12 +103,83 @@ public abstract class AbstractRestServicesTest
         }
     }
 
+    public JwtAuthenticator getJwtAuthenticator() {
+        if (this.jwtAuthenticator == null) {
+            JwtAuthenticator auth = ContextLoaderListener.getCurrentWebApplicationContext( )
+                .getBean( JwtAuthenticator.class );
+            assertNotNull( auth );
+            this.jwtAuthenticator = auth;
+        }
+        return this.jwtAuthenticator;
+    }
+
+    public UserManager getUserManager() {
+        if (this.userManager==null) {
+            UserManager userManager = ContextLoaderListener.getCurrentWebApplicationContext( )
+                .getBean( "userManager#default", UserManager.class );
+            assertNotNull( userManager );
+            this.userManager = userManager;
+        }
+        return this.userManager;
+    }
+
+    public RoleManager getRoleManager() {
+        if (this.roleManager==null) {
+            RoleManager roleManager = ContextLoaderListener.getCurrentWebApplicationContext( )
+                .getBean( "roleManager", RoleManager.class );
+            assertNotNull( roleManager );
+            this.roleManager = roleManager;
+        }
+        return this.roleManager;
+    }
+
     JacksonJaxbJsonProvider getJsonProvider() {
         JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider( );
         ObjectMapper mapper = new ObjectMapper( );
         mapper.registerModule( new JavaTimeModule( ) );
         provider.setMapper( mapper );
         return provider;
+    }
+
+    protected boolean exists( DirContext context, String dn )
+    {
+        Object result = null;
+        try {
+            result = context.lookup( dn );
+        }
+        catch ( NameNotFoundException e ) {
+            return false;
+        }
+        catch ( NamingException e )
+        {
+            log.error( "Unknown error during lookup: {}", e.getMessage( ) );
+        }
+        return result != null;
+    }
+
+    protected void deleteUser(User user) {
+        if (user!=null)
+        {
+            deleteUser( user.getUsername( ) );
+        }
+    }
+
+    protected void deleteUser(String userName) {
+        if (userName!=null)
+        {
+            try
+            {
+                getUserManager( ).deleteUser( userName );
+            }
+            catch ( UserNotFoundException e )
+            {
+                // ignore
+            }
+            catch ( UserManagerException e )
+            {
+                log.error( "Could not delete user {}", userName );
+            }
+        }
     }
 
     /**
@@ -116,14 +205,18 @@ public abstract class AbstractRestServicesTest
         return "Basic " + Base64Utility.encode( ( uid + ":" + password ).getBytes() );
     }
 
-    public static String getAdminAuthzHeader()
+    public String getAdminAuthzHeader()
     {
-        String adminPwdSysProps = System.getProperty( "rest.admin.pwd" );
-        if ( StringUtils.isBlank( adminPwdSysProps ) )
-        {
-            return encode( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME, FakeCreateAdminService.ADMIN_TEST_PWD );
-        }
-        return encode( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME, adminPwdSysProps );
+        assertNotNull( getJwtAuthenticator());
+        String adminUser = RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME;
+        Token token = getJwtAuthenticator().generateToken( adminUser );
+        return "Bearer " + token.getData( );
+    }
+
+    public String getAuthHeader(String userId) {
+        assertNotNull( getJwtAuthenticator() );
+        Token token = getJwtAuthenticator().generateToken( userId );
+        return "Bearer " + token.getData( );
     }
 
     protected String getSpringConfigLocation()
@@ -137,7 +230,6 @@ public abstract class AbstractRestServicesTest
         return "restServices";
     }
 
-    @Before
     public void startServer()
         throws Exception
     {
@@ -165,16 +257,34 @@ public abstract class AbstractRestServicesTest
 
         log.info( "Started server on port {}", getServerPort() );
 
-        UserService userService = getUserService();
+        UserManager um = getUserManager( );
 
-        User adminUser = new User();
-        adminUser.setUsername( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME );
-        adminUser.setPassword( FakeCreateAdminServiceImpl.ADMIN_TEST_PWD );
-        adminUser.setFullName( "the admin user" );
-        adminUser.setEmail( "toto@toto.fr" );
-        Boolean res = userService.createAdminUser( adminUser ).isSuccess();
+        User adminUser = null;
+        try
+        {
+            adminUser = um.findUser( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME );
+        } catch ( UserNotFoundException e ) {
+            // ignore
+        }
+        if (adminUser==null)
+        {
+            adminUser = um.createUser( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME, "Administrator", "admin@local.home" );
+            adminUser.setUsername( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME );
+            adminUser.setPassword( FakeCreateAdminServiceImpl.ADMIN_TEST_PWD );
+            adminUser.setFullName( "the admin user" );
+            adminUser.setEmail( "toto@toto.fr" );
+            adminUser.setPermanent( true );
+            adminUser.setValidated( true );
+            adminUser.setLocked( false );
+            adminUser.setPasswordChangeRequired( false );
+            um.addUser( adminUser );
+
+            getRoleManager( ).assignRole( "system-administrator", adminUser.getUsername( ) );
+        }
 
         FakeCreateAdminService fakeCreateAdminService = getFakeCreateAdminService();
+        this.jwtAuthenticator = null;
+
         //assertTrue( res.booleanValue() );
 
     }
@@ -186,7 +296,6 @@ public abstract class AbstractRestServicesTest
             FakeCreateAdminService.class, Collections.singletonList( getJsonProvider() ) );
     }
 
-    @After
     public void stopServer()
         throws Exception
     {
@@ -195,77 +304,6 @@ public abstract class AbstractRestServicesTest
             log.info("Stopping server");
             getServer().stop();
         }
-    }
-
-    protected UserService getUserService()
-    {
-
-        return getUserService( null );
-    }
-
-    // START SNIPPET: get-user-service
-    protected UserService getUserService( String authzHeader )
-    {
-        UserService service =
-            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/redbackServices/",
-                                       UserService.class, Collections.singletonList( new JacksonJaxbJsonProvider() ) );
-
-        // time out for debuging purpose
-        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );
-
-        if ( authzHeader != null )
-        {
-            WebClient.client( service ).header( "Authorization", authzHeader );
-        }
-        WebClient.client(service).header("Referer","http://localhost:"+getServerPort());
-        WebClient.client( service ).accept( MediaType.APPLICATION_JSON_TYPE );
-        WebClient.client( service ).type( MediaType.APPLICATION_JSON_TYPE );
-
-        return service;
-    }
-    // END SNIPPET: get-user-service
-
-    protected RoleManagementService getRoleManagementService( String authzHeader )
-    {
-        RoleManagementService service =
-            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/redbackServices/",
-                                       RoleManagementService.class,
-                                       Collections.singletonList( new JacksonJaxbJsonProvider() ) );
-
-        // for debuging purpose
-        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );
-
-        if ( authzHeader != null )
-        {
-            WebClient.client( service ).header( "Authorization", authzHeader );
-        }
-        WebClient.client(service).header("Referer","http://localhost:"+getServerPort());
-
-        WebClient.client( service ).accept( MediaType.APPLICATION_JSON_TYPE );
-        WebClient.client( service ).type( MediaType.APPLICATION_JSON_TYPE );
-
-        return service;
-    }
-
-    protected LoginService getLoginService( String authzHeader )
-    {
-        LoginService service =
-            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/redbackServices/",
-                                       LoginService.class, Collections.singletonList( getJsonProvider() ) );
-
-        // for debuging purpose
-        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );
-
-        if ( authzHeader != null )
-        {
-            WebClient.client( service ).header( "Authorization", authzHeader );
-        }
-        WebClient.client(service).header("Referer","http://localhost:"+getServerPort());
-
-        WebClient.client( service ).accept( MediaType.APPLICATION_JSON_TYPE );
-        WebClient.client( service ).type( MediaType.APPLICATION_JSON_TYPE );
-
-        return service;
     }
 
     protected AuthenticationService getLoginServiceV2( String authzHeader )
@@ -289,28 +327,6 @@ public abstract class AbstractRestServicesTest
         return service;
     }
 
-
-    protected LdapGroupMappingService getLdapGroupMappingService( String authzHeader )
-    {
-        LdapGroupMappingService service =
-            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/redbackServices/",
-                                       LdapGroupMappingService.class,
-                                       Collections.singletonList( getJsonProvider() ) );
-
-        // for debuging purpose
-        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );
-
-        if ( authzHeader != null )
-        {
-            WebClient.client( service ).header( "Authorization", authzHeader );
-        }
-        WebClient.client(service).header("Referer","http://localhost:"+getServerPort());
-
-        WebClient.client( service ).accept( MediaType.APPLICATION_JSON_TYPE );
-        WebClient.client( service ).type( MediaType.APPLICATION_JSON_TYPE );
-
-        return service;
-    }
 
 
 }

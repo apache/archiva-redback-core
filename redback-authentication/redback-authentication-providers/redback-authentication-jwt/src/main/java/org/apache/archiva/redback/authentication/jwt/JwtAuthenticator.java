@@ -20,20 +20,25 @@ package org.apache.archiva.redback.authentication.jwt;
  */
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwsHeader;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.apache.archiva.redback.authentication.AbstractAuthenticator;
 import org.apache.archiva.redback.authentication.AuthenticationDataSource;
 import org.apache.archiva.redback.authentication.AuthenticationException;
+import org.apache.archiva.redback.authentication.AuthenticationFailureCause;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
 import org.apache.archiva.redback.authentication.Authenticator;
+import org.apache.archiva.redback.authentication.BearerTokenAuthenticationDataSource;
 import org.apache.archiva.redback.authentication.SimpleTokenData;
 import org.apache.archiva.redback.authentication.StringToken;
 import org.apache.archiva.redback.authentication.Token;
@@ -70,6 +75,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -179,12 +185,12 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
             {
                 KeyPair pair = getKeyPair( keyId );
                 if (pair == null) {
-                    throw new JwtException( "Key ID not found in current list. Verification failed." );
+                    throw new JwtKeyIdNotFoundException( "Key ID not found in current list. Verification failed." );
                 }
                 key = pair.getPublic( );
             }
             if (key==null) {
-                throw new JwtException( "Key ID not found in current list. Verification failed." );
+                throw new JwtKeyIdNotFoundException( "Key ID not found in current list. Verification failed." );
             }
             return key;
         }
@@ -197,8 +203,9 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
     }
 
     @PostConstruct
-    public void init( )
+    public void init( ) throws AuthenticationException
     {
+        super.initialize();
         this.keyCounter = new AtomicLong( System.currentTimeMillis( ) );
         this.keystoreType = userConfiguration.getString( AUTHENTICATION_JWT_KEYSTORETYPE, AUTHENTICATION_JWT_KEYSTORETYPE_MEMORY );
         this.fileStore = this.keystoreType.equals( AUTHENTICATION_JWT_KEYSTORETYPE_PLAINFILE );
@@ -523,7 +530,7 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
     @Override
     public boolean supportsDataSource( AuthenticationDataSource source )
     {
-        return ( source instanceof TokenBasedAuthenticationDataSource );
+        return ( source instanceof BearerTokenAuthenticationDataSource );
     }
 
     /**
@@ -532,27 +539,28 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
      * @return the authentication result
      * @throws AuthenticationException if the source is no {@link TokenBasedAuthenticationDataSource}
      */
-    @Override
-    public AuthenticationResult authenticate( AuthenticationDataSource source ) throws AuthenticationException
+    public AuthenticationResult authenticate( BearerTokenAuthenticationDataSource source ) throws AuthenticationException
     {
-        if ( source instanceof TokenBasedAuthenticationDataSource )
-        {
-            TokenBasedAuthenticationDataSource tSource = (TokenBasedAuthenticationDataSource) source;
-            String jwt = tSource.getToken( );
+            String jwt = source.getTokenData( );
             AuthenticationResult result;
             try
             {
                 String subject = verify( jwt );
                 result = new AuthenticationResult( true, subject, null );
-            } catch (AuthenticationException e) {
-                result = new AuthenticationResult( false, source.getUsername(), e );
+            } catch ( TokenAuthenticationException e) {
+                AuthenticationFailureCause cause = new AuthenticationFailureCause(e.getError().getId(), e.getMessage() );
+                result = new AuthenticationResult( false, source.getUsername(), e, Arrays.asList( cause ) );
             }
             return result;
+    }
+
+    @Override
+    public AuthenticationResult authenticate(AuthenticationDataSource dataSource) throws AuthenticationException
+    {
+        if (dataSource instanceof BearerTokenAuthenticationDataSource) {
+            return this.authenticate( (BearerTokenAuthenticationDataSource) dataSource );
         }
-        else
-        {
-            throw new AuthenticationException( "The provided authentication source is not suitable for this authenticator" );
-        }
+        throw new AuthenticationException( "Authentication datasource not supported by this JwtAuthenticator" );
     }
 
     /**
@@ -701,7 +709,7 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
      * @return the subject of the JWT
      * @throws AuthenticationException if the verification failed
      */
-    public String verify( String token ) throws AuthenticationException
+    public String verify( String token ) throws TokenAuthenticationException
     {
         try
         {
@@ -709,14 +717,32 @@ public class JwtAuthenticator extends AbstractAuthenticator implements Authentic
             String subject = signature.getBody( ).getSubject( );
             if ( StringUtils.isEmpty( subject ) )
             {
-                throw new AuthenticationException( "Subject in JWT is empty" );
+                throw new TokenAuthenticationException( BearerError.INVALID_TOKEN, "contains no subject" );
             }
             return subject;
         }
-        catch ( JwtException e )
+        catch ( ExpiredJwtException e )
         {
-            throw new AuthenticationException( e.getMessage( ), e );
+            throw new TokenAuthenticationException( BearerError.INVALID_TOKEN, "token expired" );
         }
+        catch ( SignatureException e ) {
+            throw new TokenAuthenticationException( BearerError.INVALID_TOKEN, "token signature does not match" );
+        }
+        catch ( UnsupportedJwtException e) {
+            throw new TokenAuthenticationException( BearerError.INVALID_TOKEN, "jwt is unsupported" );
+        }
+        catch ( MalformedJwtException e)
+        {
+            throw new TokenAuthenticationException( BearerError.INVALID_TOKEN, "malformed token content" );
+        }
+        catch (JwtKeyIdNotFoundException e) {
+            throw new TokenAuthenticationException( BearerError.INVALID_TOKEN, "signer key does not exist" );
+        }
+        catch ( JwtException e) {
+            log.debug( "Unknown JwtException {}, {}", e.getClass( ), e.getMessage( ) );
+            throw new TokenAuthenticationException( BearerError.INVALID_TOKEN, "unknown error " + e.getMessage( ) );
+        }
+
     }
 
     /**

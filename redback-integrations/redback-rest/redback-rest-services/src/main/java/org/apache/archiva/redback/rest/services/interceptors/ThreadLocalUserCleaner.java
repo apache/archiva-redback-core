@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Priority;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
@@ -39,6 +40,7 @@ import java.io.IOException;
 @Service( "threadLocalUserCleaner#rest" )
 @Provider
 @PreMatching
+@Priority( Priorities.INITIALIZE )
 public class ThreadLocalUserCleaner
     implements ContainerResponseFilter
 {

@@ -21,30 +21,50 @@ package org.apache.archiva.redback.rest.services.v2;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.model.LoginRequest;
 import org.apache.archiva.redback.rest.api.model.Token;
-import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.UserService;
-import org.apache.archiva.redback.rest.services.AbstractRestServicesTest;
 import org.apache.archiva.redback.rest.services.FakeCreateAdminService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserManager;
+import org.apache.archiva.redback.users.UserManagerException;
+import org.apache.archiva.redback.users.memory.SimpleUser;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Olivier Lamy
  */
-@RunWith( SpringJUnit4ClassRunner.class )
+@ExtendWith( SpringExtension.class )
 @ContextConfiguration(
         locations = { "classpath:/spring-context.xml" } )
 public class AuthenticationServiceTest
-    extends AbstractRestServicesTest
+    extends AbstractRestServicesTestV2
 {
+    @BeforeEach
+    void setup() throws Exception
+    {
+        super.init();
+        super.startServer();
+    }
+
+    @AfterEach
+    void stop() throws Exception
+    {
+        super.stopServer();
+        super.destroy();
+    }
+
     @Test
     public void loginAdmin()
         throws Exception
     {
-        assertNotNull( getLoginService( null ).logIn( new LoginRequest( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME,
+        assertNotNull( getLoginServiceV2( null ).logIn( new LoginRequest( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME,
                                                                         FakeCreateAdminService.ADMIN_TEST_PWD ) ) );
     }
 
@@ -56,44 +76,46 @@ public class AuthenticationServiceTest
         {
 
             // START SNIPPET: create-user
-            User user = new User( "toto", "toto the king", "toto@toto.fr", false, false );
+            UserManager um = getUserManager( );
+            User user = um.createUser( "toto", "toto the king", "toto@toto.fr" );
+            user.setValidated( true );
+            user.setLocked( false );
             user.setPassword( "foo123" );
             user.setPermanent( false );
             user.setPasswordChangeRequired( false );
             user.setLocked( false );
-            user.setValidated( true );
-            UserService userService = getUserService( authorizationHeader );
-            userService.createUser( user );
+            user = um.addUser( user );
             // END SNIPPET: create-user
-            user = userService.getUser( "toto" );
             assertNotNull( user );
             assertEquals( "toto the king", user.getFullName() );
             assertEquals( "toto@toto.fr", user.getEmail() );
-            getLoginServiceV2( encode( "toto", "foo123" ) ).pingWithAutz();
+            getLoginServiceV2( getAuthHeader( "toto" ) ).pingWithAutz();
         }
         finally
         {
-            getUserService( authorizationHeader ).deleteUser( "toto" );
-            getUserService( authorizationHeader ).removeFromCache( "toto" );
-            assertNull( getUserService( authorizationHeader ).getUser( "toto" ) );
+            deleteUser( "toto" );
         }
     }
 
     @Test
-    public void simpleLogin() throws RedbackServiceException
+    public void simpleLogin() throws RedbackServiceException, UserManagerException
     {
+        String authorizationHeader = getAdminAuthzHeader( );
         try
         {
 
             // START SNIPPET: create-user
-            User user = new User( "toto", "toto the king", "toto@toto.fr", false, false );
+            UserManager um = getUserManager( );
+            User user = um.createUser( "toto", "toto the king", "toto@toto.fr" );
             user.setPassword( "foo123" );
             user.setPermanent( false );
             user.setPasswordChangeRequired( false );
             user.setLocked( false );
             user.setValidated( true );
-            UserService userService = getUserService( authorizationHeader );
-            userService.createUser( user );
+            user = um.addUser( user );
+            // We need this additional round, because new users have the password change flag set to true
+            user.setPasswordChangeRequired( false );
+            um.updateUser( user );
             // END SNIPPET: create-user
             LoginRequest request = new LoginRequest( "toto", "foo123" );
             Token result = getLoginServiceV2( "" ).logIn( request );
@@ -103,9 +125,7 @@ public class AuthenticationServiceTest
         }
         finally
         {
-            getUserService( authorizationHeader ).deleteUser( "toto" );
-            getUserService( authorizationHeader ).removeFromCache( "toto" );
-            assertNull( getUserService( authorizationHeader ).getUser( "toto" ) );
+            deleteUser( "toto" );
         }
 
     }

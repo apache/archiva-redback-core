@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
@@ -64,6 +65,7 @@ import java.util.List;
  */
 @Provider
 @Service( "requestValidationInterceptor#rest" )
+@Priority( Priorities.PRECHECK )
 public class RequestValidationInterceptor
     extends AbstractInterceptor
     implements ContainerRequestFilter

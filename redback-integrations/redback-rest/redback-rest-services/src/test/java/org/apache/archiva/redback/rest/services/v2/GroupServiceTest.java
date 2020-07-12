@@ -22,19 +22,23 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.rest.api.model.GroupMapping;
 import org.apache.archiva.redback.rest.api.services.v2.GroupService;
-import org.apache.archiva.redback.rest.services.AbstractRestServicesTest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.assertj.core.api.Condition;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.annotation.DirtiesContext;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -51,12 +55,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Olivier Lamy
  */
-@RunWith( SpringJUnit4ClassRunner.class )
+@ExtendWith( SpringExtension.class )
 @ContextConfiguration(
-    locations = { "classpath:/ldap-spring-test.xml" } )
-@DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
+    locations = {"classpath:/ldap-spring-test.xml"} )
+@TestInstance( TestInstance.Lifecycle.PER_CLASS )
 public class GroupServiceTest
-    extends AbstractRestServicesTest
+    extends AbstractRestServicesTestV2
 {
 
     @Inject
@@ -73,18 +77,18 @@ public class GroupServiceTest
     protected GroupService getGroupService( String authzHeader )
     {
         GroupService service =
-            JAXRSClientFactory.create( "http://localhost:" + getServerPort() + "/" + getRestServicesPath() + "/v2/redback/",
+            JAXRSClientFactory.create( "http://localhost:" + getServerPort( ) + "/" + getRestServicesPath( ) + "/v2/redback/",
                 GroupService.class,
-                Collections.singletonList( new JacksonJaxbJsonProvider() ) );
+                Collections.singletonList( new JacksonJaxbJsonProvider( ) ) );
 
         // for debuging purpose
-        WebClient.getConfig( service ).getHttpConduit().getClient().setReceiveTimeout( getTimeout() );
+        WebClient.getConfig( service ).getHttpConduit( ).getClient( ).setReceiveTimeout( getTimeout( ) );
 
         if ( authzHeader != null )
         {
             WebClient.client( service ).header( "Authorization", authzHeader );
         }
-        WebClient.client(service).header("Referer","http://localhost:"+getServerPort());
+        WebClient.client( service ).header( "Referer", "http://localhost:" + getServerPort( ) );
 
         WebClient.client( service ).accept( MediaType.APPLICATION_JSON_TYPE );
         WebClient.client( service ).type( MediaType.APPLICATION_JSON_TYPE );
@@ -93,70 +97,158 @@ public class GroupServiceTest
     }
 
     @Override
-    protected String getSpringConfigLocation()
+    protected String getSpringConfigLocation( )
     {
         return "classpath*:spring-context.xml,classpath*:META-INF/spring-context.xml,classpath:/ldap-spring-test.xml";
     }
 
-    @Override
-    public void startServer()
+    @BeforeAll
+    public void startup( )
         throws Exception
     {
-        super.startServer();
-
-        groupSuffix = apacheDs.addSimplePartition( "test", new String[]{ "archiva", "apache", "org" } ).getSuffix();
-
-        log.info( "groupSuffix: {}", groupSuffix );
+        super.init( );
+        super.startServer( );
 
         suffix = "ou=People,dc=archiva,dc=apache,dc=org";
-
         log.info( "DN Suffix: {}", suffix );
-
-        apacheDs.startServer();
-
-        BasicAttribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
-
-        Attributes attributes = new BasicAttributes( true );
-        attributes.put( objectClass );
-        attributes.put( "organizationalUnitName", "foo" );
-
-        apacheDs.getAdminContext().createSubcontext( suffix, attributes );
-
-        createGroups();
-    }
-
-    @Override
-    public void stopServer()
-        throws Exception
-    {
-
-        // cleanup ldap entries
-        InitialDirContext context = apacheDs.getAdminContext();
-
-        for ( String group : this.groups )
+        if ( apacheDs.isStopped( ) )
         {
-            context.unbind( createGroupDn( group ) );
+            groupSuffix = apacheDs.addSimplePartition( "test", new String[]{"archiva", "apache", "org"} ).getSuffix( );
+
+            log.info( "groupSuffix: {}", groupSuffix );
+            apacheDs.startServer( );
+            if ( !exists( apacheDs.getAdminContext( ), suffix ) )
+            {
+                BasicAttribute objectClass = new BasicAttribute( "objectClass" );
+                objectClass.add( "top" );
+                objectClass.add( "organizationalUnit" );
+
+                Attributes attributes = new BasicAttributes( true );
+                attributes.put( objectClass );
+                attributes.put( "organizationalUnitName", "foo" );
+
+                apacheDs.getAdminContext( ).createSubcontext( suffix, attributes );
+            }
         }
-
-        context.unbind( suffix );
-
-        context.close();
-
-        apacheDs.stopServer();
-
-        super.stopServer();
     }
 
-    private void createGroups()
+    @BeforeEach
+    public void initLdap( ) throws Exception
+    {
+        removeAllGroups( );
+        createGroups( );
+    }
+
+    @AfterEach
+    public void cleanupLdap( ) throws NamingException
+    {
+        removeAllGroups( );
+    }
+
+    private void removeAllGroups( )
+    {
+        if (!apacheDs.isStopped())
+        {
+            InitialDirContext context = null;
+            try
+            {
+                context = apacheDs.getAdminContext( );
+                for ( String group : this.groups )
+                {
+                    try
+                    {
+                        context.unbind( createGroupDn( group ) );
+                    }
+                    catch ( NamingException e )
+                    {
+                        // Ignore
+                    }
+                }
+
+            }
+            catch ( NamingException e )
+            {
+                log.error( "Could not remove groups {}", e.getMessage( ), e );
+            }
+            finally
+            {
+                try
+                {
+                    if ( context != null ) context.close( );
+                }
+                catch ( Exception e )
+                {
+                    log.error( "Error during context close {}", e.getMessage( ) );
+                }
+            }
+        }
+    }
+
+    @AfterAll
+    public void stop( ) throws Exception
+
+    {
+
+        removeAllGroups( );
+        // cleanup ldap entries
+        try
+        {
+            InitialDirContext context = null;
+            try
+            {
+                context = apacheDs.getAdminContext( );
+                context.unbind( suffix );
+            }
+            finally
+            {
+                try
+                {
+                    if ( context != null ) context.close( );
+                }
+                catch ( Exception e )
+                {
+                    log.error( "Error during context close {}", e.getMessage( ) );
+                }
+                try
+                {
+                    apacheDs.stopServer( );
+                }
+                catch ( Exception e )
+                {
+                    log.error( "Could not stop apacheds {}", e.getMessage( ) );
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            log.error( "Could not stop ldap {}", e.getMessage( ) );
+        }
+        finally
+        {
+            super.stopServer( );
+            super.destroy( );
+        }
+    }
+
+    private void createGroups( )
         throws Exception
     {
-        InitialDirContext context = apacheDs.getAdminContext();
-
-        for ( String group : groups )
+        InitialDirContext context = null;
+        try
         {
-            createGroup( context, group, createGroupDn( group ) );
+            context = apacheDs.getAdminContext( );
+
+            for ( String group : groups )
+            {
+                createGroup( context, group, createGroupDn( group ) );
+            }
+        }
+        finally
+        {
+            if ( context != null )
+            {
+                context.close( );
+            }
         }
 
     }
@@ -164,19 +256,26 @@ public class GroupServiceTest
     private void createGroup( DirContext context, String groupName, String dn )
         throws Exception
     {
+        if ( !exists( context, dn ) )
+        {
+            Attributes attributes = new BasicAttributes( true );
+            BasicAttribute objectClass = new BasicAttribute( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "groupOfUniqueNames" );
+            attributes.put( objectClass );
+            attributes.put( "cn", groupName );
+            BasicAttribute basicAttribute = new BasicAttribute( "uniquemember" );
 
-        Attributes attributes = new BasicAttributes( true );
-        BasicAttribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "groupOfUniqueNames" );
-        attributes.put( objectClass );
-        attributes.put( "cn", groupName );
-        BasicAttribute basicAttribute = new BasicAttribute( "uniquemember" );
+            basicAttribute.add( "uid=admin," + suffix );
 
-        basicAttribute.add( "uid=admin," + suffix );
+            attributes.put( basicAttribute );
 
-        attributes.put( basicAttribute );
-        context.createSubcontext( dn, attributes );
+            context.createSubcontext( dn, attributes );
+        }
+        else
+        {
+            log.error( "Group {} exists already", dn );
+        }
     }
 
     private String createGroupDn( String cn )
@@ -185,71 +284,76 @@ public class GroupServiceTest
     }
 
     @Test
-    public void getAllGroups()
+    public void getAllGroups( )
         throws Exception
     {
+        String authorizationHeader = getAdminAuthzHeader( );
 
         try
         {
             GroupService service = getGroupService( authorizationHeader );
 
-            List<String> allGroups = service.getGroups( Integer.valueOf( 0 ), Integer.valueOf( Integer.MAX_VALUE ) ).getData().stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
+            List<String> allGroups = service.getGroups( Integer.valueOf( 0 ), Integer.valueOf( Integer.MAX_VALUE ) ).getData( ).stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
 
-            assertThat( allGroups ).isNotNull().isNotEmpty().hasSize( 3 ).containsAll( groups );
+            assertThat( allGroups ).isNotNull( ).isNotEmpty( ).hasSize( 3 ).containsAll( groups );
         }
         catch ( Exception e )
         {
-            log.error( e.getMessage(), e );
+            log.error( e.getMessage( ), e );
             throw e;
         }
     }
 
     @Test
-    public void getGroupMappings()
+    public void getGroupMappings( )
         throws Exception
     {
+
+        String authorizationHeader = getAdminAuthzHeader( );
         try
         {
             GroupService service = getGroupService( authorizationHeader );
 
-            List<GroupMapping> mappings = service.getGroupMappings();
+            List<GroupMapping> mappings = service.getGroupMappings( );
 
-            assertThat( mappings ).isNotNull().isNotEmpty().hasSize( 3 );
+            assertThat( mappings ).isNotNull( ).isNotEmpty( ).hasSize( 3 );
         }
         catch ( Exception e )
         {
-            log.error( e.getMessage(), e );
+            log.error( e.getMessage( ), e );
             throw e;
         }
     }
 
     @Test
-    public void addThenRemove()
+    public void addThenRemove( )
         throws Exception
     {
+        String authorizationHeader = getAdminAuthzHeader( );
+
         try
         {
             GroupService service = getGroupService( authorizationHeader );
 
-            List<GroupMapping> mappings = service.getGroupMappings();
+            List<GroupMapping> mappings = service.getGroupMappings( );
 
-            assertThat( mappings ).isNotNull().isNotEmpty().hasSize( 3 );
+            assertThat( mappings ).isNotNull( ).isNotEmpty( ).hasSize( 3 );
 
             GroupMapping groupMapping = new GroupMapping( "ldap group", Arrays.asList( "redback role" ) );
 
             service.addGroupMapping( groupMapping );
 
-            mappings = service.getGroupMappings();
+            mappings = service.getGroupMappings( );
 
-            assertThat( mappings ).isNotNull().isNotEmpty().hasSize( 4 ).are(
-                new Condition<GroupMapping>()
+            assertThat( mappings ).isNotNull( ).isNotEmpty( ).hasSize( 4 ).are(
+                new Condition<GroupMapping>( )
                 {
                     @Override
                     public boolean matches( GroupMapping mapping )
                     {
-                        if ( StringUtils.equals( "ldap group", mapping.getGroup() ) )
+                        if ( StringUtils.equals( "ldap group", mapping.getGroup( ) ) )
                         {
-                            assertThat( mapping.getRoleNames() ).isNotNull().isNotEmpty().containsOnly(
+                            assertThat( mapping.getRoleNames( ) ).isNotNull( ).isNotEmpty( ).containsOnly(
                                 "redback role" );
                             return true;
                         }
@@ -260,13 +364,13 @@ public class GroupServiceTest
 
             service.removeGroupMapping( "ldap group" );
 
-            mappings = service.getGroupMappings();
+            mappings = service.getGroupMappings( );
 
-            assertThat( mappings ).isNotNull().isNotEmpty().hasSize( 3 );
+            assertThat( mappings ).isNotNull( ).isNotEmpty( ).hasSize( 3 );
         }
         catch ( Exception e )
         {
-            log.error( e.getMessage(), e );
+            log.error( e.getMessage( ), e );
             throw e;
         }
     }

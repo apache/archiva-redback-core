@@ -25,6 +25,9 @@ import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
+import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
+import org.apache.archiva.redback.rest.services.RedbackRequestInformation;
+import org.apache.archiva.redback.system.SecuritySession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -50,6 +53,7 @@ public abstract class AbstractInterceptor
     private Map<Method, RedbackAuthorization> authorizationCache = new HashMap<>( );
 
     public static final String AUTHENTICATION_RESULT = "org.apache.archiva.authResult";
+    public static final String SECURITY_SESSION = "org.apache.archiva.securitySession";
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -66,6 +70,15 @@ public abstract class AbstractInterceptor
     {
         return httpServletResponse;
     }
+
+    protected void setHttpServletRequest(HttpServletRequest request) {
+        this.httpServletRequest = request;
+    }
+
+    protected void setHttpServletResponse(HttpServletResponse response) {
+        this.httpServletResponse = response;
+    }
+
 
     public RedbackAuthorization getRedbackAuthorization( ResourceInfo resourceInfo ) {
         Method method = resourceInfo.getResourceMethod( );
@@ -84,6 +97,21 @@ public abstract class AbstractInterceptor
             RedbackAuthorization authorization = AnnotationUtils.findAnnotation( method, RedbackAuthorization.class );
             authorizationCache.put( method, authorization );
             return authorization;
+        }
+    }
+
+    protected SecuritySession getSecuritySession(ContainerRequestContext containerRequestContext, HttpAuthenticator httpAuthenticator,
+    HttpServletRequest request) {
+        if ( containerRequestContext.getProperty( SECURITY_SESSION ) != null ) {
+            return (SecuritySession) containerRequestContext.getProperty( SECURITY_SESSION );
+        }
+        RedbackRequestInformation info = RedbackAuthenticationThreadLocal.get( );
+        SecuritySession securitySession = info == null ? null : info.getSecuritySession( );
+        if  (securitySession!=null) {
+            return securitySession;
+        } else
+        {
+            return httpAuthenticator.getSecuritySession( request.getSession( true ) );
         }
     }
 

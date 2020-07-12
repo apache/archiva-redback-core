@@ -19,6 +19,7 @@ package org.apache.archiva.redback.authentication.jwt;
  */
 
 import org.apache.archiva.components.registry.RegistryException;
+import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.configuration.UserConfigurationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -40,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class JwtAuthenticatorMemorybasedTest extends AbstractJwtTest
 {
     @BeforeEach
-    void init() throws RegistryException, UserConfigurationException
+    void init() throws RegistryException, UserConfigurationException, AuthenticationException
     {
         Map<String, String> params = new HashMap<>();
         params.put( AUTHENTICATION_JWT_KEYSTORETYPE, AUTHENTICATION_JWT_KEYSTORETYPE_MEMORY );

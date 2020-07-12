@@ -21,22 +21,18 @@ package org.apache.archiva.redback.authentication.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwsHeader;
-import org.apache.archiva.components.registry.Registry;
 import org.apache.archiva.components.registry.RegistryException;
 import org.apache.archiva.components.registry.commons.CommonsConfigurationRegistry;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.AuthenticationResult;
+import org.apache.archiva.redback.authentication.BearerTokenAuthenticationDataSource;
 import org.apache.archiva.redback.authentication.PasswordBasedAuthenticationDataSource;
 import org.apache.archiva.redback.authentication.Token;
 import org.apache.archiva.redback.authentication.TokenBasedAuthenticationDataSource;
 import org.apache.archiva.redback.configuration.DefaultUserConfiguration;
-import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationException;
 import org.apache.commons.configuration2.BaseConfiguration;
-import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +52,7 @@ public abstract class AbstractJwtTest
     protected CommonsConfigurationRegistry registry;
     protected BaseConfiguration saveConfig;
 
-    protected void init( Map<String, String> parameters) throws UserConfigurationException, RegistryException
+    protected void init( Map<String, String> parameters) throws UserConfigurationException, RegistryException, AuthenticationException
     {
         this.registry = new CommonsConfigurationRegistry( );
         String baseDir = System.getProperty( "basedir", "" );
@@ -95,7 +91,8 @@ public abstract class AbstractJwtTest
     @Test
     void supportsDataSource( )
     {
-        assertTrue( jwtAuthenticator.supportsDataSource( new TokenBasedAuthenticationDataSource( ) ) );
+        assertTrue( jwtAuthenticator.supportsDataSource( new BearerTokenAuthenticationDataSource(  ) ) );
+        assertFalse( jwtAuthenticator.supportsDataSource( new TokenBasedAuthenticationDataSource( ) ) );
         assertFalse( jwtAuthenticator.supportsDataSource( new PasswordBasedAuthenticationDataSource( ) ) );
     }
 
@@ -151,7 +148,7 @@ public abstract class AbstractJwtTest
     }
 
     @Test
-    void verify( ) throws AuthenticationException
+    void verify( ) throws TokenAuthenticationException
     {
         Token token = jwtAuthenticator.generateToken( "frodo_baggins" );
         assertEquals( "frodo_baggins", jwtAuthenticator.verify( token.getData( ) ) );
@@ -183,12 +180,12 @@ public abstract class AbstractJwtTest
     }
 
     @Test
-    void invalidKeySignature() throws AuthenticationException
+    void invalidKeySignature() throws TokenAuthenticationException
     {
         Token token = jwtAuthenticator.generateToken( "samwise_gamgee" );
         assertEquals( "samwise_gamgee", jwtAuthenticator.verify( token.getData( ) ) );
         jwtAuthenticator.revokeSigningKeys( );
-        assertThrows( AuthenticationException.class, ( ) -> {
+        assertThrows( TokenAuthenticationException.class, ( ) -> {
             jwtAuthenticator.verify( token.getData( ) );
         } );
     }
@@ -202,7 +199,7 @@ public abstract class AbstractJwtTest
         {
             jwtAuthenticator.setTokenLifetime( Duration.ofNanos( 0 ) );
             Token token = jwtAuthenticator.generateToken( "samwise_gamgee" );
-            assertThrows( AuthenticationException.class, ( ) -> {
+            assertThrows( TokenAuthenticationException.class, ( ) -> {
                 jwtAuthenticator.verify( token.getData( ) );
             } );
         } finally
@@ -216,9 +213,8 @@ public abstract class AbstractJwtTest
     void validAuthenticate() throws AuthenticationException
     {
         Token token = jwtAuthenticator.generateToken( "bilbo_baggins" );
-        TokenBasedAuthenticationDataSource source = new TokenBasedAuthenticationDataSource( );
-        source.setPrincipal( "bilbo_baggins" );
-        source.setToken( token.getData() );
+        BearerTokenAuthenticationDataSource source = new BearerTokenAuthenticationDataSource( );
+        source.setTokenData( token.getData() );
         AuthenticationResult result = jwtAuthenticator.authenticate( source );
         assertNotNull( result );
         assertTrue( result.isAuthenticated( ) );
@@ -228,13 +224,11 @@ public abstract class AbstractJwtTest
     @Test
     void invalidAuthenticate() throws AuthenticationException
     {
-        TokenBasedAuthenticationDataSource source = new TokenBasedAuthenticationDataSource( );
-        source.setPrincipal( "bilbo_baggins" );
-        source.setToken( "invalidToken" );
+        BearerTokenAuthenticationDataSource source = new BearerTokenAuthenticationDataSource( );
+        source.setTokenData( "invalidToken" );
         AuthenticationResult result = jwtAuthenticator.authenticate( source );
         assertNotNull( result );
         assertFalse( result.isAuthenticated( ) );
-        assertEquals( "bilbo_baggins", result.getPrincipal( ) );
     }
 
 
