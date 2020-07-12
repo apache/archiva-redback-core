@@ -41,8 +41,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 
 /**
  * @author Olivier Lamy
@@ -164,8 +162,10 @@ public class UserServiceTest
 
             log.info( "messageContent: {}", messageContent );
 
-            assertThat( messageContent ).contains( "Use the following URL to validate your account." ).contains(
-                "http://wine.fr/bordeaux" ).containsIgnoringCase( "toto" );
+            assertNotNull( messageContent );
+            assertTrue( messageContent.contains( "Use the following URL to validate your account." ) );
+            assertTrue( messageContent.contains( "http://wine.fr/bordeaux" ) );
+            assertTrue( messageContent.contains( "toto" ) );
 
             assertTrue( service.validateUserFromKey( key ).isSuccess() );
 
@@ -222,9 +222,10 @@ public class UserServiceTest
             String messageContent = emailMessages.get( 0 ).getText();
 
             log.info( "messageContent: {}", messageContent );
-
-            assertThat( messageContent ).contains( "Use the following URL to validate your account." ).contains(
-                "http://localhost:" + getServerPort() ).containsIgnoringCase( "toto" );
+            assertNotNull( messageContent );
+            assertTrue( messageContent.contains( "Use the following URL to validate your account." ));
+            assertTrue(messageContent.contains("http://localhost:" + getServerPort() ));
+            assertTrue( messageContent.toLowerCase( ).contains( "toto" ) );
 
             assertTrue( service.validateUserFromKey( key ).isSuccess() );
 
@@ -304,8 +305,10 @@ public class UserServiceTest
 
             String messageContent = emailMessages.get( 1 ).getText();
 
-            assertThat( messageContent ).contains( "Password Reset" ).contains( "Username: toto" ).contains(
-                "http://foo.fr/bar" );
+            assertNotNull( messageContent );
+            assertTrue( messageContent.contains( "Password Reset" ));
+            assertTrue(messageContent.contains( "Username: toto" ));
+            assertTrue( messageContent.contains( "http://foo.fr/bar" ) );
 
 
         }

@@ -32,7 +32,7 @@ import javax.ws.rs.core.MediaType;
  * @author Olivier Lamy
  * @since 1.4
  */
-@Path( "/passwordService/" )
+@Path( "/password/" )
 public interface PasswordService
 {
 

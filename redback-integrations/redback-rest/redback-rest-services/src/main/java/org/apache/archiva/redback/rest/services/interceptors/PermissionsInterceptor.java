@@ -69,7 +69,7 @@ public class PermissionsInterceptor
     @Context
     private ResourceInfo resourceInfo;
 
-    private final Logger log = LoggerFactory.getLogger( getClass() );
+    private static final Logger log = LoggerFactory.getLogger( PermissionsInterceptor.class );
 
     public void filter( ContainerRequestContext containerRequestContext )
     {

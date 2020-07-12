@@ -25,7 +25,6 @@ import org.apache.archiva.redback.rest.api.services.v2.GroupService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -46,11 +45,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
+
 
 /**
  * @author Olivier Lamy
@@ -295,7 +296,11 @@ public class GroupServiceTest
 
             List<String> allGroups = service.getGroups( Integer.valueOf( 0 ), Integer.valueOf( Integer.MAX_VALUE ) ).getData( ).stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
 
-            assertThat( allGroups ).isNotNull( ).isNotEmpty( ).hasSize( 3 ).containsAll( groups );
+            assertNotNull( allGroups );
+            assertEquals( 3, allGroups.size( ) );
+            for (String group : groups) {
+                assertTrue( allGroups.contains( group ) );
+            }
         }
         catch ( Exception e )
         {
@@ -316,7 +321,8 @@ public class GroupServiceTest
 
             List<GroupMapping> mappings = service.getGroupMappings( );
 
-            assertThat( mappings ).isNotNull( ).isNotEmpty( ).hasSize( 3 );
+            assertNotNull( mappings );
+            assertEquals( 3, mappings.size( ) );
         }
         catch ( Exception e )
         {
@@ -337,7 +343,8 @@ public class GroupServiceTest
 
             List<GroupMapping> mappings = service.getGroupMappings( );
 
-            assertThat( mappings ).isNotNull( ).isNotEmpty( ).hasSize( 3 );
+            assertNotNull( mappings );
+            assertEquals( 3, mappings.size( ) );
 
             GroupMapping groupMapping = new GroupMapping( "ldap group", Arrays.asList( "redback role" ) );
 
@@ -345,28 +352,26 @@ public class GroupServiceTest
 
             mappings = service.getGroupMappings( );
 
-            assertThat( mappings ).isNotNull( ).isNotEmpty( ).hasSize( 4 ).are(
-                new Condition<GroupMapping>( )
+            assertNotNull( mappings );
+            assertEquals( 4, mappings.size( ) );
+            for (GroupMapping mapping : mappings) {
+                if ( StringUtils.equals( "ldap group", mapping.getGroup( ) ) )
                 {
-                    @Override
-                    public boolean matches( GroupMapping mapping )
-                    {
-                        if ( StringUtils.equals( "ldap group", mapping.getGroup( ) ) )
-                        {
-                            assertThat( mapping.getRoleNames( ) ).isNotNull( ).isNotEmpty( ).containsOnly(
-                                "redback role" );
-                            return true;
-                        }
-
-                        return true;
+                    Collection<String> names = mapping.getRoleNames( );
+                    assertNotNull( names );
+                    assertTrue( names.size( ) > 0 );
+                    for (String name : names) {
+                        assertEquals( "redback role", name );
                     }
-                } );
+                }
 
+            }
             service.removeGroupMapping( "ldap group" );
 
             mappings = service.getGroupMappings( );
 
-            assertThat( mappings ).isNotNull( ).isNotEmpty( ).hasSize( 3 );
+            assertNotNull( mappings );
+            assertEquals( 3, mappings.size( ) );
         }
         catch ( Exception e )
         {

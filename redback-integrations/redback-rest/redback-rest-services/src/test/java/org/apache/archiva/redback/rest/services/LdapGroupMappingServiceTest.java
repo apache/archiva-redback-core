@@ -22,7 +22,6 @@ import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.rest.api.model.LdapGroupMapping;
 import org.apache.archiva.redback.rest.api.services.LdapGroupMappingService;
 import org.apache.commons.lang3.StringUtils;
-import org.assertj.core.api.Condition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
@@ -37,9 +36,9 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Olivier Lamy
@@ -166,7 +165,12 @@ public class LdapGroupMappingServiceTest
 
             List<String> allGroups = service.getLdapGroups().getStrings();
 
-            assertThat( allGroups ).isNotNull().isNotEmpty().hasSize( 3 ).containsAll( groups );
+            assertNotNull( allGroups );
+            assertTrue( allGroups.size( ) > 0 );
+            assertEquals( 3, allGroups.size( ) );
+            for (String group : groups) {
+                assertTrue( allGroups.contains( group ) );
+            }
         }
         catch ( Exception e )
         {
@@ -185,7 +189,8 @@ public class LdapGroupMappingServiceTest
 
             List<LdapGroupMapping> mappings = service.getLdapGroupMappings();
 
-            assertThat( mappings ).isNotNull().isNotEmpty().hasSize( 3 );
+            assertNotNull( mappings );
+            assertEquals( 3, mappings.size() );
         }
         catch ( Exception e )
         {
@@ -204,7 +209,8 @@ public class LdapGroupMappingServiceTest
 
             List<LdapGroupMapping> mappings = service.getLdapGroupMappings();
 
-            assertThat( mappings ).isNotNull().isNotEmpty().hasSize( 3 );
+            assertNotNull( mappings );
+            assertEquals( 3, mappings.size( ) );
 
             LdapGroupMapping ldapGroupMapping = new LdapGroupMapping( "ldap group", Arrays.asList( "redback role" ) );
 
@@ -212,28 +218,25 @@ public class LdapGroupMappingServiceTest
 
             mappings = service.getLdapGroupMappings();
 
-            assertThat( mappings ).isNotNull().isNotEmpty().hasSize( 4 ).are(
-                new Condition<LdapGroupMapping>()
-                {
-                    @Override
-                    public boolean matches( LdapGroupMapping mapping )
-                    {
-                        if ( StringUtils.equals( "ldap group", mapping.getGroup() ) )
-                        {
-                            assertThat( mapping.getRoleNames() ).isNotNull().isNotEmpty().containsOnly(
-                                "redback role" );
-                            return true;
-                        }
-
-                        return true;
+            assertNotNull( mappings );
+            assertEquals( 4, mappings.size( ) );
+            for (LdapGroupMapping mapping : mappings) {
+                if (StringUtils.equals( "ldap group", mapping.getGroup( ) ) ) {
+                    Collection<String> names = mapping.getRoleNames( );
+                    assertNotNull( names );
+                    assertTrue( names.size( ) > 0 );
+                    for (String name : names) {
+                        assertEquals( "redback role", name );
                     }
-                } );
+                }
 
+            }
             service.removeLdapGroupMapping( "ldap group" );
 
             mappings = service.getLdapGroupMappings();
 
-            assertThat( mappings ).isNotNull().isNotEmpty().hasSize( 3 );
+            assertNotNull( mappings );
+            assertEquals( 3, mappings.size( ) );
         }
         catch ( Exception e )
         {
