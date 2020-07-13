@@ -22,6 +22,8 @@ import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.rest.api.model.LdapGroupMapping;
 import org.apache.archiva.redback.rest.api.services.LdapGroupMappingService;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.DirtiesContext;
@@ -68,6 +70,7 @@ public class LdapGroupMappingServiceTest
         return "classpath*:spring-context.xml,classpath*:META-INF/spring-context.xml,classpath:/ldap-spring-test.xml";
     }
 
+    @Before
     @Override
     public void startServer()
         throws Exception
@@ -97,6 +100,7 @@ public class LdapGroupMappingServiceTest
         createGroups();
     }
 
+    @After
     @Override
     public void stopServer()
         throws Exception

@@ -27,6 +27,7 @@ import org.apache.archiva.redback.authentication.Token;
 import org.apache.archiva.redback.authentication.jwt.JwtAuthenticator;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
+import org.apache.archiva.redback.rest.services.BaseSetup;
 import org.apache.archiva.redback.rest.services.FakeCreateAdminService;
 import org.apache.archiva.redback.rest.services.FakeCreateAdminServiceImpl;
 import org.apache.archiva.redback.role.RoleManager;
@@ -269,19 +270,21 @@ public abstract class AbstractRestServicesTestV2
         } catch ( UserNotFoundException e ) {
             // ignore
         }
+        adminUser = um.createUser( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME, "Administrator", "admin@local.home" );
+        adminUser.setUsername( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME );
+        adminUser.setPassword( BaseSetup.getAdminPwd() );
+        adminUser.setFullName( "the admin user" );
+        adminUser.setEmail( "toto@toto.fr" );
+        adminUser.setPermanent( true );
+        adminUser.setValidated( true );
+        adminUser.setLocked( false );
+        adminUser.setPasswordChangeRequired( false );
         if (adminUser==null)
         {
-            adminUser = um.createUser( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME, "Administrator", "admin@local.home" );
-            adminUser.setUsername( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME );
-            adminUser.setPassword( FakeCreateAdminServiceImpl.ADMIN_TEST_PWD );
-            adminUser.setFullName( "the admin user" );
-            adminUser.setEmail( "toto@toto.fr" );
-            adminUser.setPermanent( true );
-            adminUser.setValidated( true );
-            adminUser.setLocked( false );
-            adminUser.setPasswordChangeRequired( false );
             um.addUser( adminUser );
-
+            getRoleManager( ).assignRole( "system-administrator", adminUser.getUsername( ) );
+        } else {
+            um.updateUser( adminUser, false );
             getRoleManager( ).assignRole( "system-administrator", adminUser.getUsername( ) );
         }
 

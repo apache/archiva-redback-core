@@ -41,7 +41,7 @@ public class LoginServiceTest
         throws Exception
     {
         assertNotNull( getLoginService( null ).logIn( new LoginRequest( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME,
-                                                                        FakeCreateAdminService.ADMIN_TEST_PWD ) ) );
+                                                                        BaseSetup.getAdminPwd() ) ) );
     }
 
     @Test

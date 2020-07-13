@@ -32,8 +32,6 @@ import javax.ws.rs.core.MediaType;
 public interface FakeCreateAdminService
 {
 
-    public static final String ADMIN_TEST_PWD = "rose210208";
-
     @Path( "/testAuthzWithoutKarmasNeeded" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML} )

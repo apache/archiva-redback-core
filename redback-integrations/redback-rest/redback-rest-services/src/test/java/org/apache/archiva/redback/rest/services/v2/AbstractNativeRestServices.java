@@ -22,6 +22,7 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
+import org.apache.archiva.redback.rest.services.BaseSetup;
 import org.apache.archiva.redback.rest.services.FakeCreateAdminServiceImpl;
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
@@ -49,55 +50,53 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.port;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.apache.archiva.redback.rest.services.BaseSetup.*;
 
 /**
- *
  * Native REST tests do not use the JAX-RS client and can be used with a remote
  * REST API service. The tests
  *
  * @author Martin Stockhammer <martin_s@apache.org>
  */
-@Tag("rest-native")
+@Tag( "rest-native" )
 public abstract class AbstractNativeRestServices
 {
-    public static final String SYSPROP_START_SERVER = "archiva.rest.start.server";
-    public static final String SYSPROP_SERVER_PORT = "archiva.rest.server.port";
-    public static final String SYSPROP_SERVER_BASE_URI = "archiva.rest.server.baseuri";
-    public static final String SYSPROP_SERVER_ADMIN_PWD = "archiva.rest.server.admin_pwd";
     public static final int STOPPED = 0;
     public static final int STOPPING = 1;
     public static final int STARTING = 2;
     public static final int STARTED = 3;
     public static final int ERROR = 4;
-    public static final String DEFAULT_ADMIN_PWD = "Ackd245_aer9sdfa#sjDfn";
 
     private RequestSpecification requestSpec;
-    protected Logger log = LoggerFactory.getLogger( getClass() );
+    protected Logger log = LoggerFactory.getLogger( getClass( ) );
 
-    private static AtomicReference<Server> server = new AtomicReference<>();
-    private static AtomicReference<ServerConnector> serverConnector = new AtomicReference<>();
+    private static AtomicReference<Server> server = new AtomicReference<>( );
+    private static AtomicReference<ServerConnector> serverConnector = new AtomicReference<>( );
     private static AtomicInteger serverStarted = new AtomicInteger( STOPPED );
     private UserManager userManager;
     private RoleManager roleManager;
     private String adminPwd;
 
+
+
     public AbstractNativeRestServices( )
     {
-        this.adminPwd = System.getProperty( SYSPROP_SERVER_ADMIN_PWD, DEFAULT_ADMIN_PWD );
+        this.adminPwd = BaseSetup.getAdminPwd( );
     }
 
-    protected abstract String getServicePath();
+    protected abstract String getServicePath( );
 
-    protected String getSpringConfigLocation()
+    protected String getSpringConfigLocation( )
     {
         return "classpath*:spring-context.xml,classpath*:META-INF/spring-context.xml";
     }
 
-    protected RequestSpecification getRequestSpec() {
+    protected RequestSpecification getRequestSpec( )
+    {
         return this.requestSpec;
     }
 
-    protected String getContextRoot()
+    protected String getContextRoot( )
     {
         return "/api";
     }
@@ -110,39 +109,49 @@ public abstract class AbstractNativeRestServices
 
     protected String getBasePath( )
     {
-        return new StringBuilder(  )
-            .append(getContextRoot( ))
-            .append(getServiceBasePath( ))
-            .append(getServicePath( )).toString();
+        return new StringBuilder( )
+            .append( getContextRoot( ) )
+            .append( getServiceBasePath( ) )
+            .append( getServicePath( ) ).toString( );
     }
 
     /**
      * Returns the server that was started, or null if not initialized before.
+     *
      * @return
      */
-    public Server getServer() {
-        return this.server.get();
+    public Server getServer( )
+    {
+        return this.server.get( );
     }
 
-    public int getServerPort() {
-        ServerConnector connector = serverConnector.get();
-        if (connector!=null) {
-            return connector.getLocalPort();
-        } else {
+    public int getServerPort( )
+    {
+        ServerConnector connector = serverConnector.get( );
+        if ( connector != null )
+        {
+            return connector.getLocalPort( );
+        }
+        else
+        {
             return 0;
         }
     }
 
     /**
      * Returns true, if the server does exist and is running.
+     *
      * @return true, if server does exist and is running.
      */
-    public boolean isServerRunning() {
-        return serverStarted.get()==STARTED && this.server.get() != null && this.server.get().isRunning();
+    public boolean isServerRunning( )
+    {
+        return serverStarted.get( ) == STARTED && this.server.get( ) != null && this.server.get( ).isRunning( );
     }
 
-    private UserManager getUserManager() {
-        if (this.userManager==null) {
+    private UserManager getUserManager( )
+    {
+        if ( this.userManager == null )
+        {
             UserManager userManager = ContextLoaderListener.getCurrentWebApplicationContext( )
                 .getBean( "userManager#default", UserManager.class );
             assertNotNull( userManager );
@@ -151,8 +160,10 @@ public abstract class AbstractNativeRestServices
         return this.userManager;
     }
 
-    private RoleManager getRoleManager() {
-        if (this.roleManager==null) {
+    private RoleManager getRoleManager( )
+    {
+        if ( this.roleManager == null )
+        {
             RoleManager roleManager = ContextLoaderListener.getCurrentWebApplicationContext( )
                 .getBean( "roleManager", RoleManager.class );
             assertNotNull( roleManager );
@@ -161,15 +172,17 @@ public abstract class AbstractNativeRestServices
         return this.roleManager;
     }
 
-    protected String getAdminPwd() {
-        return this.adminPwd;
+    protected String getAdminPwd( )
+    {
+        return BaseSetup.getAdminPwd( );
     }
 
-    protected String getAdminUser() {
+    protected String getAdminUser( )
+    {
         return RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME;
     }
 
-    private void setupAdminUser() throws UserManagerException, RoleManagerException
+    private void setupAdminUser( ) throws UserManagerException, RoleManagerException
     {
 
         UserManager um = getUserManager( );
@@ -177,31 +190,36 @@ public abstract class AbstractNativeRestServices
         User adminUser = null;
         try
         {
-            adminUser = um.findUser( getAdminUser() );
-        } catch ( UserNotFoundException e ) {
+            adminUser = um.findUser( getAdminUser( ) );
+        }
+        catch ( UserNotFoundException e )
+        {
             // ignore
         }
-        if (adminUser==null)
+        adminUser = um.createUser( getAdminUser( ), "Administrator", "admin@local.home" );
+        adminUser.setUsername( getAdminUser( ) );
+        adminUser.setPassword( getAdminPwd( ) );
+        adminUser.setFullName( "the admin user" );
+        adminUser.setEmail( "toto@toto.fr" );
+        adminUser.setPermanent( true );
+        adminUser.setValidated( true );
+        adminUser.setLocked( false );
+        adminUser.setPasswordChangeRequired( false );
+        if ( adminUser == null )
         {
-            adminUser = um.createUser( getAdminUser(), "Administrator", "admin@local.home" );
-            adminUser.setUsername( getAdminUser() );
-            adminUser.setPassword( getAdminPwd() );
-            adminUser.setFullName( "the admin user" );
-            adminUser.setEmail( "toto@toto.fr" );
-            adminUser.setPermanent( true );
-            adminUser.setValidated( true );
-            adminUser.setLocked( false );
-            adminUser.setPasswordChangeRequired( false );
             um.addUser( adminUser );
-
-            getRoleManager( ).assignRole( "system-administrator", adminUser.getUsername( ) );
         }
+        else
+        {
+            um.updateUser( adminUser, false);
+        }
+        getRoleManager( ).assignRole( "system-administrator", adminUser.getUsername( ) );
     }
 
-    public void startServer()
+    public void startServer( )
         throws Exception
     {
-        if (serverStarted.compareAndSet( STOPPED, STARTING ))
+        if ( serverStarted.compareAndSet( STOPPED, STARTING ) )
         {
             try
             {
@@ -227,10 +245,12 @@ public abstract class AbstractNativeRestServices
                     log.debug( "Jetty dump: {}", getServer( ).dump( ) );
                 }
 
-                setupAdminUser();
+                setupAdminUser( );
                 log.info( "Started server on port {}", getServerPort( ) );
                 serverStarted.set( STARTED );
-            } finally {
+            }
+            finally
+            {
                 // In case, if the last statement was not reached
                 serverStarted.compareAndSet( STARTING, ERROR );
             }
@@ -238,7 +258,7 @@ public abstract class AbstractNativeRestServices
 
     }
 
-    public void stopServer()
+    public void stopServer( )
         throws Exception
     {
         if ( this.serverStarted.compareAndSet( STARTED, STOPPING ) )
@@ -248,14 +268,18 @@ public abstract class AbstractNativeRestServices
                 final Server myServer = getServer( );
                 if ( myServer != null )
                 {
-                    log.info("Stopping server");
-                    myServer.stop();
+                    log.info( "Stopping server" );
+                    myServer.stop( );
                 }
                 serverStarted.set( STOPPED );
-            } finally {
+            }
+            finally
+            {
                 serverStarted.compareAndSet( STOPPING, ERROR );
             }
-        } else {
+        }
+        else
+        {
             log.error( "Serer is not in STARTED state!" );
         }
     }
@@ -298,8 +322,8 @@ public abstract class AbstractNativeRestServices
         RestAssured.basePath = basePath;
     }
 
-    protected void shutdownNative() throws Exception
+    protected void shutdownNative( ) throws Exception
     {
-        stopServer();
+        stopServer( );
     }
 }

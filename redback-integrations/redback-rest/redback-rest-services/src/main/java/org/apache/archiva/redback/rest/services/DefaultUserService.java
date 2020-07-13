@@ -511,6 +511,7 @@ public class DefaultUserService
     {
         if ( isAdminUserExists().isExists() )
         {
+            log.warn( "Admin user exists already" );
             return ActionStatus.FAIL;
         }
         log.debug("Creating admin admin user '{}'", adminUser.getUsername());

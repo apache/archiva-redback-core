@@ -118,12 +118,7 @@ public abstract class AbstractRestServicesTest
 
     public static String getAdminAuthzHeader()
     {
-        String adminPwdSysProps = System.getProperty( "rest.admin.pwd" );
-        if ( StringUtils.isBlank( adminPwdSysProps ) )
-        {
-            return encode( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME, FakeCreateAdminService.ADMIN_TEST_PWD );
-        }
-        return encode( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME, adminPwdSysProps );
+        return encode( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME, BaseSetup.getAdminPwd() );
     }
 
     protected String getSpringConfigLocation()
@@ -169,10 +164,12 @@ public abstract class AbstractRestServicesTest
 
         User adminUser = new User();
         adminUser.setUsername( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME );
-        adminUser.setPassword( FakeCreateAdminServiceImpl.ADMIN_TEST_PWD );
+        adminUser.setPassword( BaseSetup.getAdminPwd() );
         adminUser.setFullName( "the admin user" );
         adminUser.setEmail( "toto@toto.fr" );
-        Boolean res = userService.createAdminUser( adminUser ).isSuccess();
+        if( !userService.createAdminUser( adminUser ).isSuccess( ) ) {
+            log.info( "Could not create admin user." );
+        }
 
         FakeCreateAdminService fakeCreateAdminService = getFakeCreateAdminService();
         //assertTrue( res.booleanValue() );

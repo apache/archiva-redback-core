@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
@@ -59,6 +60,7 @@ import javax.ws.rs.ext.Provider;
  */
 @Service("authenticationInterceptor#rest")
 @Provider
+@Priority( Priorities.AUTHENTICATION )
 public class AuthenticationInterceptor
     extends AbstractInterceptor
     implements ContainerRequestFilter
