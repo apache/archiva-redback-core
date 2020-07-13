@@ -51,6 +51,11 @@
   </bean>
   <bean id="redbackJacksonXMLMapper" class="com.fasterxml.jackson.dataformat.xml.XmlMapper" >
   </bean>
+  <!-- CXF OpenApiFeature -->
+  <bean id="openApiFeature" class="org.apache.cxf.jaxrs.openapi.OpenApiFeature">
+    <property name="scanKnownConfigLocations" value="true"/>
+    <!-- customize some of the properties -->
+  </bean>
 
   <jaxrs:server name="redbackServices" address="/redbackServices">
 
@@ -95,6 +100,9 @@
       <ref bean="requestValidationInterceptor#rest" />
       <ref bean="threadLocalUserCleaner#rest"/>
     </jaxrs:providers>
+    <jaxrs:features>
+      <ref bean="openApiFeature" />
+    </jaxrs:features>
   </jaxrs:server>
 
 </beans>

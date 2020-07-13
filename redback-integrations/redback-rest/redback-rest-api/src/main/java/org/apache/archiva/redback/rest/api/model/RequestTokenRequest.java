@@ -18,6 +18,8 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -25,6 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="refreshToken")
+@Schema(name="Request Token Data", description = "Schema used for requesting a Bearer token.")
 public class RequestTokenRequest
 {
     String grantType = "";
@@ -55,6 +58,7 @@ public class RequestTokenRequest
     }
 
     @XmlElement(name = "grant_type", required = true, nillable = false)
+    @Schema(description = "The grant type. Normally 'authorization_code'.")
     public String getGrantType( )
     {
         return grantType;
@@ -99,18 +103,19 @@ public class RequestTokenRequest
     }
 
     @XmlElement(name="user_id", required = true, nillable = false)
+    @Schema(description = "The user identifier.")
     public String getUserId( )
     {
         return userId;
     }
 
-    @XmlElement(name="user_id", required = true, nillable = false)
     public void setUserId( String userId )
     {
         this.userId = userId;
     }
 
     @XmlElement(name="password", required = true, nillable = false)
+    @Schema(description = "The user password")
     public String getPassword( )
     {
         return password;

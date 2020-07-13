@@ -376,8 +376,16 @@ public class RequestValidationInterceptor
     public void filter( ContainerRequestContext containerRequestContext )
         throws IOException
     {
+
         if ( enabled )
         {
+
+            final String requestPath = containerRequestContext.getUriInfo( ).getPath( );
+            if ("api-docs".equals(requestPath) || requestPath.startsWith( "api-docs/" )
+                || "openapi.json".equals(requestPath)) {
+                return;
+            }
+
             HttpServletRequest request = getRequest();
             List<URL> targetUrls = getTargetUrl( request );
             if ( targetUrls == null )

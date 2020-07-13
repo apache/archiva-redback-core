@@ -19,6 +19,8 @@ package org.apache.archiva.redback.rest.api.services;
  */
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
@@ -43,7 +45,9 @@ import java.util.List;
  * @since 2.1
  */
 @Path("/ldapGroupMappingService/")
-@Tag( name = "LDAP", description = "LDAP Service" )
+@Tag( name = "v1" )
+@Tag( name = "v1/LDAP" )
+@SecurityScheme( scheme = "BasicAuth", type = SecuritySchemeType.HTTP )
 @Deprecated
 public interface LdapGroupMappingService
 {

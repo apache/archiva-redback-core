@@ -103,11 +103,18 @@ public class BearerAuthInterceptor extends AbstractInterceptor
     public void filter( ContainerRequestContext requestContext ) throws IOException
     {
         log.debug( "Intercepting request for bearer token" );
+        log.debug( "Request {}", requestContext.getUriInfo( ).getPath( ) );
+        final String requestPath = requestContext.getUriInfo( ).getPath( );
+        if ("api-docs".equals(requestPath) || requestPath.startsWith( "api-docs/" )
+        || "openapi.json".equals(requestPath)) {
+            return;
+        }
         // If no redback resource info, we deny the request
         RedbackAuthorization redbackAuthorization = getRedbackAuthorization( resourceInfo );
         if ( redbackAuthorization == null )
         {
-            log.warn( "http path {} doesn't contain any informations regarding permissions ",
+
+            log.warn( "Request path {} doesn't contain any information regarding permissions. Denying access.",
                 requestContext.getUriInfo( ).getRequestUri( ) );
             // here we failed to authenticate so 403 as there is no detail on karma for this
             // it must be marked as it's exposed
@@ -117,7 +124,7 @@ public class BearerAuthInterceptor extends AbstractInterceptor
         String bearerHeader = StringUtils.defaultIfEmpty( requestContext.getHeaderString( "Authorization" ), "" ).trim( );
         if ( !"".equals( bearerHeader ) )
         {
-            log.debug( "Found token" );
+            log.debug( "Found Bearer token in header" );
             String bearerToken = bearerHeader.replaceFirst( "\\s*Bearer\\s+(\\S+)\\s*", "$1" );
             final HttpServletRequest request = getHttpServletRequest( );
             BearerTokenAuthenticationDataSource source = new BearerTokenAuthenticationDataSource( "", bearerToken );
@@ -226,6 +233,8 @@ public class BearerAuthInterceptor extends AbstractInterceptor
             }
 
 
+        } else {
+            log.debug( "No Bearer token found" );
         }
     }
 }

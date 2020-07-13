@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -107,6 +108,9 @@ class BearerAuthInterceptorTest
         doReturn( DefaultAuthenticationService.class ).when( resourceInfo ).getResourceClass( );
         ContainerRequestContext context = mock( ContainerRequestContext.class );
         when( context.getHeaderString( "Authorization" ) ).thenReturn( "Bearer " + token.getData( ) );
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( context.getUriInfo( ) ).thenReturn( uriInfo );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v2/redback/auth/ping" );
         User user = new SimpleUser( );
         user.setUsername( "gandalf" );
         when( userManager.findUser( "gandalf" ) ).thenReturn( user );
@@ -127,6 +131,10 @@ class BearerAuthInterceptorTest
         doReturn( DefaultAuthenticationService.class ).when( resourceInfo ).getResourceClass( );
         ContainerRequestContext context = mock( ContainerRequestContext.class );
         when( context.getHeaderString( "Authorization" ) ).thenReturn( "Bearer xxxxx" );
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( context.getUriInfo( ) ).thenReturn( uriInfo );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v2/redback/auth/ping/authenticated" );
+
         interceptor.filter( context);
         verify( context, times(1) ).abortWith( argThat( response -> response.getStatus() == 401 )  );
         verify( httpServletResponse, times(1) ).setHeader( eq("WWW-Authenticate"), anyString( ) );
@@ -143,6 +151,10 @@ class BearerAuthInterceptorTest
         doReturn( DefaultAuthenticationService.class ).when( resourceInfo ).getResourceClass( );
         ContainerRequestContext context = mock( ContainerRequestContext.class );
         when( context.getHeaderString( "Authorization" ) ).thenReturn( "Bearer xxxxx" );
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( context.getUriInfo( ) ).thenReturn( uriInfo );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v2/redback/auth/ping" );
+
         interceptor.filter( context);
         RedbackRequestInformation info = RedbackAuthenticationThreadLocal.get( );
         assertNull( info );

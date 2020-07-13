@@ -31,9 +31,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -57,6 +61,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertTrue( ctx.isAborted() );
     }
@@ -74,6 +82,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertFalse( ctx.isAborted() );
     }
@@ -91,6 +103,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertTrue( ctx.isAborted() );
     }
@@ -108,6 +124,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertFalse( ctx.isAborted() );
     }
@@ -125,6 +145,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertTrue( ctx.isAborted() );
     }
@@ -143,6 +167,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertFalse( ctx.isAborted() );
     }
@@ -162,6 +190,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertFalse( ctx.isAborted() );
     }
@@ -181,6 +213,9 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
         interceptor.filter( ctx );
         assertTrue( ctx.isAborted() );
     }
@@ -200,6 +235,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertFalse( ctx.isAborted() );
     }
@@ -221,6 +260,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertFalse( ctx.isAborted() );
     }
@@ -241,6 +284,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertTrue( ctx.isAborted() );
     }
@@ -264,6 +311,10 @@ public class RequestValidationInterceptorTest extends TestCase
         interceptor.setHttpRequest( request );
         interceptor.init();
         MockContainerRequestContext ctx = new MockContainerRequestContext();
+        UriInfo uriInfo = mock( UriInfo.class );
+        when( uriInfo.getPath( ) ).thenReturn( "/api/v1/userService" );
+        ctx.setUriInfo( uriInfo );
+
         interceptor.filter( ctx );
         assertFalse( ctx.isAborted() );
     }

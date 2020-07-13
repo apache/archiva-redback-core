@@ -43,6 +43,8 @@ public class MockContainerRequestContext implements ContainerRequestContext {
 
     private boolean aborted = false;
 
+    private UriInfo uriInfo;
+
     @Override
     public Object getProperty(String s) {
         return null;
@@ -65,7 +67,11 @@ public class MockContainerRequestContext implements ContainerRequestContext {
 
     @Override
     public UriInfo getUriInfo() {
-        return null;
+        return uriInfo;
+    }
+
+    public void setUriInfo(UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
     }
 
     @Override

@@ -18,6 +18,8 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.OffsetDateTime;
 
@@ -25,6 +27,7 @@ import java.time.OffsetDateTime;
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="pingResult")
+@Schema(name="PingResult", description = "Response of a ping request.")
 public class PingResult
 {
     boolean success;
@@ -39,6 +42,7 @@ public class PingResult
         this.requestTime = OffsetDateTime.now( );
     }
 
+    @Schema(description = "Request successfully parsed and response sent")
     public boolean isSuccess( )
     {
         return success;
@@ -49,6 +53,7 @@ public class PingResult
         this.success = success;
     }
 
+    @Schema( description = "The time, when the request arrived on the server" )
     public OffsetDateTime getRequestTime( )
     {
         return requestTime;

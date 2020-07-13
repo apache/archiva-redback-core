@@ -20,6 +20,9 @@ package org.apache.archiva.redback.rest.api.services;
  */
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
@@ -37,6 +40,9 @@ import javax.ws.rs.core.MediaType;
 
 @Deprecated
 @Path( "/loginService/" )
+@Tag(name = "v1")
+@Tag(name = "v1/Login")
+@SecurityScheme( scheme = "BasicAuth", type = SecuritySchemeType.HTTP )
 public interface LoginService
 {
 

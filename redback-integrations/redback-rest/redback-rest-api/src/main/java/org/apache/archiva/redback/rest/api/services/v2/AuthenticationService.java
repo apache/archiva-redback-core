@@ -20,7 +20,12 @@ package org.apache.archiva.redback.rest.api.services.v2;
  */
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.LoginRequest;
@@ -43,6 +48,9 @@ import javax.ws.rs.core.MediaType;
  * Version 2 of authentication service
  */
 @Path( "/auth" )
+@SecurityScheme( scheme = "BearerAuth", type = SecuritySchemeType.HTTP )
+@Tag(name = "v2")
+@Tag(name = "v2/Authentication")
 public interface AuthenticationService
 {
 
@@ -58,6 +66,7 @@ public interface AuthenticationService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = false, noPermission = true )
+    @Operation( summary = "Ping request to restricted service. You have to provide a valid authentication token." )
     PingResult pingWithAutz()
         throws RedbackServiceException;
 
@@ -72,7 +81,8 @@ public interface AuthenticationService
     @Produces( { MediaType.APPLICATION_JSON } )
     @Operation( summary = "Authenticate by user/password login and return a bearer token, usable for further requests",
         responses = {
-            @ApiResponse( description = "The bearer token. The token data contains the token string that should be added to the Bearer header" )
+            @ApiResponse( description = "A access token, that has to be added to the Authorization header on authenticated requests. " +
+                "And refresh token, used to refresh the access token. Each token as a lifetime. After expiration it cannot be used anymore." )
         }
     )
     TokenResponse logIn( RequestTokenRequest loginRequest )

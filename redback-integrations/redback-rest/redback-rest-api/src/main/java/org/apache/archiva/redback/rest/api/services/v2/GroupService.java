@@ -20,7 +20,9 @@ package org.apache.archiva.redback.rest.api.services.v2;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
@@ -49,7 +51,9 @@ import java.util.List;
  * @since 2.1
  */
 @Path( "/groups" )
-@Tag( name = "Groups", description = "Groups and Group to Role Mappings" )
+@SecurityScheme( scheme = "BearerAuth", type = SecuritySchemeType.HTTP )
+@Tag(name = "v2")
+@Tag(name = "v2/Groups")
 public interface GroupService
 {
 

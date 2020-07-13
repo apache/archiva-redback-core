@@ -74,6 +74,12 @@ public class PermissionsInterceptor
     public void filter( ContainerRequestContext containerRequestContext )
     {
         log.debug( "Filtering request" );
+        final String requestPath = containerRequestContext.getUriInfo( ).getPath( );
+        if ("api-docs".equals(requestPath) || requestPath.startsWith( "api-docs/" )
+            || "openapi.json".equals(requestPath)) {
+            return;
+        }
+
         RedbackAuthorization redbackAuthorization = getRedbackAuthorization( resourceInfo );
 
         if ( redbackAuthorization != null )
@@ -85,11 +91,11 @@ public class PermissionsInterceptor
                 return;
             }
             String[] permissions = redbackAuthorization.permissions();
+            HttpServletRequest request = getHttpServletRequest( );
             //olamy: no value is an array with an empty String
             if ( permissions != null && permissions.length > 0 //
                 && !( permissions.length == 1 && StringUtils.isEmpty( permissions[0] ) ) )
             {
-                HttpServletRequest request = getHttpServletRequest( );
                 SecuritySession securitySession = getSecuritySession( containerRequestContext, httpAuthenticator, request );
                 AuthenticationResult authenticationResult = getAuthenticationResult( containerRequestContext, httpAuthenticator, request );
                 log.debug( "authenticationResult from message: {}", authenticationResult );
@@ -157,8 +163,15 @@ public class PermissionsInterceptor
             {
                 if ( redbackAuthorization.noPermission() )
                 {
-                    log.debug( "path {} doesn't need special permission", containerRequestContext.getUriInfo().getRequestUri() );
-                    return;
+                    AuthenticationResult authenticationResult = getAuthenticationResult( containerRequestContext, httpAuthenticator, request );
+                    if (authenticationResult!=null && authenticationResult.isAuthenticated())
+                    {
+                        log.debug( "Path {} doesn't need special permission. User authenticated.", requestPath );
+                        return;
+                    } else {
+                        log.debug( "Path {} is protected and needs authentication. User not authenticated.", requestPath );
+                        containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                    }
                 }
                 containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
                 return;
