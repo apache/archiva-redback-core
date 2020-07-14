@@ -22,6 +22,8 @@ package org.apache.archiva.redback.rest.api.services.v2;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
@@ -40,14 +42,20 @@ import javax.ws.rs.core.MediaType;
 
 /**
  * Version 2 of authentication service
+ *
+ * @since 3.0
  */
 @Path( "/auth" )
-@SecurityScheme( scheme = "BearerAuth", type = SecuritySchemeType.HTTP )
 @Tag(name = "v2")
 @Tag(name = "v2/Authentication")
 public interface AuthenticationService
 {
 
+    /**
+     * Just a ping request / response for checking availability of the server
+     * @return the ping result
+     * @throws RedbackServiceException
+     */
     @Path( "ping" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
@@ -56,11 +64,17 @@ public interface AuthenticationService
         throws RedbackServiceException;
 
 
+    /**
+     * This ping request is only successful, if the provided Bearer token is valid and authenticates a existing user
+     * @return the ping result or a failure message
+     * @throws RedbackServiceException
+     */
     @Path( "ping/authenticated" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = false, noPermission = true )
     @Operation( summary = "Ping request to restricted service. You have to provide a valid authentication token." )
+    @SecurityRequirement( name="BearerAuth" )
     PingResult pingWithAutz()
         throws RedbackServiceException;
 
@@ -83,30 +97,33 @@ public interface AuthenticationService
         throws RedbackServiceException;
 
     /**
-     * Renew the bearer token. The request must send a bearer token in the HTTP header
-     *
+     * Request a new token.
      */
     @Path( "token" )
     @POST
-    @RedbackAuthorization( noRestriction = false, noPermission = true )
+    @RedbackAuthorization( noPermission = true )
     @Produces( { MediaType.APPLICATION_JSON } )
-    @Operation( summary = "Creates a new access token based on the given payload.",
+    @Operation( summary = "Creates a new access token based on the given payload. Currently only grant_type=refresh_token is "+
+        "supported. You have to provide the refresh token in the payload. And you have to provide a valid Bearer access token in "+
+        "the Authorization header.",
         responses = {
-            @ApiResponse( description = "The new bearer token," )
+            @ApiResponse( description = "The new access token," )
         }
     )
+    @SecurityRequirement( name="BearerAuth" )
     TokenResponse token( TokenRequest tokenRequest )
         throws RedbackServiceException;
 
 
     /**
-     * simply check if current user has an http session opened with authz passed and return user data
-     * @since 1.4
+     * Check, if the current request is authenticated and if so return the current user data
      */
     @Path( "authenticated" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
+    @Operation(summary = "Checks the request for a valid access token, and returns the user object that corresponds to the " +
+        "provided token.")
     User getAuthenticatedUser()
         throws RedbackServiceException;
 

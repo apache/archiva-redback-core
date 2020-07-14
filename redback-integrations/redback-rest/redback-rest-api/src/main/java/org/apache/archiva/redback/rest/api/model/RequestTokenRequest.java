@@ -22,15 +22,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="refreshToken")
 @Schema(name="Request Token Data", description = "Schema used for requesting a Bearer token.")
-public class RequestTokenRequest
+public class RequestTokenRequest implements Serializable
 {
-    String grantType = "";
+    private static final long serialVersionUID = -4803869713444270526L;
+    GrantType grantType = null;
     String clientId;
     String clientSecret;
     String code;
@@ -57,19 +59,19 @@ public class RequestTokenRequest
         this.scope = scope;
     }
 
-    @XmlElement(name = "grant_type", required = true, nillable = false)
-    @Schema(description = "The grant type. Normally 'authorization_code'.")
-    public String getGrantType( )
+    @XmlElement(name = "grant_type", required = true )
+    @Schema(description = "The grant type. Currently only 'authorization_code' is supported.")
+    public GrantType getGrantType( )
     {
         return grantType;
     }
 
-    public void setGrantType( String grantType )
+    public void setGrantType( GrantType grantType )
     {
         this.grantType = grantType;
     }
 
-    @XmlElement(name="client_id", required = false, nillable = true)
+    @XmlElement(name="client_id", nillable = true)
     public String getClientId( )
     {
         return clientId;
@@ -80,7 +82,7 @@ public class RequestTokenRequest
         this.clientId = clientId;
     }
 
-    @XmlElement(name="client_secret", required = false, nillable = true)
+    @XmlElement(name="client_secret", nillable = true)
     public String getClientSecret( )
     {
         return clientSecret;
@@ -91,7 +93,7 @@ public class RequestTokenRequest
         this.clientSecret = clientSecret;
     }
 
-    @XmlElement(name="scope", required = false, nillable = true)
+    @XmlElement(name="scope", nillable = true)
     public String getScope( )
     {
         return scope;
@@ -102,7 +104,7 @@ public class RequestTokenRequest
         this.scope = scope;
     }
 
-    @XmlElement(name="user_id", required = true, nillable = false)
+    @XmlElement(name="user_id", required = true )
     @Schema(description = "The user identifier.")
     public String getUserId( )
     {
@@ -114,20 +116,20 @@ public class RequestTokenRequest
         this.userId = userId;
     }
 
-    @XmlElement(name="password", required = true, nillable = false)
+    @XmlElement(name="password", required = true )
     @Schema(description = "The user password")
     public String getPassword( )
     {
         return password;
     }
 
-    @XmlElement(name="password", required = true, nillable = false)
+    @XmlElement(name="password", required = true )
     public void setPassword( String password )
     {
         this.password = password;
     }
 
-    @XmlElement(name="code", required = false, nillable = false)
+    @XmlElement(name="code" )
     public String getCode( )
     {
         return code;
@@ -138,7 +140,7 @@ public class RequestTokenRequest
         this.code = code;
     }
 
-    @XmlElement(name="redirect_uri", required = false, nillable = false)
+    @XmlElement(name="redirect_uri" )
     public String getRedirectUri( )
     {
         return redirectUri;
@@ -149,7 +151,7 @@ public class RequestTokenRequest
         this.redirectUri = redirectUri;
     }
 
-    @XmlElement(name="state", required = false, nillable = false)
+    @XmlElement(name="state" )
     public String getState( )
     {
         return state;

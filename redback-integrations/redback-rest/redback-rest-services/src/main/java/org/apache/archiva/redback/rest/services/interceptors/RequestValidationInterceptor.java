@@ -381,8 +381,7 @@ public class RequestValidationInterceptor
         {
 
             final String requestPath = containerRequestContext.getUriInfo( ).getPath( );
-            if ("api-docs".equals(requestPath) || requestPath.startsWith( "api-docs/" )
-                || "openapi.json".equals(requestPath)) {
+            if (ignoreAuth( requestPath )) {
                 return;
             }
 

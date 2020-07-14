@@ -22,14 +22,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement( name = "refreshToken" )
 @Schema( name = "TokenRequest", description = "Information for requesting tokens" )
-public class TokenRequest
+public class TokenRequest implements Serializable
 {
+    private static final long serialVersionUID = -7888325843736616091L;
     GrantType grantType;
     String refreshToken;
     String scope;
@@ -57,7 +59,7 @@ public class TokenRequest
         this.grantType = grantType;
     }
 
-    @XmlElement( name = "refresh_token", required = true)
+    @XmlElement( name = "refresh_token" )
     @Schema(description = "The refresh token that is validated before generating the new access token")
     public String getRefreshToken( )
     {

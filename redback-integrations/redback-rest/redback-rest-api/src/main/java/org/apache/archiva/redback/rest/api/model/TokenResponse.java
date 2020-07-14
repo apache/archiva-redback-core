@@ -18,10 +18,12 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.archiva.redback.authentication.Token;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -29,8 +31,11 @@ import java.time.Instant;
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="token")
-public class TokenResponse
+@Schema(name="TokenData", description = "The token response data")
+public class TokenResponse implements Serializable
 {
+
+    private static final long serialVersionUID = 2063260311211245209L;
     String accessToken;
     String tokenType = "Bearer";
     long expiresIn;
@@ -77,6 +82,7 @@ public class TokenResponse
     }
 
     @XmlElement(name="access_token")
+    @Schema(description = "The access token that may be used as Bearer token in the Authorization header")
     public String getAccessToken( )
     {
         return accessToken;
@@ -88,6 +94,7 @@ public class TokenResponse
     }
 
     @XmlElement(name="token_type")
+    @Schema(description = "The type of the token. Currently only Bearer Tokens are supported.")
     public String getTokenType( )
     {
         return tokenType;
@@ -99,6 +106,7 @@ public class TokenResponse
     }
 
     @XmlElement(name="expires_in")
+    @Schema(description = "The time in seconds. After this time the token will expire and is not valid for authentication.")
     public long getExpiresIn( )
     {
         return expiresIn;
@@ -110,6 +118,7 @@ public class TokenResponse
     }
 
     @XmlElement(name="refresh_token")
+    @Schema(description = "The refresh token, that can be used for getting a new access token.")
     public String getRefreshToken( )
     {
         return refreshToken;
@@ -120,6 +129,7 @@ public class TokenResponse
         this.refreshToken = refreshToken;
     }
 
+    @Schema(description = "Scope of the token. Currently there are no scopes defined.")
     public String getScope( )
     {
         return scope;
@@ -130,6 +140,7 @@ public class TokenResponse
         this.scope = scope;
     }
 
+    @Schema(description = "The state value will be returned, if a state is provided in the request.")
     public String getState( )
     {
         return state;

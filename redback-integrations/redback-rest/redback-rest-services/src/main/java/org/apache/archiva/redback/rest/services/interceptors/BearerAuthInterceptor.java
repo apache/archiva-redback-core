@@ -105,10 +105,10 @@ public class BearerAuthInterceptor extends AbstractInterceptor
         log.debug( "Intercepting request for bearer token" );
         log.debug( "Request {}", requestContext.getUriInfo( ).getPath( ) );
         final String requestPath = requestContext.getUriInfo( ).getPath( );
-        if ("api-docs".equals(requestPath) || requestPath.startsWith( "api-docs/" )
-        || "openapi.json".equals(requestPath)) {
+        if (ignoreAuth( requestPath )) {
             return;
         }
+
         // If no redback resource info, we deny the request
         RedbackAuthorization redbackAuthorization = getRedbackAuthorization( resourceInfo );
         if ( redbackAuthorization == null )

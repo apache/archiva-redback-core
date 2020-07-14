@@ -56,10 +56,12 @@ import org.springframework.web.context.ContextLoaderListener;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -166,6 +168,29 @@ public abstract class AbstractRestServicesTestV2
         {
             deleteUser( user.getUsername( ) );
         }
+    }
+
+    protected User addUser( String userId, String password, String fullName, String email ) throws UserManagerException
+    {
+        return addUser( userId, password, fullName, email, null );
+    }
+    protected User addUser( String userId, String password, String fullName, String email, Consumer<User> updateFunction ) throws UserManagerException
+    {
+        UserManager um = getUserManager( );
+        User user = um.createUser( userId, fullName, email );
+        user.setPassword( password );
+        user.setPermanent( false );
+        user.setPasswordChangeRequired( false );
+        user.setLocked( false );
+        user.setValidated( true );
+        user = um.addUser( user );
+        // We need this additional round, because new users have the password change flag set to true
+        user.setPasswordChangeRequired( false );
+        if (updateFunction!=null) {
+            updateFunction.accept( user );
+        }
+        um.updateUser( user );
+        return user;
     }
 
     protected void deleteUser(String userName) {

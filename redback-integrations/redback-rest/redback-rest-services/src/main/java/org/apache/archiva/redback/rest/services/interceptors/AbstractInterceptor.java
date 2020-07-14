@@ -48,7 +48,11 @@ import java.util.Map;
 public abstract class AbstractInterceptor
 {
 
-    private final Logger log = LoggerFactory.getLogger( getClass() );
+    private static final Logger log = LoggerFactory.getLogger( AbstractInterceptor.class );
+
+    private static final String API_DOCS = "api-docs";
+    private static final String OPENAPI_JSON = "openapi.json";
+    private static final String API_DOCS1 = "api-docs/";
 
     private Map<Method, RedbackAuthorization> authorizationCache = new HashMap<>( );
 
@@ -79,6 +83,12 @@ public abstract class AbstractInterceptor
         this.httpServletResponse = response;
     }
 
+
+    public static final boolean ignoreAuth(final String requestPath) {
+        final int len = requestPath.length( );
+        return len >= 8 && ( ( len == 12 && OPENAPI_JSON.equals( requestPath ) ) ||
+            ( requestPath.startsWith( API_DOCS ) && ( len == 8 || requestPath.startsWith( API_DOCS1 ) ) ) );
+    }
 
     public RedbackAuthorization getRedbackAuthorization( ResourceInfo resourceInfo ) {
         Method method = resourceInfo.getResourceMethod( );

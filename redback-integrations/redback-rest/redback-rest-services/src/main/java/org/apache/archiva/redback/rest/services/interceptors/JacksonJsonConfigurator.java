@@ -49,6 +49,7 @@ public class JacksonJsonConfigurator
     {
         log.info( "configure jackson ObjectMapper" );
         objectMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
+        objectMapper.enable( DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL );
         objectMapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( objectMapper.getTypeFactory() ) );
         objectMapper.findAndRegisterModules( );
         objectMapper.registerModule( new JavaTimeModule( ) );

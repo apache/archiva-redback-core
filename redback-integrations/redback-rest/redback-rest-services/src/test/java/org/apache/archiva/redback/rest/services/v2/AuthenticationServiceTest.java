@@ -19,18 +19,15 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
-import org.apache.archiva.redback.rest.api.model.LoginRequest;
+import org.apache.archiva.redback.rest.api.model.GrantType;
 import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
-import org.apache.archiva.redback.rest.api.model.Token;
 import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
-import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.archiva.redback.rest.services.BaseSetup;
-import org.apache.archiva.redback.rest.services.FakeCreateAdminService;
 import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
-import org.apache.archiva.redback.users.memory.SimpleUser;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,7 +66,7 @@ public class AuthenticationServiceTest
     {
         RequestTokenRequest request = new RequestTokenRequest( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME,
             BaseSetup.getAdminPwd() );
-        request.setGrantType( "authorization_code" );
+        request.setGrantType( GrantType.AUTHORIZATION_CODE );
 
 
         assertNotNull( getLoginServiceV2( null ).logIn( request ) );
@@ -83,15 +80,7 @@ public class AuthenticationServiceTest
         {
 
             // START SNIPPET: create-user
-            UserManager um = getUserManager( );
-            User user = um.createUser( "toto", "toto the king", "toto@toto.fr" );
-            user.setValidated( true );
-            user.setLocked( false );
-            user.setPassword( "foo123" );
-            user.setPermanent( false );
-            user.setPasswordChangeRequired( false );
-            user.setLocked( false );
-            user = um.addUser( user );
+            User user = addUser( "toto", "foo123", "toto the king", "toto@toto.fr" );
             // END SNIPPET: create-user
             assertNotNull( user );
             assertEquals( "toto the king", user.getFullName() );
@@ -112,23 +101,13 @@ public class AuthenticationServiceTest
         {
 
             // START SNIPPET: create-user
-            UserManager um = getUserManager( );
-            User user = um.createUser( "toto", "toto the king", "toto@toto.fr" );
-            user.setPassword( "foo123" );
-            user.setPermanent( false );
-            user.setPasswordChangeRequired( false );
-            user.setLocked( false );
-            user.setValidated( true );
-            user = um.addUser( user );
-            // We need this additional round, because new users have the password change flag set to true
-            user.setPasswordChangeRequired( false );
-            um.updateUser( user );
+            User user = addUser( "toto", "foo123", "toto the king", "toto@toto.fr" );
             // END SNIPPET: create-user
             RequestTokenRequest request = new RequestTokenRequest( "toto", "foo123" );
-            request.setGrantType( "authorization_code" );
+            request.setGrantType( GrantType.AUTHORIZATION_CODE );
             TokenResponse result = getLoginServiceV2( "" ).logIn( request );
-            // assertNotNull( result );
-            // assertEquals( "toto", result.getUsername( ) );
+            assertNotNull( result );
+            assertTrue( StringUtils.isNotEmpty( result.getAccessToken( ) ) );
 
         }
         finally

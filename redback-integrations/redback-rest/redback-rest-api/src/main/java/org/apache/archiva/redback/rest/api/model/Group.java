@@ -19,6 +19,7 @@ package org.apache.archiva.redback.rest.api.model;
  */
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +27,9 @@ import java.util.List;
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="group")
-public class Group
+public class Group implements Serializable
 {
+    private static final long serialVersionUID = -1842878251787304632L;
     String name;
     String uniqueName;
     String description;

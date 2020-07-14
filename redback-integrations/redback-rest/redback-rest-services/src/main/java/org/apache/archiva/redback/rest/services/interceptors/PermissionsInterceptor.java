@@ -71,12 +71,12 @@ public class PermissionsInterceptor
 
     private static final Logger log = LoggerFactory.getLogger( PermissionsInterceptor.class );
 
+    @Override
     public void filter( ContainerRequestContext containerRequestContext )
     {
         log.debug( "Filtering request" );
         final String requestPath = containerRequestContext.getUriInfo( ).getPath( );
-        if ("api-docs".equals(requestPath) || requestPath.startsWith( "api-docs/" )
-            || "openapi.json".equals(requestPath)) {
+        if (ignoreAuth( requestPath )) {
             return;
         }
 
