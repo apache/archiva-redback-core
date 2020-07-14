@@ -170,9 +170,11 @@ public class PermissionsInterceptor
                         return;
                     } else {
                         log.debug( "Path {} is protected and needs authentication. User not authenticated.", requestPath );
-                        containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
+                        containerRequestContext.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() );
+                        return;
                     }
                 }
+                log.warn( "No permissions defined for the REST method and noPermission=false" );
                 containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
                 return;
             }

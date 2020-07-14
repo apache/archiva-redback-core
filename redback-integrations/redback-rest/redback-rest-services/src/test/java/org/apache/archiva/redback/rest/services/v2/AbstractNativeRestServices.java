@@ -23,7 +23,6 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.services.BaseSetup;
-import org.apache.archiva.redback.rest.services.FakeCreateAdminServiceImpl;
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
 import org.apache.archiva.redback.users.User;
@@ -49,8 +48,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.port;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.apache.archiva.redback.rest.services.BaseSetup.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Native REST tests do not use the JAX-RS client and can be used with a remote
@@ -75,13 +74,11 @@ public abstract class AbstractNativeRestServices
     private static AtomicInteger serverStarted = new AtomicInteger( STOPPED );
     private UserManager userManager;
     private RoleManager roleManager;
-    private String adminPwd;
-
 
 
     public AbstractNativeRestServices( )
     {
-        this.adminPwd = BaseSetup.getAdminPwd( );
+
     }
 
     protected abstract String getServicePath( );
@@ -313,13 +310,20 @@ public abstract class AbstractNativeRestServices
             RestAssured.baseURI = "http://localhost";
         }
         String basePath = getBasePath( );
-        RequestSpecBuilder builder = new RequestSpecBuilder( );
-        builder.setBaseUri( baseURI )
-            .setPort( port )
-            .setBasePath( basePath )
-            .addHeader( "Origin", RestAssured.baseURI + ":" + RestAssured.port );
-        this.requestSpec = builder.build( );
+        this.requestSpec = getRequestSpecBuilder().build( );
         RestAssured.basePath = basePath;
+    }
+
+    protected RequestSpecBuilder getRequestSpecBuilder() {
+        return new RequestSpecBuilder().setBaseUri( baseURI )
+            .setPort( port )
+            .setBasePath( getBasePath() )
+            .addHeader( "Origin", RestAssured.baseURI + ":" + RestAssured.port );
+
+    }
+
+    protected RequestSpecification getRequestSpec(String bearerToken) {
+        return getRequestSpecBuilder( ).addHeader( "Authorization", "Bearer " + bearerToken ).build();
     }
 
     protected void shutdownNative( ) throws Exception

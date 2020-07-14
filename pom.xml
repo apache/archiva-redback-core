@@ -1033,6 +1033,7 @@
             <!-- IntelliJ IDEA files -->
             <exclude>.idea/**</exclude>
             <exclude>**/*.iml</exclude>
+            <exclude>idea.run.configuration/**</exclude>
             <!-- Eclipse files -->
             <exclude>.project</exclude>
             <exclude>.classpath</exclude>

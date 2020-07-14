@@ -1,0 +1,22 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="V2 AuthenticationServiceTest" type="JUnit" factoryName="JUnit">
+    <module name="redback-rest-services" />
+    <useClassPathOnly />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="org.apache.archiva.redback.rest.services.v2.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <option name="PACKAGE_NAME" value="org.apache.archiva.redback.rest.services.v2" />
+    <option name="MAIN_CLASS_NAME" value="org.apache.archiva.redback.rest.services.v2.AuthenticationServiceTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="VM_PARAMETERS" value="-ea -Dbasedir=$MODULE_DIR$ -DldapPort=10389 -javaagent:$MAVEN_REPOSITORY$/org/apache/openjpa/openjpa/3.1.1/openjpa-3.1.1.jar" />
+    <option name="PARAMETERS" value="" />
+    <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

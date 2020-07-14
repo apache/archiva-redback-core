@@ -91,6 +91,15 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
     }
 
     @Test
+    void authenticatedPing() {
+        Response result = given( ).spec( getRequestSpec() )
+            .contentType( JSON )
+            .when( ).get( "/ping/authenticated" ).then( ).statusCode( 401 )
+            .extract( ).response( );
+
+    }
+
+    @Test
     void tokenLogin() {
         Map<String, Object> jsonAsMap = new HashMap<>();
         jsonAsMap.put( "grant_type", "authorization_code" );
@@ -101,8 +110,14 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
             .body( jsonAsMap )
             .when( ).post( "/authenticate").then( ).statusCode( 200 )
             .extract( ).response( );
-        assertNotNull( result.body( ).jsonPath( ).getString( "access_token" ) );
+        String accessToken = result.body( ).jsonPath( ).getString( "access_token" );
+        assertNotNull( accessToken );
         assertNotNull( result.body( ).jsonPath( ).getString( "refresh_token" ) );
+
+        result = given( ).spec( getRequestSpec( accessToken ) )
+            .contentType( JSON )
+            .when( ).get( "/ping/authenticated" ).then( ).statusCode( 200 )
+            .extract( ).response( );
     }
 
     @Test
