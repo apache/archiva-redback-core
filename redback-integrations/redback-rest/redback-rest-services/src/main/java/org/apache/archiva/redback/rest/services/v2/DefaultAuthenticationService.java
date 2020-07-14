@@ -32,7 +32,7 @@ import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.PingResult;
-import org.apache.archiva.redback.rest.api.model.RefreshTokenRequest;
+import org.apache.archiva.redback.rest.api.model.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
 import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
@@ -193,9 +193,10 @@ public class DefaultAuthenticationService
     }
 
     @Override
-    public TokenResponse refreshToken( RefreshTokenRequest request ) throws RedbackServiceException
+    public TokenResponse token( TokenRequest request ) throws RedbackServiceException
     {
-        if (!"refresh_token".equals(request.getGrantType().toLowerCase())) {
+        if (!"refresh_token".equals(request.getGrantType().getLabel())) {
+            log.debug( "Bad grant type {}, expected: refresh_token", request.getGrantType( ).name( ).toLowerCase( ) );
             throw new RedbackServiceException( "redback:bad_grant", Response.Status.FORBIDDEN.getStatusCode( ) );
         }
         try

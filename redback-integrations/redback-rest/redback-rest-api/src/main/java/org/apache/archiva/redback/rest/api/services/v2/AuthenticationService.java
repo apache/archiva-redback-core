@@ -20,19 +20,14 @@ package org.apache.archiva.redback.rest.api.services.v2;
  */
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
-import org.apache.archiva.redback.rest.api.model.ActionStatus;
-import org.apache.archiva.redback.rest.api.model.LoginRequest;
 import org.apache.archiva.redback.rest.api.model.PingResult;
-import org.apache.archiva.redback.rest.api.model.RefreshTokenRequest;
+import org.apache.archiva.redback.rest.api.model.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
-import org.apache.archiva.redback.rest.api.model.Token;
 import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
@@ -41,7 +36,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -92,16 +86,16 @@ public interface AuthenticationService
      * Renew the bearer token. The request must send a bearer token in the HTTP header
      *
      */
-    @Path( "refresh" )
+    @Path( "token" )
     @POST
     @RedbackAuthorization( noRestriction = false, noPermission = true )
     @Produces( { MediaType.APPLICATION_JSON } )
-    @Operation( summary = "Creates a new bearer token. The requester must present a still valid bearer token in the HTTP header.",
+    @Operation( summary = "Creates a new access token based on the given payload.",
         responses = {
             @ApiResponse( description = "The new bearer token," )
         }
     )
-    TokenResponse refreshToken( RefreshTokenRequest refreshTokenRequest )
+    TokenResponse token( TokenRequest tokenRequest )
         throws RedbackServiceException;
 
 

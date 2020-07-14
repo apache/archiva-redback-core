@@ -18,42 +18,47 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
  */
-@XmlRootElement(name="refreshToken")
-public class RefreshTokenRequest
+@XmlRootElement( name = "refreshToken" )
+@Schema( name = "TokenRequest", description = "Information for requesting tokens" )
+public class TokenRequest
 {
-    String grantType;
+    GrantType grantType;
     String refreshToken;
     String scope;
 
-    public RefreshTokenRequest( )
+    public TokenRequest( )
     {
     }
 
-    public RefreshTokenRequest( String grantType, String refreshToken, String scope )
+    public TokenRequest( GrantType grantType, String refreshToken, String scope )
     {
         this.grantType = grantType;
         this.refreshToken = refreshToken;
         this.scope = scope;
     }
 
-    @XmlElement(name = "grant_type")
-    public String getGrantType( )
+    @XmlElement( name = "grant_type", required = true)
+    @Schema(description = "The grant type for requesting the token. 'refresh_token' for token refresh")
+    public GrantType getGrantType( )
     {
         return grantType;
     }
 
-    public void setGrantType( String grantType )
+    public void setGrantType( GrantType grantType )
     {
         this.grantType = grantType;
     }
 
-    @XmlElement(name="refresh_token")
+    @XmlElement( name = "refresh_token", required = true)
+    @Schema(description = "The refresh token that is validated before generating the new access token")
     public String getRefreshToken( )
     {
         return refreshToken;
@@ -64,7 +69,8 @@ public class RefreshTokenRequest
         this.refreshToken = refreshToken;
     }
 
-    @XmlElement(name="scope")
+    @XmlElement( name = "scope")
+    @Schema(description = "The scope for the new access token.")
     public String getScope( )
     {
         return scope;

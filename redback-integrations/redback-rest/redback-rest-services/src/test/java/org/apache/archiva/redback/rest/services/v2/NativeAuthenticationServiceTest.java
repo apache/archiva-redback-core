@@ -91,7 +91,7 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void authenticatedPing() {
+    void authenticatedPingWithoutToken() {
         Response result = given( ).spec( getRequestSpec() )
             .contentType( JSON )
             .when( ).get( "/ping/authenticated" ).then( ).statusCode( 401 )
@@ -144,6 +144,36 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
             .body( jsonAsMap )
             .when( ).post( "/authenticate").then( ).statusCode( 401 )
             .extract( ).response( );
+    }
+
+
+    @Test
+    void refreshToken() {
+        Map<String, Object> jsonAsMap = new HashMap<>();
+        jsonAsMap.put( "grant_type", "authorization_code" );
+        jsonAsMap.put("user_id", getAdminUser());
+        jsonAsMap.put("password", getAdminPwd() );
+        Response result = given( ).spec( getRequestSpec( ) )
+            .contentType( JSON )
+            .body( jsonAsMap )
+            .when( ).post( "/authenticate").then( ).statusCode( 200 )
+            .extract( ).response( );
+        String refreshToken = result.body( ).jsonPath( ).getString( "refresh_token" );
+        assertNotNull( refreshToken );
+        String accessToken = result.body( ).jsonPath( ).getString( "access_token" );
+
+
+        jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "grant_type", "refresh_token" );
+        jsonAsMap.put( "refresh_token", refreshToken );
+        result = given( ).spec( getRequestSpec(  accessToken) )
+            .contentType( JSON )
+            .body(jsonAsMap)
+            .when( ).post( "/token" ).then( ).statusCode( 200 )
+            .extract( ).response( );
+        assertNotNull( result );
+        assertNotNull( result.body( ).jsonPath( ).getString( "access_token" ) );
+        assertNotNull( result.body( ).jsonPath( ).getString( "refresh_token" ) );
     }
 
 }
