@@ -75,7 +75,7 @@ public interface AuthenticationService
      * The bearer token can be added to the HTTP header on further requests to authenticate.
      *
      */
-    @Path( "token" )
+    @Path( "authenticate" )
     @POST
     @RedbackAuthorization( noRestriction = true, noPermission = true )
     @Produces( { MediaType.APPLICATION_JSON } )

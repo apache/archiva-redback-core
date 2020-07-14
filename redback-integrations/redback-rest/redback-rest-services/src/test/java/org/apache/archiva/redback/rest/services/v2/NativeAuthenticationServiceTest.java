@@ -99,7 +99,7 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
         Response result = given( ).spec( getRequestSpec( ) )
             .contentType( JSON )
             .body( jsonAsMap )
-            .when( ).post( "/token").then( ).statusCode( 200 )
+            .when( ).post( "/authenticate").then( ).statusCode( 200 )
             .extract( ).response( );
         assertNotNull( result.body( ).jsonPath( ).getString( "access_token" ) );
         assertNotNull( result.body( ).jsonPath( ).getString( "refresh_token" ) );
@@ -114,7 +114,7 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
         Response result = given( ).spec( getRequestSpec( ) )
             .contentType( JSON )
             .body( jsonAsMap )
-            .when( ).post( "/token").then( ).statusCode( 403 )
+            .when( ).post( "/authenticate").then( ).statusCode( 403 )
             .extract( ).response( );
     }
 
@@ -127,7 +127,7 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
         Response result = given( ).spec( getRequestSpec( ) )
             .contentType( JSON )
             .body( jsonAsMap )
-            .when( ).post( "/token").then( ).statusCode( 401 )
+            .when( ).post( "/authenticate").then( ).statusCode( 401 )
             .extract( ).response( );
     }
 
