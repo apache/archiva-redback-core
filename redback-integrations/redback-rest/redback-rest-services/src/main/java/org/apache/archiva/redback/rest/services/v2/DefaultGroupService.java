@@ -41,9 +41,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -66,6 +68,9 @@ public class DefaultGroupService
 
     @Context  //injected response proxy supporting multiple threads
     private HttpServletResponse response;
+
+    @Context
+    private HttpServletRequest request;
 
     @Inject
     @Named(value = "ldapRoleMapper#default")
@@ -169,7 +174,7 @@ public class DefaultGroupService
     }
 
     @Override
-    public ActionStatus addGroupMapping( GroupMapping ldapGroupMapping )
+    public ActionStatus addGroupMapping( GroupMapping ldapGroupMapping, UriInfo uriInfo)
         throws RedbackServiceException
     {
         try
@@ -177,6 +182,10 @@ public class DefaultGroupService
             ldapRoleMapperConfiguration.addLdapMapping( ldapGroupMapping.getGroupName(),
                                                         new ArrayList<>( ldapGroupMapping.getRoles() ) );
             response.setStatus( Response.Status.CREATED.getStatusCode() );
+            if (uriInfo!=null)
+            {
+                response.setHeader( "Location", uriInfo.getAbsolutePathBuilder( ).path( ldapGroupMapping.getGroupName( ) ).build( ).toString( ) );
+            }
         }
         catch ( MappingException e )
         {

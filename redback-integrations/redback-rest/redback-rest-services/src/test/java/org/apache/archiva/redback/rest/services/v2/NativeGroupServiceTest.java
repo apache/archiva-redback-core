@@ -18,6 +18,7 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
+import io.restassured.filter.log.UrlDecoder;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.apache.archiva.components.apacheds.ApacheDs;
@@ -49,6 +50,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -397,6 +399,9 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
                 .then( ).statusCode( 201 ).extract( ).response( );
             assertNotNull( response );
             assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
+            assertNotNull( response.getHeader( "Location" ) );
+
+            assertTrue( UrlDecoder.urlDecode( response.getHeader( "Location" ), Charset.forName( "UTF-8" ), false ).endsWith( "/mappings/ldap group" ) );
         } finally  {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )

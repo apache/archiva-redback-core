@@ -82,7 +82,7 @@
 
   <jaxrs:server address="/v2/redback">
     <jaxrs:serviceBeans>
-      <ref bean="userService#rest"/>
+      <ref bean="v2.userService#rest"/>
       <ref bean="v2.authenticationService#rest"/>
       <ref bean="roleManagementService#rest"/>
       <ref bean="utilServices#rest"/>

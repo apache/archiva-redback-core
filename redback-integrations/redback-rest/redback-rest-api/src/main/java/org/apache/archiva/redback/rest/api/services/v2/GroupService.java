@@ -20,18 +20,16 @@ package org.apache.archiva.redback.rest.api.services.v2;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Group;
-import org.apache.archiva.redback.rest.api.model.GroupMappingUpdateRequest;
-import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.api.model.PagedResult;
+import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
 import javax.ws.rs.Consumes;
@@ -44,7 +42,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 /**
@@ -52,7 +52,6 @@ import java.util.List;
  * @since 2.1
  */
 @Path( "/groups" )
-@SecurityScheme( scheme = "BearerAuth", type = SecuritySchemeType.HTTP )
 @Tag(name = "v2")
 @Tag(name = "v2/Groups")
 @SecurityRequirement(name = "BearerAuth")
@@ -95,12 +94,17 @@ public interface GroupService
     @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
     @Operation( summary = "Adds a group mapping",
         responses = {
-            @ApiResponse( responseCode = "201", description = "If the group addition was successful" ),
+            @ApiResponse( responseCode = "201",
+                description = "If the group addition was successful",
+                headers = {
+                    @Header( name="Location", description = "The URL of the created mapping")
+                }
+            ),
             @ApiResponse( responseCode = "405", description = "Invalid input" )
         }
     )
     ActionStatus addGroupMapping( @Parameter( description = "The data of the group mapping", required = true )
-                                      GroupMapping groupMapping )
+                                      GroupMapping groupMapping, @Context UriInfo uriInfo )
         throws RedbackServiceException;
 
     @Path( "mappings/{group}" )

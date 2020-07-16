@@ -61,6 +61,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(
     locations = {"classpath:/spring-context.xml"} )
 @TestInstance( TestInstance.Lifecycle.PER_CLASS )
+@Disabled
 public class UserServiceTest
     extends AbstractRestServicesTestV2
 {
