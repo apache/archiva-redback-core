@@ -18,6 +18,8 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
@@ -26,6 +28,7 @@ import java.util.List;
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="pagedResult")
+@Schema(name = "PagedResult", description = "Contains paged data. Pages are defined by limit and offset.")
 public class PagedResult<T>
 {
     PaginationInfo pagination;
@@ -44,6 +47,7 @@ public class PagedResult<T>
         return new PagedResult( totalSize, offset, limit, element);
     }
 
+    @Schema(description = "This is the payload of the paged data. The type of data depends on the REST method. ")
     public T getData( )
     {
         return data;
@@ -54,6 +58,7 @@ public class PagedResult<T>
         this.data = data;
     }
 
+    @Schema(description = "The pagination information")
     public PaginationInfo getPagination( )
     {
         return pagination;

@@ -22,6 +22,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
@@ -54,9 +56,11 @@ import java.util.List;
 @SecurityScheme( scheme = "BearerAuth", type = SecuritySchemeType.HTTP )
 @Tag(name = "v2")
 @Tag(name = "v2/Groups")
+@SecurityRequirement(name = "BearerAuth")
 public interface GroupService
 {
 
+    public static final String DEFAULT_PAGE_LIMIT = "1000";
 
     @Path( "" )
     @GET
@@ -67,8 +71,8 @@ public interface GroupService
             @ApiResponse( description = "List of group objects. The number of returned results depend on the pagination parameters offset and limit." )
         }
     )
-    PagedResult<List<Group>> getGroups( @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
-                                  @QueryParam( "limit" ) @DefaultValue( value = Integer.MAX_VALUE+"" ) Integer limit)
+    PagedResult<List<Group>> getGroups( @QueryParam( "offset" ) @DefaultValue( "0" ) Long offset,
+                                  @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Long limit)
         throws RedbackServiceException;
 
 
@@ -138,7 +142,7 @@ public interface GroupService
     @Consumes( {MediaType.APPLICATION_JSON} )
     @Produces( {MediaType.APPLICATION_JSON} )
     @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
-    @Operation( summary = "Updates a multiple group mappings",
+    @Operation( summary = "Updates multiple group mappings",
         responses = {
             @ApiResponse( description = "The status of the update action" ),
             @ApiResponse( responseCode = "405", description = "Invalid input" )

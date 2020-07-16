@@ -18,6 +18,8 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import java.util.List;
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="group")
+@Schema(name="Group", description = "Group object")
 public class Group implements Serializable
 {
     private static final long serialVersionUID = -1842878251787304632L;
@@ -44,6 +47,7 @@ public class Group implements Serializable
         this.name = name;
     }
 
+    @Schema(description = "The name of the group")
     public String getName( )
     {
         return name;
@@ -54,6 +58,7 @@ public class Group implements Serializable
         this.name = name;
     }
 
+    @Schema(description = "The unique name of the group. Depends on the backend repository, e.g. the LDAP DN.")
     public String getUniqueName( )
     {
         return uniqueName;
@@ -64,6 +69,7 @@ public class Group implements Serializable
         this.uniqueName = uniqueName;
     }
 
+    @Schema( description = "The group description, if available" )
     public String getDescription( )
     {
         return description;
@@ -74,6 +80,7 @@ public class Group implements Serializable
         this.description = description;
     }
 
+    @Schema(description = "The list of members. The format of the member strings depends on the backend repository, e.g. for LDAP these may be the member DNs")
     public List<String> getMemberList( )
     {
         return memberList;

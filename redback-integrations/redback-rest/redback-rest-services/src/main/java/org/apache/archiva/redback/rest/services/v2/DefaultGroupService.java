@@ -88,7 +88,7 @@ public class DefaultGroupService
     }
 
     @Override
-    public PagedResult<List<Group>> getGroups( Integer offset, Integer limit ) throws RedbackServiceException
+    public PagedResult<List<Group>> getGroups( Long offset, Long limit ) throws RedbackServiceException
     {
         LdapConnection ldapConnection = null;
 

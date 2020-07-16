@@ -18,8 +18,10 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
+import com.fasterxml.jackson.databind.ser.Serializers;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.services.BaseSetup;
@@ -43,11 +45,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.restassured.RestAssured.baseURI;
-import static io.restassured.RestAssured.port;
+import static io.restassured.RestAssured.*;
+import static io.restassured.http.ContentType.JSON;
 import static org.apache.archiva.redback.rest.services.BaseSetup.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -58,6 +62,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @Tag( "rest-native" )
+@Tag( "rest-v2" )
 public abstract class AbstractNativeRestServices
 {
     public static final int STOPPED = 0;
@@ -65,6 +70,9 @@ public abstract class AbstractNativeRestServices
     public static final int STARTING = 2;
     public static final int STARTED = 3;
     public static final int ERROR = 4;
+    private final boolean startServer;
+    private final String serverPort;
+    private final String baseUri;
 
     private RequestSpecification requestSpec;
     protected Logger log = LoggerFactory.getLogger( getClass( ) );
@@ -75,10 +83,24 @@ public abstract class AbstractNativeRestServices
     private UserManager userManager;
     private RoleManager roleManager;
 
+    private final boolean remoteService;
+
+    private String adminToken;
+    private String adminRefreshToken;
+
 
     public AbstractNativeRestServices( )
     {
+        this.startServer = BaseSetup.startServer( );
+        this.serverPort = BaseSetup.getServerPort( );
+        this.baseUri = BaseSetup.getBaseUri( );
 
+        if ( startServer )
+        {
+            this.remoteService = false;
+        } else {
+            this.remoteService = true;
+        }
     }
 
     protected abstract String getServicePath( );
@@ -208,7 +230,7 @@ public abstract class AbstractNativeRestServices
         }
         else
         {
-            um.updateUser( adminUser, false);
+            um.updateUser( adminUser, false );
         }
         getRoleManager( ).assignRole( "system-administrator", adminUser.getUsername( ) );
     }
@@ -284,11 +306,7 @@ public abstract class AbstractNativeRestServices
 
     protected void setupNative( ) throws Exception
     {
-        String startServer = System.getProperty( SYSPROP_START_SERVER, "yes" ).toLowerCase( );
-        String serverPort = System.getProperty( SYSPROP_SERVER_PORT, "" );
-        String baseUri = System.getProperty( SYSPROP_SERVER_BASE_URI, "http://localhost" );
-
-        if ( !"no".equals( startServer ) )
+        if ( this.startServer )
         {
             startServer( );
         }
@@ -310,24 +328,75 @@ public abstract class AbstractNativeRestServices
             RestAssured.baseURI = "http://localhost";
         }
         String basePath = getBasePath( );
-        this.requestSpec = getRequestSpecBuilder().build( );
+        this.requestSpec = getRequestSpecBuilder( ).build( );
         RestAssured.basePath = basePath;
     }
 
-    protected RequestSpecBuilder getRequestSpecBuilder() {
-        return new RequestSpecBuilder().setBaseUri( baseURI )
+    protected RequestSpecBuilder getRequestSpecBuilder( )
+    {
+        return new RequestSpecBuilder( ).setBaseUri( baseURI )
             .setPort( port )
-            .setBasePath( getBasePath() )
+            .setBasePath( getBasePath( ) )
             .addHeader( "Origin", RestAssured.baseURI + ":" + RestAssured.port );
-
     }
 
-    protected RequestSpecification getRequestSpec(String bearerToken) {
-        return getRequestSpecBuilder( ).addHeader( "Authorization", "Bearer " + bearerToken ).build();
+    protected RequestSpecBuilder getAuthRequestSpecBuilder( )
+    {
+        return new RequestSpecBuilder( ).setBaseUri( baseURI )
+            .setPort( port )
+            .setBasePath( new StringBuilder( )
+                .append( getContextRoot( ) )
+                .append( getServiceBasePath( ) ).append("/auth").toString() )
+            .addHeader( "Origin", RestAssured.baseURI + ":" + RestAssured.port );
+    }
+
+    protected RequestSpecification getRequestSpec( String bearerToken )
+    {
+        return getRequestSpecBuilder( ).addHeader( "Authorization", "Bearer " + bearerToken ).build( );
     }
 
     protected void shutdownNative( ) throws Exception
     {
-        stopServer( );
+        if (startServer)
+        {
+            stopServer( );
+        }
+    }
+
+    protected org.apache.archiva.redback.rest.api.model.User addRemoteUser(String userid, String password, String fullName, String mail) {
+
+        return null;
+    }
+
+    protected void initAdminToken() {
+        Map<String, Object> jsonAsMap = new HashMap<>();
+        jsonAsMap.put( "grant_type", "authorization_code" );
+        jsonAsMap.put("user_id", getAdminUser());
+        jsonAsMap.put("password", getAdminPwd() );
+        Response result = given( ).spec( getAuthRequestSpecBuilder().build() )
+            .contentType( JSON )
+            .body( jsonAsMap )
+            .when( ).post( "/authenticate").then( ).statusCode( 200 )
+            .extract( ).response( );
+        this.adminToken = result.body( ).jsonPath( ).getString( "access_token" );
+        this.adminRefreshToken = result.body( ).jsonPath( ).getString( "refresh_token" );
+    }
+
+    protected String getAdminToken()  {
+        if (this.adminToken == null) {
+            initAdminToken();
+        }
+        return this.adminToken;
+    }
+
+    protected String getAdminRefreshToken()  {
+        if (this.adminRefreshToken == null) {
+            initAdminToken();
+        }
+        return this.adminRefreshToken;
+    }
+
+    public boolean isRemoteService() {
+        return this.remoteService;
     }
 }

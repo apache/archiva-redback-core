@@ -29,6 +29,10 @@ public class BaseSetup
     public static final String SYSPROP_SERVER_PORT = "archiva.rest.server.port";
     public static final String SYSPROP_SERVER_BASE_URI = "archiva.rest.server.baseuri";
     public static final String SYSPROP_SERVER_ADMIN_PWD = "rest.admin.pwd";
+    public static final String SYSPROP_LDAP_URL = "archiva.rest.ldap.url";
+    public static final String SYSPROP_LDAP_BASEDN = "archiva.rest.ldap.baseDn";
+    public static final String SYSPROP_LDAP_BINDDN = "archiva.rest.ldap.bindDn";
+    public static final String SYSPROP_LDAP_BINPWD = "archiva.rest.ldap.bindPwd";
 
     public static String DEFAULT_ADMIN_PWD = "Ackd245aer9sdfan";
 
@@ -49,4 +53,25 @@ public class BaseSetup
         }
     }
 
+    public static boolean startServer()
+    {
+        return !"no".equals( System.getProperty( SYSPROP_START_SERVER, "yes" ).toLowerCase( ) );
+    }
+    public static String getServerPort()
+    {
+        return System.getProperty( SYSPROP_SERVER_PORT, "" );
+    }
+
+    public static String getBaseUri() {
+        return System.getProperty( SYSPROP_SERVER_BASE_URI, "http://localhost" );
+    }
+
+    public static LdapInfo getLdapInfo() {
+        String url = System.getProperty( SYSPROP_LDAP_URL, "" );
+        String baseDn = System.getProperty( SYSPROP_LDAP_BASEDN, "" );
+        String bindDn = System.getProperty( SYSPROP_LDAP_BINDDN, "" );
+        String bindPwd = System.getProperty( SYSPROP_LDAP_BINPWD, "" );
+
+        return new LdapInfo( url, baseDn, bindDn, bindPwd );
+    }
 }

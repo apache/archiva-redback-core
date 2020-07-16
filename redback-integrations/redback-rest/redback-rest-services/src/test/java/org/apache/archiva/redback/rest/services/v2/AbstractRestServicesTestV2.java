@@ -46,6 +46,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +71,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 @ExtendWith( SpringExtension.class )
 @ContextConfiguration( locations = { "classpath*:/META-INF/spring-context.xml", "classpath*:/spring-context.xml" } )
+@Tag("rest-local")
+@Tag("rest-v2")
 public abstract class AbstractRestServicesTestV2
 {
 
@@ -232,6 +235,12 @@ public abstract class AbstractRestServicesTestV2
     public static String encode( String uid, String password )
     {
         return "Basic " + Base64Utility.encode( ( uid + ":" + password ).getBytes() );
+    }
+
+    public String getUserAuthzHeader(String user) {
+        assertNotNull( getJwtAuthenticator());
+        Token token = getJwtAuthenticator().generateToken( user );
+        return "Bearer " + token.getData( );
     }
 
     public String getAdminAuthzHeader()

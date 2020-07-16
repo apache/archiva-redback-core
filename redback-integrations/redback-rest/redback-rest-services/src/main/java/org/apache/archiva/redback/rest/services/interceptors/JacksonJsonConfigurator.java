@@ -18,8 +18,11 @@ package org.apache.archiva.redback.rest.services.interceptors;
  * under the License.
  */
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -50,6 +53,7 @@ public class JacksonJsonConfigurator
         log.info( "configure jackson ObjectMapper" );
         objectMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
         objectMapper.enable( DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL );
+        objectMapper.enable( DeserializationFeature.USE_LONG_FOR_INTS );
         objectMapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( objectMapper.getTypeFactory() ) );
         objectMapper.findAndRegisterModules( );
         objectMapper.registerModule( new JavaTimeModule( ) );

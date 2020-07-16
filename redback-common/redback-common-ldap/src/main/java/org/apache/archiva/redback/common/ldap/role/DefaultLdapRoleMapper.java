@@ -239,7 +239,8 @@ public class DefaultLdapRoleMapper
 
             searchControls.setDerefLinkFlag( true );
             searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            searchControls.setReturningAttributes( new String[]{ this.getLdapDnAttribute(), "objectClass", groupNameAttribute} );
+            searchControls.setReturningAttributes( new String[]{ this.getLdapDnAttribute(), "objectClass", groupNameAttribute,
+            ldapGroupMemberAttribute} );
 
             String filter = "objectClass=" + getLdapGroupClass( );
 

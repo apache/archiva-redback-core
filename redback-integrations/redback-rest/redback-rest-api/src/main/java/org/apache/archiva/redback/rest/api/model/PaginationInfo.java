@@ -18,6 +18,8 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -28,6 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="pagination")
+@Schema(name="PaginationInfo", description = "Contains paging information (limit, offset, totalCount)")
 public class PaginationInfo
 {
     long totalCount;
@@ -45,6 +48,7 @@ public class PaginationInfo
         this.limit = limit;
     }
 
+    @Schema(description = "The total number of data available.")
     public long getTotalCount( )
     {
         return totalCount;
@@ -55,6 +59,7 @@ public class PaginationInfo
         this.totalCount = totalCount;
     }
 
+    @Schema(description = "The offset of the first element of the returned dataset.")
     public long getOffset( )
     {
         return offset;
@@ -65,6 +70,7 @@ public class PaginationInfo
         this.offset = offset;
     }
 
+    @Schema(description = "The maximum number of elements returned per page.")
     public long getLimit( )
     {
         return limit;

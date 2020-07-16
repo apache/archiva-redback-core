@@ -32,7 +32,7 @@
   -->
   <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
 
-  <jaxrs:server id="testServices" address="/fakeCreateAdminService">
+  <jaxrs:server name="testServices" address="/fakeCreateAdminService">
     <jaxrs:serviceBeans>
       <ref bean="fakeCreateAdminService"/>
     </jaxrs:serviceBeans>
@@ -42,7 +42,7 @@
 
    </jaxrs:server>
 
-  <jaxrs:server id="services" address="/testsService">
+  <jaxrs:server name="services" address="/testsService">
     <jaxrs:serviceBeans>
       <ref bean="servicesAssert"/>
     </jaxrs:serviceBeans>
