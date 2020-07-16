@@ -19,6 +19,7 @@ package org.apache.archiva.redback.common.ldap.role;
  */
 
 import org.apache.archiva.redback.common.ldap.MappingException;
+import org.apache.archiva.redback.common.ldap.ObjectNotFoundException;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnectionFactory;
 import org.apache.archiva.redback.common.ldap.connection.LdapException;
 import org.apache.archiva.redback.common.ldap.user.LdapUser;
@@ -275,7 +276,48 @@ public class DefaultLdapRoleMapper
         }
     }
 
-    LdapGroup getGroupFromResult(SearchResult searchResult) throws NamingException
+    @Override
+    public LdapGroup getGroupForName( DirContext context, String groupName ) throws MappingException
+    {
+        NamingEnumeration<SearchResult> namingEnumeration = null;
+        try
+        {
+
+            SearchControls searchControls = new SearchControls( );
+
+            searchControls.setDerefLinkFlag( true );
+            searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            searchControls.setReturningAttributes( new String[]{this.getLdapDnAttribute( ), "objectClass", groupNameAttribute,
+                ldapGroupMemberAttribute} );
+
+            StringBuilder fiBuilder = new StringBuilder("(&(objectClass=" ).append( getLdapGroupClass( ) ).append(")");
+
+
+            if ( !StringUtils.isEmpty( this.groupFilter ) )
+            {
+                fiBuilder.append("(").append(this.groupFilter).append(")");
+            }
+            fiBuilder.append("(").append(this.groupNameAttribute)
+                .append("=").append(groupName).append("))");
+            namingEnumeration = context.search( getGroupsDn( ), fiBuilder.toString(), searchControls );
+            if (namingEnumeration.hasMore()) {
+                SearchResult result = namingEnumeration.next( );
+                return getGroupFromResult( result );
+            } else {
+                throw new ObjectNotFoundException( "Group not found " + groupName );
+            }
+        }
+        catch ( NamingException e )
+        {
+            log.error( "Naming error while searching for group {}: {}", groupName, e.getMessage( ) );
+            throw new MappingException( "Group search failed " + e.getMessage( ), e );
+        } finally
+        {
+            closeNamingEnumeration( namingEnumeration );
+        }
+    }
+
+    private LdapGroup getGroupFromResult(SearchResult searchResult) throws NamingException
     {
         LdapGroup group = new LdapGroup( searchResult.getNameInNamespace() );
         Attribute attValue = searchResult.getAttributes( ).get( groupNameAttribute );

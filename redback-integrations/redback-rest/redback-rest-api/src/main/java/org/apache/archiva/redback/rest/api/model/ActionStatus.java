@@ -18,12 +18,15 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
  */
-@XmlRootElement(name = "actionStatus")
+@XmlRootElement( name = "actionStatus" )
+@Schema( name = "ActionStatus", description = "Status result of a updating action, like post, put, delete" )
 public class ActionStatus
 {
     private boolean success = false;
@@ -31,23 +34,28 @@ public class ActionStatus
 
     public static final ActionStatus SUCCESS = new ActionStatus( true );
     public static final ActionStatus FAIL = new ActionStatus( false );
-    public static ActionStatus FROM(boolean status) {
+
+    public static ActionStatus FROM( boolean status )
+    {
         return status ? SUCCESS : FAIL;
     }
 
-    public ActionStatus() {
+    public ActionStatus( )
+    {
 
     }
 
-    public ActionStatus( boolean success) {
+    public ActionStatus( boolean success )
+    {
         this.success = success;
     }
 
-    public ActionStatus(boolean success, int modifiedNumber) {
+    public ActionStatus( boolean success, int modifiedNumber )
+    {
         this.success = success;
         this.modifiedNumber = modifiedNumber;
     }
-    
+
     public boolean isSuccess( )
     {
         return success;

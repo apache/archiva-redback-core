@@ -22,15 +22,19 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.rest.api.model.Group;
+import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.services.BaseSetup;
 import org.apache.archiva.redback.rest.services.LdapInfo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -49,9 +53,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.http.ContentType.JSON;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -62,6 +69,7 @@ import static org.junit.jupiter.api.Assertions.*;
     locations = {"classpath:/ldap-spring-test.xml"} )
 @TestInstance( TestInstance.Lifecycle.PER_CLASS )
 @Tag("rest-native")
+@TestMethodOrder( MethodOrderer.Random.class )
 public class NativeGroupServiceTest extends AbstractNativeRestServices
 {
     protected String peopleSuffix;
@@ -307,7 +315,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
     @Test
     void getGroups() {
         String token = getAdminToken( );
-        Response response = given( ).spec( getRequestSpec( token ) ).contentType( ContentType.JSON ).when( )
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON ).when( )
             .get( ).then( ).statusCode( 200 ).extract( ).response( );
         assertNotNull( response );
         List<Group> data = response.body( ).jsonPath( ).getList(  "data", Group.class );
@@ -326,7 +334,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         String token = getAdminToken( );
         HashMap<String, Object> params = new HashMap<>( );
         params.put( "limit", Long.valueOf( 3 ) );
-        Response response = given( ).spec( getRequestSpec( token ) ).contentType( ContentType.JSON )
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .param( "limit", Long.valueOf( 3 ) )
             .when( )
             .get( ).then( ).statusCode( 200 ).extract( ).response( );
@@ -345,11 +353,10 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
     @Test
     void getGroupsWithOffset() {
         String token = getAdminToken( );
-        Response response = given( ).spec( getRequestSpec( token ) ).contentType( ContentType.JSON )
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .param( "offset", Long.valueOf( 2 ) )
             .when( )
             .get( ).then( ).statusCode( 200 ).extract( ).response( );
-        System.out.println( response.print( ) );
         assertNotNull( response );
         List<Group> data = response.body( ).jsonPath( ).getList(  "data", Group.class );
         assertNotNull( data );
@@ -362,5 +369,165 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         assertEquals( "uid=admin," + this.peopleSuffix, data.get( 0 ).getMemberList( ).get( 0 ) );
     }
 
+
+    @Test
+    void getGroupMapping() {
+        String token = getAdminToken( );
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( )
+            .get( "/mappings" )
+            .then( ).statusCode( 200 ).extract( ).response( );
+        assertNotNull( response );
+        assertEquals( 3, response.getBody( ).jsonPath( ).getList( "" ).size() );
+
+    }
+
+    @Test
+    void addGroupMapping() {
+        String token = getAdminToken( );
+        try
+        {
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "groupName", "ldap group" );
+            jsonAsMap.put( "roles", Arrays.asList( "role1", "role2" ) );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( "/mappings" )
+                .then( ).statusCode( 201 ).extract( ).response( );
+            assertNotNull( response );
+            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
+        } finally  {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "/mappings/ldap group" )
+                .then( )
+                .statusCode( 200 );
+        }
+    }
+
+    @Test
+    void addAndGetGroupMapping() {
+        String token = getAdminToken( );
+        try
+        {
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "groupName", "ldap group" );
+            jsonAsMap.put( "roles", Arrays.asList( "role1", "role2" ) );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( "/mappings" )
+                .then( ).statusCode( 201 ).extract( ).response( );
+            assertNotNull( response );
+            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "/mappings" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            List<GroupMapping> resultList = response.getBody( ).jsonPath( ).getList( "", GroupMapping.class );
+            assertEquals( 4, response.getBody( ).jsonPath( ).getList( "" ).size() );
+            Optional<GroupMapping> found = resultList.stream( ).filter( map -> map.getGroupName( ).equals( "ldap group" ) && map.getRoles( ).size( ) == 2 && map.getRoles( ).contains( "role1" ) ).findAny( );
+            assertTrue( found.isPresent( ) );
+        } finally  {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "/mappings/ldap group" )
+                .then( )
+                .statusCode( 200 );
+        }
+    }
+
+    @Test
+    void deleteGroupMapping() {
+        String token = getAdminToken( );
+        try
+        {
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "/mappings/archiva-admin" )
+                .then( )
+                .statusCode( 200 ).extract( ).response( );
+            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
+        } finally {
+            // Put it back
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "groupName", "archiva-admin" );
+            jsonAsMap.put( "roles", Arrays.asList( "System Administrator" ) );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( "/mappings" )
+                .then( ).statusCode( 201 );
+        }
+    }
+
+    @Test
+    void updateGroupMapping() {
+        String token = getAdminToken( );
+        try
+        {
+            List<String> list = Arrays.asList( "System Administrator", "role1", "role2", "role3" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .body(list)
+                .put( "/mappings/archiva-admin" )
+                .then( )
+                .statusCode( 200 ).extract( ).response( );
+            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
+        } finally {
+            // Put it back
+            List<String> list = Arrays.asList( "System Administrator" );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( list )
+                .when( )
+                .put( "/mappings/archiva-admin" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void updateAndGetGroupMapping() {
+        String token = getAdminToken( );
+        try
+        {
+            // The default implementation of redback uses the value from the configuration persistently
+            // and adds the updates to the configuration.
+            List<String> list = Arrays.asList( "role1", "role2", "role3" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .body(list)
+                .put( "/mappings/archiva-admin" )
+                .then( )
+                .statusCode( 200 ).extract( ).response( );
+            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
+
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "/mappings" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            List<GroupMapping> resultList = response.getBody( ).jsonPath( ).getList( "", GroupMapping.class );
+            assertEquals( 3, response.getBody( ).jsonPath( ).getList( "" ).size() );
+            for (GroupMapping mapping : resultList) {
+                System.out.println( mapping.getGroupName( ) + "/" + mapping.getUniqueGroupName( )  );
+                for (String role : mapping.getRoles( )) {
+                    System.out.println( "Role " + role );
+                }
+            }
+            Optional<GroupMapping> found = resultList.stream( ).filter( map -> map.getGroupName( ).equals( "archiva-admin" ) && map.getRoles( ).size( ) == 4 && map.getRoles( ).contains( "role3" ) ).findAny( );
+            assertTrue( found.isPresent( ) );
+
+        } finally {
+            // Put it back
+            List<String> list = Arrays.asList( "System Administrator" );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( list )
+                .when( )
+                .put( "/mappings/archiva-admin" )
+                .then( ).statusCode( 200 );
+        }
+    }
 
 }

@@ -20,7 +20,7 @@ package org.apache.archiva.redback.rest.services.v2;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.apache.archiva.components.apacheds.ApacheDs;
-import org.apache.archiva.redback.rest.api.model.GroupMapping;
+import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.api.services.v2.GroupService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
@@ -348,7 +348,7 @@ public class GroupServiceTest
             assertNotNull( mappings );
             assertEquals( 3, mappings.size( ) );
 
-            GroupMapping groupMapping = new GroupMapping( "ldap group", Arrays.asList( "redback role" ) );
+            GroupMapping groupMapping = new GroupMapping( "ldap group", "cn=ldap group,ou=archiva,ou=apache,ou=org", Arrays.asList( "redback role" ) );
 
             service.addGroupMapping( groupMapping );
 
@@ -357,9 +357,9 @@ public class GroupServiceTest
             assertNotNull( mappings );
             assertEquals( 4, mappings.size( ) );
             for (GroupMapping mapping : mappings) {
-                if ( StringUtils.equals( "ldap group", mapping.getGroup( ) ) )
+                if ( StringUtils.equals( "ldap group", mapping.getGroupName( ) ) )
                 {
-                    Collection<String> names = mapping.getRoleNames( );
+                    Collection<String> names = mapping.getRoles( );
                     assertNotNull( names );
                     assertTrue( names.size( ) > 0 );
                     for (String name : names) {

@@ -18,6 +18,8 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Collection;
@@ -28,6 +30,7 @@ import java.util.List;
  * @since 2.1
  */
 @XmlRootElement(name = "groupMapping")
+@Schema(name="GroupMapping", description = "List of Group to Role mappings")
 public class GroupMapping
     implements Serializable
 {
@@ -46,6 +49,7 @@ public class GroupMapping
         this.roleNames = roleNames;
     }
 
+    @Schema(description = "The group name that is mapped")
     public String getGroup()
     {
         return group;
@@ -56,6 +60,7 @@ public class GroupMapping
         this.group = group;
     }
 
+    @Schema(description = "The list of roles that are mapped to this group")
     public Collection<String> getRoleNames()
     {
         return roleNames;

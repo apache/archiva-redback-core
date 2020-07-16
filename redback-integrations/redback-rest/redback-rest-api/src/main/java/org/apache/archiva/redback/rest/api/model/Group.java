@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * REST API Version 2 group element
  * @author Martin Stockhammer <martin_s@apache.org>
+ * @since 3.0
  */
 @XmlRootElement(name="group")
 @Schema(name="Group", description = "Group object")

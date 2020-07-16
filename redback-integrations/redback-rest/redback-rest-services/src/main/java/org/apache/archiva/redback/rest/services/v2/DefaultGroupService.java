@@ -19,6 +19,7 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import org.apache.archiva.redback.common.ldap.MappingException;
+import org.apache.archiva.redback.common.ldap.ObjectNotFoundException;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnection;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnectionFactory;
 import org.apache.archiva.redback.common.ldap.connection.LdapException;
@@ -27,8 +28,8 @@ import org.apache.archiva.redback.common.ldap.role.LdapRoleMapper;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapperConfiguration;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Group;
-import org.apache.archiva.redback.rest.api.model.GroupMapping;
 import org.apache.archiva.redback.rest.api.model.GroupMappingUpdateRequest;
+import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.api.model.PagedResult;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.GroupService;
@@ -113,6 +114,13 @@ public class DefaultGroupService
         }
     }
 
+    /**
+     * Tries to retrieve the LDAP group for the mapping to add the unique name. If the group cannot
+     * be found, it will set "" for the uniqueName
+     *
+     * @return the list of mapping
+     * @throws RedbackServiceException
+     */
     @Override
     public List<GroupMapping> getGroupMappings()
         throws RedbackServiceException
@@ -123,8 +131,32 @@ public class DefaultGroupService
             List<GroupMapping> ldapGroupMappings = new ArrayList<>( map.size( ) );
             for ( Map.Entry<String, Collection<String>> entry : map.entrySet() )
             {
-                GroupMapping ldapGroupMapping = new GroupMapping( entry.getKey( ), new ArrayList<>( entry.getValue( ) ) );
-                ldapGroupMappings.add( ldapGroupMapping );
+                String groupName = entry.getKey( );
+                DirContext context = null;
+                LdapConnection ldapConnection = null;
+                try
+                {
+                    ldapConnection = ldapConnectionFactory.getConnection( );
+                    context = ldapConnection.getDirContext( );
+
+                    LdapGroup ldapGroup = ldapRoleMapper.getGroupForName( context, groupName );
+                    GroupMapping ldapGroupMapping = new GroupMapping( ldapGroup.getName(), ldapGroup.getDn(), new ArrayList<>( entry.getValue( ) ) );
+                    ldapGroupMappings.add( ldapGroupMapping );
+                }
+                catch ( LdapException e )
+                {
+                    log.error( "Could not create ldap connection {}", e.getMessage( ) );
+                    throw new RedbackServiceException( "Error while talking to group registry", 500 );
+                }
+                catch ( ObjectNotFoundException e ) {
+                    GroupMapping ldapGroupMapping = new GroupMapping( groupName, "", new ArrayList<>( entry.getValue( ) ) );
+                    ldapGroupMappings.add( ldapGroupMapping );
+                }
+                finally
+                {
+                    closeContext( context );
+                    closeLdapConnection( ldapConnection );
+                }
             }
 
             return ldapGroupMappings;
@@ -142,8 +174,8 @@ public class DefaultGroupService
     {
         try
         {
-            ldapRoleMapperConfiguration.addLdapMapping( ldapGroupMapping.getGroup(),
-                                                        new ArrayList<>( ldapGroupMapping.getRoleNames() ) );
+            ldapRoleMapperConfiguration.addLdapMapping( ldapGroupMapping.getGroupName(),
+                                                        new ArrayList<>( ldapGroupMapping.getRoles() ) );
             response.setStatus( Response.Status.CREATED.getStatusCode() );
         }
         catch ( MappingException e )
@@ -171,7 +203,7 @@ public class DefaultGroupService
     }
 
     @Override
-    public ActionStatus updateGroupMapping( String groupName, GroupMapping groupMapping ) throws RedbackServiceException
+    public ActionStatus updateGroupMapping( String groupName, List<String> roles ) throws RedbackServiceException
     {
         try
         {
@@ -184,7 +216,7 @@ public class DefaultGroupService
         try
         {
             ldapRoleMapperConfiguration.updateLdapMapping( groupName,
-                new ArrayList<>( groupMapping.getRoleNames() ) );
+                roles );
             return ActionStatus.SUCCESS;
         }
         catch ( MappingException e )
@@ -192,26 +224,6 @@ public class DefaultGroupService
             log.error( "Could not update mapping {}", e.getMessage( ) );
             throw new RedbackServiceException( e.getMessage( ) );
         }
-    }
-
-    @Override
-    public ActionStatus updateGroupMapping( GroupMappingUpdateRequest groupMappingUpdateRequest )
-        throws RedbackServiceException
-    {
-        try
-        {
-            for ( GroupMapping ldapGroupMapping : groupMappingUpdateRequest.getGroupMapping() )
-            {
-                ldapRoleMapperConfiguration.updateLdapMapping( ldapGroupMapping.getGroup(),
-                                                               new ArrayList<>( ldapGroupMapping.getRoleNames() ) );
-            }
-        }
-        catch ( MappingException e )
-        {
-            log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
-        }
-        return ActionStatus.SUCCESS;
     }
 
     //------------------

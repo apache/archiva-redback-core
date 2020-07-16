@@ -44,11 +44,14 @@ public interface LdapRoleMapper
         throws MappingException;
 
     /**
-     * read all groups from ldap
+     * Read all groups from LDAP and return the list of group objects.
      *
-     * @return all LDAP groups
+     * @return all LDAP groups found in the LDAP directory
      */
     List<LdapGroup> getAllGroupObjects( DirContext context )
+        throws MappingException;
+
+    LdapGroup getGroupForName( DirContext context, String groupName )
         throws MappingException;
 
     /**

@@ -23,15 +23,14 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Group;
-import org.apache.archiva.redback.rest.api.model.GroupMapping;
 import org.apache.archiva.redback.rest.api.model.GroupMappingUpdateRequest;
+import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.api.model.PagedResult;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
@@ -60,7 +59,7 @@ import java.util.List;
 public interface GroupService
 {
 
-    public static final String DEFAULT_PAGE_LIMIT = "1000";
+    String DEFAULT_PAGE_LIMIT = "1000";
 
     @Path( "" )
     @GET
@@ -96,12 +95,12 @@ public interface GroupService
     @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
     @Operation( summary = "Adds a group mapping",
         responses = {
-            @ApiResponse( responseCode = "201", description = "The status of the add action" ),
+            @ApiResponse( responseCode = "201", description = "If the group addition was successful" ),
             @ApiResponse( responseCode = "405", description = "Invalid input" )
         }
     )
     ActionStatus addGroupMapping( @Parameter( description = "The data of the group mapping", required = true )
-                                          GroupMapping groupMapping )
+                                      GroupMapping groupMapping )
         throws RedbackServiceException;
 
     @Path( "mappings/{group}" )
@@ -111,7 +110,7 @@ public interface GroupService
     @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
     @Operation( summary = "Deletes a group mapping",
         responses = {
-            @ApiResponse( description = "The status of the delete action" ),
+            @ApiResponse( responseCode = "200", description = "If the status of the delete action was successful" ),
             @ApiResponse( responseCode = "404", description = "Group mapping not found" )
         }
     )
@@ -126,30 +125,15 @@ public interface GroupService
     @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
     @Operation( summary = "Updates a group mapping",
         responses = {
-            @ApiResponse( description = "The status of the update action" ),
+            @ApiResponse( description = "If the update was successful" ),
             @ApiResponse( responseCode = "404", description = "Group mapping not found" )
         }
     )
     ActionStatus updateGroupMapping( @Parameter( description = "The group name", required = true )
                                          @PathParam( "group" ) String groupName,
-                                     @Parameter( description = "The updated data of the group mapping", required = true )
-                                             GroupMapping groupMapping )
+                                     @Parameter( description = "The updated role list of the group mapping", required = true )
+                                         List<String> roles )
         throws RedbackServiceException;
 
-
-    @Path( "mappings" )
-    @PUT
-    @Consumes( {MediaType.APPLICATION_JSON} )
-    @Produces( {MediaType.APPLICATION_JSON} )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
-    @Operation( summary = "Updates multiple group mappings",
-        responses = {
-            @ApiResponse( description = "The status of the update action" ),
-            @ApiResponse( responseCode = "405", description = "Invalid input" )
-        }
-    )
-    ActionStatus updateGroupMapping( @Parameter( description = "The list of group mapping updates", required = true )
-                                         GroupMappingUpdateRequest groupMappingUpdateRequest )
-        throws RedbackServiceException;
 
 }
