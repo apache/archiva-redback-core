@@ -111,7 +111,6 @@ public interface UserService
         throws RedbackServiceException;
 
     /**
-     * @since 2.0
      */
     @Path( "{userId}/lock" )
     @POST
@@ -121,7 +120,6 @@ public interface UserService
         throws RedbackServiceException;
 
     /**
-     * @since 2.0
      */
     @Path( "{userId}/unlock" )
     @GET
@@ -132,7 +130,6 @@ public interface UserService
 
 
     /**
-     * @since 2.0
      */
     @Path( "{userId}/passwordStatus" )
     @GET
@@ -143,8 +140,7 @@ public interface UserService
 
     /**
      * update only the current user and this fields: fullname, email, password.
-     * the service verify the curent logged user with the one passed in the method
-     * @since 1.4
+     * The service verifies the current logged user with the one passed in the method
      */
     @Path( "{userId}" )
     @PUT

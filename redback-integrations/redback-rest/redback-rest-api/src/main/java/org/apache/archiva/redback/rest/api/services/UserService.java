@@ -44,7 +44,11 @@ import javax.ws.rs.core.MediaType;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * This service is deprecated. Please use {@link org.apache.archiva.redback.rest.api.services.v2.UserService}
+ */
 @Path( "/userService/" )
+@Deprecated
 public interface UserService
 {
     @Path( "getUser/{userName}" )
