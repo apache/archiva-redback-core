@@ -167,7 +167,7 @@ public class UserServiceTest
             assertTrue( messageContent.contains( "http://wine.fr/bordeaux" ) );
             assertTrue( messageContent.contains( "toto" ) );
 
-            assertTrue( service.validateUserFromKey( key ).isSuccess() );
+            assertTrue( service.validateUserFromKey( key ) );
 
             service = getUserService( authorizationHeader );
 
@@ -177,7 +177,7 @@ public class UserServiceTest
             assertTrue( u.isValidated() );
             assertTrue( u.isPasswordChangeRequired() );
 
-            assertTrue( service.validateUserFromKey( key ).isSuccess() );
+            assertTrue( service.validateUserFromKey( key ) );
 
         }
         catch ( Exception e )
@@ -227,7 +227,7 @@ public class UserServiceTest
             assertTrue(messageContent.contains("http://localhost:" + getServerPort() ));
             assertTrue( messageContent.toLowerCase( ).contains( "toto" ) );
 
-            assertTrue( service.validateUserFromKey( key ).isSuccess() );
+            assertTrue( service.validateUserFromKey( key ) );
 
             service = getUserService( authorizationHeader );
 
@@ -237,7 +237,7 @@ public class UserServiceTest
             assertTrue( u.isValidated() );
             assertTrue( u.isPasswordChangeRequired() );
 
-            assertTrue( service.validateUserFromKey( key ).isSuccess() );
+            assertTrue( service.validateUserFromKey( key ) );
 
         }
         catch ( Exception e )
@@ -285,7 +285,7 @@ public class UserServiceTest
             assertTrue(
                 emailMessages.get( 0 ).getText().contains( "Use the following URL to validate your account." ) );
 
-            assertTrue( service.validateUserFromKey( key ).isSuccess() );
+            assertTrue( service.validateUserFromKey( key ) );
 
             service = getUserService( authorizationHeader );
 
@@ -295,9 +295,9 @@ public class UserServiceTest
             assertTrue( u.isValidated() );
             assertTrue( u.isPasswordChangeRequired() );
 
-            assertTrue( service.validateUserFromKey( key ).isSuccess() );
+            assertTrue( service.validateUserFromKey( key ) );
 
-            assertTrue( service.resetPassword( new ResetPasswordRequest( "toto", "http://foo.fr/bar" ) ).isSuccess() );
+            assertTrue( service.resetPassword( new ResetPasswordRequest( "toto", "http://foo.fr/bar" ) ) );
 
             emailMessages = assertService.getEmailMessageSended();
             assertEquals( 2, emailMessages.size() );

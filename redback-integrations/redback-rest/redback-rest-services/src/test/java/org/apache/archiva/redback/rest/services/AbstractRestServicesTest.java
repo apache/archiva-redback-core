@@ -167,7 +167,7 @@ public abstract class AbstractRestServicesTest
         adminUser.setPassword( BaseSetup.getAdminPwd() );
         adminUser.setFullName( "the admin user" );
         adminUser.setEmail( "toto@toto.fr" );
-        if( !userService.createAdminUser( adminUser ).isSuccess( ) ) {
+        if( !userService.createAdminUser( adminUser ) ) {
             log.info( "Could not create admin user." );
         }
 
