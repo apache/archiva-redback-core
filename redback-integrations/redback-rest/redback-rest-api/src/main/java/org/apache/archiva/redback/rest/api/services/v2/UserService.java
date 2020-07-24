@@ -33,6 +33,7 @@ import org.apache.archiva.redback.rest.api.model.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.UserRegistrationRequest;
+import org.apache.archiva.redback.rest.api.model.VerificationStatus;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
 import javax.ws.rs.Consumes;
@@ -146,7 +147,7 @@ public interface UserService
     @PUT
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noPermission = true )
-    ActionStatus updateMe( User user )
+    ActionStatus updateMe( @PathParam( "userId" ) String userId, User user )
         throws RedbackServiceException;
 
     @Path( "___ping___" )
@@ -243,4 +244,11 @@ public interface UserService
     Collection<Operation> getCurrentUserOperations(@PathParam( "userId" ) String userId)
         throws RedbackServiceException;
 
+
+    @Path( "{userId}/registration/{key}/validate" )
+    @GET
+    @Produces( {MediaType.APPLICATION_JSON} )
+    @RedbackAuthorization( noRestriction = true, noPermission = true )
+    VerificationStatus validateUserRegistration( @PathParam( "userId" ) String userId, @PathParam( "key" ) String key )
+        throws RedbackServiceException;
 }

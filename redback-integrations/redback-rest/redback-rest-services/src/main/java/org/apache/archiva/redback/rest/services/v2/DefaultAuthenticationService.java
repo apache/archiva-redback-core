@@ -40,6 +40,8 @@ import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.UserLogin;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
+import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
+import org.apache.archiva.redback.rest.services.interceptors.RedbackSecurityContext;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.archiva.redback.users.UserManagerException;
@@ -52,11 +54,15 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.apache.archiva.redback.rest.services.interceptors.AbstractInterceptor.SECURITY_SESSION;
 
 /**
  *
@@ -75,10 +81,14 @@ public class DefaultAuthenticationService
 
     private SecuritySystem securitySystem;
 
-    private HttpAuthenticator httpAuthenticator;
-
     @Context
     private HttpServletRequest httpServletRequest;
+
+    @Context
+    private SecurityContext securityContext;
+
+    @Context
+    private ContainerRequestContext requestContext;
 
     @Context
     private HttpServletResponse response;
@@ -86,15 +96,10 @@ public class DefaultAuthenticationService
     @Inject
     private JwtAuthenticator jwtAuthenticator;
 
-    // validation token lifetime: 3 hours
-    long tokenLifetime = 1000*3600*3;
-
     @Inject
-    public DefaultAuthenticationService( SecuritySystem securitySystem,
-                                         @Named( "httpAuthenticator#basic" ) HttpAuthenticator httpAuthenticator )
+    public DefaultAuthenticationService( SecuritySystem securitySystem )
     {
         this.securitySystem = securitySystem;
-        this.httpAuthenticator = httpAuthenticator;
     }
 
 
@@ -108,6 +113,10 @@ public class DefaultAuthenticationService
     public PingResult pingWithAutz()
     {
         return new PingResult( true );
+    }
+
+    private RedbackSecurityContext getSecurityContext() {
+        return this.securityContext==null?null:(RedbackSecurityContext) this.securityContext;
     }
 
     @Override
@@ -218,10 +227,13 @@ public class DefaultAuthenticationService
     public User getAuthenticatedUser()
         throws RedbackServiceException
     {
-        SecuritySession securitySession = httpAuthenticator.getSecuritySession( httpServletRequest.getSession( true ) );
-        Boolean isLogged = securitySession != null;
-        log.debug( "isLogged {}", isLogged );
-        return isLogged && securitySession.getUser() != null ? buildRestUser( securitySession.getUser() ) : null;
+        RedbackSecurityContext ctx = getSecurityContext( );
+        if (ctx!=null)
+        {
+            return buildRestUser( getSecurityContext( ).getUser( ) );
+        } else {
+            throw new RedbackServiceException( "redback:not_authenticated", Response.Status.UNAUTHORIZED.getStatusCode( ) );
+        }
     }
 
     private UserLogin buildRestUser( org.apache.archiva.redback.users.User user )

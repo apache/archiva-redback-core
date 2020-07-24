@@ -21,6 +21,7 @@ package org.apache.archiva.redback.rest.services.v2;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -37,8 +38,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
@@ -169,6 +169,18 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
         assertNotNull( result );
         assertNotNull( result.body( ).jsonPath( ).getString( "access_token" ) );
         assertNotNull( result.body( ).jsonPath( ).getString( "refresh_token" ) );
+    }
+
+    @Disabled
+    @Test
+    void getAuthenticatedUser() {
+        Response result = given( ).spec( getRequestSpec(getAdminToken()) )
+            .contentType( JSON )
+            .when( ).get( "/authenticated" ).then( ).statusCode( 200 )
+            .extract( ).response( );
+        System.out.println( result.getBody( ).prettyPrint( ) );
+        assertEquals( "admin", result.getBody( ).jsonPath( ).getString( "username" ) );
+
     }
 
 }

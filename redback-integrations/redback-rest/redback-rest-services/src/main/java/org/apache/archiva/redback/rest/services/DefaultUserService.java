@@ -75,7 +75,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * This version is deprected. Use the V2 version: {@link org.apache.archiva.redback.rest.services.v2.DefaultUserService}
+ */
 @Service( "userService#rest" )
+@Deprecated
 public class DefaultUserService
     implements UserService
 {

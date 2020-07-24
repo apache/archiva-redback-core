@@ -22,7 +22,9 @@ package org.apache.archiva.redback.rest.services.v2;
 import net.sf.ehcache.CacheManager;
 import org.apache.archiva.components.cache.Cache;
 import org.apache.archiva.redback.authentication.AuthenticationException;
+import org.apache.archiva.redback.authentication.Token;
 import org.apache.archiva.redback.authentication.TokenBasedAuthenticationDataSource;
+import org.apache.archiva.redback.authentication.jwt.JwtAuthenticator;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
@@ -59,6 +61,7 @@ import org.apache.archiva.redback.rest.services.RedbackRequestInformation;
 import org.apache.archiva.redback.rest.services.utils.PasswordValidator;
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
+import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
@@ -97,6 +100,9 @@ public class DefaultUserService
     @Inject
     @Named( value = "userConfiguration#default" )
     private UserConfiguration config;
+
+    @Inject
+    private JwtAuthenticator jwtAuthenticator;
 
     @Inject
     private RoleManager roleManager;
@@ -139,12 +145,10 @@ public class DefaultUserService
 
     @Inject
     public DefaultUserService( @Named( value = "userManager#default" ) UserManager userManager,
-                               SecuritySystem securitySystem,
-                               @Named( "httpAuthenticator#basic" ) HttpAuthenticator httpAuthenticator )
+                               SecuritySystem securitySystem )
     {
         this.userManager = userManager;
         this.securitySystem = securitySystem;
-        this.httpAuthenticator = httpAuthenticator;
     }
 
 
@@ -275,7 +279,7 @@ public class DefaultUserService
         try
         {
             org.apache.archiva.redback.users.User user = userManager.findUser( userId );
-            return getSimpleUser( user );
+            return getRestUser( user );
         }
         catch ( UserNotFoundException e )
         {
@@ -298,7 +302,7 @@ public class DefaultUserService
 
             for ( org.apache.archiva.redback.users.User user : users )
             {
-                simpleUsers.add( getSimpleUser( user ) );
+                simpleUsers.add( getRestUser( user ) );
             }
 
             return simpleUsers;
@@ -310,7 +314,7 @@ public class DefaultUserService
     }
 
     @Override
-    public ActionStatus updateMe( User user )
+    public ActionStatus updateMe( String userId, User user )
         throws RedbackServiceException
     {
         // check username == one in the session
@@ -445,7 +449,7 @@ public class DefaultUserService
         try
         {
             org.apache.archiva.redback.users.User user = userManager.getGuestUser();
-            return getSimpleUser( user );
+            return getRestUser( user );
         }
         catch ( Exception e )
         {
@@ -470,7 +474,7 @@ public class DefaultUserService
             user.setPasswordChangeRequired( false );
             user = userManager.updateUser( user, false );
             roleManager.assignRole( config.getString( UserConfigurationKeys.DEFAULT_GUEST ), user.getUsername() );
-            return getSimpleUser( user );
+            return getRestUser( user );
         }
         catch ( RoleManagerException | UserNotFoundException e )
         {
@@ -498,7 +502,7 @@ public class DefaultUserService
         return new PingResult( true );
     }
 
-    private User getSimpleUser( org.apache.archiva.redback.users.User user )
+    private User getRestUser( org.apache.archiva.redback.users.User user )
     {
         if ( user == null )
         {
@@ -772,6 +776,68 @@ public class DefaultUserService
         }
 
         return getUserOperations( userName );
+    }
+
+    @Override
+    public VerificationStatus validateUserRegistration( String userId, String key ) throws RedbackServiceException
+    {
+        String principal = null;
+        try
+        {
+            AuthenticationKey authkey = securitySystem.getKeyManager().findKey( key );
+
+            org.apache.archiva.redback.users.User user =
+                securitySystem.getUserManager().findUser( authkey.getForPrincipal() );
+
+            user.setValidated( true );
+            user.setLocked( false );
+            user.setPasswordChangeRequired( true );
+            user.setEncodedPassword( "" );
+
+            principal = user.getUsername();
+
+            TokenBasedAuthenticationDataSource authsource = new TokenBasedAuthenticationDataSource();
+            authsource.setPrincipal( principal );
+            authsource.setToken( authkey.getKey() );
+            authsource.setEnforcePasswordChange( false );
+
+            securitySystem.getUserManager().updateUser( user );
+
+            VerificationStatus status = new VerificationStatus(false );
+            SecuritySession authStatus = securitySystem.authenticate( authsource );
+            if (authStatus.isAuthenticated()) {
+                Token accessToken = jwtAuthenticator.generateToken( principal );
+                status.setAccessToken( accessToken.getData() );
+                status.setSuccess( true );
+            }
+
+            log.info( "account validated for user {}", user.getUsername() );
+
+            return status;
+        }
+        catch ( MustChangePasswordException | AccountLockedException | AuthenticationException e )
+        {
+            throw new RedbackServiceException( e.getMessage(), Response.Status.FORBIDDEN.getStatusCode() );
+        }
+        catch ( KeyNotFoundException e )
+        {
+            log.info( "Invalid key requested: {}", key );
+            throw new RedbackServiceException( new ErrorMessage( "cannot.find.key" ) );
+        }
+        catch ( KeyManagerException e )
+        {
+            throw new RedbackServiceException( new ErrorMessage( "cannot.find.key.at.the.momment" ) );
+
+        }
+        catch ( UserNotFoundException e )
+        {
+            throw new RedbackServiceException( new ErrorMessage( "cannot.find.user", new String[]{ principal } ) );
+
+        }
+        catch ( UserManagerException e )
+        {
+            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+        }
     }
 
     @Override

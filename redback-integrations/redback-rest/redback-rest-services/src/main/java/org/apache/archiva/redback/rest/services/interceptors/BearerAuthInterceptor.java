@@ -28,6 +28,7 @@ import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticationException;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
+import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
 import org.apache.archiva.redback.rest.services.RedbackRequestInformation;
 import org.apache.archiva.redback.system.SecuritySession;
@@ -51,9 +52,15 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Interceptor that checks for the Bearer Header value and tries to verify the token.
@@ -75,6 +82,10 @@ public class BearerAuthInterceptor extends AbstractInterceptor
     private UserManager userManager;
 
     @Inject
+    @Named( value = "rbacManager#default" )
+    RBACManager rbacManager;
+
+    @Inject
     @Named( value = "securitySystem" )
     SecuritySystem securitySystem;
 
@@ -83,6 +94,9 @@ public class BearerAuthInterceptor extends AbstractInterceptor
 
     @Context
     private ResourceInfo resourceInfo;
+
+    @Context
+    private UriInfo uriInfo;
 
     protected void setUserManager( UserManager userManager )
     {
@@ -151,9 +165,18 @@ public class BearerAuthInterceptor extends AbstractInterceptor
                         new RedbackRequestInformation( securitySession, user, request.getRemoteAddr( ) );
 
                     RedbackAuthenticationThreadLocal.set( redbackRequestInformation );
-                    // message.put( AuthenticationResult.class, authenticationResult );
                     requestContext.setProperty( AUTHENTICATION_RESULT, authenticationResult );
                     requestContext.setProperty( SECURITY_SESSION, securitySession );
+                    RedbackSecurityContext securityContext = new RedbackSecurityContext(uriInfo, user, securitySession );
+
+                    if (rbacManager!=null)
+                    {
+                        List<String> roleNames = rbacManager.getAssignedRoles( user.getUsername( ) ).stream( )
+                            .flatMap( role -> Stream.concat( Stream.of( role.getName( ) ), role.getChildRoleNames( ).stream( ) ) )
+                            .collect( Collectors.toList( ) );
+                        securityContext.setRoles( roleNames );
+                    }
+                    requestContext.setSecurityContext( securityContext );
                 }
                 catch ( Exception e )
                 {

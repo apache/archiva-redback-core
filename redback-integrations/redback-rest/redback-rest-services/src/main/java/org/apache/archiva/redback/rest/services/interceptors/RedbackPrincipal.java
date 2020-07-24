@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.rest.api.model;
+package org.apache.archiva.redback.rest.services.interceptors;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -10,6 +10,7 @@ package org.apache.archiva.redback.rest.api.model;
  * with the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,42 +19,31 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
-import javax.xml.bind.annotation.XmlRootElement;
+import org.apache.archiva.redback.users.User;
+
+import java.security.Principal;
 
 /**
- * @author Martin Stockhammer <martin_s@apache.org>
+ * This is used by the JAX-RS security context.
  */
-@XmlRootElement(name="verificationStatus")
-public class VerificationStatus
+public class RedbackPrincipal implements Principal
 {
-    boolean success = false;
-    String accessToken;
 
-    public VerificationStatus() {
+    User redbackUser;
 
+    RedbackPrincipal(User user) {
+        this.redbackUser = user;
     }
 
-    public VerificationStatus(boolean success ) {
-        this.success = success;
-    }
-
-    public boolean isSuccess( )
+    @Override
+    public String getName( )
     {
-        return success;
+        return redbackUser.getUsername();
     }
 
-    public void setSuccess( boolean success )
-    {
-        this.success = success;
+    public User getUser() {
+        return redbackUser;
     }
 
-    public String getAccessToken( )
-    {
-        return accessToken;
-    }
 
-    public void setAccessToken( String accessToken )
-    {
-        this.accessToken = accessToken;
-    }
 }
