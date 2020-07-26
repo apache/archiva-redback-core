@@ -21,7 +21,31 @@ package org.apache.archiva.redback.rest.api;
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
  */
-public class Constants
+public interface Constants
 {
-    public static final String DEFAULT_PAGE_LIMIT = "1000";
+    String DEFAULT_PAGE_LIMIT = "1000";
+
+    String ERR_UNKNOWN = "redback:unknown_error";
+    String ERR_USER_EXISTS = "redback:user.exists";
+    String ERR_USER_ID_EMPTY = "redback:user.id.empty";
+    String ERR_USER_FULL_NAME_EMPTY = "redback:user.fullname.empty";
+    String ERR_USER_EMAIL_EMPTY = "redback:user.email.empty";
+    String ERR_USER_ASSIGN_ROLE = "redback:user.role.assign.failure";
+    String ERR_USER_NOT_VALIDATED = "redback:user.not_validated";
+
+    String ERR_LDAP_GENERIC = "redback:ldap.error";
+    String ERR_ROLE_MAPPING = "redback:role.mapping.error";
+    String ERR_ROLE_MAPPING_NOT_FOUND = "redback:role.mapping.not_found";
+
+    String ERR_AUTH_BAD_CODE = "redback:auth.bad_authorization_code";
+    String ERR_AUTH_INVALID_CREDENTIALS = "redback:auth.invalid_credentials";
+    String ERR_AUTH_FAIL_MSG = "redback:auth.fail";
+    String ERR_AUTH_ACCOUNT_LOCKED = "redback:auth.account_locked";
+    String ERR_AUTH_PASSWORD_CHANGE_REQUIRED = "redback:auth.password_change_required";
+    String ERR_AUTH_USERMANAGER_FAIL = "redback:auth.usermanager_error";
+    String ERR_AUTH_UNSUPPORTED_GRANT_TYPE = "redback:auth.unsupported_grant";
+    String ERR_AUTH_INVALID_TOKEN = "redback:auth.invalid_token";
+    String ERR_AUTH_UNAUTHORIZED_REQUEST = "redback:auth.unauthorized_request";
+
+
 }

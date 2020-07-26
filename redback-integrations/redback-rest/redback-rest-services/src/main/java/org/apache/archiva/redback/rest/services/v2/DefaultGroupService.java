@@ -27,6 +27,7 @@ import org.apache.archiva.redback.common.ldap.role.LdapGroup;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapper;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapperConfiguration;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
+import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Group;
 import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
@@ -50,6 +51,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.apache.archiva.redback.rest.api.Constants.*;
 
 /**
  *
@@ -106,10 +109,13 @@ public class DefaultGroupService
             List<LdapGroup> groups = ldapRoleMapper.getAllGroupObjects( context );
             return PagedResult.of( groups.size( ), offset, limit, groups.stream( ).skip( offset ).limit( limit ).map( DefaultGroupService::getGroupFromLdap ).collect( Collectors.toList( ) ) );
         }
-        catch ( LdapException | MappingException e )
+        catch ( LdapException  e )
         {
-            log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
+            log.error( "LDAP Error {}", e.getMessage(), e );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_LDAP_GENERIC ) );
+        } catch (MappingException e) {
+            log.error( "Mapping Error {}", e.getMessage(), e );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_ROLE_MAPPING, e.getMessage( ) ) );
         }
         finally
         {
@@ -150,7 +156,7 @@ public class DefaultGroupService
                 catch ( LdapException e )
                 {
                     log.error( "Could not create ldap connection {}", e.getMessage( ) );
-                    throw new RedbackServiceException( "Error while talking to group registry", 500 );
+                    throw new RedbackServiceException( ErrorMessage.of( ERR_LDAP_GENERIC, "Error while talking to group registry"), 500 );
                 }
                 catch ( ObjectNotFoundException e ) {
                     GroupMapping ldapGroupMapping = new GroupMapping( groupName, "", new ArrayList<>( entry.getValue( ) ) );
@@ -168,7 +174,7 @@ public class DefaultGroupService
         catch ( MappingException e )
         {
             log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_ROLE_MAPPING, e.getMessage( ) ) );
         }
     }
 
@@ -189,7 +195,7 @@ public class DefaultGroupService
         catch ( MappingException e )
         {
             log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_ROLE_MAPPING, e.getMessage( ) ) );
         }
         return ActionStatus.SUCCESS;
     }
@@ -205,7 +211,7 @@ public class DefaultGroupService
         catch ( MappingException e )
         {
             log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_ROLE_MAPPING, e.getMessage( ) ) );
         }
         return ActionStatus.SUCCESS;
     }
@@ -219,7 +225,7 @@ public class DefaultGroupService
         }
         catch ( MappingException e )
         {
-            throw new RedbackServiceException( "Group mapping not found ", 404 );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_ROLE_MAPPING_NOT_FOUND), 404 );
         }
         try
         {
@@ -230,7 +236,7 @@ public class DefaultGroupService
         catch ( MappingException e )
         {
             log.error( "Could not update mapping {}", e.getMessage( ) );
-            throw new RedbackServiceException( e.getMessage( ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_ROLE_MAPPING, e.getMessage( ) ) );
         }
     }
 

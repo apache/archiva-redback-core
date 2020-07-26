@@ -31,11 +31,11 @@ import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.GrantType;
-import org.apache.archiva.redback.rest.api.model.v2.PingResult;
-import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.UserLogin;
+import org.apache.archiva.redback.rest.api.model.v2.PingResult;
+import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
 import org.apache.archiva.redback.rest.services.interceptors.RedbackPrincipal;
@@ -56,8 +56,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static org.apache.archiva.redback.rest.api.Constants.*;
 
 /**
  *
@@ -127,7 +128,7 @@ public class DefaultAuthenticationService
         throws RedbackServiceException
     {
         if (!GrantType.AUTHORIZATION_CODE.equals(loginRequest.getGrantType())) {
-            throw new RedbackServiceException( "redback:bad_authorization_code", Response.Status.FORBIDDEN.getStatusCode( ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_BAD_CODE ), Response.Status.FORBIDDEN.getStatusCode( ) );
         }
         String userName = loginRequest.getUserId(), password = loginRequest.getPassword();
         PasswordBasedAuthenticationDataSource authDataSource =
@@ -146,7 +147,7 @@ public class DefaultAuthenticationService
                 if ( !user.isValidated() )
                 {
                     log.info( "user {} not validated", user.getUsername() );
-                    throw new RedbackServiceException( "redback:user-not-validated", Response.Status.FORBIDDEN.getStatusCode() );
+                    throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_VALIDATED, user.getUsername() ), Response.Status.FORBIDDEN.getStatusCode() );
                 }
                 // Stateless services no session
                 // httpAuthenticator.authenticate( authDataSource, httpServletRequest.getSession( true ) );
@@ -162,45 +163,43 @@ public class DefaultAuthenticationService
                 {
                     if ( authenticationFailureCause.getCause() == AuthenticationConstants.AUTHN_NO_SUCH_USER )
                     {
-                        errorMessages.add( new ErrorMessage( "redback:incorrect.username.password" ) );
+                        errorMessages.add( ErrorMessage.of( ERR_AUTH_INVALID_CREDENTIALS ) );
                     }
                     else
                     {
-                        errorMessages.add( new ErrorMessage().message( "redback:"+authenticationFailureCause.getMessage() ) );
+                        errorMessages.add( ErrorMessage.of( ERR_AUTH_FAIL_MSG, authenticationFailureCause.getMessage() ) );
                     }
                 }
                 response.setHeader( "WWW-Authenticate", "redback-login realm="+httpServletRequest.getRemoteHost() );
                 throw new RedbackServiceException( errorMessages , Response.Status.UNAUTHORIZED.getStatusCode());
             }
             response.setHeader( "WWW-Authenticate", "redback-login realm="+httpServletRequest.getRemoteHost() );
-            throw new RedbackServiceException( "redback:login-failed", Response.Status.UNAUTHORIZED.getStatusCode() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_FAIL_MSG ), Response.Status.UNAUTHORIZED.getStatusCode() );
         }
 
         catch ( AuthenticationException e )
         {
             log.debug( "Authentication error: {}", e.getMessage( ), e );
-            throw new RedbackServiceException( "redback:login-failed", Response.Status.UNAUTHORIZED.getStatusCode() );
+            throw new RedbackServiceException(ErrorMessage.of( ERR_AUTH_FAIL_MSG ), Response.Status.UNAUTHORIZED.getStatusCode() );
         }
         catch ( UserNotFoundException e )
         {
             log.debug( "User not found: {}", e.getMessage( ), e );
-            throw new RedbackServiceException( "redback:login-failed", Response.Status.UNAUTHORIZED.getStatusCode() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_INVALID_CREDENTIALS ), Response.Status.UNAUTHORIZED.getStatusCode() );
         }
         catch (AccountLockedException e) {
             log.info( "Account locked: {}", e.getMessage( ), e );
-            throw new RedbackServiceException( "redback:account-locked", Response.Status.FORBIDDEN.getStatusCode() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_ACCOUNT_LOCKED ), Response.Status.FORBIDDEN.getStatusCode() );
         }
         catch ( MustChangePasswordException e )
         {
             log.debug( "Password change required: {}", e.getMessage( ), e );
-            throw new RedbackServiceException( "redback:password-change-required", Response.Status.FORBIDDEN.getStatusCode( ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_PASSWORD_CHANGE_REQUIRED ), Response.Status.FORBIDDEN.getStatusCode( ) );
         }
         catch ( UserManagerException e )
         {
             log.warn( "UserManagerException: {}", e.getMessage() );
-            List<ErrorMessage> errorMessages =
-                Arrays.asList( new ErrorMessage().message( "UserManagerException: " + e.getMessage() ) );
-            throw new RedbackServiceException( errorMessages );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_USERMANAGER_FAIL, e.getMessage( ) ) );
         }
 
     }
@@ -210,7 +209,7 @@ public class DefaultAuthenticationService
     {
         if (!GrantType.REFRESH_TOKEN.equals(request.getGrantType())) {
             log.debug( "Bad grant type {}, expected: refresh_token", request.getGrantType( ).name( ).toLowerCase( ) );
-            throw new RedbackServiceException( "redback:bad_grant", Response.Status.FORBIDDEN.getStatusCode( ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_UNSUPPORTED_GRANT_TYPE, request.getGrantType().getLabel() ), Response.Status.FORBIDDEN.getStatusCode( ) );
         }
         try
         {
@@ -222,7 +221,7 @@ public class DefaultAuthenticationService
         }
         catch ( TokenAuthenticationException e )
         {
-            throw new RedbackServiceException( e.getError( ).getError( ), Response.Status.UNAUTHORIZED.getStatusCode( ) );
+            throw new RedbackServiceException( ErrorMessage.of(ERR_AUTH_INVALID_TOKEN, e.getError( ).getError( )), Response.Status.UNAUTHORIZED.getStatusCode( ) );
         }
     }
 
@@ -235,7 +234,7 @@ public class DefaultAuthenticationService
         {
             return buildRestUser( pri.getUser( ) );
         } else {
-            throw new RedbackServiceException( "redback:not_authenticated", Response.Status.UNAUTHORIZED.getStatusCode( ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_UNAUTHORIZED_REQUEST ), Response.Status.UNAUTHORIZED.getStatusCode( ) );
         }
     }
 

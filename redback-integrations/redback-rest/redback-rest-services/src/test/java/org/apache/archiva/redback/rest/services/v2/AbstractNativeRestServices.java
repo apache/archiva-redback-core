@@ -382,12 +382,26 @@ public abstract class AbstractNativeRestServices
         this.adminRefreshToken = result.body( ).jsonPath( ).getString( "refresh_token" );
     }
 
+    protected String getUserToken(String userId, String password) {
+        Map<String, Object> jsonAsMap = new HashMap<>();
+        jsonAsMap.put( "grant_type", "authorization_code" );
+        jsonAsMap.put("user_id", userId);
+        jsonAsMap.put("password", password );
+        Response result = given( ).spec( getAuthRequestSpecBuilder().build() )
+            .contentType( JSON )
+            .body( jsonAsMap )
+            .when( ).post( "/authenticate").prettyPeek().then( ).statusCode( 200 )
+            .extract( ).response( );
+        result.getBody( ).prettyPrint( );
+        return result.body( ).jsonPath( ).getString( "access_token" );
+    }
     protected String getAdminToken()  {
         if (this.adminToken == null) {
             initAdminToken();
         }
         return this.adminToken;
     }
+
 
     protected String getAdminRefreshToken()  {
         if (this.adminRefreshToken == null) {

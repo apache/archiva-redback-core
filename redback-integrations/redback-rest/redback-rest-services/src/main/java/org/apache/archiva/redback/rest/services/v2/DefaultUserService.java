@@ -45,16 +45,16 @@ import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Operation;
-import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.PasswordStatus;
 import org.apache.archiva.redback.rest.api.model.Permission;
-import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.Resource;
+import org.apache.archiva.redback.rest.api.model.VerificationStatus;
+import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
+import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.v2.User;
 import org.apache.archiva.redback.rest.api.model.v2.UserRegistrationRequest;
-import org.apache.archiva.redback.rest.api.model.VerificationStatus;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.UserService;
 import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
@@ -77,14 +77,18 @@ import javax.inject.Named;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static org.apache.archiva.redback.rest.api.Constants.*;
 
 @Service( "v2.userService#rest" )
 public class DefaultUserService
@@ -145,6 +149,12 @@ public class DefaultUserService
     @Context
     private HttpServletRequest httpServletRequest;
 
+    @Context
+    private HttpServletResponse httpServletResponse;
+
+    @Context
+    private UriInfo uriInfo;
+
     @Inject
     public DefaultUserService( @Named( value = "userManager#default" ) UserManager userManager,
                                SecuritySystem securitySystem )
@@ -164,8 +174,9 @@ public class DefaultUserService
             org.apache.archiva.redback.users.User u = userManager.findUser( user.getUserId() );
             if ( u != null )
             {
+                httpServletResponse.setHeader( "Location", uriInfo.getAbsolutePathBuilder( ).path( u.getUsername( ) ).build( ).toString( ) );
                 throw new RedbackServiceException(
-                    new ErrorMessage( "user " + user.getUserId() + " already exists" ) );
+                    ErrorMessage.of( ERR_USER_EXISTS, user.getUserId() ), 303 );
             }
         }
         catch ( UserNotFoundException e )
@@ -175,23 +186,23 @@ public class DefaultUserService
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_UNKNOWN, e.getMessage() ) );
         }
 
         // data validation
         if ( StringUtils.isEmpty( user.getUserId() ) )
         {
-            throw new RedbackServiceException( new ErrorMessage( "username cannot be empty" ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_ID_EMPTY ), 405 );
         }
 
         if ( StringUtils.isEmpty( user.getFullName() ) )
         {
-            throw new RedbackServiceException( new ErrorMessage( "fullName cannot be empty" ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_FULL_NAME_EMPTY ), 405 );
         }
 
         if ( StringUtils.isEmpty( user.getEmail() ) )
         {
-            throw new RedbackServiceException( new ErrorMessage( "email cannot be empty" ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_EMAIL_EMPTY ), 405 );
         }
 
         try
@@ -220,15 +231,17 @@ public class DefaultUserService
             }
 
             roleManager.assignRole( RedbackRoleConstants.REGISTERED_USER_ROLE_ID, u.getUsername() );
+            httpServletResponse.setStatus( 201 );
+            httpServletResponse.setHeader( "Location", uriInfo.getAbsolutePathBuilder().path( user.getUserId() ).build(  ).toString() );
         }
         catch ( RoleManagerException rpe )
         {
             log.error( "RoleProfile Error: {}", rpe.getMessage(), rpe );
-            throw new RedbackServiceException( new ErrorMessage( "assign.role.failure", null ) );
+            throw new RedbackServiceException( ErrorMessage.of(ERR_USER_ASSIGN_ROLE ) );
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of(ERR_UNKNOWN,  e.getMessage() ) );
         }
         return ActionStatus.SUCCESS;
     }

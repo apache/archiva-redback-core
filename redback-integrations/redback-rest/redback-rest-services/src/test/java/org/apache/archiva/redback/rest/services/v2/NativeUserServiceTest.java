@@ -19,22 +19,36 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import io.restassured.response.Response;
-import org.apache.archiva.redback.rest.api.model.Group;
+import org.apache.archiva.redback.rest.api.model.v2.User;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
  */
+@ExtendWith( SpringExtension.class )
+@ContextConfiguration(
+    locations = {"classpath:/ldap-spring-test.xml"} )
+@TestInstance( TestInstance.Lifecycle.PER_CLASS )
+@Tag("rest-native")
+@TestMethodOrder( MethodOrderer.Random.class )
 public class NativeUserServiceTest extends AbstractNativeRestServices
 {
     @Override
@@ -55,21 +69,166 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         super.shutdownNative();
     }
 
-//    @Test
-//    void getGroups() {
-//        String token = getAdminToken( );
-//        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON ).when( )
-//            .get( ).then( ).statusCode( 200 ).extract( ).response( );
-//        assertNotNull( response );
-//        List<Group> data = response.body( ).jsonPath( ).getList(  "data", Group.class );
-//        assertNotNull( data );
-//        assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
-//        assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-//        assertEquals( Integer.valueOf( 6 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
-//        assertEquals( 6, data.size( ) );
-//        String[] values = data.stream( ).map( ldapInfo -> ldapInfo.getName( ) ).sorted( ).collect( Collectors.toList( ) ).toArray( new String[0] );
-//        assertArrayEquals( getTestGroupList( ).toArray( new String[0] ), values );
-//        assertEquals( "uid=admin," + this.peopleSuffix, data.get( 0 ).getMemberList( ).get( 0 ) );
-//    }
+    @Test
+    void getUsers() {
+        String token = getAdminToken( );
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( ).get( ).then( ).statusCode( 200 ).extract( ).response( );
+        assertNotNull( response );
+        List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+        assertNotNull( userData );
+        assertEquals( 2, userData.size( ) );
+        assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
+        assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+        assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+    }
+
+    @Test
+    void getUsersWithoutLogin() {
+        given( ).spec( getRequestSpec(  ) ).contentType( JSON )
+            .when( ).get( ).then( ).statusCode( 403 );
+    }
+
+    @Test
+    void getUser() {
+        String token = getAdminToken( );
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( ).get( "admin" ).then( ).statusCode( 200 ).extract( ).response( );
+        assertNotNull( response );
+        assertEquals( "jpa:admin", response.body( ).jsonPath( ).get( "id" ) );
+        assertEquals( "admin", response.body( ).jsonPath( ).get( "user_id" ) );
+        assertEquals( "the admin user", response.body( ).jsonPath( ).get( "fullName" ) );
+    }
+
+    @Test
+    void getUserWithoutLogin() {
+        given( ).spec( getRequestSpec(  ) ).contentType( JSON )
+            .when( ).get( "admin" ).then( ).statusCode( 403 );
+    }
+
+
+    @Test
+    void createUser() {
+        String token = getAdminToken( );
+        try
+        {
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "user_id", "aragorn" );
+            jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+            jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+            jsonAsMap.put( "password", "pAssw0rD" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 ).extract( ).response( );
+            assertTrue( response.getHeader( "Location" ).endsWith( "/aragorn" ) );
+
+        } finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( ).delete( "aragorn").then( ).statusCode( 200 );
+
+        }
+    }
+
+    @Test
+    void createInvalidUser() {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 405 ).extract( ).response( );
+
+    }
+
+
+    @Test
+    void createUserAndPermissionFail() {
+        String token = getAdminToken( );
+        try
+        {
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "user_id", "aragorn" );
+            jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+            jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+            jsonAsMap.put( "validated", true );
+            jsonAsMap.put( "password", "pAssw0rD" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 ).extract( ).response( );
+            assertTrue( response.getHeader( "Location" ).endsWith( "/aragorn" ) );
+
+            String userToken = getUserToken( "aragorn", "pAssw0rD" );
+
+            jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "user_id", "arwen" );
+            jsonAsMap.put( "email", "arwen@lordoftherings.org" );
+            jsonAsMap.put( "fullName", "Arwen Daughter of Elrond" );
+            jsonAsMap.put( "password", "pAssw0rD" );
+            given( ).spec( getRequestSpec( userToken ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 403 );
+
+
+        } finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( ).delete( "aragorn").then( ).statusCode( 200 );
+
+        }
+    }
+
+    @Test
+    void createUserExistsAlready() {
+        String token = getAdminToken( );
+        try
+        {
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "user_id", "aragorn" );
+            jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+            jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+            jsonAsMap.put( "validated", true );
+            jsonAsMap.put( "password", "pAssw0rD" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 ).extract( ).response( );
+            assertTrue( response.getHeader( "Location" ).endsWith( "/aragorn" ) );
+
+            jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "user_id", "aragorn" );
+            jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+            jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+            jsonAsMap.put( "validated", true );
+            jsonAsMap.put( "password", "pAssw0rD" );
+
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .redirects().follow( false ) // Rest assured default is following the 303 redirect
+                .post( )
+                .prettyPeek()
+                .peek()
+                .then( ).statusCode( 303 ).extract().response();
+            assertTrue( response.getHeader( "Location" ).endsWith( "/aragorn" ) );
+        } finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( ).delete( "aragorn").then( ).statusCode( 200 );
+
+        }
+    }
 
 }

@@ -57,6 +57,10 @@ public class ErrorMessage
         this.args = args;
     }
 
+    public static ErrorMessage of(String errorKey, String... args) {
+        return new ErrorMessage( errorKey, args );
+    }
+
     public String getErrorKey()
     {
         return errorKey;
