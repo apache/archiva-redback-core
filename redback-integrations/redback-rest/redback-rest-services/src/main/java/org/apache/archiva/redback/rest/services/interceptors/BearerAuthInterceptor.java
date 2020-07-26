@@ -95,9 +95,6 @@ public class BearerAuthInterceptor extends AbstractInterceptor
     @Context
     private ResourceInfo resourceInfo;
 
-    @Context
-    private UriInfo uriInfo;
-
     protected void setUserManager( UserManager userManager )
     {
         this.userManager = userManager;
@@ -167,7 +164,7 @@ public class BearerAuthInterceptor extends AbstractInterceptor
                     RedbackAuthenticationThreadLocal.set( redbackRequestInformation );
                     requestContext.setProperty( AUTHENTICATION_RESULT, authenticationResult );
                     requestContext.setProperty( SECURITY_SESSION, securitySession );
-                    RedbackSecurityContext securityContext = new RedbackSecurityContext(uriInfo, user, securitySession );
+                    RedbackSecurityContext securityContext = new RedbackSecurityContext(requestContext.getUriInfo(), user, securitySession );
 
                     if (rbacManager!=null)
                     {

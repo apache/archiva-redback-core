@@ -171,7 +171,6 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
         assertNotNull( result.body( ).jsonPath( ).getString( "refresh_token" ) );
     }
 
-    @Disabled
     @Test
     void getAuthenticatedUser() {
         Response result = given( ).spec( getRequestSpec(getAdminToken()) )

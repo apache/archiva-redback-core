@@ -19,6 +19,7 @@ package org.apache.archiva.redback.rest.services.mock;
  */
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -34,4 +35,7 @@ public interface ServicesAssert
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
     List<EmailMessage> getEmailMessageSended()
         throws Exception;
+
+    @POST
+    void clearEmailMessages();
 }

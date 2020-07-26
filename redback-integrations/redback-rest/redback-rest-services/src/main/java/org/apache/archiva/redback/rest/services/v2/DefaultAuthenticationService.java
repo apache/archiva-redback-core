@@ -27,20 +27,19 @@ import org.apache.archiva.redback.authentication.Token;
 import org.apache.archiva.redback.authentication.TokenType;
 import org.apache.archiva.redback.authentication.jwt.JwtAuthenticator;
 import org.apache.archiva.redback.authentication.jwt.TokenAuthenticationException;
-import org.apache.archiva.redback.integration.filter.authentication.HttpAuthenticator;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.GrantType;
 import org.apache.archiva.redback.rest.api.model.PingResult;
-import org.apache.archiva.redback.rest.api.model.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
+import org.apache.archiva.redback.rest.api.model.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.UserLogin;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
-import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
+import org.apache.archiva.redback.rest.services.interceptors.RedbackPrincipal;
 import org.apache.archiva.redback.rest.services.interceptors.RedbackSecurityContext;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
@@ -51,18 +50,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.apache.archiva.redback.rest.services.interceptors.AbstractInterceptor.SECURITY_SESSION;
 
 /**
  *
@@ -86,6 +83,8 @@ public class DefaultAuthenticationService
 
     @Context
     private SecurityContext securityContext;
+
+    private RedbackPrincipal redbackPrincipal;
 
     @Context
     private ContainerRequestContext requestContext;
@@ -115,8 +114,14 @@ public class DefaultAuthenticationService
         return new PingResult( true );
     }
 
-    private RedbackSecurityContext getSecurityContext() {
-        return this.securityContext==null?null:(RedbackSecurityContext) this.securityContext;
+    RedbackPrincipal getPrincipal() {
+        if (this.securityContext!=null) {
+            Principal pri = this.securityContext.getUserPrincipal( );
+            if (pri!=null && pri instanceof RedbackPrincipal) {
+                return (RedbackPrincipal) pri;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -227,10 +232,10 @@ public class DefaultAuthenticationService
     public User getAuthenticatedUser()
         throws RedbackServiceException
     {
-        RedbackSecurityContext ctx = getSecurityContext( );
-        if (ctx!=null)
+        RedbackPrincipal pri = getPrincipal( );
+        if (pri!=null)
         {
-            return buildRestUser( getSecurityContext( ).getUser( ) );
+            return buildRestUser( pri.getUser( ) );
         } else {
             throw new RedbackServiceException( "redback:not_authenticated", Response.Status.UNAUTHORIZED.getStatusCode( ) );
         }

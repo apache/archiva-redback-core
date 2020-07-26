@@ -59,6 +59,13 @@ public class RequestTokenRequest implements Serializable
         this.scope = scope;
     }
 
+    public RequestTokenRequest( String userId, String password, GrantType grantType )
+    {
+        this.userId = userId;
+        this.password = password;
+        this.grantType = grantType;
+    }
+
     @XmlElement(name = "grant_type", required = true )
     @Schema(description = "The grant type. Currently only 'authorization_code' is supported.")
     public GrantType getGrantType( )

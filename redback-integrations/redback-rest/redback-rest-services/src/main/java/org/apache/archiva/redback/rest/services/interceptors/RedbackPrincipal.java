@@ -19,6 +19,7 @@ package org.apache.archiva.redback.rest.services.interceptors;
  * under the License.
  */
 
+import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.users.User;
 
 import java.security.Principal;
@@ -28,7 +29,7 @@ import java.security.Principal;
  */
 public class RedbackPrincipal implements Principal
 {
-
+    SecuritySession securitySession;
     User redbackUser;
 
     RedbackPrincipal(User user) {
@@ -45,5 +46,13 @@ public class RedbackPrincipal implements Principal
         return redbackUser;
     }
 
+    public SecuritySession getSecuritySession( )
+    {
+        return securitySession;
+    }
 
+    public void setSecuritySession( SecuritySession securitySession )
+    {
+        this.securitySession = securitySession;
+    }
 }

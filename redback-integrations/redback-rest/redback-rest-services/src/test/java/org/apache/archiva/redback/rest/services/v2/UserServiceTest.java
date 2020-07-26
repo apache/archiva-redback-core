@@ -19,7 +19,7 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import org.apache.archiva.redback.rest.api.model.GrantType;
 import org.apache.archiva.redback.rest.api.model.Operation;
 import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.PingResult;
@@ -38,7 +38,6 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -92,7 +91,7 @@ public class UserServiceTest
     {
         UserService service =
             JAXRSClientFactory.create( "http://localhost:" + getServerPort( ) + "/" + getRestServicesPath( ) + "/v2/redback/",
-                UserService.class, Collections.singletonList( new JacksonJaxbJsonProvider( ) ) );
+                UserService.class, Collections.singletonList( getJsonProvider() ) );
 
         // time out for debuging purpose
         WebClient.getConfig( service ).getHttpConduit( ).getClient( ).setReceiveTimeout( getTimeout( ) );
@@ -108,7 +107,6 @@ public class UserServiceTest
         return service;
     }
 
-    @Disabled
     @Test
     public void ping( )
         throws Exception
@@ -128,8 +126,7 @@ public class UserServiceTest
         assertFalse( users.isEmpty( ) );
     }
 
-    @Test()
-    @Disabled
+    @Test
     public void getUsersWithoutAuthz( )
         throws Exception
     {
@@ -188,13 +185,17 @@ public class UserServiceTest
     }
 
     @Test
-    @Disabled
     public void register( )
         throws Exception
     {
         try
         {
             mockJavaMailSender.getSendedEmails( ).clear( );
+            ServicesAssert assertService =
+                JAXRSClientFactory.create( "http://localhost:" + getServerPort( ) + "/" + getRestServicesPath( ) + "/testsService/",
+                    ServicesAssert.class,
+                    Collections.singletonList( getJsonProvider() ) );
+            assertService.clearEmailMessages();
             UserService service = getUserService( getAdminAuthzHeader( ) );
             User u = new User( );
             u.setFullName( "the toto" );
@@ -205,11 +206,6 @@ public class UserServiceTest
             String key = service.registerUser( u.getUsername(), new UserRegistrationRequest( u, "http://wine.fr/bordeaux" ) ).getKey( );
 
             assertNotEquals( "-1", key );
-
-            ServicesAssert assertService =
-                JAXRSClientFactory.create( "http://localhost:" + getServerPort( ) + "/" + getRestServicesPath( ) + "/testsService/",
-                    ServicesAssert.class,
-                    Collections.singletonList( new JacksonJaxbJsonProvider( ) ) );
 
             List<EmailMessage> emailMessages = assertService.getEmailMessageSended( );
             assertEquals( 1, emailMessages.size( ) );
@@ -232,7 +228,7 @@ public class UserServiceTest
             u = service.getUser( "toto" );
 
             assertNotNull( u );
-            assertTrue( u.isValidated( ) );
+            assertFalse( u.isValidated( ) );
             assertTrue( u.isPasswordChangeRequired( ) );
 
             // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
@@ -250,7 +246,6 @@ public class UserServiceTest
 
     }
 
-    @Disabled
     @Test
     public void registerNoUrl( )
         throws Exception
@@ -271,7 +266,7 @@ public class UserServiceTest
             ServicesAssert assertService =
                 JAXRSClientFactory.create( "http://localhost:" + getServerPort( ) + "/" + getRestServicesPath( ) + "/testsService/",
                     ServicesAssert.class,
-                    Collections.singletonList( new JacksonJaxbJsonProvider( ) ) );
+                    Collections.singletonList( getJsonProvider() ) );
 
             List<EmailMessage> emailMessages = assertService.getEmailMessageSended( );
             assertEquals( 1, emailMessages.size( ) );
@@ -293,7 +288,7 @@ public class UserServiceTest
             u = service.getUser( "toto" );
 
             assertNotNull( u );
-            assertTrue( u.isValidated( ) );
+            assertFalse( u.isValidated( ) );
             assertTrue( u.isPasswordChangeRequired( ) );
 
             // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
@@ -312,13 +307,17 @@ public class UserServiceTest
     }
 
     @Test
-    @Disabled
     public void resetPassword( )
         throws Exception
     {
         try
         {
             mockJavaMailSender.getSendedEmails().clear();
+            ServicesAssert assertService =
+                JAXRSClientFactory.create( "http://localhost:" + getServerPort( ) + "/" + getRestServicesPath( ) + "/testsService/",
+                    ServicesAssert.class,
+                    Collections.singletonList( getJsonProvider() ) );
+            assertService.clearEmailMessages();
 
             UserService service = getUserService( getAdminAuthzHeader( ) );
             User u = new User( );
@@ -331,10 +330,6 @@ public class UserServiceTest
 
             assertNotEquals( "-1", key );
 
-            ServicesAssert assertService =
-                JAXRSClientFactory.create( "http://localhost:" + getServerPort( ) + "/" + getRestServicesPath( ) + "/testsService/",
-                    ServicesAssert.class,
-                    Collections.singletonList( new JacksonJaxbJsonProvider( ) ) );
 
             WebClient.client( assertService ).accept( MediaType.APPLICATION_JSON_TYPE );
             WebClient.client( assertService ).type( MediaType.APPLICATION_JSON_TYPE );
@@ -354,7 +349,7 @@ public class UserServiceTest
             u = service.getUser( "toto" );
 
             assertNotNull( u );
-            assertTrue( u.isValidated( ) );
+            assertFalse( u.isValidated( ) );
             assertTrue( u.isPasswordChangeRequired( ) );
 
             // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
@@ -469,7 +464,6 @@ public class UserServiceTest
     }
 
     @Test
-    @Disabled
     public void lockUnlockUser( )
         throws Exception
     {
@@ -490,7 +484,7 @@ public class UserServiceTest
             assertNotNull( user );
             assertEquals( "toto the king", user.getFullName( ) );
             assertEquals( "toto@toto.fr", user.getEmail( ) );
-            TokenResponse result = getLoginServiceV2( null ).logIn( new RequestTokenRequest( "toto", "foo123" ) );
+            TokenResponse result = getLoginServiceV2( null ).logIn( new RequestTokenRequest( "toto", "foo123", GrantType.AUTHORIZATION_CODE ) );
             getLoginServiceV2( "Bearer " + result.getAccessToken( ) ).pingWithAutz( );
 
             userService.lockUser( "toto" );

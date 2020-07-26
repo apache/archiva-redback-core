@@ -36,7 +36,7 @@ import java.util.Set;
 public class RedbackSecurityContext implements javax.ws.rs.core.SecurityContext
 {
     SecuritySession securitySession;
-    Principal principal;
+    RedbackPrincipal principal;
     User user;
     String authenticationScheme = "Bearer";
     Set<String> roles;
@@ -44,9 +44,8 @@ public class RedbackSecurityContext implements javax.ws.rs.core.SecurityContext
 
 
     RedbackSecurityContext( UriInfo uriInfo, User user, SecuritySession securitySession) {
-        this.isSecure = uriInfo.getAbsolutePath().toString().toLowerCase().startsWith("https");
-        setPrincipal( user );
-        this.securitySession = securitySession;
+        this.isSecure = uriInfo!=null && uriInfo.getAbsolutePath().toString().toLowerCase().startsWith("https");
+        setPrincipal( user, securitySession);
     }
 
     @Override
@@ -77,13 +76,15 @@ public class RedbackSecurityContext implements javax.ws.rs.core.SecurityContext
         return this.securitySession;
     }
 
-    public void setPrincipal( User user)
+    public void setPrincipal( User user, SecuritySession securitySession)
     {
         this.user = user;
         this.principal = new RedbackPrincipal( user );
+        this.securitySession = securitySession;
+        this.principal.setSecuritySession( securitySession );
     }
 
-    public void setSession( SecuritySession securitySession )
+    public void setSecuritySession( SecuritySession securitySession )
     {
         this.securitySession = securitySession;
     }

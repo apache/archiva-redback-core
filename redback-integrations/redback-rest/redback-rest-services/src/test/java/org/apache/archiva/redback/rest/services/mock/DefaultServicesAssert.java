@@ -46,5 +46,9 @@ public class DefaultServicesAssert
         return emailMessages;
     }
 
+    public void clearEmailMessages() {
+        mockJavaMailSender.getSendedEmails( ).clear( );
+    }
+
 
 }

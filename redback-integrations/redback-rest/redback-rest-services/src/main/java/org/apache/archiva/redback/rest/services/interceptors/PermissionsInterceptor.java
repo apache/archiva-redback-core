@@ -154,8 +154,9 @@ public class PermissionsInterceptor
                 {
                     if ( securitySession != null && securitySession.getUser() != null )
                     {
-                        log.debug( "user {} not authenticated", securitySession.getUser().getUsername() );
+                        log.debug( "user {} not authenticated, but permissions are set", securitySession.getUser().getUsername() );
                     }
+                    containerRequestContext.abortWith( Response.status( Response.Status.FORBIDDEN ).build() );
                     return;
                 }
             }

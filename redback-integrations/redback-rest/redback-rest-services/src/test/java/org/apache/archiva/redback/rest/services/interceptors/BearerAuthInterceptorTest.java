@@ -45,6 +45,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -101,7 +103,7 @@ class BearerAuthInterceptorTest
     }
 
     @Test
-    void filter() throws IOException, NoSuchMethodException, UserManagerException
+    void filter() throws IOException, NoSuchMethodException, UserManagerException, URISyntaxException
     {
         Token token = jwtAuthenticator.generateToken( "gandalf" );
         when( resourceInfo.getResourceMethod( ) ).thenReturn( DefaultAuthenticationService.class.getDeclaredMethod( "ping" ) );
@@ -111,6 +113,7 @@ class BearerAuthInterceptorTest
         UriInfo uriInfo = mock( UriInfo.class );
         when( context.getUriInfo( ) ).thenReturn( uriInfo );
         when( uriInfo.getPath( ) ).thenReturn( "/api/v2/redback/auth/ping" );
+        when( uriInfo.getAbsolutePath( ) ).thenReturn( new URI( "https://localhost:1010/api/v2/redback/auth/ping" ) );
         User user = new SimpleUser( );
         user.setUsername( "gandalf" );
         when( userManager.findUser( "gandalf" ) ).thenReturn( user );
@@ -119,6 +122,7 @@ class BearerAuthInterceptorTest
         RedbackRequestInformation info = RedbackAuthenticationThreadLocal.get( );
         assertNotNull( info );
         assertEquals( "gandalf", info.getUser( ).getUsername( ) );
+        verify( context, times(1)).setSecurityContext( argThat( securityContext -> securityContext.getUserPrincipal().getName().equals("gandalf") ) );
     }
 
 
