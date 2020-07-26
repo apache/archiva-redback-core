@@ -67,51 +67,61 @@ public class SimpleUser
         // no op
     }
 
+    @Override
     public void addPreviousEncodedPassword( String encodedPassword )
     {
         getPreviousEncodedPasswords().add( encodedPassword );
     }
 
+    @Override
     public Date getAccountCreationDate()
     {
         return accountCreationDate;
     }
 
+    @Override
     public int getCountFailedLoginAttempts()
     {
         return countFailedLoginAttempts;
     }
 
+    @Override
     public String getEmail()
     {
         return email;
     }
 
+    @Override
     public String getEncodedPassword()
     {
         return encodedPassword;
     }
 
+    @Override
     public String getFullName()
     {
         return fullName;
     }
 
+    @Override
     public Date getLastLoginDate()
     {
         return lastLoginDate;
     }
 
+    @Override
     public Date getLastPasswordChange()
     {
         return lastPasswordChange;
     }
 
+    @Override
     public String getPassword()
     {
         return password;
     }
 
+    @Override
     public List<String> getPreviousEncodedPasswords()
     {
         if ( previousEncodedPasswords == null )
@@ -121,103 +131,124 @@ public class SimpleUser
         return previousEncodedPasswords;
     }
 
+    @Override
     public String getUsername()
     {
         return username;
     }
 
+    @Override
     public boolean isLocked()
     {
         return locked;
     }
 
+    @Override
     public void setAccountCreationDate( Date accountCreationDate )
     {
         this.accountCreationDate = accountCreationDate;
     }
 
+    @Override
     public void setCountFailedLoginAttempts( int countFailedLoginAttempts )
     {
         this.countFailedLoginAttempts = countFailedLoginAttempts;
     }
 
+    @Override
     public void setEmail( String email )
     {
         this.email = email;
     }
 
+    @Override
     public void setEncodedPassword( String encodedPassword )
     {
         this.encodedPassword = encodedPassword;
     }
 
+    @Override
     public void setFullName( String fullName )
     {
         this.fullName = fullName;
     }
 
+    @Override
     public void setLastLoginDate( Date lastLoginDate )
     {
         this.lastLoginDate = lastLoginDate;
     }
 
+    @Override
     public void setLastPasswordChange( Date lastPasswordChange )
     {
         this.lastPasswordChange = lastPasswordChange;
     }
 
+    @Override
     public void setLocked( boolean locked )
     {
         this.locked = locked;
     }
 
+    @Override
     public void setPassword( String password )
     {
         this.password = password;
     }
 
+    @Override
     public void setPreviousEncodedPasswords( List<String> previousEncodedPasswords )
     {
         this.previousEncodedPasswords = previousEncodedPasswords;
     }
 
+    @Override
     public void setUsername( String username )
     {
         this.username = username;
     }
 
+    @Override
     public boolean isPasswordChangeRequired()
     {
         return passwordChangeRequired;
     }
 
+    @Override
     public void setPasswordChangeRequired( boolean passwordChangeRequired )
     {
         this.passwordChangeRequired = passwordChangeRequired;
     }
 
+    @Override
     public boolean isPermanent()
     {
         return permanent;
     }
 
+    @Override
     public void setPermanent( boolean permanent )
     {
         this.permanent = permanent;
     }
 
+    @Override
     public boolean isValidated()
     {
         return validated;
     }
 
+    @Override
     public void setValidated( boolean validated )
     {
         this.validated = validated;
     }
 
+    @Override
     public String getUserManagerId()
     {
         return "simple";
     }
+
 }

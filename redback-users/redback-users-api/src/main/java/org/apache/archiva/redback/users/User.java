@@ -38,6 +38,17 @@ public interface User
     // --------------------------------------------------------------------
 
     /**
+     * This should return a global user id. Global user ids are built
+     * <code>MANAGER_ID:USER_IDENTIFIER</code>
+     * User identifier must not be the username but must be unique, e.g. for LDAP it may be the DN.
+     * @return
+     */
+    default String getId() {
+        return getUserManagerId( ) + ":" + getUsername( );
+    }
+
+
+    /**
      * Gets the User Name for this user.
      *
      * This field is required, and should never be empty.
@@ -298,6 +309,6 @@ public interface User
      * @return userManager id
      */
     String getUserManagerId();
-    
+
 
 }

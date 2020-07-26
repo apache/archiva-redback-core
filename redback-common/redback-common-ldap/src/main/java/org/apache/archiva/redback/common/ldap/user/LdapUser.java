@@ -259,4 +259,10 @@ public class LdapUser
     {
         this.dn = dn;
     }
+
+    @Override
+    public String getId( )
+    {
+        return userManagerId + ":" + dn;
+    }
 }
