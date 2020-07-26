@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.rest.api.model;
+package org.apache.archiva.redback.rest.api.model.v2;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one

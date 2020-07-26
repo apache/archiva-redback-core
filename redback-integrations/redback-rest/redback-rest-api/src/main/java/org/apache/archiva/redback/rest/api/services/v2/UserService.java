@@ -19,6 +19,8 @@ package org.apache.archiva.redback.rest.api.services.v2;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
@@ -26,27 +28,31 @@ import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.Operation;
+import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.PasswordStatus;
 import org.apache.archiva.redback.rest.api.model.Permission;
-import org.apache.archiva.redback.rest.api.model.PingResult;
+import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
-import org.apache.archiva.redback.rest.api.model.User;
-import org.apache.archiva.redback.rest.api.model.UserRegistrationRequest;
+import org.apache.archiva.redback.rest.api.model.v2.User;
+import org.apache.archiva.redback.rest.api.model.v2.UserRegistrationRequest;
 import org.apache.archiva.redback.rest.api.model.VerificationStatus;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.Collection;
-import java.util.List;
+
+import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
 
 @Path( "/users" )
 @Tag(name = "v2")
@@ -66,7 +72,8 @@ public interface UserService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
-    List<User> getUsers()
+    PagedResult<User> getUsers( @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
+                                      @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Integer limit)
         throws RedbackServiceException;
 
     @Path( "" )
@@ -74,6 +81,22 @@ public interface UserService
     @Produces( { MediaType.APPLICATION_JSON } )
     @Consumes( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_CREATE_OPERATION )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+        responses = {
+            @ApiResponse( responseCode = "201",
+                description = "If user creation was successful",
+                headers = {
+                    @Header( name="Location", description = "The URL of the created mapping")
+                }
+            ),
+            @ApiResponse( responseCode = "405", description = "Invalid input" ),
+            @ApiResponse( responseCode = "303", description = "The user exists already",
+                headers = {
+                    @Header( name="Location", description = "The URL of existing user")
+                }
+            )
+        }
+    )
     ActionStatus createUser( User user )
         throws RedbackServiceException;
 
@@ -86,12 +109,28 @@ public interface UserService
     @Produces( { MediaType.APPLICATION_JSON } )
     @Consumes( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+        responses = {
+            @ApiResponse( responseCode = "201",
+                description = "If user creation was successful",
+                headers = {
+                    @Header( name="Location", description = "The URL of the created mapping")
+                }
+            ),
+            @ApiResponse( responseCode = "405", description = "Invalid input" ),
+            @ApiResponse( responseCode = "303", description = "The user exists already",
+                headers = {
+                    @Header( name="Location", description = "The URL of the existing admin user")
+                }
+            )
+        }
+    )
     ActionStatus createAdminUser( User user )
         throws RedbackServiceException;
 
     @Path( "admin/exists" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
     AvailabilityStatus isAdminUserExists()
         throws RedbackServiceException;
@@ -106,7 +145,7 @@ public interface UserService
 
     @Path( "{userId}" )
     @PUT
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
     ActionStatus updateUser( @PathParam( "userId" ) String userId, User user )
         throws RedbackServiceException;
@@ -136,7 +175,7 @@ public interface UserService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    PasswordStatus passwordChangeRequired( @PathParam( "userId" ) String username )
+    PasswordStatus passwordChangeRequired( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
     /**

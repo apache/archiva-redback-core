@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.rest.api.model;
+package org.apache.archiva.redback.rest.api.model.v2;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,6 +19,7 @@ package org.apache.archiva.redback.rest.api.model;
  */
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.apache.archiva.redback.rest.api.model.PaginationInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -32,28 +33,28 @@ import java.util.List;
 public class PagedResult<T>
 {
     PaginationInfo pagination;
-    T data;
+    List<T> data;
 
     public PagedResult() {
 
     }
 
-    public PagedResult( long totalCount, long offset, long limit, T data ) {
+    public PagedResult( int totalCount, int offset, int limit, List<T> data ) {
         this.data = data;
         this.pagination = new PaginationInfo( totalCount, offset, limit );
     }
 
-    public static final <T> PagedResult<T> of(long totalSize, long offset, long limit, T element) {
+    public static final <T> PagedResult<T> of(int totalSize, int offset, int limit, List<T> element) {
         return new PagedResult( totalSize, offset, limit, element);
     }
 
     @Schema(description = "This is the payload of the paged data. The type of data depends on the REST method. ")
-    public T getData( )
+    public List<T> getData( )
     {
         return data;
     }
 
-    public void setData( T data )
+    public void setData( List<T> data )
     {
         this.data = data;
     }

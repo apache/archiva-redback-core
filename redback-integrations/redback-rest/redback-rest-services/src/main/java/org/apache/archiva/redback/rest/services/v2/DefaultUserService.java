@@ -45,14 +45,15 @@ import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Operation;
+import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.PasswordStatus;
 import org.apache.archiva.redback.rest.api.model.Permission;
-import org.apache.archiva.redback.rest.api.model.PingResult;
+import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.Resource;
-import org.apache.archiva.redback.rest.api.model.User;
-import org.apache.archiva.redback.rest.api.model.UserRegistrationRequest;
+import org.apache.archiva.redback.rest.api.model.v2.User;
+import org.apache.archiva.redback.rest.api.model.v2.UserRegistrationRequest;
 import org.apache.archiva.redback.rest.api.model.VerificationStatus;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.UserService;
@@ -81,6 +82,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -159,17 +161,17 @@ public class DefaultUserService
 
         try
         {
-            org.apache.archiva.redback.users.User u = userManager.findUser( user.getUsername() );
+            org.apache.archiva.redback.users.User u = userManager.findUser( user.getUserId() );
             if ( u != null )
             {
                 throw new RedbackServiceException(
-                    new ErrorMessage( "user " + user.getUsername() + " already exists" ) );
+                    new ErrorMessage( "user " + user.getUserId() + " already exists" ) );
             }
         }
         catch ( UserNotFoundException e )
         {
             //ignore we just want to prevent non human readable error message from backend :-)
-            log.debug( "user {} not exists", user.getUsername() );
+            log.debug( "user {} not exists", user.getUserId() );
         }
         catch ( UserManagerException e )
         {
@@ -177,7 +179,7 @@ public class DefaultUserService
         }
 
         // data validation
-        if ( StringUtils.isEmpty( user.getUsername() ) )
+        if ( StringUtils.isEmpty( user.getUserId() ) )
         {
             throw new RedbackServiceException( new ErrorMessage( "username cannot be empty" ) );
         }
@@ -196,7 +198,7 @@ public class DefaultUserService
         {
 
             org.apache.archiva.redback.users.User u =
-                userManager.createUser( user.getUsername(), user.getFullName(), user.getEmail() );
+                userManager.createUser( user.getUserId(), user.getFullName(), user.getEmail() );
             u.setPassword( user.getPassword() );
             u.setLocked( user.isLocked() );
             u.setPasswordChangeRequired( user.isPasswordChangeRequired() );
@@ -292,20 +294,25 @@ public class DefaultUserService
     }
 
     @Override
-    public List<User> getUsers()
+    public PagedResult<User> getUsers(Integer offset,
+                                      Integer limit)
         throws RedbackServiceException
     {
         try
         {
             List<? extends org.apache.archiva.redback.users.User> users = userManager.getUsers();
-            List<User> simpleUsers = new ArrayList<>( users.size( ) );
+            if (offset>=users.size()) {
+                return new PagedResult<>( users.size( ), offset, limit, Collections.emptyList( ) );
+            }
+            int endIndex = PagingHelper.getLastIndex( offset, limit, users.size( ) );
+            List<? extends org.apache.archiva.redback.users.User> resultList = users.subList( offset, endIndex );
+            List<User> simpleUsers = new ArrayList<>( resultList.size() );
 
-            for ( org.apache.archiva.redback.users.User user : users )
+            for ( org.apache.archiva.redback.users.User user : resultList )
             {
                 simpleUsers.add( getRestUser( user ) );
             }
-
-            return simpleUsers;
+            return new PagedResult<>( users.size( ), offset, limit, simpleUsers );
         }
         catch ( UserManagerException e )
         {
@@ -330,7 +337,7 @@ public class DefaultUserService
             throw new RedbackServiceException( new ErrorMessage( "user parameter is mandatory" ),
                                                Response.Status.BAD_REQUEST.getStatusCode() );
         }
-        if ( !StringUtils.equals( redbackRequestInformation.getUser().getUsername(), user.getUsername() ) )
+        if ( !StringUtils.equals( redbackRequestInformation.getUser().getUsername(), user.getUserId() ) )
         {
             throw new RedbackServiceException( new ErrorMessage( "you can update only your profile" ),
                                                Response.Status.FORBIDDEN.getStatusCode() );
@@ -342,11 +349,11 @@ public class DefaultUserService
                                                Response.Status.BAD_REQUEST.getStatusCode() );
         }
 
-        User realUser = getUser( user.getUsername() );
+        User realUser = getUser( user.getUserId() );
         try
         {
             String previousEncodedPassword =
-                securitySystem.getUserManager().findUser( user.getUsername(), false ).getEncodedPassword();
+                securitySystem.getUserManager().findUser( user.getUserId(), false ).getEncodedPassword();
 
             // check oldPassword with the current one
 
@@ -374,12 +381,12 @@ public class DefaultUserService
         // ui can limit to not update password
         if ( StringUtils.isNotBlank( user.getPassword() ) )
         {
-            passwordValidator.validatePassword( user.getPassword(), user.getUsername() );
+            passwordValidator.validatePassword( user.getPassword(), user.getUserId() );
 
             realUser.setPassword( user.getPassword() );
         }
 
-        updateUser( realUser.getUsername(), realUser );
+        updateUser( realUser.getUserId(), realUser );
 
         return ActionStatus.SUCCESS;
     }
@@ -390,7 +397,7 @@ public class DefaultUserService
     {
         try
         {
-            org.apache.archiva.redback.users.User rawUser = userManager.findUser( user.getUsername(), false );
+            org.apache.archiva.redback.users.User rawUser = userManager.findUser( user.getUserId(), false );
             rawUser.setFullName( user.getFullName() );
             rawUser.setEmail( user.getEmail() );
             rawUser.setValidated( user.isValidated() );
@@ -520,9 +527,9 @@ public class DefaultUserService
             log.warn( "Admin user exists already" );
             return ActionStatus.FAIL;
         }
-        log.debug("Creating admin admin user '{}'", adminUser.getUsername());
-        if (!RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME.equals(adminUser.getUsername())) {
-            log.error("Wrong admin user name {}", adminUser.getUsername());
+        log.debug("Creating admin admin user '{}'", adminUser.getUserId());
+        if (!RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME.equals(adminUser.getUserId())) {
+            log.error("Wrong admin user name {}", adminUser.getUserId());
             throw new RedbackServiceException(new ErrorMessage("admin.wrongUsername"));
         }
 
@@ -657,13 +664,13 @@ public class DefaultUserService
 
             // NOTE: Do not perform Password Rules Validation Here.
 
-            if ( userManager.userExists( user.getUsername() ) )
+            if ( userManager.userExists( user.getUserId() ) )
             {
                 throw new RedbackServiceException(
-                    new ErrorMessage( "user.already.exists", new String[]{ user.getUsername() } ) );
+                    new ErrorMessage( "user.already.exists", new String[]{ user.getUserId() } ) );
             }
 
-            u = userManager.createUser( user.getUsername(), user.getFullName(), user.getEmail() );
+            u = userManager.createUser( user.getUserId(), user.getFullName(), user.getEmail() );
             u.setPassword( user.getPassword() );
             u.setValidated( false );
             u.setLocked( false );
@@ -904,13 +911,13 @@ public class DefaultUserService
     {
         RedbackServiceException redbackServiceException =
             new RedbackServiceException( "issues during validating user" );
-        if ( StringUtils.isEmpty( user.getUsername() ) )
+        if ( StringUtils.isEmpty( user.getUserId() ) )
         {
             redbackServiceException.addErrorMessage( new ErrorMessage( "username.required", null ) );
         }
         else
         {
-            if ( !user.getUsername().matches( VALID_USERNAME_CHARS ) )
+            if ( !user.getUserId().matches( VALID_USERNAME_CHARS ) )
             {
                 redbackServiceException.addErrorMessage( new ErrorMessage( "username.invalid.characters", null ) );
             }
@@ -955,7 +962,7 @@ public class DefaultUserService
         try
         {
             org.apache.archiva.redback.users.User tmpuser =
-                userManager.createUser( user.getUsername(), user.getFullName(), user.getEmail() );
+                userManager.createUser( user.getUserId(), user.getFullName(), user.getEmail() );
 
             user.setPassword( user.getPassword() );
 
@@ -995,7 +1002,7 @@ public class DefaultUserService
         if ( user != null )
         {
             user.setLocked( false );
-            updateUser( user.getUsername(),  user );
+            updateUser( user.getUserId(),  user );
             return ActionStatus.SUCCESS;
         }
         return ActionStatus.FAIL;
@@ -1009,21 +1016,21 @@ public class DefaultUserService
         if ( user != null )
         {
             user.setLocked( true );
-            updateUser( user.getUsername(), user );
+            updateUser( user.getUserId(), user );
             return ActionStatus.SUCCESS;
         }
         return ActionStatus.FAIL;
     }
 
     @Override
-    public PasswordStatus passwordChangeRequired( String username )
+    public PasswordStatus passwordChangeRequired( String userId )
         throws RedbackServiceException
     {
-        User user = getUser( username );
+        User user = getUser( userId );
         if ( user == null )
         {
             user.setPasswordChangeRequired( true );
-            updateUser( user.getUsername(),  user );
+            updateUser( user.getUserId(),  user );
             return new PasswordStatus( true );
         }
         return new PasswordStatus( false );

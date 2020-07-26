@@ -31,16 +31,14 @@ import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.GrantType;
-import org.apache.archiva.redback.rest.api.model.PingResult;
-import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
-import org.apache.archiva.redback.rest.api.model.TokenRequest;
+import org.apache.archiva.redback.rest.api.model.v2.PingResult;
+import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.UserLogin;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
 import org.apache.archiva.redback.rest.services.interceptors.RedbackPrincipal;
-import org.apache.archiva.redback.rest.services.interceptors.RedbackSecurityContext;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.archiva.redback.users.UserManagerException;
@@ -125,7 +123,7 @@ public class DefaultAuthenticationService
     }
 
     @Override
-    public TokenResponse logIn( RequestTokenRequest loginRequest )
+    public TokenResponse logIn( TokenRequest loginRequest )
         throws RedbackServiceException
     {
         if (!GrantType.AUTHORIZATION_CODE.equals(loginRequest.getGrantType())) {
@@ -208,7 +206,7 @@ public class DefaultAuthenticationService
     }
 
     @Override
-    public TokenResponse token( TokenRequest request ) throws RedbackServiceException
+    public TokenResponse token( org.apache.archiva.redback.rest.api.model.TokenRequest request ) throws RedbackServiceException
     {
         if (!GrantType.REFRESH_TOKEN.equals(request.getGrantType())) {
             log.debug( "Bad grant type {}, expected: refresh_token", request.getGrantType( ).name( ).toLowerCase( ) );

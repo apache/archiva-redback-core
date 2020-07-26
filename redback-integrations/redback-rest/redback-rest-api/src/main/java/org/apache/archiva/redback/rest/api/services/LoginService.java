@@ -24,11 +24,8 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
-import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
-import org.apache.archiva.redback.rest.api.model.AuthenticationKeyResult;
 import org.apache.archiva.redback.rest.api.model.LoginRequest;
-import org.apache.archiva.redback.rest.api.model.PingResult;
 import org.apache.archiva.redback.rest.api.model.User;
 
 import javax.ws.rs.GET;

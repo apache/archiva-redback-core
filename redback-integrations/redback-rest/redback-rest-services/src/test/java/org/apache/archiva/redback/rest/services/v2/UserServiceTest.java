@@ -21,13 +21,14 @@ package org.apache.archiva.redback.rest.services.v2;
 
 import org.apache.archiva.redback.rest.api.model.GrantType;
 import org.apache.archiva.redback.rest.api.model.Operation;
+import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.Permission;
-import org.apache.archiva.redback.rest.api.model.PingResult;
-import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
+import org.apache.archiva.redback.rest.api.model.v2.PingResult;
+import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.TokenResponse;
-import org.apache.archiva.redback.rest.api.model.User;
-import org.apache.archiva.redback.rest.api.model.UserRegistrationRequest;
+import org.apache.archiva.redback.rest.api.model.v2.User;
+import org.apache.archiva.redback.rest.api.model.v2.UserRegistrationRequest;
 import org.apache.archiva.redback.rest.api.services.v2.UserService;
 import org.apache.archiva.redback.rest.services.FakeCreateAdminService;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
@@ -121,9 +122,9 @@ public class UserServiceTest
     {
         String adminHeader = getAdminAuthzHeader( );
         UserService userService = getUserService( adminHeader );
-        List<User> users = userService.getUsers( );
+        PagedResult<org.apache.archiva.redback.rest.api.model.v2.User> users = userService.getUsers( 0, Integer.MAX_VALUE );
         assertNotNull( users );
-        assertFalse( users.isEmpty( ) );
+        assertFalse( users.getData().isEmpty( ) );
     }
 
     @Test
@@ -134,7 +135,7 @@ public class UserServiceTest
         assertThrows( ForbiddenException.class, ( ) -> {
             try
             {
-                userService.getUsers( );
+                userService.getUsers( 0, Integer.MAX_VALUE);
             }
             catch ( ForbiddenException e )
             {
@@ -199,11 +200,11 @@ public class UserServiceTest
             UserService service = getUserService( getAdminAuthzHeader( ) );
             User u = new User( );
             u.setFullName( "the toto" );
-            u.setUsername( "toto" );
+            u.setUserId( "toto" );
             u.setEmail( "toto@toto.fr" );
             u.setPassword( "toto123" );
             u.setConfirmPassword( "toto123" );
-            String key = service.registerUser( u.getUsername(), new UserRegistrationRequest( u, "http://wine.fr/bordeaux" ) ).getKey( );
+            String key = service.registerUser( u.getUserId(), new UserRegistrationRequest( u, "http://wine.fr/bordeaux" ) ).getKey( );
 
             assertNotEquals( "-1", key );
 
@@ -247,26 +248,90 @@ public class UserServiceTest
     }
 
     @Test
+    public void registerWithValidation( )
+        throws Exception
+    {
+        try
+        {
+            mockJavaMailSender.getSendedEmails( ).clear( );
+            ServicesAssert assertService =
+                JAXRSClientFactory.create( "http://localhost:" + getServerPort( ) + "/" + getRestServicesPath( ) + "/testsService/",
+                    ServicesAssert.class,
+                    Collections.singletonList( getJsonProvider() ) );
+            assertService.clearEmailMessages();
+            UserService service = getUserService( getAdminAuthzHeader( ) );
+            User u = new User( );
+            u.setFullName( "the toto" );
+            u.setUserId( "toto" );
+            u.setEmail( "toto@toto.fr" );
+            u.setPassword( "toto123" );
+            u.setConfirmPassword( "toto123" );
+            String key = service.registerUser( u.getUserId(), new UserRegistrationRequest( u, "http://wine.fr/bordeaux" ) ).getKey( );
+
+            assertNotEquals( "-1", key );
+
+            List<EmailMessage> emailMessages = assertService.getEmailMessageSended( );
+            assertEquals( 1, emailMessages.size( ) );
+            assertEquals( "toto@toto.fr", emailMessages.get( 0 ).getTos( ).get( 0 ) );
+
+            assertEquals( "Welcome", emailMessages.get( 0 ).getSubject( ) );
+            String messageContent = emailMessages.get( 0 ).getText( );
+
+            log.info( "messageContent: {}", messageContent );
+
+            assertNotNull( messageContent );
+            assertTrue( messageContent.contains( "Use the following URL to validate your account." ) );
+            assertTrue( messageContent.contains( "http://wine.fr/bordeaux" ) );
+            assertTrue( messageContent.contains( "toto" ) );
+
+            assertTrue( service.validateUserRegistration( "toto", key ).isSuccess( ) );
+
+            service = getUserService( getAdminAuthzHeader( ) );
+
+            u = service.getUser( "toto" );
+
+            assertNotNull( u );
+            assertTrue( u.isValidated( ) );
+            assertTrue( u.isPasswordChangeRequired( ) );
+
+            // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
+
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage( ), e );
+            throw e;
+        }
+        finally
+        {
+            deleteUserQuietly( "toto" );
+        }
+
+    }
+
+
+    @Test
     public void registerNoUrl( )
         throws Exception
     {
         try
         {
-            UserService service = getUserService( getAdminAuthzHeader( ) );
-            User u = new User( );
-            u.setFullName( "the toto" );
-            u.setUsername( "toto" );
-            u.setEmail( "toto@toto.fr" );
-            u.setPassword( "toto123" );
-            u.setConfirmPassword( "toto123" );
-            String key = service.registerUser( u.getUsername(), new UserRegistrationRequest( u, null ) ).getKey( );
-
-            assertNotEquals( "-1", key );
-
             ServicesAssert assertService =
                 JAXRSClientFactory.create( "http://localhost:" + getServerPort( ) + "/" + getRestServicesPath( ) + "/testsService/",
                     ServicesAssert.class,
                     Collections.singletonList( getJsonProvider() ) );
+            assertService.clearEmailMessages();
+            UserService service = getUserService( getAdminAuthzHeader( ) );
+            User u = new User( );
+            u.setFullName( "the toto" );
+            u.setUserId( "toto" );
+            u.setEmail( "toto@toto.fr" );
+            u.setPassword( "toto123" );
+            u.setConfirmPassword( "toto123" );
+            String key = service.registerUser( u.getUserId(), new UserRegistrationRequest( u, null ) ).getKey( );
+
+            assertNotEquals( "-1", key );
+
 
             List<EmailMessage> emailMessages = assertService.getEmailMessageSended( );
             assertEquals( 1, emailMessages.size( ) );
@@ -322,11 +387,11 @@ public class UserServiceTest
             UserService service = getUserService( getAdminAuthzHeader( ) );
             User u = new User( );
             u.setFullName( "the toto" );
-            u.setUsername( "toto" );
+            u.setUserId( "toto" );
             u.setEmail( "toto@toto.fr" );
             u.setPassword( "toto123" );
             u.setConfirmPassword( "toto123" );
-            String key = service.registerUser( u.getUsername(),  new UserRegistrationRequest( u, "http://wine.fr/bordeaux" ) ).getKey( );
+            String key = service.registerUser( u.getUserId(),  new UserRegistrationRequest( u, "http://wine.fr/bordeaux" ) ).getKey( );
 
             assertNotEquals( "-1", key );
 
@@ -354,7 +419,7 @@ public class UserServiceTest
 
             // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
 
-            assertTrue( service.resetPassword(u.getUsername(),  new ResetPasswordRequest( "toto", "http://foo.fr/bar" ) ).isSuccess( ) );
+            assertTrue( service.resetPassword(u.getUserId(),  new ResetPasswordRequest( "toto", "http://foo.fr/bar" ) ).isSuccess( ) );
 
             emailMessages = assertService.getEmailMessageSended( );
             assertEquals( 2, emailMessages.size( ) );
@@ -433,7 +498,7 @@ public class UserServiceTest
     {
         User u = new User( );
         u.setFullName( "the toto" );
-        u.setUsername( "toto" );
+        u.setUserId( "toto" );
         u.setEmail( "toto@toto.fr" );
         u.setPassword( "toto123" );
         u.setConfirmPassword( "toto123" );
@@ -444,7 +509,7 @@ public class UserServiceTest
         u.setEmail( "toto@titi.fr" );
         u.setPassword( "toto1234" );
         u.setPreviousPassword( "toto123" );
-        getUserService( getUserAuthzHeader( "toto" ) ).updateMe( u.getUsername(), u );
+        getUserService( getUserAuthzHeader( "toto" ) ).updateMe( u. getUserId(), u );
 
         u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
         assertEquals( "the toto123", u.getFullName( ) );
@@ -454,7 +519,7 @@ public class UserServiceTest
         u.setEmail( "toto@tititi.fr" );
         u.setPassword( "toto12345" );
         u.setPreviousPassword( "toto1234" );
-        getUserService( getUserAuthzHeader( "toto" )) .updateMe(u.getUsername(),  u );
+        getUserService( getUserAuthzHeader( "toto" )) .updateMe(u.getUserId(),  u );
 
         u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
         assertEquals( "the toto1234", u.getFullName( ) );
@@ -484,7 +549,7 @@ public class UserServiceTest
             assertNotNull( user );
             assertEquals( "toto the king", user.getFullName( ) );
             assertEquals( "toto@toto.fr", user.getEmail( ) );
-            TokenResponse result = getLoginServiceV2( null ).logIn( new RequestTokenRequest( "toto", "foo123", GrantType.AUTHORIZATION_CODE ) );
+            TokenResponse result = getLoginServiceV2( null ).logIn( new TokenRequest( "toto", "foo123", GrantType.AUTHORIZATION_CODE ) );
             getLoginServiceV2( "Bearer " + result.getAccessToken( ) ).pingWithAutz( );
 
             userService.lockUser( "toto" );

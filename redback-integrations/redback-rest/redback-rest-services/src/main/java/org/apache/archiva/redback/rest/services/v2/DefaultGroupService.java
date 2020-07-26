@@ -28,9 +28,8 @@ import org.apache.archiva.redback.common.ldap.role.LdapRoleMapper;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapperConfiguration;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Group;
-import org.apache.archiva.redback.rest.api.model.GroupMappingUpdateRequest;
 import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
-import org.apache.archiva.redback.rest.api.model.PagedResult;
+import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.GroupService;
 import org.slf4j.Logger;
@@ -94,7 +93,7 @@ public class DefaultGroupService
     }
 
     @Override
-    public PagedResult<List<Group>> getGroups( Long offset, Long limit ) throws RedbackServiceException
+    public PagedResult<Group> getGroups( Integer offset, Integer limit ) throws RedbackServiceException
     {
         LdapConnection ldapConnection = null;
 

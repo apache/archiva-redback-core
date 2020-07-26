@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.rest.api.model;
+package org.apache.archiva.redback.rest.api.model.v2;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,6 +19,7 @@ package org.apache.archiva.redback.rest.api.model;
  */
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.apache.archiva.redback.rest.api.model.GrantType;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,7 +30,7 @@ import java.io.Serializable;
  */
 @XmlRootElement(name="refreshToken")
 @Schema(name="Request Token Data", description = "Schema used for requesting a Bearer token.")
-public class RequestTokenRequest implements Serializable
+public class TokenRequest implements Serializable
 {
     private static final long serialVersionUID = -4803869713444270526L;
     GrantType grantType = null;
@@ -42,24 +43,24 @@ public class RequestTokenRequest implements Serializable
     String password;
     String redirectUri;
 
-    public RequestTokenRequest() {
+    public TokenRequest() {
 
     }
 
-    public RequestTokenRequest( String userId, String password )
+    public TokenRequest( String userId, String password )
     {
         this.userId = userId;
         this.password = password;
     }
 
-    public RequestTokenRequest( String userId, String password, String scope )
+    public TokenRequest( String userId, String password, String scope )
     {
         this.userId = userId;
         this.password = password;
         this.scope = scope;
     }
 
-    public RequestTokenRequest( String userId, String password, GrantType grantType )
+    public TokenRequest( String userId, String password, GrantType grantType )
     {
         this.userId = userId;
         this.password = password;

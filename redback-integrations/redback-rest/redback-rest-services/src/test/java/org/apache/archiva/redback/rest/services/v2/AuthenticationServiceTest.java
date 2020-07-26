@@ -20,12 +20,11 @@ package org.apache.archiva.redback.rest.services.v2;
 
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.model.GrantType;
-import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
+import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.services.BaseSetup;
 import org.apache.archiva.redback.users.User;
-import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -64,7 +63,7 @@ public class AuthenticationServiceTest
     public void loginAdmin()
         throws Exception
     {
-        RequestTokenRequest request = new RequestTokenRequest( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME,
+        TokenRequest request = new TokenRequest( RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME,
             BaseSetup.getAdminPwd() );
         request.setGrantType( GrantType.AUTHORIZATION_CODE );
 
@@ -103,7 +102,7 @@ public class AuthenticationServiceTest
             // START SNIPPET: create-user
             User user = addUser( "toto", "foo123", "toto the king", "toto@toto.fr" );
             // END SNIPPET: create-user
-            RequestTokenRequest request = new RequestTokenRequest( "toto", "foo123" );
+            TokenRequest request = new TokenRequest( "toto", "foo123" );
             request.setGrantType( GrantType.AUTHORIZATION_CODE );
             TokenResponse result = getLoginServiceV2( "" ).logIn( request );
             assertNotNull( result );

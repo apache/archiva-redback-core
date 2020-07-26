@@ -25,7 +25,6 @@ import org.apache.archiva.redback.rest.api.services.v2.GroupService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.jaxrs.impl.UriInfoImpl;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -46,7 +45,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -298,7 +296,7 @@ public class GroupServiceTest
         {
             GroupService service = getGroupService( authorizationHeader );
 
-            List<String> allGroups = service.getGroups( Long.valueOf( 0 ), Long.valueOf( Long.MAX_VALUE ) ).getData( ).stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
+            List<String> allGroups = service.getGroups(  0 , Integer.MAX_VALUE ).getData( ).stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
 
             assertNotNull( allGroups );
             assertEquals( 3, allGroups.size( ) );

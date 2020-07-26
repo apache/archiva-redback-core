@@ -20,16 +20,12 @@ package org.apache.archiva.redback.rest.api.services.v2;
  */
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityRequirements;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
-import org.apache.archiva.redback.rest.api.model.PingResult;
-import org.apache.archiva.redback.rest.api.model.TokenRequest;
-import org.apache.archiva.redback.rest.api.model.RequestTokenRequest;
+import org.apache.archiva.redback.rest.api.model.v2.PingResult;
+import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
@@ -93,7 +89,7 @@ public interface AuthenticationService
                 "And refresh token, used to refresh the access token. Each token as a lifetime. After expiration it cannot be used anymore." )
         }
     )
-    TokenResponse logIn( RequestTokenRequest loginRequest )
+    TokenResponse logIn( TokenRequest loginRequest )
         throws RedbackServiceException;
 
     /**
@@ -111,7 +107,7 @@ public interface AuthenticationService
         }
     )
     @SecurityRequirement( name="BearerAuth" )
-    TokenResponse token( TokenRequest tokenRequest )
+    TokenResponse token( org.apache.archiva.redback.rest.api.model.TokenRequest tokenRequest )
         throws RedbackServiceException;
 
 
