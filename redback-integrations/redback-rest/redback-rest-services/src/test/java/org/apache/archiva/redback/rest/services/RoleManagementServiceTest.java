@@ -24,6 +24,7 @@ import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -45,6 +46,7 @@ public class RoleManagementServiceTest
 {
 
 
+    @Ignore
     @Test
     public void roleExist()
         throws Exception

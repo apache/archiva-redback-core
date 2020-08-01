@@ -26,14 +26,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
-import org.apache.archiva.redback.rest.api.model.AvailabilityStatus;
+import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.Operation;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.PasswordStatus;
 import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
-import org.apache.archiva.redback.rest.api.model.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
+import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.v2.User;
 import org.apache.archiva.redback.rest.api.model.v2.UserRegistrationRequest;
 import org.apache.archiva.redback.rest.api.model.VerificationStatus;
@@ -97,7 +97,7 @@ public interface UserService
             )
         }
     )
-    ActionStatus createUser( User user )
+    User createUser( User user )
         throws RedbackServiceException;
 
 
@@ -125,14 +125,14 @@ public interface UserService
             )
         }
     )
-    ActionStatus createAdminUser( User user )
+    User createAdminUser( User user )
         throws RedbackServiceException;
 
-    @Path( "admin/exists" )
+    @Path( "admin/status" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
-    AvailabilityStatus isAdminUserExists()
+    AvailabilityStatus getAdminStatus()
         throws RedbackServiceException;
 
 
@@ -140,14 +140,31 @@ public interface UserService
     @DELETE
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_DELETE_OPERATION )
-    ActionStatus deleteUser( @PathParam( "userId" ) String userId )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If user deletion was successful"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" )
+        }
+    )
+    void deleteUser( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
     @Path( "{userId}" )
     @PUT
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( {MediaType.APPLICATION_JSON} )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    ActionStatus updateUser( @PathParam( "userId" ) String userId, User user )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If update was successful"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "422", description = "Update data was not valid. E.g. password violations." )
+        }
+    )
+    User updateUser( @PathParam( "userId" ) String userId, User user )
         throws RedbackServiceException;
 
     /**
@@ -171,18 +188,18 @@ public interface UserService
 
     /**
      */
-    @Path( "{userId}/passwordStatus" )
+    @Path( "{userId}/password/status" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    PasswordStatus passwordChangeRequired( @PathParam( "userId" ) String userId )
+    PasswordStatus getPasswordStatus( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
     /**
      * update only the current user and this fields: fullname, email, password.
      * The service verifies the current logged user with the one passed in the method
      */
-    @Path( "{userId}" )
+    @Path( "me" )
     @PUT
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noPermission = true )
@@ -196,7 +213,7 @@ public interface UserService
     PingResult ping()
         throws RedbackServiceException;
 
-    @Path( "{userId}/clearCache" )
+    @Path( "{userId}/cache/clear" )
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
@@ -218,9 +235,9 @@ public interface UserService
         throws RedbackServiceException;
 
     /**
-     * if redback is not configured for email validation is required, -1 is returned as key
-     * @since 1.4
-     */
+     *
+     *
+     * @return*/
     @Path( "{userId}/register" )
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )
@@ -231,9 +248,8 @@ public interface UserService
     /**
      *
      * @param resetPasswordRequest contains username for send a password reset email
-     * @since 1.4
      */
-    @Path( "{userId}/resetPassword" )
+    @Path( "{userId}/password/reset" )
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )
     @Consumes( { MediaType.APPLICATION_JSON } )
@@ -242,7 +258,6 @@ public interface UserService
         throws RedbackServiceException;
 
     /**
-     * @since 1.4
      */
     @Path( "{userId}/permissions" )
     @GET
@@ -265,26 +280,26 @@ public interface UserService
      * @return  the current logged user permissions, if no logged user guest permissions are returned
      * @since 1.4
      */
-    @Path( "{userId}/self/permissions" )
+    @Path( "me/permissions" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
-    Collection<Permission> getCurrentUserPermissions(@PathParam( "userId" ) String userId)
+    Collection<Permission> getCurrentUserPermissions( )
         throws RedbackServiceException;
 
     /**
      * @return the current logged user operations, if no logged user guest operations are returned
      * @since 1.4
      */
-    @Path( "{userId}/self/operations" )
+    @Path( "me/operations" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
-    Collection<Operation> getCurrentUserOperations(@PathParam( "userId" ) String userId)
+    Collection<Operation> getCurrentUserOperations( )
         throws RedbackServiceException;
 
 
-    @Path( "{userId}/registration/{key}/validate" )
+    @Path( "{userId}/register/{key}/validate" )
     @GET
     @Produces( {MediaType.APPLICATION_JSON} )
     @RedbackAuthorization( noRestriction = true, noPermission = true )

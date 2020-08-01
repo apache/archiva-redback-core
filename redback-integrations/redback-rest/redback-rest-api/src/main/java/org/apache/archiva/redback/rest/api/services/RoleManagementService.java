@@ -23,7 +23,7 @@ import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Application;
 import org.apache.archiva.redback.rest.api.model.ApplicationRoles;
-import org.apache.archiva.redback.rest.api.model.AvailabilityStatus;
+import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.Role;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.VerificationStatus;

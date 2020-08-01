@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.rest.api.model;
+package org.apache.archiva.redback.rest.api.model.v2;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,6 +19,9 @@ package org.apache.archiva.redback.rest.api.model;
  */
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
@@ -27,13 +30,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class AvailabilityStatus
 {
     boolean exists = false;
+    OffsetDateTime since;
 
-    public AvailabilityStatus() {
+    public AvailabilityStatus(boolean exists, OffsetDateTime since) {
+        this.exists = exists;
+        this.since = since;
+    }
 
+    public AvailabilityStatus(boolean exists, Instant since) {
+        this.exists = exists;
+        setSinceByInstant( since );
     }
 
     public AvailabilityStatus(boolean exists) {
         this.exists = exists;
+        this.since = OffsetDateTime.ofInstant( Instant.EPOCH, ZoneId.systemDefault() );
     }
 
     public boolean isExists( )
@@ -44,5 +55,19 @@ public class AvailabilityStatus
     public void setExists( boolean exists )
     {
         this.exists = exists;
+    }
+
+    public OffsetDateTime getSince( )
+    {
+        return since;
+    }
+
+    public void setSince( OffsetDateTime since )
+    {
+        this.since = since;
+    }
+
+    public void setSinceByInstant( Instant since ) {
+        this.since = OffsetDateTime.ofInstant( since, ZoneId.systemDefault( ) );
     }
 }

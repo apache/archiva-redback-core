@@ -26,12 +26,22 @@ public interface Constants
     String DEFAULT_PAGE_LIMIT = "1000";
 
     String ERR_UNKNOWN = "redback:unknown_error";
+    String ERR_USERMANAGER_FAIL = "redback:usermanager_error";
+    String ERR_ROLEMANAGER_FAIL = "redback:rolemanager_error";
+    String ERR_RBACMANAGER_FAIL = "redback:rbacmanager_error";
+
     String ERR_USER_EXISTS = "redback:user.exists";
     String ERR_USER_ID_EMPTY = "redback:user.id.empty";
+    String ERR_USER_ID_INVALID = "redback:user.id.invalid";
     String ERR_USER_FULL_NAME_EMPTY = "redback:user.fullname.empty";
     String ERR_USER_EMAIL_EMPTY = "redback:user.email.empty";
     String ERR_USER_ASSIGN_ROLE = "redback:user.role.assign.failure";
     String ERR_USER_NOT_VALIDATED = "redback:user.not_validated";
+    String ERR_USER_ADMIN_EXISTS = "redback:user.admin.exists";
+    String ERR_USER_ADMIN_BAD_NAME = "redback:user.admin.badname";
+    String ERR_USER_NOT_FOUND = "redback:user.not_found";
+
+    String ERR_PASSWORD_VIOLATION = "redback:user.password_violation";
 
     String ERR_LDAP_GENERIC = "redback:ldap.error";
     String ERR_ROLE_MAPPING = "redback:role.mapping.error";
@@ -42,10 +52,11 @@ public interface Constants
     String ERR_AUTH_FAIL_MSG = "redback:auth.fail";
     String ERR_AUTH_ACCOUNT_LOCKED = "redback:auth.account_locked";
     String ERR_AUTH_PASSWORD_CHANGE_REQUIRED = "redback:auth.password_change_required";
-    String ERR_AUTH_USERMANAGER_FAIL = "redback:auth.usermanager_error";
     String ERR_AUTH_UNSUPPORTED_GRANT_TYPE = "redback:auth.unsupported_grant";
     String ERR_AUTH_INVALID_TOKEN = "redback:auth.invalid_token";
     String ERR_AUTH_UNAUTHORIZED_REQUEST = "redback:auth.unauthorized_request";
+
+
 
 
 }

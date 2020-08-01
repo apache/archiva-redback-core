@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.replaceFiltersWith;
 import static io.restassured.http.ContentType.JSON;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -140,11 +141,27 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
         jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
         jsonAsMap.put( "password", "pAssw0rD" );
-        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
             .when( )
             .post( )
-            .then( ).statusCode( 405 ).extract( ).response( );
+            .then( ).statusCode( 405 );
+
+    }
+
+    @Test
+    void createInvalidMeUser() {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "me" );
+        jsonAsMap.put( "email", "me@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Its just me" );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 405 );
 
     }
 
@@ -228,6 +245,173 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).delete( "aragorn").then( ).statusCode( 200 );
 
+        }
+    }
+
+    @Test
+    void createExistingAdminUser() {
+        String token = null;
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "admin" );
+        jsonAsMap.put( "email", "admin@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Admin" );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .redirects().follow( false )
+            .post( "admin" )
+            .then( ).statusCode( 303 ).extract( ).response( );
+        assertTrue( response.getHeader( "Location" ).endsWith( "/users/admin" ) );
+    }
+
+    @Test
+    void checkAdminStatus() {
+        String token = null;
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .get( "admin/status" )
+            .then( ).statusCode( 200 ).extract( ).response( );
+        assertNotNull( response );
+        assertTrue( response.body( ).jsonPath( ).getBoolean("exists" ) );
+        assertNotNull( response.body( ).jsonPath( ).get( "since" ) );
+    }
+
+    @Test
+    void deleteUser() {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .delete( "aragorn" )
+            .then( ).statusCode( 200 ).extract( ).response( );
+    }
+
+    @Test
+    void deleteNonexistingUser() {
+        String token = getAdminToken( );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .delete( "galadriel" )
+            .then( ).statusCode( 404 ).extract( ).response( );
+    }
+
+    @Test
+    void deleteUserPermissionDenied() {
+        String adminToken = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+            String token = null;
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 401 ).extract( ).response( );
+        } finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void updateUser() {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+
+        try
+        {
+            jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "email", "aragorn2@lordoftherings.org" );
+            jsonAsMap.put( "fullName", "Aragorn King of Gondor the Second" );
+            jsonAsMap.put( "password", "pAssw0rDXX" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .put( "aragorn" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            assertEquals( "aragorn2@lordoftherings.org", response.body( ).jsonPath( ).getString( "email" ) );
+        }finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void updateNonExistingUser() {
+        String token = getAdminToken( );
+        HashMap<Object, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "email", "aragorn2@lordoftherings.org" );
+            jsonAsMap.put( "fullName", "Aragorn King of Gondor the Second" );
+            jsonAsMap.put( "password", "pAssw0rDXX" );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .put( "aragorn" )
+                .then( ).statusCode( 404 );
+    }
+
+    @Test
+    void updateUserPasswordViolation() {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+
+        try
+        {
+            jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "email", "aragorn2@lordoftherings.org" );
+            jsonAsMap.put( "fullName", "Aragorn King of Gondor the Second" );
+            jsonAsMap.put( "password", "pAssw0rD" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .put( "aragorn" )
+                .prettyPeek()
+                .then( ).statusCode( 422 ).extract( ).response( );
+            assertNotNull( response );
+            assertEquals( "user.password.violation.reuse", response.body( ).jsonPath( ).get( "errorMessages[0].errorKey" ) );
+        }finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
         }
     }
 

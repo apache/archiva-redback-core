@@ -37,17 +37,19 @@ import org.apache.archiva.redback.keys.KeyNotFoundException;
 import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.policy.PasswordEncoder;
+import org.apache.archiva.redback.policy.PasswordRuleViolationException;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.UserAssignment;
+import org.apache.archiva.redback.rest.api.Constants;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
-import org.apache.archiva.redback.rest.api.model.AvailabilityStatus;
+import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Operation;
 import org.apache.archiva.redback.rest.api.model.PasswordStatus;
 import org.apache.archiva.redback.rest.api.model.Permission;
-import org.apache.archiva.redback.rest.api.model.RegistrationKey;
+import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.Resource;
 import org.apache.archiva.redback.rest.api.model.VerificationStatus;
@@ -87,6 +89,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.apache.archiva.redback.rest.api.Constants.*;
 
@@ -98,6 +101,7 @@ public class DefaultUserService
     private final Logger log = LoggerFactory.getLogger( getClass() );
 
     private static final String VALID_USERNAME_CHARS = "[a-zA-Z_0-9\\-.@]*";
+    private static final String[] INVALID_USER_NAMES = { "me" };
 
     private UserManager userManager;
 
@@ -165,9 +169,14 @@ public class DefaultUserService
 
 
     @Override
-    public ActionStatus createUser( User user )
+    public User createUser( User user )
         throws RedbackServiceException
     {
+        User result;
+        if ( Arrays.binarySearch( INVALID_USER_NAMES, user.getUserId( ) ) >=0 )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_ID_INVALID, user.getUserId() ), 405 );
+        }
 
         try
         {
@@ -231,6 +240,7 @@ public class DefaultUserService
             }
 
             roleManager.assignRole( RedbackRoleConstants.REGISTERED_USER_ROLE_ID, u.getUsername() );
+            result = getRestUser( u );
             httpServletResponse.setStatus( 201 );
             httpServletResponse.setHeader( "Location", uriInfo.getAbsolutePathBuilder().path( user.getUserId() ).build(  ).toString() );
         }
@@ -243,11 +253,11 @@ public class DefaultUserService
         {
             throw new RedbackServiceException( ErrorMessage.of(ERR_UNKNOWN,  e.getMessage() ) );
         }
-        return ActionStatus.SUCCESS;
+        return result;
     }
 
     @Override
-    public ActionStatus deleteUser( String userId )
+    public void deleteUser( String userId )
         throws RedbackServiceException
     {
 
@@ -264,26 +274,26 @@ public class DefaultUserService
         catch ( RbacManagerException e )
         {
             log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
         }
         try
         {
             userManager.deleteUser( userId );
-            return ActionStatus.SUCCESS;
         }
         catch ( UserNotFoundException e )
         {
             log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND ), 404 );
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage( ) ) );
         }
         finally
         {
             removeFromCache( userId );
         }
+        httpServletResponse.setStatus( 200 );
     }
 
 
@@ -405,26 +415,33 @@ public class DefaultUserService
     }
 
     @Override
-    public ActionStatus updateUser( String userId,  User user )
+    public User updateUser( String userId,  User user )
         throws RedbackServiceException
     {
         try
         {
-            org.apache.archiva.redback.users.User rawUser = userManager.findUser( user.getUserId(), false );
-            rawUser.setFullName( user.getFullName() );
-            rawUser.setEmail( user.getEmail() );
+            org.apache.archiva.redback.users.User rawUser = userManager.findUser( userId, false );
+            if (user.getFullName()!=null)
+                rawUser.setFullName( user.getFullName() );
+            if (user.getEmail()!=null)
+                rawUser.setEmail( user.getEmail() );
             rawUser.setValidated( user.isValidated() );
             rawUser.setLocked( user.isLocked() );
-            rawUser.setPassword( user.getPassword() );
+            if ( !StringUtils.isEmpty( user.getPassword( ) ) )
+                rawUser.setPassword( user.getPassword() );
             rawUser.setPasswordChangeRequired( user.isPasswordChangeRequired() );
             rawUser.setPermanent( user.isPermanent() );
 
-            userManager.updateUser( rawUser );
-            return ActionStatus.SUCCESS;
+            org.apache.archiva.redback.users.User updatedUser = userManager.updateUser( rawUser );
+
+            return getRestUser( updatedUser );
         }
         catch ( UserNotFoundException e )
         {
-            throw new RedbackServiceException( e.getMessage() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND ), 404 );
+        } catch ( PasswordRuleViolationException e ) {
+            List<ErrorMessage> messages = e.getViolations( ).getViolations( ).stream( ).map( m -> ErrorMessage.of( m.getKey( ), m.getArgs( ) ) ).collect( Collectors.toList() );
+            throw new RedbackServiceException( messages, 422 );
         }
         catch ( UserManagerException e )
         {
@@ -532,18 +549,20 @@ public class DefaultUserService
     }
 
     @Override
-    public ActionStatus createAdminUser( User adminUser )
+    public User createAdminUser( User adminUser )
         throws RedbackServiceException
     {
-        if ( isAdminUserExists().isExists() )
+        User result;
+        if ( getAdminStatus().isExists() )
         {
             log.warn( "Admin user exists already" );
-            return ActionStatus.FAIL;
+            httpServletResponse.setHeader( "Location", uriInfo.getAbsolutePath().toString() );
+            throw new RedbackServiceException( ErrorMessage.of( Constants.ERR_USER_ADMIN_EXISTS ), 303 );
         }
         log.debug("Creating admin admin user '{}'", adminUser.getUserId());
         if (!RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME.equals(adminUser.getUserId())) {
             log.error("Wrong admin user name {}", adminUser.getUserId());
-            throw new RedbackServiceException(new ErrorMessage("admin.wrongUsername"));
+            throw new RedbackServiceException(ErrorMessage.of(Constants.ERR_USER_ADMIN_BAD_NAME ), 405);
         }
 
         try
@@ -559,27 +578,35 @@ public class DefaultUserService
             user.setValidated( true );
 
             userManager.addUser( user );
+            result = getRestUser( user );
             roleManager.assignRole( "system-administrator", user.getUsername() );
         }
         catch ( RoleManagerException e )
         {
-            throw new RedbackServiceException( e.getMessage() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_ROLEMANAGER_FAIL, e.getMessage( ) ) );
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage() ) );
         }
-        return ActionStatus.SUCCESS;
+        httpServletResponse.setStatus( 201 );
+        httpServletResponse.setHeader( "Location", uriInfo.getAbsolutePath().toString() );
+        return result;
     }
 
     @Override
-    public AvailabilityStatus isAdminUserExists()
+    public AvailabilityStatus getAdminStatus()
         throws RedbackServiceException
     {
         try
         {
-            userManager.findUser( config.getString( UserConfigurationKeys.DEFAULT_ADMIN ) );
-            return new AvailabilityStatus( true );
+            org.apache.archiva.redback.users.User user = userManager.findUser( config.getString( UserConfigurationKeys.DEFAULT_ADMIN ) );
+            if (user.getAccountCreationDate()!=null)
+            {
+                return new AvailabilityStatus( true, user.getAccountCreationDate( ).toInstant( ) );
+            } else {
+                return new AvailabilityStatus( true );
+            }
         }
         catch ( UserNotFoundException e )
         {
@@ -593,7 +620,7 @@ public class DefaultUserService
             {
                 return new AvailabilityStatus( false );
             }
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL,  e.getMessage() ) );
         }
         return new AvailabilityStatus( false );
     }
@@ -722,7 +749,7 @@ public class DefaultUserService
 
                 securityPolicy.setEnabled( false );
                 userManager.addUser( u );
-                return new RegistrationKey( authkey.getKey() );
+                return new RegistrationKey( authkey.getKey(), true );
 
             }
             catch ( KeyManagerException e )
@@ -744,7 +771,7 @@ public class DefaultUserService
             try
             {
                 userManager.addUser( u );
-                return new RegistrationKey( "-1" );
+                return new RegistrationKey( "-1", false );
             }
             catch ( UserManagerException e )
             {
@@ -763,7 +790,7 @@ public class DefaultUserService
 
 
     @Override
-    public Collection<Permission> getCurrentUserPermissions(String userId)
+    public Collection<Permission> getCurrentUserPermissions( )
         throws RedbackServiceException
     {
         RedbackRequestInformation redbackRequestInformation = RedbackAuthenticationThreadLocal.get();
@@ -781,7 +808,7 @@ public class DefaultUserService
     }
 
     @Override
-    public Collection<Operation> getCurrentUserOperations(String userId)
+    public Collection<Operation> getCurrentUserOperations( )
         throws RedbackServiceException
     {
         RedbackRequestInformation redbackRequestInformation = RedbackAuthenticationThreadLocal.get();
@@ -1036,7 +1063,7 @@ public class DefaultUserService
     }
 
     @Override
-    public PasswordStatus passwordChangeRequired( String userId )
+    public PasswordStatus getPasswordStatus( String userId )
         throws RedbackServiceException
     {
         User user = getUser( userId );

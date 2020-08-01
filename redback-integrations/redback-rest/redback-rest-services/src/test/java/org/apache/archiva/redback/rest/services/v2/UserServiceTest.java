@@ -129,7 +129,6 @@ public class UserServiceTest
 
     @Test
     public void getUsersWithoutAuthz( )
-        throws Exception
     {
         UserService userService = getUserService( null );
         assertThrows( ForbiddenException.class, ( ) -> {
@@ -471,7 +470,7 @@ public class UserServiceTest
         throws Exception
     {
         createGuestIfNeeded( );
-        Collection<Permission> permissions = getUserService( null ).getCurrentUserPermissions("guest" );
+        Collection<Permission> permissions = getUserService( null ).getCurrentUserPermissions( );
         log.info( "guest permisssions: {}", permissions );
     }
 
@@ -488,7 +487,7 @@ public class UserServiceTest
         throws Exception
     {
         createGuestIfNeeded( );
-        Collection<Operation> operations = getUserService( null ).getCurrentUserOperations("guest" );
+        Collection<Operation> operations = getUserService( null ).getCurrentUserOperations( );
         log.info( "guest operations: {}", operations );
     }
 

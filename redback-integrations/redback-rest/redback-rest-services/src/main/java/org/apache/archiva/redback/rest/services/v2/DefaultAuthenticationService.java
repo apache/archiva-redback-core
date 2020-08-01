@@ -199,7 +199,7 @@ public class DefaultAuthenticationService
         catch ( UserManagerException e )
         {
             log.warn( "UserManagerException: {}", e.getMessage() );
-            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_USERMANAGER_FAIL, e.getMessage( ) ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage( ) ) );
         }
 
     }

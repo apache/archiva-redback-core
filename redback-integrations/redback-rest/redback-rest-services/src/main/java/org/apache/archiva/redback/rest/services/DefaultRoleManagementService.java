@@ -29,7 +29,7 @@ import org.apache.archiva.redback.rbac.UserAssignment;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Application;
 import org.apache.archiva.redback.rest.api.model.ApplicationRoles;
-import org.apache.archiva.redback.rest.api.model.AvailabilityStatus;
+import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Role;
 import org.apache.archiva.redback.rest.api.model.RoleTemplate;
