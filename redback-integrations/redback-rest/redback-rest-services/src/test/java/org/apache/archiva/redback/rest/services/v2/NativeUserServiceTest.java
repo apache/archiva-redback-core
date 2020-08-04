@@ -498,5 +498,70 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             .then( ).statusCode( 404 );
     }
 
+    @Test
+    void setPasswordChangeRequire() {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "locked", false );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .post( "aragorn/password/require/set" )
+                .then( ).statusCode( 200 );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .get( "aragorn" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
+        } finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
 
+    @Test
+    void setNoPasswordChangeRequire() {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "locked", false );
+        jsonAsMap.put( "passwordChangeRequired", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .get( "aragorn" )
+            .then( ).statusCode( 200 ).extract( ).response( );
+        assertTrue( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
+        try
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .post( "aragorn/password/require/clear" )
+                .then( ).statusCode( 200 );
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .get( "aragorn" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertFalse( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
+        } finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
 }

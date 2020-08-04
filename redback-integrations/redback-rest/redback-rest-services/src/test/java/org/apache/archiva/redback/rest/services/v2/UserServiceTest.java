@@ -508,7 +508,7 @@ public class UserServiceTest
         u.setEmail( "toto@titi.fr" );
         u.setPassword( "toto1234" );
         u.setPreviousPassword( "toto123" );
-        getUserService( getUserAuthzHeader( "toto" ) ).updateMe( u. getUserId(), u );
+        getUserService( getUserAuthzHeader( "toto" ) ).updateMe( u );
 
         u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
         assertEquals( "the toto123", u.getFullName( ) );
@@ -518,7 +518,7 @@ public class UserServiceTest
         u.setEmail( "toto@tititi.fr" );
         u.setPassword( "toto12345" );
         u.setPreviousPassword( "toto1234" );
-        getUserService( getUserAuthzHeader( "toto" )) .updateMe(u.getUserId(),  u );
+        getUserService( getUserAuthzHeader( "toto" )) .updateMe(  u );
 
         u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
         assertEquals( "the toto1234", u.getFullName( ) );

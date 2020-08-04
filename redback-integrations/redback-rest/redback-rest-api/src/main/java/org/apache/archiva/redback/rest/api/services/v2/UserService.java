@@ -29,7 +29,6 @@ import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.Operation;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
-import org.apache.archiva.redback.rest.api.model.PasswordStatus;
 import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
@@ -193,7 +192,7 @@ public interface UserService
     @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If locking was successful"
+                description = "If unlocking was successful"
             ),
             @ApiResponse( responseCode = "404", description = "User does not exist" ),
         }
@@ -204,22 +203,48 @@ public interface UserService
 
     /**
      */
-    @Path( "{userId}/password/status" )
-    @GET
+    @Path( "{userId}/password/require/set" )
+    @POST
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    PasswordStatus getPasswordStatus( @PathParam( "userId" ) String userId )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If password change require flag was set"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+        }
+    )
+    void setRequirePasswordChangeFlag( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
     /**
-     * update only the current user and this fields: fullname, email, password.
+     */
+    @Path( "{userId}/password/require/clear" )
+    @POST
+    @Produces( { MediaType.APPLICATION_JSON } )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If password change require flag was unset"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+        }
+    )
+    void clearRequirePasswordChangeFlag( @PathParam( "userId" ) String userId )
+        throws RedbackServiceException;
+
+
+    /**
+     * update only the current logged in user and this fields: fullname, email, password.
      * The service verifies the current logged user with the one passed in the method
      */
     @Path( "me" )
     @PUT
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noPermission = true )
-    ActionStatus updateMe( @PathParam( "userId" ) String userId, User user )
+    ActionStatus updateMe( User user )
         throws RedbackServiceException;
 
     @Path( "___ping___" )

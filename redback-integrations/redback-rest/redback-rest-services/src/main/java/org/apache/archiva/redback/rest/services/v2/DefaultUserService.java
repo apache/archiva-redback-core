@@ -47,7 +47,7 @@ import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Operation;
-import org.apache.archiva.redback.rest.api.model.PasswordStatus;
+import org.apache.archiva.redback.rest.api.model.v2.PasswordStatus;
 import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
@@ -89,6 +89,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.apache.archiva.redback.rest.api.Constants.*;
@@ -344,7 +345,7 @@ public class DefaultUserService
     }
 
     @Override
-    public ActionStatus updateMe( String userId, User user )
+    public ActionStatus updateMe( User user )
         throws RedbackServiceException
     {
         // check username == one in the session
@@ -1034,16 +1035,18 @@ public class DefaultUserService
         return null;
     }
 
-    @Override
-    public void unlockUser( String userId )
-        throws RedbackServiceException
+
+    private void updateUser( String userId, Function<org.apache.archiva.redback.users.User, RedbackServiceException> updateFunction ) throws RedbackServiceException
     {
         try
         {
             org.apache.archiva.redback.users.User rawUser = userManager.findUser( userId, false );
             if ( rawUser != null )
             {
-                rawUser.setLocked( false );
+                RedbackServiceException result = updateFunction.apply( rawUser );
+                if (result!=null) {
+                    throw result;
+                }
                 userManager.updateUser( rawUser, false );
             } else {
                 throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND, userId ), 404 );
@@ -1057,6 +1060,16 @@ public class DefaultUserService
         {
             throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
         }
+    }
+
+    @Override
+    public void unlockUser( String userId )
+        throws RedbackServiceException
+    {
+        updateUser( userId, user -> {
+            user.setLocked( false );
+            return null;
+        } );
         httpServletResponse.setStatus( 200 );
     }
 
@@ -1064,40 +1077,33 @@ public class DefaultUserService
     public void lockUser( String userId )
         throws RedbackServiceException
     {
-        try
-        {
-            org.apache.archiva.redback.users.User rawUser = userManager.findUser( userId, false );
-            if ( rawUser != null )
-            {
-                rawUser.setLocked( true );
-                userManager.updateUser( rawUser, false );
-            } else {
-                throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND, userId ), 404 );
-            }
-        }
-        catch ( UserNotFoundException e )
-        {
-            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND ), 404 );
-        }
-        catch ( UserManagerException e )
-        {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
-        }
+        updateUser( userId, user -> {
+            user.setLocked( true );
+            return null;
+        } );
         httpServletResponse.setStatus( 200 );
     }
 
     @Override
-    public PasswordStatus getPasswordStatus( String userId )
+    public void setRequirePasswordChangeFlag( String userId )
         throws RedbackServiceException
     {
-        User user = getUser( userId );
-        if ( user == null )
-        {
+        updateUser( userId, user -> {
             user.setPasswordChangeRequired( true );
-            updateUser( user.getUserId(),  user );
-            return new PasswordStatus( true );
-        }
-        return new PasswordStatus( false );
+            return null;
+        } );
+        httpServletResponse.setStatus( 200 );
+    }
+
+    @Override
+    public void clearRequirePasswordChangeFlag( String userId )
+        throws RedbackServiceException
+    {
+        updateUser( userId, user -> {
+            user.setPasswordChangeRequired( false );
+            return null;
+        } );
+        httpServletResponse.setStatus( 200 );
     }
 
 }

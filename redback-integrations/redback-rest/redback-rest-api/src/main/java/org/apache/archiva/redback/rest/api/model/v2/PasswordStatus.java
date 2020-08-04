@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.rest.api.model;
+package org.apache.archiva.redback.rest.api.model.v2;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -18,18 +18,23 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
  */
+@XmlRootElement( name="passwordStatus" )
 public class PasswordStatus
 {
     boolean changeRequired = false;
 
-    public PasswordStatus() {
+    public PasswordStatus( )
+    {
 
     }
 
-    public PasswordStatus(boolean changeRequired) {
+    public PasswordStatus( boolean changeRequired )
+    {
         this.changeRequired = changeRequired;
     }
 
