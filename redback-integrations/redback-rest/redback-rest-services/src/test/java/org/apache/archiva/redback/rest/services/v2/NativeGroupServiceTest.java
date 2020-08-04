@@ -454,7 +454,6 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
                 .delete( "/mappings/archiva-admin" )
                 .then( )
                 .statusCode( 200 ).extract( ).response( );
-            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
         } finally {
             // Put it back
             Map<String, Object> jsonAsMap = new HashMap<>( );

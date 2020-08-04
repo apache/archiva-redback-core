@@ -201,7 +201,7 @@ public class DefaultGroupService
     }
 
     @Override
-    public ActionStatus removeGroupMapping( String group )
+    public void removeGroupMapping( String group )
         throws RedbackServiceException
     {
         try
@@ -213,7 +213,7 @@ public class DefaultGroupService
             log.error( e.getMessage(), e );
             throw new RedbackServiceException( ErrorMessage.of( ERR_ROLE_MAPPING, e.getMessage( ) ) );
         }
-        return ActionStatus.SUCCESS;
+        response.setStatus( 200 );
     }
 
     @Override

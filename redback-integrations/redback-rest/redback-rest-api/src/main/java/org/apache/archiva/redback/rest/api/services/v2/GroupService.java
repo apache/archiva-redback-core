@@ -117,7 +117,7 @@ public interface GroupService
             @ApiResponse( responseCode = "404", description = "Group mapping not found" )
         }
     )
-    ActionStatus removeGroupMapping( @Parameter( description = "The group name", required = true )
+    void removeGroupMapping( @Parameter( description = "The group name", required = true )
                                          @PathParam( "group" ) String group )
         throws RedbackServiceException;
 
