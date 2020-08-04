@@ -173,16 +173,32 @@ public interface UserService
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    ActionStatus lockUser( @PathParam( "userId" ) String userId )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If locking was successful"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+        }
+    )
+    void lockUser( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
     /**
      */
     @Path( "{userId}/unlock" )
-    @GET
+    @POST
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    ActionStatus unlockUser( @PathParam( "userId" ) String userId )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If locking was successful"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+        }
+    )
+    void unlockUser( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
 

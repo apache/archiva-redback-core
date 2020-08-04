@@ -380,7 +380,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void updateUserPasswordViolation() {
+    void updateUserWithPasswordViolation() {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
@@ -414,5 +414,89 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .then( ).statusCode( 200 );
         }
     }
+
+    @Test
+    void lockUser() {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "locked", false );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .post( "aragorn/lock" )
+                .then( ).statusCode( 200 );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .get( "aragorn" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "locked" ) );
+        } finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void lockUnknownUser() {
+        String token = getAdminToken( );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .post( "aragorn/lock" )
+                .then( ).statusCode( 404 );
+    }
+
+    @Test
+    void unlockUser() {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "locked", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .get( "aragorn" )
+            .then( ).statusCode( 200 ).extract( ).response( );
+        assertTrue( response.getBody( ).jsonPath( ).getBoolean( "locked" ) );
+        try
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .post( "aragorn/unlock" )
+                .then( ).statusCode( 200 );
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .get( "aragorn" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertFalse( response.getBody( ).jsonPath( ).getBoolean( "locked" ) );
+        } finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+
+    }
+
+    @Test
+    void unlockUnknownUser() {
+        String token = getAdminToken( );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .post( "aragorn/unlock" )
+            .then( ).statusCode( 404 );
+    }
+
 
 }

@@ -1035,31 +1035,55 @@ public class DefaultUserService
     }
 
     @Override
-    public ActionStatus unlockUser( String userId )
+    public void unlockUser( String userId )
         throws RedbackServiceException
     {
-        User user = getUser( userId );
-        if ( user != null )
+        try
         {
-            user.setLocked( false );
-            updateUser( user.getUserId(),  user );
-            return ActionStatus.SUCCESS;
+            org.apache.archiva.redback.users.User rawUser = userManager.findUser( userId, false );
+            if ( rawUser != null )
+            {
+                rawUser.setLocked( false );
+                userManager.updateUser( rawUser, false );
+            } else {
+                throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND, userId ), 404 );
+            }
         }
-        return ActionStatus.FAIL;
+        catch ( UserNotFoundException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND ), 404 );
+        }
+        catch ( UserManagerException e )
+        {
+            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+        }
+        httpServletResponse.setStatus( 200 );
     }
 
     @Override
-    public ActionStatus lockUser( String userId )
+    public void lockUser( String userId )
         throws RedbackServiceException
     {
-        User user = getUser( userId );
-        if ( user != null )
+        try
         {
-            user.setLocked( true );
-            updateUser( user.getUserId(), user );
-            return ActionStatus.SUCCESS;
+            org.apache.archiva.redback.users.User rawUser = userManager.findUser( userId, false );
+            if ( rawUser != null )
+            {
+                rawUser.setLocked( true );
+                userManager.updateUser( rawUser, false );
+            } else {
+                throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND, userId ), 404 );
+            }
         }
-        return ActionStatus.FAIL;
+        catch ( UserNotFoundException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND ), 404 );
+        }
+        catch ( UserManagerException e )
+        {
+            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+        }
+        httpServletResponse.setStatus( 200 );
     }
 
     @Override
