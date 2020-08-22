@@ -239,12 +239,13 @@ public interface UserService
     /**
      * update only the current logged in user and this fields: fullname, email, password.
      * The service verifies the current logged user with the one passed in the method
+     * @return
      */
     @Path( "me" )
     @PUT
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noPermission = true )
-    ActionStatus updateMe( User user )
+    User updateMe( User user )
         throws RedbackServiceException;
 
     @Path( "___ping___" )

@@ -220,6 +220,8 @@ public class BearerAuthInterceptor extends AbstractInterceptor
                 // message.put( AuthenticationResult.class, authenticationResult );
                 requestContext.setProperty( AUTHENTICATION_RESULT, authenticationResult );
                 requestContext.setProperty( SECURITY_SESSION, securitySession );
+                RedbackSecurityContext securityContext = new RedbackSecurityContext(requestContext.getUriInfo(), user, securitySession );
+                requestContext.setSecurityContext( securityContext );
                 return;
             }
             catch ( AuthenticationException e )

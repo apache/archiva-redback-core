@@ -83,8 +83,6 @@ public class DefaultAuthenticationService
     @Context
     private SecurityContext securityContext;
 
-    private RedbackPrincipal redbackPrincipal;
-
     @Context
     private ContainerRequestContext requestContext;
 

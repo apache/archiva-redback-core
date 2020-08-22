@@ -47,7 +47,6 @@ import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Operation;
-import org.apache.archiva.redback.rest.api.model.v2.PasswordStatus;
 import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
@@ -61,6 +60,7 @@ import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.UserService;
 import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
 import org.apache.archiva.redback.rest.services.RedbackRequestInformation;
+import org.apache.archiva.redback.rest.services.interceptors.RedbackPrincipal;
 import org.apache.archiva.redback.rest.services.utils.PasswordValidator;
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
@@ -82,7 +82,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -160,6 +162,9 @@ public class DefaultUserService
     @Context
     private UriInfo uriInfo;
 
+    @Context
+    private SecurityContext securityContext;
+
     @Inject
     public DefaultUserService( @Named( value = "userManager#default" ) UserManager userManager,
                                SecuritySystem securitySystem )
@@ -168,6 +173,15 @@ public class DefaultUserService
         this.securitySystem = securitySystem;
     }
 
+    RedbackPrincipal getPrincipal() {
+        if (this.securityContext!=null) {
+            Principal pri = this.securityContext.getUserPrincipal( );
+            if (pri!=null && pri instanceof RedbackPrincipal) {
+                return (RedbackPrincipal) pri;
+            }
+        }
+        return null;
+    }
 
     @Override
     public User createUser( User user )
@@ -345,74 +359,57 @@ public class DefaultUserService
     }
 
     @Override
-    public ActionStatus updateMe( User user )
+    public User updateMe( User user )
         throws RedbackServiceException
     {
         // check username == one in the session
-        RedbackRequestInformation redbackRequestInformation = RedbackAuthenticationThreadLocal.get();
-        if ( redbackRequestInformation == null || redbackRequestInformation.getUser() == null )
-        {
-            log.warn( "RedbackRequestInformation from ThreadLocal is null" );
-            throw new RedbackServiceException( new ErrorMessage( "you must be logged to update your profile" ),
-                                               Response.Status.FORBIDDEN.getStatusCode() );
-        }
-        if ( user == null )
-        {
-            throw new RedbackServiceException( new ErrorMessage( "user parameter is mandatory" ),
-                                               Response.Status.BAD_REQUEST.getStatusCode() );
-        }
-        if ( !StringUtils.equals( redbackRequestInformation.getUser().getUsername(), user.getUserId() ) )
-        {
-            throw new RedbackServiceException( new ErrorMessage( "you can update only your profile" ),
-                                               Response.Status.FORBIDDEN.getStatusCode() );
+
+        RedbackPrincipal principal = getPrincipal( );
+        if (principal==null) {
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_UNAUTHORIZED_REQUEST ), 403 );
         }
 
-        if ( StringUtils.isEmpty( user.getPreviousPassword() ) )
-        {
-            throw new RedbackServiceException( new ErrorMessage( "previous password is empty" ),
-                                               Response.Status.BAD_REQUEST.getStatusCode() );
-        }
-
-        User realUser = getUser( user.getUserId() );
-        try
-        {
-            String previousEncodedPassword =
-                securitySystem.getUserManager().findUser( user.getUserId(), false ).getEncodedPassword();
-
-            // check oldPassword with the current one
-
-            PasswordEncoder encoder = securitySystem.getPolicy().getPasswordEncoder();
-
-            if ( !encoder.isPasswordValid( previousEncodedPassword, user.getPreviousPassword() ) )
-            {
-
-                throw new RedbackServiceException( new ErrorMessage( "password.provided.does.not.match.existing" ),
-                                                   Response.Status.BAD_REQUEST.getStatusCode() );
-            }
-        }
-        catch ( UserNotFoundException e )
-        {
-            throw new RedbackServiceException( new ErrorMessage( "user not found" ),
-                                               Response.Status.BAD_REQUEST.getStatusCode() );
-        }
-        catch ( UserManagerException e )
-        {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
-        }
+        // check oldPassword with the current one
         // only 3 fields to update
-        realUser.setFullName( user.getFullName() );
-        realUser.setEmail( user.getEmail() );
         // ui can limit to not update password
-        if ( StringUtils.isNotBlank( user.getPassword() ) )
-        {
-            passwordValidator.validatePassword( user.getPassword(), user.getUserId() );
+        org.apache.archiva.redback.users.User foundUser = updateUser( user.getUserId( ), realUser -> {
+            try
+            {
+                String previousEncodedPassword =
+                    securitySystem.getUserManager( ).findUser( user.getUserId( ), false ).getEncodedPassword( );
 
-            realUser.setPassword( user.getPassword() );
-        }
+                // check oldPassword with the current one
 
-        updateUser( realUser.getUserId(), realUser );
+                PasswordEncoder encoder = securitySystem.getPolicy( ).getPasswordEncoder( );
 
-        return ActionStatus.SUCCESS;
+                if ( !encoder.isPasswordValid( previousEncodedPassword, user.getPreviousPassword( ) ) )
+                {
+
+                    return new RedbackServiceException( new ErrorMessage( "password.provided.does.not.match.existing" ),
+                        Response.Status.BAD_REQUEST.getStatusCode( ) );
+                }
+            }
+            catch ( UserNotFoundException e )
+            {
+                return new RedbackServiceException( new ErrorMessage( "user not found" ),
+                    Response.Status.BAD_REQUEST.getStatusCode( ) );
+            }
+            catch ( UserManagerException e )
+            {
+                return new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage( ) ) );
+            }
+            // only 3 fields to update
+            realUser.setFullName( user.getFullName( ) );
+            realUser.setEmail( user.getEmail( ) );
+            // ui can limit to not update password
+            if ( StringUtils.isNotBlank( user.getPassword( ) ) )
+            {
+                realUser.setPassword( user.getPassword( ) );
+            }
+            return null;
+        } );
+
+        return getRestUser( foundUser );
     }
 
     @Override
@@ -1036,8 +1033,9 @@ public class DefaultUserService
     }
 
 
-    private void updateUser( String userId, Function<org.apache.archiva.redback.users.User, RedbackServiceException> updateFunction ) throws RedbackServiceException
+    private org.apache.archiva.redback.users.User updateUser( String userId, Function<org.apache.archiva.redback.users.User, RedbackServiceException> updateFunction ) throws RedbackServiceException
     {
+
         try
         {
             org.apache.archiva.redback.users.User rawUser = userManager.findUser( userId, false );
@@ -1051,6 +1049,7 @@ public class DefaultUserService
             } else {
                 throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND, userId ), 404 );
             }
+            return rawUser;
         }
         catch ( UserNotFoundException e )
         {
