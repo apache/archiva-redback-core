@@ -507,7 +507,7 @@ public class UserServiceTest
         u.setFullName( "the toto123" );
         u.setEmail( "toto@titi.fr" );
         u.setPassword( "toto1234" );
-        u.setPreviousPassword( "toto123" );
+        u.setCurrentPassword( "toto123" );
         getUserService( getUserAuthzHeader( "toto" ) ).updateMe( u );
 
         u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
@@ -517,7 +517,7 @@ public class UserServiceTest
         u.setFullName( "the toto1234" );
         u.setEmail( "toto@tititi.fr" );
         u.setPassword( "toto12345" );
-        u.setPreviousPassword( "toto1234" );
+        u.setCurrentPassword( "toto1234" );
         getUserService( getUserAuthzHeader( "toto" )) .updateMe(  u );
 
         u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
@@ -567,23 +567,12 @@ public class UserServiceTest
         }
     }
 
-    public void guestUserCreate( )
-        throws Exception
-    {
-        UserService userService = getUserService( getAdminAuthzHeader( ) );
-        assertNull( userService.getGuestUser( ) );
-        assertNull( userService.createGuestUser( ) );
 
-    }
 
     protected void createGuestIfNeeded( )
         throws Exception
     {
-        UserService userService = getUserService( getAdminAuthzHeader( ) );
-        if ( userService.getGuestUser( ) == null )
-        {
-            userService.createGuestUser( );
-        }
+
     }
 
 }

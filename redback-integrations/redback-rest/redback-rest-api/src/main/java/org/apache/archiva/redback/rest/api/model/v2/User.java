@@ -65,9 +65,8 @@ public class User
     /**
      * for password change only
      *
-     * @since 1.4
      */
-    private String previousPassword;
+    private String currentPassword;
 
     /**
      * for roles update only <b>not return on user read</b>
@@ -279,14 +278,14 @@ public class User
         this.timestampLastPasswordChange = OffsetDateTime.ofInstant( timestampLastPasswordChange, ZoneId.systemDefault() );
     }
 
-    public String getPreviousPassword()
+    public String getCurrentPassword()
     {
-        return previousPassword;
+        return currentPassword;
     }
 
-    public void setPreviousPassword( String previousPassword )
+    public void setCurrentPassword( String currentPassword )
     {
-        this.previousPassword = previousPassword;
+        this.currentPassword = currentPassword;
     }
 
     public List<String> getAssignedRoles()
@@ -353,7 +352,7 @@ public class User
             ", timestampAccountCreation='" + timestampAccountCreation + '\'' +
             ", timestampLastLogin='" + timestampLastLogin + '\'' +
             ", timestampLastPasswordChange='" + timestampLastPasswordChange + '\'' +
-            ", previousPassword='" + previousPassword + '\'' +
+            ", previousPassword='" + currentPassword + '\'' +
             ", assignedRoles=" + assignedRoles +
             ", readOnly=" + readOnly +
             ", userManagerId='" + userManagerId + '\'' +

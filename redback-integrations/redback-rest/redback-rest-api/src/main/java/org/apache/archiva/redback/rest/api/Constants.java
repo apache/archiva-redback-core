@@ -56,6 +56,8 @@ public interface Constants
     String ERR_AUTH_INVALID_TOKEN = "redback:auth.invalid_token";
     String ERR_AUTH_UNAUTHORIZED_REQUEST = "redback:auth.unauthorized_request";
 
+    String ERR_USER_BAD_PASSWORD = "redback:user.bad.password";
+
 
 
 

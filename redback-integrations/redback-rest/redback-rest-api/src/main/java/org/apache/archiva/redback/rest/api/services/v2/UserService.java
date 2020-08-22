@@ -237,7 +237,7 @@ public interface UserService
 
 
     /**
-     * update only the current logged in user and this fields: fullname, email, password.
+     * Update only the current logged in user and this fields: fullname, email, password.
      * The service verifies the current logged user with the one passed in the method
      * @return
      */
@@ -245,8 +245,33 @@ public interface UserService
     @PUT
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noPermission = true )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Updates information of the current logged in user",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If user data has been updated"
+            ),
+            @ApiResponse( responseCode = "403", description = "Logged in user does not match the provided userid" ),
+            @ApiResponse( responseCode = "401", description = "User is not logged in" ),
+            @ApiResponse( responseCode = "400", description = "Provided data is not valid" )
+        }
+    )
     User updateMe( User user )
         throws RedbackServiceException;
+
+    @Path( "me" )
+    @GET
+    @Produces( { MediaType.APPLICATION_JSON } )
+    @RedbackAuthorization( noPermission = true )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Gets information of the current logged in user",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If user data is returned"
+            ),
+            @ApiResponse( responseCode = "401", description = "User is not logged in" ),
+            @ApiResponse( responseCode = "400", description = "Provided data is not valid" )
+        }
+    )
+    User getLoggedInUser( ) throws RedbackServiceException;
 
     @Path( "___ping___" )
     @GET
@@ -259,27 +284,22 @@ public interface UserService
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Clears the cache for the user",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the cache was cleared properly"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+        }
+    )
     ActionStatus removeFromCache( @PathParam( "userId" ) String userId )
-        throws RedbackServiceException;
-
-    @Path( "guest" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    User getGuestUser()
-        throws RedbackServiceException;
-
-    @Path( "guest" )
-    @POST
-    @Produces( { MediaType.APPLICATION_JSON } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    User createGuestUser()
         throws RedbackServiceException;
 
     /**
      *
      *
-     * @return*/
+     * @return
+     */
     @Path( "{userId}/register" )
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )

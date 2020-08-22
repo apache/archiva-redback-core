@@ -31,13 +31,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.replaceFiltersWith;
 import static io.restassured.http.ContentType.JSON;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(
     locations = {"classpath:/ldap-spring-test.xml"} )
 @TestInstance( TestInstance.Lifecycle.PER_CLASS )
-@Tag("rest-native")
+@Tag( "rest-native" )
 @TestMethodOrder( MethodOrderer.Random.class )
 public class NativeUserServiceTest extends AbstractNativeRestServices
 {
@@ -59,19 +57,20 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @BeforeAll
-    void setup() throws Exception
+    void setup( ) throws Exception
     {
-        super.setupNative();
+        super.setupNative( );
     }
 
     @AfterAll
-    void destroy() throws Exception
+    void destroy( ) throws Exception
     {
-        super.shutdownNative();
+        super.shutdownNative( );
     }
 
     @Test
-    void getUsers() {
+    void getUsers( )
+    {
         String token = getAdminToken( );
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .when( ).get( ).then( ).statusCode( 200 ).extract( ).response( );
@@ -85,13 +84,15 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void getUsersWithoutLogin() {
-        given( ).spec( getRequestSpec(  ) ).contentType( JSON )
+    void getUsersWithoutLogin( )
+    {
+        given( ).spec( getRequestSpec( ) ).contentType( JSON )
             .when( ).get( ).then( ).statusCode( 403 );
     }
 
     @Test
-    void getUser() {
+    void getUser( )
+    {
         String token = getAdminToken( );
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .when( ).get( "admin" ).then( ).statusCode( 200 ).extract( ).response( );
@@ -102,14 +103,16 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void getUserWithoutLogin() {
-        given( ).spec( getRequestSpec(  ) ).contentType( JSON )
+    void getUserWithoutLogin( )
+    {
+        given( ).spec( getRequestSpec( ) ).contentType( JSON )
             .when( ).get( "admin" ).then( ).statusCode( 403 );
     }
 
 
     @Test
-    void createUser() {
+    void createUser( )
+    {
         String token = getAdminToken( );
         try
         {
@@ -125,16 +128,18 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .then( ).statusCode( 201 ).extract( ).response( );
             assertTrue( response.getHeader( "Location" ).endsWith( "/aragorn" ) );
 
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( ).delete( "aragorn").then( ).statusCode( 200 );
+                .when( ).delete( "aragorn" ).then( ).statusCode( 200 );
 
         }
     }
 
     @Test
-    void createInvalidUser() {
+    void createInvalidUser( )
+    {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "" );
@@ -150,7 +155,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void createInvalidMeUser() {
+    void createInvalidMeUser( )
+    {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "me" );
@@ -167,7 +173,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
 
 
     @Test
-    void createUserAndPermissionFail() {
+    void createUserAndPermissionFail( )
+    {
         String token = getAdminToken( );
         try
         {
@@ -198,16 +205,18 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .then( ).statusCode( 403 );
 
 
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( ).delete( "aragorn").then( ).statusCode( 200 );
+                .when( ).delete( "aragorn" ).then( ).statusCode( 200 );
 
         }
     }
 
     @Test
-    void createUserExistsAlready() {
+    void createUserExistsAlready( )
+    {
         String token = getAdminToken( );
         try
         {
@@ -234,22 +243,24 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .body( jsonAsMap )
                 .when( )
-                .redirects().follow( false ) // Rest assured default is following the 303 redirect
+                .redirects( ).follow( false ) // Rest assured default is following the 303 redirect
                 .post( )
-                .prettyPeek()
-                .peek()
-                .then( ).statusCode( 303 ).extract().response();
+                .prettyPeek( )
+                .peek( )
+                .then( ).statusCode( 303 ).extract( ).response( );
             assertTrue( response.getHeader( "Location" ).endsWith( "/aragorn" ) );
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( ).delete( "aragorn").then( ).statusCode( 200 );
+                .when( ).delete( "aragorn" ).then( ).statusCode( 200 );
 
         }
     }
 
     @Test
-    void createExistingAdminUser() {
+    void createExistingAdminUser( )
+    {
         String token = null;
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "admin" );
@@ -259,25 +270,27 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
             .when( )
-            .redirects().follow( false )
+            .redirects( ).follow( false )
             .post( "admin" )
             .then( ).statusCode( 303 ).extract( ).response( );
         assertTrue( response.getHeader( "Location" ).endsWith( "/users/admin" ) );
     }
 
     @Test
-    void checkAdminStatus() {
+    void checkAdminStatus( )
+    {
         String token = null;
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .get( "admin/status" )
             .then( ).statusCode( 200 ).extract( ).response( );
         assertNotNull( response );
-        assertTrue( response.body( ).jsonPath( ).getBoolean("exists" ) );
+        assertTrue( response.body( ).jsonPath( ).getBoolean( "exists" ) );
         assertNotNull( response.body( ).jsonPath( ).get( "since" ) );
     }
 
     @Test
-    void deleteUser() {
+    void deleteUser( )
+    {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
@@ -296,7 +309,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void deleteNonexistingUser() {
+    void deleteNonexistingUser( )
+    {
         String token = getAdminToken( );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .delete( "galadriel" )
@@ -304,7 +318,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void deleteUserPermissionDenied() {
+    void deleteUserPermissionDenied( )
+    {
         String adminToken = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
@@ -322,7 +337,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .delete( "aragorn" )
                 .then( ).statusCode( 401 ).extract( ).response( );
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
                 .delete( "aragorn" )
@@ -331,7 +347,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void updateUser() {
+    void updateUser( )
+    {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
@@ -357,7 +374,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull( response );
             assertEquals( "aragorn2@lordoftherings.org", response.body( ).jsonPath( ).getString( "email" ) );
-        }finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .delete( "aragorn" )
@@ -366,21 +384,23 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void updateNonExistingUser() {
+    void updateNonExistingUser( )
+    {
         String token = getAdminToken( );
         HashMap<Object, Object> jsonAsMap = new HashMap<>( );
-            jsonAsMap.put( "email", "aragorn2@lordoftherings.org" );
-            jsonAsMap.put( "fullName", "Aragorn King of Gondor the Second" );
-            jsonAsMap.put( "password", "pAssw0rDXX" );
-            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .body( jsonAsMap )
-                .when( )
-                .put( "aragorn" )
-                .then( ).statusCode( 404 );
+        jsonAsMap.put( "email", "aragorn2@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor the Second" );
+        jsonAsMap.put( "password", "pAssw0rDXX" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .put( "aragorn" )
+            .then( ).statusCode( 404 );
     }
 
     @Test
-    void updateUserWithPasswordViolation() {
+    void updateUserWithPasswordViolation( )
+    {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
@@ -403,11 +423,12 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .body( jsonAsMap )
                 .when( )
                 .put( "aragorn" )
-                .prettyPeek()
+                .prettyPeek( )
                 .then( ).statusCode( 422 ).extract( ).response( );
             assertNotNull( response );
             assertEquals( "user.password.violation.reuse", response.body( ).jsonPath( ).get( "errorMessages[0].errorKey" ) );
-        }finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .delete( "aragorn" )
@@ -416,7 +437,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void lockUser() {
+    void lockUser( )
+    {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
@@ -438,7 +460,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .get( "aragorn" )
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertTrue( response.getBody( ).jsonPath( ).getBoolean( "locked" ) );
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .delete( "aragorn" )
@@ -447,15 +470,17 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void lockUnknownUser() {
+    void lockUnknownUser( )
+    {
         String token = getAdminToken( );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .post( "aragorn/lock" )
-                .then( ).statusCode( 404 );
+            .post( "aragorn/lock" )
+            .then( ).statusCode( 404 );
     }
 
     @Test
-    void unlockUser() {
+    void unlockUser( )
+    {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
@@ -481,7 +506,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .get( "aragorn" )
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertFalse( response.getBody( ).jsonPath( ).getBoolean( "locked" ) );
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .delete( "aragorn" )
@@ -491,7 +517,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void unlockUnknownUser() {
+    void unlockUnknownUser( )
+    {
         String token = getAdminToken( );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .post( "aragorn/unlock" )
@@ -499,7 +526,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void setPasswordChangeRequire() {
+    void setPasswordChangeRequire( )
+    {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
@@ -521,7 +549,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .get( "aragorn" )
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertTrue( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .delete( "aragorn" )
@@ -530,7 +559,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void setNoPasswordChangeRequire() {
+    void setNoPasswordChangeRequire( )
+    {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
@@ -557,7 +587,140 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .get( "aragorn" )
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertFalse( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
-        } finally
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+
+    @Test
+    void updateMe( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+
+            String userToken = getUserToken( "aragorn", "pAssw0rD" );
+            Map<String, Object> updateMap = new HashMap<>( );
+            updateMap.put( "user_id", "aragorn" );
+            updateMap.put( "email", "aragorn-swiss@lordoftherings.org" );
+            updateMap.put( "fullName", "Aragorn King of Switzerland" );
+            Response response = given( ).spec( getRequestSpec( userToken ) ).contentType( JSON )
+                .body( updateMap )
+                .when( )
+                .put( "me" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertEquals( "Aragorn King of Switzerland", response.getBody( ).jsonPath( ).getString( "fullName" ) );
+            assertEquals( "aragorn-swiss@lordoftherings.org", response.getBody( ).jsonPath( ).getString( "email" ) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void updateMeInvalidUser( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rDA" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+
+        jsonAsMap.put( "user_id", "elrond" );
+        jsonAsMap.put( "email", "elrond@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Elrond King of Elves" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rDE" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+
+            String userToken = getUserToken( "aragorn", "pAssw0rDA" );
+            Map<String, Object> updateMap = new HashMap<>( );
+            updateMap.put( "user_id", "elrond" );
+            updateMap.put( "email", "elrond-swiss@lordoftherings.org" );
+            updateMap.put( "fullName", "Elrond King of Switzerland" );
+            Response response = given( ).spec( getRequestSpec( userToken ) ).contentType( JSON )
+                .body( updateMap )
+                .when( )
+                .put( "me" )
+                .then( ).statusCode( 403 ).extract( ).response( );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void updateMeWithPassword( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+
+            String userToken = getUserToken( "aragorn", "pAssw0rD" );
+            Map<String, Object> updateMap = new HashMap<>( );
+            updateMap.put( "user_id", "aragorn" );
+            updateMap.put( "email", "aragorn-sweden@lordoftherings.org" );
+            updateMap.put( "fullName", "Aragorn King of Sweden" );
+            updateMap.put( "currentPassword", "pAssw0rD" );
+            updateMap.put( "password", "x1y2z3a4b5c6d8##" );
+            Response response = given( ).spec( getRequestSpec( userToken ) ).contentType( JSON )
+                .body( updateMap )
+                .when( )
+                .put( "me" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertEquals( "Aragorn King of Sweden", response.getBody( ).jsonPath( ).getString( "fullName" ) );
+            assertEquals( "aragorn-sweden@lordoftherings.org", response.getBody( ).jsonPath( ).getString( "email" ) );
+            userToken = getUserToken( "aragorn", "x1y2z3a4b5c6d8##" );
+            given( ).spec( getRequestSpec( userToken ) ).contentType( JSON ).get( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .delete( "aragorn" )

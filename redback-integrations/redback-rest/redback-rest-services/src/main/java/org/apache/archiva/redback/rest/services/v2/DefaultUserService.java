@@ -104,7 +104,7 @@ public class DefaultUserService
     private final Logger log = LoggerFactory.getLogger( getClass() );
 
     private static final String VALID_USERNAME_CHARS = "[a-zA-Z_0-9\\-.@]*";
-    private static final String[] INVALID_USER_NAMES = { "me" };
+    private static final String[] INVALID_CREATE_USER_NAMES = { "admin", "guest", "me" };
 
     private UserManager userManager;
 
@@ -188,7 +188,7 @@ public class DefaultUserService
         throws RedbackServiceException
     {
         User result;
-        if ( Arrays.binarySearch( INVALID_USER_NAMES, user.getUserId( ) ) >=0 )
+        if ( Arrays.binarySearch( INVALID_CREATE_USER_NAMES, user.getUserId( ) ) >=0 )
         {
             throw new RedbackServiceException( ErrorMessage.of( ERR_USER_ID_INVALID, user.getUserId() ), 405 );
         }
@@ -318,6 +318,9 @@ public class DefaultUserService
     {
         try
         {
+            if ("guest".equals(userId)) {
+                return getRestUser( userManager.getGuestUser( ) );
+            }
             org.apache.archiva.redback.users.User user = userManager.findUser( userId );
             return getRestUser( user );
         }
@@ -362,11 +365,12 @@ public class DefaultUserService
     public User updateMe( User user )
         throws RedbackServiceException
     {
-        // check username == one in the session
-
         RedbackPrincipal principal = getPrincipal( );
         if (principal==null) {
-            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_UNAUTHORIZED_REQUEST ), 403 );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_UNAUTHORIZED_REQUEST ), 401 );
+        }
+        if (StringUtils.isEmpty( user.getUserId() ) || !principal.getUser().getUsername().equals(user.getUserId())) {
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_UNAUTHORIZED_REQUEST ), Response.Status.FORBIDDEN.getStatusCode() );
         }
 
         // check oldPassword with the current one
@@ -375,23 +379,27 @@ public class DefaultUserService
         org.apache.archiva.redback.users.User foundUser = updateUser( user.getUserId( ), realUser -> {
             try
             {
-                String previousEncodedPassword =
-                    securitySystem.getUserManager( ).findUser( user.getUserId( ), false ).getEncodedPassword( );
-
-                // check oldPassword with the current one
-
-                PasswordEncoder encoder = securitySystem.getPolicy( ).getPasswordEncoder( );
-
-                if ( !encoder.isPasswordValid( previousEncodedPassword, user.getPreviousPassword( ) ) )
+                // current password is only needed, if password change is requested
+                if ( StringUtils.isNotBlank( user.getPassword( ) ) )
                 {
+                    String previousEncodedPassword =
+                        securitySystem.getUserManager( ).findUser( user.getUserId( ), false ).getEncodedPassword( );
 
-                    return new RedbackServiceException( new ErrorMessage( "password.provided.does.not.match.existing" ),
-                        Response.Status.BAD_REQUEST.getStatusCode( ) );
+                    // check oldPassword with the current one
+
+                    PasswordEncoder encoder = securitySystem.getPolicy( ).getPasswordEncoder( );
+
+                    if ( !encoder.isPasswordValid( previousEncodedPassword, user.getCurrentPassword( ) ) )
+                    {
+
+                        return new RedbackServiceException( ErrorMessage.of( ERR_USER_BAD_PASSWORD ),
+                            Response.Status.BAD_REQUEST.getStatusCode( ) );
+                    }
                 }
             }
             catch ( UserNotFoundException e )
             {
-                return new RedbackServiceException( new ErrorMessage( "user not found" ),
+                return new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND ),
                     Response.Status.BAD_REQUEST.getStatusCode( ) );
             }
             catch ( UserManagerException e )
@@ -399,8 +407,14 @@ public class DefaultUserService
                 return new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage( ) ) );
             }
             // only 3 fields to update
-            realUser.setFullName( user.getFullName( ) );
-            realUser.setEmail( user.getEmail( ) );
+            if (StringUtils.isNotBlank( user.getFullName() ))
+            {
+                realUser.setFullName( user.getFullName( ) );
+            }
+            if (StringUtils.isNotBlank( user.getEmail() ))
+            {
+                realUser.setEmail( user.getEmail( ) );
+            }
             // ui can limit to not update password
             if ( StringUtils.isNotBlank( user.getPassword( ) ) )
             {
@@ -410,6 +424,26 @@ public class DefaultUserService
         } );
 
         return getRestUser( foundUser );
+    }
+
+    @Override
+    public User getLoggedInUser(  )
+        throws RedbackServiceException
+    {
+        RedbackPrincipal principal = getPrincipal( );
+        if (principal==null) {
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_UNAUTHORIZED_REQUEST ), 401 );
+        }
+
+        try
+        {
+            org.apache.archiva.redback.users.User foundUser = userManager.findUser( principal.getUser().getUsername(), false );
+            return getRestUser( foundUser );
+        }
+        catch ( UserManagerException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage( ) ), 400 );
+        }
     }
 
     @Override
@@ -475,59 +509,6 @@ public class DefaultUserService
         }
 
         return ActionStatus.SUCCESS;
-    }
-
-    @Override
-    public User getGuestUser()
-        throws RedbackServiceException
-    {
-        try
-        {
-            org.apache.archiva.redback.users.User user = userManager.getGuestUser();
-            return getRestUser( user );
-        }
-        catch ( Exception e )
-        {
-            return null;
-        }
-    }
-
-    @Override
-    public User createGuestUser()
-        throws RedbackServiceException
-    {
-        User u = getGuestUser();
-        if ( u != null )
-        {
-            return u;
-        }
-        // temporary disable policy during guest creation as no password !
-        try
-        {
-            securitySystem.getPolicy().setEnabled( false );
-            org.apache.archiva.redback.users.User user = userManager.createGuestUser();
-            user.setPasswordChangeRequired( false );
-            user = userManager.updateUser( user, false );
-            roleManager.assignRole( config.getString( UserConfigurationKeys.DEFAULT_GUEST ), user.getUsername() );
-            return getRestUser( user );
-        }
-        catch ( RoleManagerException | UserNotFoundException e )
-        {
-            log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
-        }
-        catch ( UserManagerException e )
-        {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
-        }
-        finally
-        {
-
-            if ( !securitySystem.getPolicy().isEnabled() )
-            {
-                securitySystem.getPolicy().setEnabled( true );
-            }
-        }
     }
 
     @Override
