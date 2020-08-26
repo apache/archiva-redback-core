@@ -206,12 +206,12 @@ public class DefaultRoleManagementService
         return ActionStatus.SUCCESS;
     }
 
-    public AvailabilityStatus roleExists( String roleId )
+    public Boolean roleExists( String roleId )
         throws RedbackServiceException
     {
         try
         {
-            return new AvailabilityStatus( roleManager.roleExists( roleId ) );
+            return roleManager.roleExists( roleId );
         }
         catch ( RoleManagerException e )
         {
@@ -219,12 +219,12 @@ public class DefaultRoleManagementService
         }
     }
 
-    public AvailabilityStatus templatedRoleExists( String templateId, String resource )
+    public Boolean templatedRoleExists( String templateId, String resource )
         throws RedbackServiceException
     {
         try
         {
-            return new AvailabilityStatus( roleManager.templatedRoleExists( templateId, resource ) );
+            return roleManager.templatedRoleExists( templateId, resource );
         }
         catch ( RoleManagerException e )
         {

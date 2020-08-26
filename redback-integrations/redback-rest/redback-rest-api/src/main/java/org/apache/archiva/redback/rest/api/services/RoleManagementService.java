@@ -173,7 +173,7 @@ public interface RoleManagementService
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    AvailabilityStatus roleExists( @QueryParam( "roleId" ) String roleId )
+    Boolean roleExists( @QueryParam( "roleId" ) String roleId )
         throws RedbackServiceException;
 
     /**
@@ -188,7 +188,7 @@ public interface RoleManagementService
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    AvailabilityStatus templatedRoleExists( @QueryParam( "templateId" ) String templateId,
+    Boolean templatedRoleExists( @QueryParam( "templateId" ) String templateId,
                                  @QueryParam( "resource" ) String resource )
         throws RedbackServiceException;
 
