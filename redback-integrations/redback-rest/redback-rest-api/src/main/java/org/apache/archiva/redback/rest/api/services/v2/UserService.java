@@ -28,6 +28,7 @@ import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.Operation;
+import org.apache.archiva.redback.rest.api.model.v2.MeUser;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
@@ -168,7 +169,7 @@ public interface UserService
 
     /**
      */
-    @Path( "{userId}/lock" )
+    @Path( "{userId}/lock/set" )
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
@@ -185,11 +186,11 @@ public interface UserService
 
     /**
      */
-    @Path( "{userId}/unlock" )
+    @Path( "{userId}/lock/clear" )
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+    @io.swagger.v3.oas.annotations.Operation( summary = "Unlocks a user",
         responses = {
             @ApiResponse( responseCode = "200",
                 description = "If unlocking was successful"
@@ -255,7 +256,7 @@ public interface UserService
             @ApiResponse( responseCode = "400", description = "Provided data is not valid" )
         }
     )
-    User updateMe( User user )
+    User updateMe( MeUser user )
         throws RedbackServiceException;
 
     @Path( "me" )

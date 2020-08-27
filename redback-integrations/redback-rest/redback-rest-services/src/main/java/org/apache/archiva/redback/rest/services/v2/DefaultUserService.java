@@ -48,6 +48,7 @@ import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Operation;
 import org.apache.archiva.redback.rest.api.model.Permission;
+import org.apache.archiva.redback.rest.api.model.v2.MeUser;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.Resource;
@@ -362,28 +363,25 @@ public class DefaultUserService
     }
 
     @Override
-    public User updateMe( User user )
+    public User updateMe( MeUser user )
         throws RedbackServiceException
     {
         RedbackPrincipal principal = getPrincipal( );
         if (principal==null) {
             throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_UNAUTHORIZED_REQUEST ), 401 );
         }
-        if (StringUtils.isEmpty( user.getUserId() ) || !principal.getUser().getUsername().equals(user.getUserId())) {
-            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_UNAUTHORIZED_REQUEST ), Response.Status.FORBIDDEN.getStatusCode() );
-        }
 
         // check oldPassword with the current one
         // only 3 fields to update
         // ui can limit to not update password
-        org.apache.archiva.redback.users.User foundUser = updateUser( user.getUserId( ), realUser -> {
+        org.apache.archiva.redback.users.User foundUser = updateUser( principal.getName(), realUser -> {
             try
             {
                 // current password is only needed, if password change is requested
                 if ( StringUtils.isNotBlank( user.getPassword( ) ) )
                 {
                     String previousEncodedPassword =
-                        securitySystem.getUserManager( ).findUser( user.getUserId( ), false ).getEncodedPassword( );
+                        securitySystem.getUserManager( ).findUser( principal.getName(), false ).getEncodedPassword( );
 
                     // check oldPassword with the current one
 

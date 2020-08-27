@@ -21,6 +21,7 @@ package org.apache.archiva.redback.rest.services.v2;
 
 import org.apache.archiva.redback.rest.api.model.GrantType;
 import org.apache.archiva.redback.rest.api.model.Operation;
+import org.apache.archiva.redback.rest.api.model.v2.MeUser;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
@@ -504,21 +505,22 @@ public class UserServiceTest
         u.setValidated( true );
         getUserService( getAdminAuthzHeader( ) ).createUser( u );
 
-        u.setFullName( "the toto123" );
-        u.setEmail( "toto@titi.fr" );
-        u.setPassword( "toto1234" );
-        u.setCurrentPassword( "toto123" );
-        getUserService( getUserAuthzHeader( "toto" ) ).updateMe( u );
+        MeUser meUser = new MeUser( );
+        meUser.setFullName( "the toto123" );
+        meUser.setEmail( "toto@titi.fr" );
+        meUser.setPassword( "toto1234" );
+        meUser.setCurrentPassword( "toto123" );
+        getUserService( getUserAuthzHeader( "toto" ) ).updateMe( meUser );
 
         u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
         assertEquals( "the toto123", u.getFullName( ) );
         assertEquals( "toto@titi.fr", u.getEmail( ) );
 
-        u.setFullName( "the toto1234" );
-        u.setEmail( "toto@tititi.fr" );
-        u.setPassword( "toto12345" );
-        u.setCurrentPassword( "toto1234" );
-        getUserService( getUserAuthzHeader( "toto" )) .updateMe(  u );
+        meUser.setFullName( "the toto1234" );
+        meUser.setEmail( "toto@tititi.fr" );
+        meUser.setPassword( "toto12345" );
+        meUser.setCurrentPassword( "toto1234" );
+        getUserService( getUserAuthzHeader( "toto" )) .updateMe( meUser );
 
         u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
         assertEquals( "the toto1234", u.getFullName( ) );
