@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Contains only the attributes, that a user is allowed to update. The user id is used from the logged in user principal.
  */
 @XmlRootElement( name = "user" )
-public class MeUser
+public class SelfUserData
 {
     private String email;
     private String fullName;

@@ -21,7 +21,7 @@ package org.apache.archiva.redback.rest.services.v2;
 
 import org.apache.archiva.redback.rest.api.model.GrantType;
 import org.apache.archiva.redback.rest.api.model.Operation;
-import org.apache.archiva.redback.rest.api.model.v2.MeUser;
+import org.apache.archiva.redback.rest.api.model.v2.SelfUserData;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
@@ -505,22 +505,22 @@ public class UserServiceTest
         u.setValidated( true );
         getUserService( getAdminAuthzHeader( ) ).createUser( u );
 
-        MeUser meUser = new MeUser( );
-        meUser.setFullName( "the toto123" );
-        meUser.setEmail( "toto@titi.fr" );
-        meUser.setPassword( "toto1234" );
-        meUser.setCurrentPassword( "toto123" );
-        getUserService( getUserAuthzHeader( "toto" ) ).updateMe( meUser );
+        SelfUserData selfUserData = new SelfUserData( );
+        selfUserData.setFullName( "the toto123" );
+        selfUserData.setEmail( "toto@titi.fr" );
+        selfUserData.setPassword( "toto1234" );
+        selfUserData.setCurrentPassword( "toto123" );
+        getUserService( getUserAuthzHeader( "toto" ) ).updateMe( selfUserData );
 
         u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
         assertEquals( "the toto123", u.getFullName( ) );
         assertEquals( "toto@titi.fr", u.getEmail( ) );
 
-        meUser.setFullName( "the toto1234" );
-        meUser.setEmail( "toto@tititi.fr" );
-        meUser.setPassword( "toto12345" );
-        meUser.setCurrentPassword( "toto1234" );
-        getUserService( getUserAuthzHeader( "toto" )) .updateMe( meUser );
+        selfUserData.setFullName( "the toto1234" );
+        selfUserData.setEmail( "toto@tititi.fr" );
+        selfUserData.setPassword( "toto12345" );
+        selfUserData.setCurrentPassword( "toto1234" );
+        getUserService( getUserAuthzHeader( "toto" )) .updateMe( selfUserData );
 
         u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
         assertEquals( "the toto1234", u.getFullName( ) );

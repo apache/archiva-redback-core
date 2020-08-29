@@ -48,7 +48,7 @@ import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Operation;
 import org.apache.archiva.redback.rest.api.model.Permission;
-import org.apache.archiva.redback.rest.api.model.v2.MeUser;
+import org.apache.archiva.redback.rest.api.model.v2.SelfUserData;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.Resource;
@@ -191,7 +191,7 @@ public class DefaultUserService
         User result;
         if ( Arrays.binarySearch( INVALID_CREATE_USER_NAMES, user.getUserId( ) ) >=0 )
         {
-            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_ID_INVALID, user.getUserId() ), 405 );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_ID_INVALID, user.getUserId() ), 422 );
         }
 
         try
@@ -217,17 +217,17 @@ public class DefaultUserService
         // data validation
         if ( StringUtils.isEmpty( user.getUserId() ) )
         {
-            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_ID_EMPTY ), 405 );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_ID_EMPTY ), 422 );
         }
 
         if ( StringUtils.isEmpty( user.getFullName() ) )
         {
-            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_FULL_NAME_EMPTY ), 405 );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_FULL_NAME_EMPTY ), 422 );
         }
 
         if ( StringUtils.isEmpty( user.getEmail() ) )
         {
-            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_EMAIL_EMPTY ), 405 );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_EMAIL_EMPTY ), 422 );
         }
 
         try
@@ -363,7 +363,7 @@ public class DefaultUserService
     }
 
     @Override
-    public User updateMe( MeUser user )
+    public User updateMe( SelfUserData user )
         throws RedbackServiceException
     {
         RedbackPrincipal principal = getPrincipal( );
@@ -539,7 +539,7 @@ public class DefaultUserService
         log.debug("Creating admin admin user '{}'", adminUser.getUserId());
         if (!RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME.equals(adminUser.getUserId())) {
             log.error("Wrong admin user name {}", adminUser.getUserId());
-            throw new RedbackServiceException(ErrorMessage.of(Constants.ERR_USER_ADMIN_BAD_NAME ), 405);
+            throw new RedbackServiceException(ErrorMessage.of(Constants.ERR_USER_ADMIN_BAD_NAME ), 422);
         }
 
         try

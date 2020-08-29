@@ -28,7 +28,7 @@ import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.Operation;
-import org.apache.archiva.redback.rest.api.model.v2.MeUser;
+import org.apache.archiva.redback.rest.api.model.v2.SelfUserData;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
@@ -89,7 +89,7 @@ public interface UserService
                     @Header( name="Location", description = "The URL of the created mapping")
                 }
             ),
-            @ApiResponse( responseCode = "405", description = "Invalid input" ),
+            @ApiResponse( responseCode = "422", description = "Invalid input" ),
             @ApiResponse( responseCode = "303", description = "The user exists already",
                 headers = {
                     @Header( name="Location", description = "The URL of existing user")
@@ -117,7 +117,7 @@ public interface UserService
                     @Header( name="Location", description = "The URL of the created mapping")
                 }
             ),
-            @ApiResponse( responseCode = "405", description = "Invalid input" ),
+            @ApiResponse( responseCode = "422", description = "Invalid input" ),
             @ApiResponse( responseCode = "303", description = "The user exists already",
                 headers = {
                     @Header( name="Location", description = "The URL of the existing admin user")
@@ -145,7 +145,8 @@ public interface UserService
             @ApiResponse( responseCode = "200",
                 description = "If user deletion was successful"
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" )
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for deletion." )
         }
     )
     void deleteUser( @PathParam( "userId" ) String userId )
@@ -155,13 +156,14 @@ public interface UserService
     @PUT
     @Produces( {MediaType.APPLICATION_JSON} )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+    @io.swagger.v3.oas.annotations.Operation( summary = "Updates an existing user",
         responses = {
             @ApiResponse( responseCode = "200",
                 description = "If update was successful"
             ),
             @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "422", description = "Update data was not valid. E.g. password violations." )
+            @ApiResponse( responseCode = "422", description = "Update data was not valid. E.g. password violations." ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for update." )
         }
     )
     User updateUser( @PathParam( "userId" ) String userId, User user )
@@ -179,6 +181,7 @@ public interface UserService
                 description = "If locking was successful"
             ),
             @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for locking." )
         }
     )
     void lockUser( @PathParam( "userId" ) String userId )
@@ -196,6 +199,7 @@ public interface UserService
                 description = "If unlocking was successful"
             ),
             @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for unlock." )
         }
     )
     void unlockUser( @PathParam( "userId" ) String userId )
@@ -214,6 +218,8 @@ public interface UserService
                 description = "If password change require flag was set"
             ),
             @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for editing." )
+
         }
     )
     void setRequirePasswordChangeFlag( @PathParam( "userId" ) String userId )
@@ -231,6 +237,8 @@ public interface UserService
                 description = "If password change require flag was unset"
             ),
             @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for editing." )
+
         }
     )
     void clearRequirePasswordChangeFlag( @PathParam( "userId" ) String userId )
@@ -251,12 +259,11 @@ public interface UserService
             @ApiResponse( responseCode = "200",
                 description = "If user data has been updated"
             ),
-            @ApiResponse( responseCode = "403", description = "Logged in user does not match the provided userid" ),
             @ApiResponse( responseCode = "401", description = "User is not logged in" ),
             @ApiResponse( responseCode = "400", description = "Provided data is not valid" )
         }
     )
-    User updateMe( MeUser user )
+    User updateMe( SelfUserData user )
         throws RedbackServiceException;
 
     @Path( "me" )
@@ -269,7 +276,6 @@ public interface UserService
                 description = "If user data is returned"
             ),
             @ApiResponse( responseCode = "401", description = "User is not logged in" ),
-            @ApiResponse( responseCode = "400", description = "Provided data is not valid" )
         }
     )
     User getLoggedInUser( ) throws RedbackServiceException;
@@ -284,28 +290,36 @@ public interface UserService
     @Path( "{userId}/cache/clear" )
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION,
+    resource = "{userId}")
     @io.swagger.v3.oas.annotations.Operation( summary = "Clears the cache for the user",
         responses = {
             @ApiResponse( responseCode = "200",
                 description = "If the cache was cleared properly"
             ),
             @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the required permission." )
         }
     )
     ActionStatus removeFromCache( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
     /**
-     *
-     *
      * @return
      */
     @Path( "{userId}/register" )
     @POST
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( {MediaType.APPLICATION_JSON} )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
-    RegistrationKey registerUser( @PathParam( "userId" ) String userId,  UserRegistrationRequest userRegistrationRequest )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Registers a new user",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the registration was successful, a registration key is returned"
+            ),
+            @ApiResponse( responseCode = "400", description = "If the registration request has invalid data" ),
+        }
+    )
+    RegistrationKey registerUser( @PathParam( "userId" ) String userId, UserRegistrationRequest userRegistrationRequest )
         throws RedbackServiceException;
 
     /**
