@@ -24,6 +24,7 @@ import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.archiva.redback.rbac.Permission;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -81,8 +82,10 @@ public class DefaultPermissionEvaluator
                 return true;
             }
 
-            // if we are not checking a specific resource, the operation is enough
-            if ( resource == null )
+            // Resource settings on the permission object and on the annotation
+            // should be in line. If not, we use the least privilege, which means
+            // if one of both is set, we will check for equality.
+            if ( StringUtils.isEmpty( permissionResource ) && resource == null )
             {
                 return true;
             }

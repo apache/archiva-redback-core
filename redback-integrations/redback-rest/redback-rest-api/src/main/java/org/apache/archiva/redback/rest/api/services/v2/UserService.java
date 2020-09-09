@@ -63,7 +63,8 @@ public interface UserService
     @Path( "{userId}" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION,
+    resource = "{userId}" )
     User getUser( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 

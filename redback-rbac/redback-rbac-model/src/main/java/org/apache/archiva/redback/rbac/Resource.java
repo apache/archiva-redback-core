@@ -31,6 +31,8 @@ package org.apache.archiva.redback.rbac;
  * wildcards can be used on the resource definition to streamline the assigning of
  * permissions for _large_ sets of things.
  *
+ * The <code>GLOBAL</code> resource is a catch-all for all resource strings.
+ *
  * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  *

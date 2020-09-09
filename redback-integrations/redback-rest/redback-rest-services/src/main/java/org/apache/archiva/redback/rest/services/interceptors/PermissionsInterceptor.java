@@ -162,6 +162,7 @@ public class PermissionsInterceptor
             }
             else
             {
+                // The noPermission is only valid, if the user is authenticated
                 if ( redbackAuthorization.noPermission() )
                 {
                     AuthenticationResult authenticationResult = getAuthenticationResult( containerRequestContext, httpAuthenticator, request );

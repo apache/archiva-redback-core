@@ -26,6 +26,7 @@ import org.apache.archiva.redback.rbac.Resource;
 import org.apache.archiva.redback.rbac.memory.MemoryOperation;
 import org.apache.archiva.redback.rbac.memory.MemoryPermission;
 import org.apache.archiva.redback.rbac.memory.MemoryResource;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,9 +47,11 @@ public class PermissionEvaluatorTest
     public void testNullResource()
         throws PermissionEvaluationException
     {
-        // null resources should be considered as matching if any resource is obtained.
-        // we do this instead of using "global" as that is the inverse - you are allocated global rights,
-        // which is right to everything. null is the right to anything.
+
+        // if the permission has explicitly a resource set, we should explicitly
+        // provide resources during access check (e.g. define a resource in the annotations).
+        // This is for consistency and least privilege permission. So, e.g. if you forget to define the resource
+        // on a method annotation, it should deny access for non-global roles.
 
         Resource resource = new MemoryResource();
         resource.setIdentifier( "Resource" );
@@ -61,6 +64,6 @@ public class PermissionEvaluatorTest
         permission.setOperation( operation );
         permission.setResource( resource );
 
-        assertTrue( permissionEvaluator.evaluate( permission, "Operation", null, "brett" ) );
+        assertFalse( permissionEvaluator.evaluate( permission, "Operation", null, "brett" ) );
     }
 }
