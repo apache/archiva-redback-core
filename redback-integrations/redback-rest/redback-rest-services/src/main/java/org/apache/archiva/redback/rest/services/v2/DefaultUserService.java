@@ -927,7 +927,7 @@ public class DefaultUserService
         throws RedbackServiceException
     {
         RedbackServiceException redbackServiceException =
-            new RedbackServiceException( "issues during validating user" );
+            new RedbackServiceException( "issues during validating user", 422 );
         if ( StringUtils.isEmpty( user.getUserId() ) )
         {
             redbackServiceException.addErrorMessage( new ErrorMessage( "username.required", null ) );
@@ -952,7 +952,7 @@ public class DefaultUserService
 
         if ( !StringUtils.equals( user.getPassword(), user.getConfirmPassword() ) )
         {
-            redbackServiceException.addErrorMessage( new ErrorMessage( "passwords.does.not.match", null ) );
+            redbackServiceException.addErrorMessage( new ErrorMessage( "passwords.do.not.match", null ) );
         }
 
         try

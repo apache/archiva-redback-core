@@ -64,7 +64,21 @@ public interface UserService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION,
-    resource = "{userId}" )
+        resource = "{userId}" )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Returns information about a specific user",
+        security = {
+            @SecurityRequirement(
+                name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION
+            )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If user was found in the database"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to gather the information" )
+        }
+    )
     User getUser( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
@@ -73,6 +87,19 @@ public interface UserService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Returns all users defined. The result is paged.",
+        security = {
+            @SecurityRequirement(
+                name = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION
+            )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the list could be returned"
+            ),
+            @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to gather the information" )
+        }
+    )
     PagedResult<User> getUsers( @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
                                       @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Integer limit)
         throws RedbackServiceException;
@@ -83,6 +110,11 @@ public interface UserService
     @Consumes( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_CREATE_OPERATION )
     @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+        security = {
+            @SecurityRequirement(
+                name = RedbackRoleConstants.USER_MANAGEMENT_USER_CREATE_OPERATION
+            )
+        },
         responses = {
             @ApiResponse( responseCode = "201",
                 description = "If user creation was successful",
@@ -101,6 +133,46 @@ public interface UserService
     User createUser( User user )
         throws RedbackServiceException;
 
+    @Path( "{userId}" )
+    @DELETE
+    @Produces( { MediaType.APPLICATION_JSON } )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_DELETE_OPERATION )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Deletes a given user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_DELETE_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If user deletion was successful"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for deletion." )
+        }
+    )
+    void deleteUser( @PathParam( "userId" ) String userId )
+        throws RedbackServiceException;
+
+    @Path( "{userId}" )
+    @PUT
+    @Produces( {MediaType.APPLICATION_JSON} )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Updates an existing user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If update was successful"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "422", description = "Update data was not valid. E.g. password violations." ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for update." )
+        }
+    )
+    User updateUser( @PathParam( "userId" ) String userId, User user )
+        throws RedbackServiceException;
+
+
 
     /**
      * will create admin user only if not exists !! if exists will return false
@@ -110,7 +182,7 @@ public interface UserService
     @Produces( { MediaType.APPLICATION_JSON } )
     @Consumes( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+    @io.swagger.v3.oas.annotations.Operation( summary = "Creates the admin user, if it does not exist",
         responses = {
             @ApiResponse( responseCode = "201",
                 description = "If user creation was successful",
@@ -133,42 +205,17 @@ public interface UserService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Returns the availability status of the admin user. ",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If status can be retrieved"
+            )
+        }
+    )
     AvailabilityStatus getAdminStatus()
         throws RedbackServiceException;
 
 
-    @Path( "{userId}" )
-    @DELETE
-    @Produces( { MediaType.APPLICATION_JSON } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_DELETE_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
-        responses = {
-            @ApiResponse( responseCode = "200",
-                description = "If user deletion was successful"
-            ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for deletion." )
-        }
-    )
-    void deleteUser( @PathParam( "userId" ) String userId )
-        throws RedbackServiceException;
-
-    @Path( "{userId}" )
-    @PUT
-    @Produces( {MediaType.APPLICATION_JSON} )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Updates an existing user",
-        responses = {
-            @ApiResponse( responseCode = "200",
-                description = "If update was successful"
-            ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "422", description = "Update data was not valid. E.g. password violations." ),
-            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for update." )
-        }
-    )
-    User updateUser( @PathParam( "userId" ) String userId, User user )
-        throws RedbackServiceException;
 
     /**
      */
@@ -177,6 +224,9 @@ public interface UserService
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
     @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+        },
         responses = {
             @ApiResponse( responseCode = "200",
                 description = "If locking was successful"
@@ -195,6 +245,9 @@ public interface UserService
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
     @io.swagger.v3.oas.annotations.Operation( summary = "Unlocks a user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+        },
         responses = {
             @ApiResponse( responseCode = "200",
                 description = "If unlocking was successful"
@@ -213,7 +266,10 @@ public interface UserService
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+    @io.swagger.v3.oas.annotations.Operation( summary = "Sets the requirePassword flag for a given user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+        },
         responses = {
             @ApiResponse( responseCode = "200",
                 description = "If password change require flag was set"
@@ -232,7 +288,10 @@ public interface UserService
     @POST
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+    @io.swagger.v3.oas.annotations.Operation( summary = "Clears the requirePassword flag for a given user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+        },
         responses = {
             @ApiResponse( responseCode = "200",
                 description = "If password change require flag was unset"
@@ -294,6 +353,9 @@ public interface UserService
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION,
     resource = "{userId}")
     @io.swagger.v3.oas.annotations.Operation( summary = "Clears the cache for the user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
+        },
         responses = {
             @ApiResponse( responseCode = "200",
                 description = "If the cache was cleared properly"
@@ -317,7 +379,7 @@ public interface UserService
             @ApiResponse( responseCode = "200",
                 description = "If the registration was successful, a registration key is returned"
             ),
-            @ApiResponse( responseCode = "400", description = "If the registration request has invalid data" ),
+            @ApiResponse( responseCode = "422", description = "If the the provided user data is not valid" ),
         }
     )
     RegistrationKey registerUser( @PathParam( "userId" ) String userId, UserRegistrationRequest userRegistrationRequest )
@@ -332,6 +394,14 @@ public interface UserService
     @Produces( { MediaType.APPLICATION_JSON } )
     @Consumes( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Asks for a password reset of the given user. This generates a reset email sent to the stored address of the given user.",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the password reset email was sent"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+        }
+    )
     ActionStatus resetPassword( @PathParam( "userId" )String userId, ResetPasswordRequest resetPasswordRequest )
         throws RedbackServiceException;
 
@@ -340,7 +410,20 @@ public interface UserService
     @Path( "{userId}/permissions" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION,
+        resource = "{userId}")
+    @io.swagger.v3.oas.annotations.Operation( summary = "Returns a list of permissions assigned to the given user.",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the list could be returned"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "403", description = "Logged in user does not have the permission to get this information." ),
+        }
+    )
     Collection<Permission> getUserPermissions( @PathParam( "userId" ) String userName )
         throws RedbackServiceException;
 
@@ -351,6 +434,18 @@ public interface UserService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Returns a list of privileged operations assigned to the given user.",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the list could be returned"
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "403", description = "Logged in user does not have the permission to get this information." ),
+        }
+    )
     Collection<Operation> getUserOperations( @PathParam( "userId" ) String userName )
         throws RedbackServiceException;
 
@@ -362,6 +457,13 @@ public interface UserService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Returns a list of permissions assigned to the logged in user.",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the list could be returned"
+            )
+        }
+    )
     Collection<Permission> getCurrentUserPermissions( )
         throws RedbackServiceException;
 
@@ -373,6 +475,13 @@ public interface UserService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Returns a list of privileged operations assigned to the logged in user.",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the list could be returned"
+            )
+        }
+    )
     Collection<Operation> getCurrentUserOperations( )
         throws RedbackServiceException;
 
@@ -381,6 +490,14 @@ public interface UserService
     @GET
     @Produces( {MediaType.APPLICATION_JSON} )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
+    @io.swagger.v3.oas.annotations.Operation( summary = "Validate the user registration for the given userid by checking the provided key.",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the verification was successful"
+            ),
+            @ApiResponse( responseCode = "404", description = "No user registration was found for the given id and key" ),
+        }
+    )
     VerificationStatus validateUserRegistration( @PathParam( "userId" ) String userId, @PathParam( "key" ) String key )
         throws RedbackServiceException;
 }

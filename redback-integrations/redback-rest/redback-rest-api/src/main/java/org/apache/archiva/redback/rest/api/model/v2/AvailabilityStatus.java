@@ -24,6 +24,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 
 /**
+ * Returns a status of availability (does exist, or does not exist) of a given object.
+ * If the object exists, the creation date of the object may be returned.
+ *
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="availabilityStatus")

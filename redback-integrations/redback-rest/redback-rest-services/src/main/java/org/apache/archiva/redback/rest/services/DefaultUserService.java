@@ -916,7 +916,7 @@ public class DefaultUserService
 
         if ( !StringUtils.equals( user.getPassword(), user.getConfirmPassword() ) )
         {
-            redbackServiceException.addErrorMessage( new ErrorMessage( "passwords.does.not.match", null ) );
+            redbackServiceException.addErrorMessage( new ErrorMessage( "passwords.do.not.match", null ) );
         }
 
         try

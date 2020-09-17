@@ -259,36 +259,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void createExistingAdminUser( )
-    {
-        String token = null;
-        Map<String, Object> jsonAsMap = new HashMap<>( );
-        jsonAsMap.put( "user_id", "admin" );
-        jsonAsMap.put( "email", "admin@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Admin" );
-        jsonAsMap.put( "password", "pAssw0rD" );
-        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-            .body( jsonAsMap )
-            .when( )
-            .redirects( ).follow( false )
-            .post( "admin" )
-            .then( ).statusCode( 303 ).extract( ).response( );
-        assertTrue( response.getHeader( "Location" ).endsWith( "/users/admin" ) );
-    }
-
-    @Test
-    void checkAdminStatus( )
-    {
-        String token = null;
-        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-            .get( "admin/status" )
-            .then( ).statusCode( 200 ).extract( ).response( );
-        assertNotNull( response );
-        assertTrue( response.body( ).jsonPath( ).getBoolean( "exists" ) );
-        assertNotNull( response.body( ).jsonPath( ).get( "since" ) );
-    }
-
-    @Test
     void deleteUser( )
     {
         String token = getAdminToken( );
@@ -334,7 +304,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         try
         {
             String token = null;
-            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .delete( "aragorn" )
                 .then( ).statusCode( 401 ).extract( ).response( );
         }
@@ -435,6 +405,38 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .then( ).statusCode( 200 );
         }
     }
+
+
+    @Test
+    void createExistingAdminUser( )
+    {
+        String token = null;
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "admin" );
+        jsonAsMap.put( "email", "admin@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Admin" );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .redirects( ).follow( false )
+            .post( "admin" )
+            .then( ).statusCode( 303 ).extract( ).response( );
+        assertTrue( response.getHeader( "Location" ).endsWith( "/users/admin" ) );
+    }
+
+    @Test
+    void checkAdminStatus( )
+    {
+        String token = null;
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .get( "admin/status" )
+            .then( ).statusCode( 200 ).extract( ).response( );
+        assertNotNull( response );
+        assertTrue( response.body( ).jsonPath( ).getBoolean( "exists" ) );
+        assertNotNull( response.body( ).jsonPath( ).get( "since" ) );
+    }
+
 
     @Test
     void lockUser( )
@@ -559,7 +561,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void setNoPasswordChangeRequire( )
+    void clearPasswordChangeRequire( )
     {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
@@ -592,6 +594,134 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void setPasswordChangeRequireNonExistingUser( )
+    {
+        String token = getAdminToken( );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .post( "aragorn2/password/require/set" )
+                .then( ).statusCode( 404 );
+    }
+
+    @Test
+    void clearPasswordChangeRequireNonExistingUser( )
+    {
+        String token = getAdminToken( );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .post( "aragorn2/password/require/clear" )
+            .then( ).statusCode( 404 );
+    }
+
+    @Test
+    void setPasswordChangeRequireNoPermission( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "locked", false );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "passwordChangeRequired", false );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+
+        jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "elrond" );
+        jsonAsMap.put( "email", "elrond@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Elrond King of Elves" );
+        jsonAsMap.put( "locked", false );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "passwordChangeRequired", false );
+        jsonAsMap.put( "password", "pAssw0rDElrond" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+
+
+        try
+        {
+            String userToken = getUserToken( "elrond", "pAssw0rDElrond" );
+            given( ).spec( getRequestSpec( userToken ) ).contentType( JSON )
+                .post( "aragorn/password/require/set" )
+                .then( ).statusCode( 403 );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .get( "aragorn" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertFalse( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "elrond" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void clearPasswordChangeRequireNoPermission( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "locked", false );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "passwordChangeRequired", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+
+        jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "elrond" );
+        jsonAsMap.put( "email", "elrond@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Elrond King of Elves" );
+        jsonAsMap.put( "locked", false );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "passwordChangeRequired", false );
+        jsonAsMap.put( "password", "pAssw0rDElrond" );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+
+
+        try
+        {
+            String userToken = getUserToken( "elrond", "pAssw0rDElrond" );
+            given( ).spec( getRequestSpec( userToken ) ).contentType( JSON )
+                .post( "aragorn/password/require/clear" )
+                .then( ).statusCode( 403 );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .get( "aragorn" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .delete( "elrond" )
                 .then( ).statusCode( 200 );
         }
     }
@@ -810,6 +940,54 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .delete( "aragorn" )
                 .then( ).statusCode( 200 );
         }
+    }
+
+    @Test
+    void register( )
+    {
+        String adminToken = getAdminToken( );
+        Map<String, Object> requestMap = new HashMap<>( );
+
+        Map<String, Object> userMap = new HashMap<>( );
+
+        userMap.put( "user_id", "bilbo" );
+        userMap.put( "email", "bilbo@lordoftherings.org" );
+        userMap.put( "fullName", "Bilbo Beutlin" );
+        userMap.put( "validated", true );
+        userMap.put( "password", "pAssw0rD" );
+        userMap.put( "confirmPassword", "pAssw0rD" );
+        requestMap.put( "user", userMap );
+        requestMap.put( "applicationUrl", "http://localhost" );
+
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( requestMap )
+            .when( )
+            .post( "bilbo/register" )
+            .then( ).statusCode( 200 );
+    }
+
+    @Test
+    void registerWithInvalidData( )
+    {
+        String adminToken = getAdminToken( );
+        Map<String, Object> requestMap = new HashMap<>( );
+
+        Map<String, Object> userMap = new HashMap<>( );
+
+        userMap.put( "user_id", "bilbo" );
+        userMap.put( "email", "bilbo@lordoftherings.org" );
+        userMap.put( "fullName", "Bilbo Beutlin" );
+        userMap.put( "validated", true );
+        userMap.put( "password", "pAssw0rD" );
+        userMap.put( "confirmPassword", "xxx" );
+        requestMap.put( "user", userMap );
+        requestMap.put( "applicationUrl", "http://localhost" );
+
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( requestMap )
+            .when( )
+            .post( "bilbo/register" )
+            .then( ).statusCode( 422 );
     }
 
 }
