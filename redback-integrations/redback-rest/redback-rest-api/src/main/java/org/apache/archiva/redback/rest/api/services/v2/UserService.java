@@ -402,7 +402,7 @@ public interface UserService
             @ApiResponse( responseCode = "404", description = "User does not exist" ),
         }
     )
-    ActionStatus resetPassword( @PathParam( "userId" )String userId, ResetPasswordRequest resetPasswordRequest )
+    ActionStatus resetPassword( @PathParam( "userId" )String userId )
         throws RedbackServiceException;
 
     /**

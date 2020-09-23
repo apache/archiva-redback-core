@@ -603,10 +603,10 @@ public class DefaultUserService
     }
 
     @Override
-    public ActionStatus resetPassword( String userId, ResetPasswordRequest resetPasswordRequest )
+    public ActionStatus resetPassword( String userId )
         throws RedbackServiceException
     {
-        String username = resetPasswordRequest.getUsername();
+        String username = userId;
         if ( StringUtils.isEmpty( username ) )
         {
             throw new RedbackServiceException( new ErrorMessage( "username.cannot.be.empty" ) );
@@ -623,11 +623,7 @@ public class DefaultUserService
             AuthenticationKey authkey = keyManager.createKey( username, "Password Reset Request",
                                                               policy.getUserValidationSettings().getEmailValidationTimeout() );
 
-            String applicationUrl = resetPasswordRequest.getApplicationUrl();
-            if ( StringUtils.isBlank( applicationUrl ) )
-            {
-                applicationUrl = getBaseUrl();
-            }
+            String applicationUrl = getBaseUrl( );
 
             mailer.sendPasswordResetEmail( Arrays.asList( user.getEmail() ), authkey, applicationUrl );
             log.info( "password reset request for username {}", username );
@@ -635,7 +631,7 @@ public class DefaultUserService
         catch ( UserNotFoundException e )
         {
             log.info( "Password Reset on non-existant user [{}].", username );
-            throw new RedbackServiceException( new ErrorMessage( "password.reset.failure" ) );
+            throw new RedbackServiceException( new ErrorMessage( ERR_USER_NOT_FOUND ), 404 );
         }
         catch ( KeyManagerException e )
         {

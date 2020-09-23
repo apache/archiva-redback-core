@@ -29,6 +29,7 @@ public interface Constants
     String ERR_USERMANAGER_FAIL = "redback:usermanager_error";
     String ERR_ROLEMANAGER_FAIL = "redback:rolemanager_error";
     String ERR_RBACMANAGER_FAIL = "redback:rbacmanager_error";
+    String ERR_INVALID_POST_DATA = "redback:invalid_post_data";
 
     String ERR_USER_EXISTS = "redback:user.exists";
     String ERR_USER_ID_EMPTY = "redback:user.id.empty";

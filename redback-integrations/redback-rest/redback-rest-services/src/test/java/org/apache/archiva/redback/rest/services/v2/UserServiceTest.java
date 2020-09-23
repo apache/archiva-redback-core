@@ -419,7 +419,7 @@ public class UserServiceTest
 
             // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
 
-            assertTrue( service.resetPassword(u.getUserId(),  new ResetPasswordRequest( "toto", "http://foo.fr/bar" ) ).isSuccess( ) );
+            assertTrue( service.resetPassword(u.getUserId() ).isSuccess( ) );
 
             emailMessages = assertService.getEmailMessageSended( );
             assertEquals( 2, emailMessages.size( ) );

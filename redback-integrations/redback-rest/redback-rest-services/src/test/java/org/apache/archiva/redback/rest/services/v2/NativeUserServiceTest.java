@@ -990,4 +990,39 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             .then( ).statusCode( 422 );
     }
 
+    @Test
+    void askForPasswordReset( )
+    {
+        String adminToken = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+
+            given( ).spec( getRequestSpec(null) ).contentType( JSON )
+                .when( )
+                .post( "aragorn/password/reset" )
+                .then( ).statusCode( 200 );
+
+            given( ).spec( getRequestSpec(null) ).contentType( JSON )
+                .when( )
+                .post( "xxyy/password/reset" )
+                .then( ).statusCode( 404 );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
 }
