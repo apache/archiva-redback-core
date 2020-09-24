@@ -77,6 +77,12 @@
           <permanent>true</permanent>
         </operation>
         <operation>
+          <id>user-management-user-view</id>
+          <name>user-management-user-view</name>
+          <description>view user information</description>
+          <permanent>true</permanent>
+        </operation>
+        <operation>
           <id>user-management-role-grant</id>
           <name>user-management-role-grant</name>
           <description>grant role</description>
@@ -195,6 +201,13 @@
               <resource>global</resource>
               <permanent>true</permanent>
             </permission>
+            <permission>
+              <id>access-user-data</id>
+              <name>Access User Data</name>
+              <operation>user-management-user-view</operation>
+              <resource>global</resource>
+              <permanent>true</permanent>
+            </permission>
           </permissions>
         </role>
         <role>
@@ -207,6 +220,13 @@
               <id>edit-user-by-username</id>
               <name>Edit User Data by Username</name>
               <operation>user-management-user-edit</operation>
+              <resource>username</resource>
+              <permanent>true</permanent>
+            </permission>
+            <permission>
+              <id>view-user-by-username</id>
+              <name>View User Data by Username</name>
+              <operation>user-management-user-view</operation>
               <resource>username</resource>
               <permanent>true</permanent>
             </permission>

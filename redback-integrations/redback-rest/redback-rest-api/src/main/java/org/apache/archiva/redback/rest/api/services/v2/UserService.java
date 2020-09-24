@@ -386,8 +386,8 @@ public interface UserService
         throws RedbackServiceException;
 
     /**
-     *
-     * @param resetPasswordRequest contains username for send a password reset email
+     * Asks for a password reset of the given User. Normally this results in a password reset email sent to the
+     * stored email address for the given user.
      */
     @Path( "{userId}/password/reset" )
     @POST
@@ -410,11 +410,11 @@ public interface UserService
     @Path( "{userId}/permissions" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION,
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_VIEW_OPERATION,
         resource = "{userId}")
     @io.swagger.v3.oas.annotations.Operation( summary = "Returns a list of permissions assigned to the given user.",
         security = {
-            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_VIEW_OPERATION )
         },
         responses = {
             @ApiResponse( responseCode = "200",

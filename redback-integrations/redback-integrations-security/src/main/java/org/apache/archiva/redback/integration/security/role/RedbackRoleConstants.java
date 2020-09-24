@@ -60,6 +60,8 @@ public interface RedbackRoleConstants
 
     public static final String USER_MANAGEMENT_USER_LIST_OPERATION = "user-management-user-list";
 
+    public static final String USER_MANAGEMENT_USER_VIEW_OPERATION = "user-management-user-view";
+
     // operations against user assignment.
     public static final String USER_MANAGEMENT_ROLE_GRANT_OPERATION = "user-management-role-grant";
 

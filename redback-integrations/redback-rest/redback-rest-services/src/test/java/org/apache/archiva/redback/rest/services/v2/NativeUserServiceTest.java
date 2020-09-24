@@ -1025,4 +1025,42 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .then( ).statusCode( 200 );
         }
     }
+
+
+    @Test
+    void getUserPermissions( )
+    {
+        String adminToken = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+
+            String token = getUserToken( "aragorn", "pAssw0rD" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "aragorn/permissions" )
+                .prettyPeek()
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertEquals( 2, response.getBody( ).jsonPath().getList( "" ).size() );
+
+
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
 }
