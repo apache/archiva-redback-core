@@ -76,6 +76,10 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             .when( ).get( ).then( ).statusCode( 200 ).extract( ).response( );
         assertNotNull( response );
         List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+        for ( User user : userData )
+        {
+            System.out.println( user.getId( ) + " " + user.getFullName( ) );
+        }
         assertNotNull( userData );
         assertEquals( 2, userData.size( ) );
         assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
@@ -603,8 +607,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     {
         String token = getAdminToken( );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .post( "aragorn2/password/require/set" )
-                .then( ).statusCode( 404 );
+            .post( "aragorn2/password/require/set" )
+            .then( ).statusCode( 404 );
     }
 
     @Test
@@ -863,7 +867,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         try
         {
 
-            given( ).spec( getRequestSpec() ).contentType( JSON )
+            given( ).spec( getRequestSpec( ) ).contentType( JSON )
                 .when( )
                 .get( "me" )
                 .then( ).statusCode( 401 );
@@ -894,7 +898,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         try
         {
 
-            Response response = given( ).spec( getRequestSpec(adminToken) ).contentType( JSON )
+            Response response = given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
                 .when( )
                 .post( "aragorn/cache/clear" )
                 .then( ).statusCode( 200 ).extract( ).response( );
@@ -928,7 +932,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         {
 
             String token = getUserToken( "aragorn", "pAssw0rD" );
-            given( ).spec( getRequestSpec(token) ).contentType( JSON )
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .post( "admin/cache/clear" )
                 .then( ).statusCode( 403 );
@@ -959,11 +963,20 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         requestMap.put( "user", userMap );
         requestMap.put( "applicationUrl", "http://localhost" );
 
-        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
-            .body( requestMap )
-            .when( )
-            .post( "bilbo/register" )
-            .then( ).statusCode( 200 );
+        try
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .body( requestMap )
+                .when( )
+                .post( "bilbo/register" )
+                .then( ).statusCode( 200 );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "bilbo" )
+                .then( ).statusCode( 200 );
+        }
     }
 
     @Test
@@ -982,12 +995,12 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         userMap.put( "confirmPassword", "xxx" );
         requestMap.put( "user", userMap );
         requestMap.put( "applicationUrl", "http://localhost" );
-
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
             .body( requestMap )
             .when( )
             .post( "bilbo/register" )
             .then( ).statusCode( 422 );
+
     }
 
     @Test
@@ -1008,12 +1021,12 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         try
         {
 
-            given( ).spec( getRequestSpec(null) ).contentType( JSON )
+            given( ).spec( getRequestSpec( null ) ).contentType( JSON )
                 .when( )
                 .post( "aragorn/password/reset" )
                 .then( ).statusCode( 200 );
 
-            given( ).spec( getRequestSpec(null) ).contentType( JSON )
+            given( ).spec( getRequestSpec( null ) ).contentType( JSON )
                 .when( )
                 .post( "xxyy/password/reset" )
                 .then( ).statusCode( 404 );
@@ -1049,9 +1062,9 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .get( "aragorn/permissions" )
-                .prettyPeek()
+                .prettyPeek( )
                 .then( ).statusCode( 200 ).extract( ).response( );
-            assertEquals( 2, response.getBody( ).jsonPath().getList( "" ).size() );
+            assertEquals( 2, response.getBody( ).jsonPath( ).getList( "" ).size( ) );
 
 
         }

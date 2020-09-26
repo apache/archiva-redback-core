@@ -430,7 +430,7 @@ public class UserServiceTest
             assertNotNull( messageContent );
             assertTrue( messageContent.contains( "Password Reset" ) );
             assertTrue( messageContent.contains( "Username: toto" ) );
-            assertTrue( messageContent.contains( "http://foo.fr/bar" ) );
+            assertTrue( messageContent.contains( "/security/login" ) );
 
 
         }
