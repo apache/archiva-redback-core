@@ -332,11 +332,16 @@ public abstract class AbstractNativeRestServices
         RestAssured.basePath = basePath;
     }
 
-    protected RequestSpecBuilder getRequestSpecBuilder( )
+    protected RequestSpecBuilder getRequestSpecBuilder( ) {
+        return getRequestSpecBuilder( null );
+    }
+
+    protected RequestSpecBuilder getRequestSpecBuilder( String basePath )
     {
+        String myBasePath = basePath == null ? getBasePath( ) : basePath;
         return new RequestSpecBuilder( ).setBaseUri( baseURI )
             .setPort( port )
-            .setBasePath( getBasePath( ) )
+            .setBasePath( myBasePath )
             .addHeader( "Origin", RestAssured.baseURI + ":" + RestAssured.port );
     }
 
@@ -353,6 +358,11 @@ public abstract class AbstractNativeRestServices
     protected RequestSpecification getRequestSpec( String bearerToken )
     {
         return getRequestSpecBuilder( ).addHeader( "Authorization", "Bearer " + bearerToken ).build( );
+    }
+
+    protected RequestSpecification getRequestSpec( String bearerToken, String path)
+    {
+        return getRequestSpecBuilder( path  ).addHeader( "Authorization", "Bearer " + bearerToken ).build( );
     }
 
     protected void shutdownNative( ) throws Exception

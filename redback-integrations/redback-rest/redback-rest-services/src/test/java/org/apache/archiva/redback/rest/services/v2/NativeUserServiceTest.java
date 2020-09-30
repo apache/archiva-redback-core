@@ -20,6 +20,7 @@ package org.apache.archiva.redback.rest.services.v2;
 
 import io.restassured.response.Response;
 import org.apache.archiva.redback.rest.api.model.v2.User;
+import org.apache.archiva.redback.rest.services.mock.EmailMessage;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
@@ -950,6 +951,12 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     void register( )
     {
         String adminToken = getAdminToken( );
+
+        given( ).spec( getRequestSpec( adminToken, "/api/testsService" ) )
+            .when( )
+            .post( "DefaultServicesAssert/clearEmailMessages" )
+            .then( ).statusCode( 204 );
+
         Map<String, Object> requestMap = new HashMap<>( );
 
         Map<String, Object> userMap = new HashMap<>( );
@@ -970,6 +977,18 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .when( )
                 .post( "bilbo/register" )
                 .then( ).statusCode( 200 );
+
+            Response response = given( ).spec( getRequestSpec( adminToken, "/api/testsService" ) ).contentType( JSON )
+                .get( "DefaultServicesAssert/getEmailMessageSended" ).then( ).statusCode( 200 )
+                .extract( ).response( );
+            List<EmailMessage> emailMessages = response.jsonPath( ).getList( "", EmailMessage.class );
+            assertEquals( 1, emailMessages.size( ) );
+            assertEquals( "bilbo@lordoftherings.org", emailMessages.get( 0 ).getTos( ).get( 0 ) );
+
+            assertEquals( "Welcome", emailMessages.get( 0 ).getSubject( ) );
+            assertTrue(
+                emailMessages.get( 0 ).getText( ).contains( "Use the following URL to validate your account." ) );
+
         }
         finally
         {
@@ -1007,6 +1026,12 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     void askForPasswordReset( )
     {
         String adminToken = getAdminToken( );
+
+        given( ).spec( getRequestSpec( adminToken, "/api/testsService" ) )
+            .when( )
+            .post( "DefaultServicesAssert/clearEmailMessages" )
+            .then( ).statusCode( 204 );
+
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
@@ -1025,6 +1050,18 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .when( )
                 .post( "aragorn/password/reset" )
                 .then( ).statusCode( 200 );
+
+            Response response = given( ).spec( getRequestSpec( adminToken, "/api/testsService" ) ).contentType( JSON )
+                .get( "DefaultServicesAssert/getEmailMessageSended" ).then( ).statusCode( 200 )
+                .extract( ).response( );
+            List<EmailMessage> emailMessages = response.jsonPath( ).getList( "", EmailMessage.class );
+            assertEquals( 1, emailMessages.size( ) );
+            assertEquals( "aragorn@lordoftherings.org", emailMessages.get( 0 ).getTos( ).get( 0 ) );
+            String messageContent = emailMessages.get( 0 ).getText( );
+
+            assertTrue( messageContent.contains( "Password Reset" ));
+            assertTrue(messageContent.contains( "Username: aragorn" ));
+
 
             given( ).spec( getRequestSpec( null ) ).contentType( JSON )
                 .when( )

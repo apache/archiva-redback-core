@@ -31,11 +31,13 @@ import java.util.List;
 @Path( "DefaultServicesAssert" )
 public interface ServicesAssert
 {
+    @Path("/getEmailMessageSended")
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
     List<EmailMessage> getEmailMessageSended()
         throws Exception;
 
+    @Path("/clearEmailMessages")
     @POST
     void clearEmailMessages();
 }
