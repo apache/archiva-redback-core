@@ -433,10 +433,11 @@ public interface UserService
     @Path( "{userId}/operations" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_VIEW_OPERATION,
+        resource = "{userId}")
     @io.swagger.v3.oas.annotations.Operation( summary = "Returns a list of privileged operations assigned to the given user.",
         security = {
-            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_VIEW_OPERATION )
         },
         responses = {
             @ApiResponse( responseCode = "200",

@@ -19,6 +19,8 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import io.restassured.response.Response;
+import org.apache.archiva.redback.rest.api.model.Operation;
+import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.User;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
 import org.junit.jupiter.api.AfterAll;
@@ -1099,9 +1101,83 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .get( "aragorn/permissions" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            List<Permission> result = response.getBody( ).jsonPath( ).getList( "", Permission.class );
+            assertNotNull( result );
+            assertEquals( 2, result.size( ) );
+            assertTrue( result.stream( ).anyMatch( permission -> permission.getName( ).equals( "Edit User Data by Username" ) ) );
+            assertTrue( result.stream( ).anyMatch( permission -> permission.getName( ).equals( "View User Data by Username" ) ) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void getUserPermissionsInvalidPermission( )
+    {
+        String adminToken = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+
+            String token = getUserToken( "aragorn", "pAssw0rD" );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "admin/permissions" )
+                .then( ).statusCode( 403 );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void getUserOperations( )
+    {
+        String adminToken = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+
+            String token = getUserToken( "aragorn", "pAssw0rD" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "aragorn/operations" )
                 .prettyPeek( )
                 .then( ).statusCode( 200 ).extract( ).response( );
-            assertEquals( 2, response.getBody( ).jsonPath( ).getList( "" ).size( ) );
+            List<Operation> result = response.getBody( ).jsonPath( ).getList( "", Operation.class );
+            assertNotNull( result );
+            assertEquals( 2, result.size( ) );
+            assertTrue( result.stream( ).anyMatch( operation -> operation.getName( ).equals( "user-management-user-edit" ) ) );
+            assertTrue( result.stream( ).anyMatch( operation -> operation.getName( ).equals( "user-management-user-view" ) ) );
+
 
 
         }
@@ -1113,4 +1189,36 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         }
     }
 
+    @Test
+    void getUserOperationsInvalidPermission( )
+    {
+        String adminToken = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+
+            String token = getUserToken( "aragorn", "pAssw0rD" );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "admin/operations" )
+                .prettyPeek( )
+                .then( ).statusCode( 403 );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
 }
