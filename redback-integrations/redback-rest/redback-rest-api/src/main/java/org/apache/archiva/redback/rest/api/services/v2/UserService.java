@@ -488,7 +488,7 @@ public interface UserService
 
 
     @Path( "{userId}/register/{key}/validate" )
-    @GET
+    @POST
     @Produces( {MediaType.APPLICATION_JSON} )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
     @io.swagger.v3.oas.annotations.Operation( summary = "Validate the user registration for the given userid by checking the provided key.",
@@ -496,7 +496,7 @@ public interface UserService
             @ApiResponse( responseCode = "200",
                 description = "If the verification was successful"
             ),
-            @ApiResponse( responseCode = "404", description = "No user registration was found for the given id and key" ),
+            @ApiResponse( responseCode = "404", description = "No user registration was found for the given id and key" )
         }
     )
     VerificationStatus validateUserRegistration( @PathParam( "userId" ) String userId, @PathParam( "key" ) String key )

@@ -29,6 +29,7 @@ public interface Constants
     String ERR_USERMANAGER_FAIL = "redback:usermanager_error";
     String ERR_ROLEMANAGER_FAIL = "redback:rolemanager_error";
     String ERR_RBACMANAGER_FAIL = "redback:rbacmanager_error";
+    String ERR_KEYMANAGER_FAIL = "reback:keymanager_error";
     String ERR_INVALID_POST_DATA = "redback:invalid_post_data";
 
     String ERR_USER_EXISTS = "redback:user.exists";
@@ -57,7 +58,13 @@ public interface Constants
     String ERR_AUTH_INVALID_TOKEN = "redback:auth.invalid_token";
     String ERR_AUTH_UNAUTHORIZED_REQUEST = "redback:auth.unauthorized_request";
 
+    String ERR_PASSWD_RESET_FAILED = "redback:passwd.reset.fail";
+
     String ERR_USER_BAD_PASSWORD = "redback:user.bad.password";
+
+    String ERR_REGISTRATION_KEY_INVALID = "redback:registration.key.invalid";
+    String ERR_REGISTRATION_USER_VALIDATED = "redback:registration.user.validated";
+    String ERR_REGISTRATION_ROLE_ASSIGNMENT_FAILED = "redback:registration.role.assignment.failed";
 
 
 

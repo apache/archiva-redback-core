@@ -21,6 +21,8 @@ package org.apache.archiva.redback.rest.services.v2;
 import io.restassured.response.Response;
 import org.apache.archiva.redback.rest.api.model.Operation;
 import org.apache.archiva.redback.rest.api.model.Permission;
+import org.apache.archiva.redback.rest.api.model.VerificationStatus;
+import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.v2.User;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
 import org.junit.jupiter.api.AfterAll;
@@ -1218,6 +1220,131 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
                 .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void getOwnPermissions( )
+    {
+        String adminToken = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+
+            String token = getUserToken( "aragorn", "pAssw0rD" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "me/permissions" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            List<Permission> result = response.getBody( ).jsonPath( ).getList( "", Permission.class );
+            assertNotNull( result );
+            assertEquals( 2, result.size( ) );
+            assertTrue( result.stream( ).anyMatch( permission -> permission.getName( ).equals( "Edit User Data by Username" ) ) );
+            assertTrue( result.stream( ).anyMatch( permission -> permission.getName( ).equals( "View User Data by Username" ) ) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void getOwnOperations( )
+    {
+        String adminToken = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "validated", true );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( jsonAsMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try
+        {
+
+            String token = getUserToken( "aragorn", "pAssw0rD" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "me/operations" )
+                .prettyPeek( )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            List<Operation> result = response.getBody( ).jsonPath( ).getList( "", Operation.class );
+            assertNotNull( result );
+            assertEquals( 2, result.size( ) );
+            assertTrue( result.stream( ).anyMatch( operation -> operation.getName( ).equals( "user-management-user-edit" ) ) );
+            assertTrue( result.stream( ).anyMatch( operation -> operation.getName( ).equals( "user-management-user-view" ) ) );
+
+
+
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "aragorn" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void validateUserRegistration() {
+        String adminToken = getAdminToken( );
+
+        Map<String, Object> userMap = new HashMap<>( );
+        Map<String, Object> requestMap = new HashMap<>( );
+
+
+        userMap.put( "user_id", "bilbo" );
+        userMap.put( "email", "bilbo@lordoftherings.org" );
+        userMap.put( "fullName", "Bilbo Beutlin" );
+        userMap.put( "validated", true );
+        userMap.put( "password", "pAssw0rD" );
+        userMap.put( "confirmPassword", "pAssw0rD" );
+        requestMap.put( "user", userMap );
+        requestMap.put( "applicationUrl", "http://localhost" );
+
+        try
+        {
+            Response response = given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .body( requestMap )
+                .when( )
+                .post( "bilbo/register" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            RegistrationKey key = response.getBody( ).jsonPath( ).getObject( "", RegistrationKey.class );
+            assertNotNull( key );
+            assertNotNull( key.getKey( ) );
+
+            response = given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .body( requestMap )
+                .when( )
+                .post( "bilbo/register/"+key.getKey()+"/validate" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+
+            assertNotNull( response );
+            VerificationStatus verificationStatus = response.getBody( ).jsonPath( ).getObject( "", VerificationStatus.class );
+            assertNotNull( verificationStatus );
+            assertTrue( verificationStatus.isSuccess( ) );
+
+        } finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "bilbo" )
                 .then( ).statusCode( 200 );
         }
     }

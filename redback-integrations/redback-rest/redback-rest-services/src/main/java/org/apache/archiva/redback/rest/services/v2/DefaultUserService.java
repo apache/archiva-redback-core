@@ -475,7 +475,7 @@ public class DefaultUserService
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage() ), 400 );
         }
     }
 
@@ -560,11 +560,11 @@ public class DefaultUserService
         }
         catch ( RoleManagerException e )
         {
-            throw new RedbackServiceException( ErrorMessage.of( ERR_ROLEMANAGER_FAIL, e.getMessage( ) ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_ROLEMANAGER_FAIL, e.getMessage( ) ), 400 );
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage() ), 400 );
         }
         httpServletResponse.setStatus( 201 );
         httpServletResponse.setHeader( "Location", uriInfo.getAbsolutePath().toString() );
@@ -597,7 +597,7 @@ public class DefaultUserService
             {
                 return new AvailabilityStatus( false );
             }
-            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL,  e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL,  e.getMessage() ), 400 );
         }
         return new AvailabilityStatus( false );
     }
@@ -631,16 +631,16 @@ public class DefaultUserService
         catch ( UserNotFoundException e )
         {
             log.info( "Password Reset on non-existant user [{}].", username );
-            throw new RedbackServiceException( new ErrorMessage( ERR_USER_NOT_FOUND ), 404 );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND, userId ), 404 );
         }
         catch ( KeyManagerException e )
         {
             log.info( "Unable to issue password reset.", e );
-            throw new RedbackServiceException( new ErrorMessage( "password.reset.email.generation.failure" ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_PASSWD_RESET_FAILED, e.getMessage() ), 400 );
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage() ), 400 );
         }
 
         return ActionStatus.SUCCESS;
@@ -653,7 +653,7 @@ public class DefaultUserService
         User user = userRegistrationRequest.getUser();
         if ( user == null )
         {
-            throw new RedbackServiceException( new ErrorMessage( "invalid.user.credentials", null ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND, userId ), 404 );
 
         }
 
@@ -693,11 +693,11 @@ public class DefaultUserService
         catch ( RoleManagerException rpe )
         {
             log.error( "RoleProfile Error: {}", rpe.getMessage(), rpe );
-            throw new RedbackServiceException( new ErrorMessage( "assign.role.failure", null ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_REGISTRATION_ROLE_ASSIGNMENT_FAILED, rpe.getMessage( ) ), 400 );
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage() ), 400 );
         }
 
         if ( emailValidationRequired )
@@ -728,11 +728,11 @@ public class DefaultUserService
             catch ( KeyManagerException e )
             {
                 log.error( "Unable to register a new user.", e );
-                throw new RedbackServiceException( new ErrorMessage( "cannot.register.user", null ) );
+                throw new RedbackServiceException( ErrorMessage.of( ERR_KEYMANAGER_FAIL, e.getMessage() ), 400 );
             }
             catch ( UserManagerException e )
             {
-                throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+                throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage() ), 400 );
             }
             finally
             {
@@ -748,7 +748,7 @@ public class DefaultUserService
             }
             catch ( UserManagerException e )
             {
-                throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+                throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage() ), 400 );
             }
         }
 
@@ -809,11 +809,14 @@ public class DefaultUserService
             org.apache.archiva.redback.users.User user =
                 securitySystem.getUserManager().findUser( authkey.getForPrincipal() );
 
+            if (user.isValidated()) {
+                throw new RedbackServiceException( ErrorMessage.of( ERR_REGISTRATION_USER_VALIDATED ), 404 );
+            }
             user.setValidated( true );
             user.setLocked( false );
             user.setPasswordChangeRequired( true );
             user.setEncodedPassword( "" );
-
+            securitySystem.getUserManager().updateUser( user );
             principal = user.getUsername();
 
             TokenBasedAuthenticationDataSource authsource = new TokenBasedAuthenticationDataSource();
@@ -821,42 +824,53 @@ public class DefaultUserService
             authsource.setToken( authkey.getKey() );
             authsource.setEnforcePasswordChange( false );
 
-            securitySystem.getUserManager().updateUser( user );
-
             VerificationStatus status = new VerificationStatus(false );
             SecuritySession authStatus = securitySystem.authenticate( authsource );
             if (authStatus.isAuthenticated()) {
                 Token accessToken = jwtAuthenticator.generateToken( principal );
                 status.setAccessToken( accessToken.getData() );
                 status.setSuccess( true );
+            } else {
+                user.setValidated( false );
+                user.setLocked( true );
+                user.setPasswordChangeRequired( false );
+                securitySystem.getUserManager().updateUser( user );
             }
 
             log.info( "account validated for user {}", user.getUsername() );
 
             return status;
         }
-        catch ( MustChangePasswordException | AccountLockedException | AuthenticationException e )
+        catch ( MustChangePasswordException e )
         {
-            throw new RedbackServiceException( e.getMessage(), Response.Status.FORBIDDEN.getStatusCode() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_PASSWORD_CHANGE_REQUIRED ), Response.Status.FORBIDDEN.getStatusCode() );
+        }
+        catch ( AccountLockedException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_ACCOUNT_LOCKED ), Response.Status.FORBIDDEN.getStatusCode() );
+        }
+        catch ( AuthenticationException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_INVALID_CREDENTIALS ), Response.Status.FORBIDDEN.getStatusCode() );
         }
         catch ( KeyNotFoundException e )
         {
             log.info( "Invalid key requested: {}", key );
-            throw new RedbackServiceException( new ErrorMessage( "cannot.find.key" ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_REGISTRATION_KEY_INVALID ), 404 );
         }
         catch ( KeyManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( "cannot.find.key.at.the.momment" ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_KEYMANAGER_FAIL, e.getMessage( ) ), 400 );
 
         }
         catch ( UserNotFoundException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( "cannot.find.user", new String[]{ principal } ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USER_NOT_FOUND, principal ), 404 );
 
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage() ), 400 );
         }
     }
 
@@ -915,7 +929,7 @@ public class DefaultUserService
         catch ( RbacManagerException e )
         {
             log.error( e.getMessage(), e );
-            throw new RedbackServiceException( e.getMessage() );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_RBACMANAGER_FAIL, e.getMessage() ), 400 );
         }
     }
 
