@@ -28,9 +28,9 @@
  * Only the war and zip artifacts are archived in the jenkins build archive.
  */
 LABEL = 'ubuntu'
-buildJdk = 'JDK 1.8 (latest)'
-buildJdk11 = 'JDK 11 (latest)'
-mavenVersion = 'Maven 3.5.4'
+buildJdk = 'jdk_1.8_latest'
+buildJdk11 = 'jdk_11_latest'
+mavenVersion = 'maven_3.5.4'
 
 def defaultPublishers = [artifactsPublisher(disabled: false), junitPublisher(ignoreAttachments: false, disabled: false),
                          findbugsPublisher(disabled: true), openTasksPublisher(disabled: true),
