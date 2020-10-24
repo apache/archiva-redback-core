@@ -37,6 +37,7 @@ public interface Constants
     String ERR_USER_ID_INVALID = "redback:user.id.invalid";
     String ERR_USER_FULL_NAME_EMPTY = "redback:user.fullname.empty";
     String ERR_USER_EMAIL_EMPTY = "redback:user.email.empty";
+    String ERR_USER_EMAIL_INVALID = "redback:user.email.invalid";
     String ERR_USER_ASSIGN_ROLE = "redback:user.role.assign.failure";
     String ERR_USER_NOT_VALIDATED = "redback:user.not_validated";
     String ERR_USER_ADMIN_EXISTS = "redback:user.admin.exists";

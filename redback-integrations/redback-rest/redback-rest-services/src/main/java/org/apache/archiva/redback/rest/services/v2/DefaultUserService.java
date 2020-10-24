@@ -940,29 +940,29 @@ public class DefaultUserService
             new RedbackServiceException( "issues during validating user", 422 );
         if ( StringUtils.isEmpty( user.getUserId() ) )
         {
-            redbackServiceException.addErrorMessage( new ErrorMessage( "username.required", null ) );
+            redbackServiceException.addErrorMessage( ErrorMessage.of( ERR_USER_ID_EMPTY ) );
         }
         else
         {
             if ( !user.getUserId().matches( VALID_USERNAME_CHARS ) )
             {
-                redbackServiceException.addErrorMessage( new ErrorMessage( "username.invalid.characters", null ) );
+                redbackServiceException.addErrorMessage( ErrorMessage.of( ERR_USER_ID_INVALID ) );
             }
         }
 
         if ( StringUtils.isEmpty( user.getFullName() ) )
         {
-            redbackServiceException.addErrorMessage( new ErrorMessage( "fullName.required", null ) );
+            redbackServiceException.addErrorMessage( ErrorMessage.of( ERR_USER_FULL_NAME_EMPTY ) );
         }
 
         if ( StringUtils.isEmpty( user.getEmail() ) )
         {
-            redbackServiceException.addErrorMessage( new ErrorMessage( "email.required", null ) );
+            redbackServiceException.addErrorMessage( ErrorMessage.of( ERR_USER_EMAIL_EMPTY ) );
         }
 
         if ( !StringUtils.equals( user.getPassword(), user.getConfirmPassword() ) )
         {
-            redbackServiceException.addErrorMessage( new ErrorMessage( "passwords.do.not.match", null ) );
+            redbackServiceException.addErrorMessage( ErrorMessage.of( ERR_AUTH_INVALID_CREDENTIALS, "nomatch" ) );
         }
 
         try
@@ -974,7 +974,7 @@ public class DefaultUserService
         }
         catch ( AddressException e )
         {
-            redbackServiceException.addErrorMessage( new ErrorMessage( "email.invalid", null ) );
+            redbackServiceException.addErrorMessage( ErrorMessage.of( ERR_USER_EMAIL_INVALID ) );
         }
         if ( !redbackServiceException.getErrorMessages().isEmpty() )
         {
@@ -997,12 +997,12 @@ public class DefaultUserService
 
             if ( ( StringUtils.isEmpty( user.getPassword() ) ) )
             {
-                throw new RedbackServiceException( new ErrorMessage( "password.required", null ) );
+                throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_INVALID_CREDENTIALS, "empty" ) );
             }
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_INVALID_CREDENTIALS, e.getMessage() ) );
         }
     }
 
@@ -1046,7 +1046,7 @@ public class DefaultUserService
         }
         catch ( UserManagerException e )
         {
-            throw new RedbackServiceException( new ErrorMessage( e.getMessage() ) );
+            throw new RedbackServiceException( ErrorMessage.of( ERR_USERMANAGER_FAIL, e.getMessage() ) );
         }
     }
 
