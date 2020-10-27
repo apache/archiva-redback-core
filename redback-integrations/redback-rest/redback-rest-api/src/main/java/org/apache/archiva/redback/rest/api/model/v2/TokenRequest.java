@@ -32,8 +32,8 @@ import java.io.Serializable;
 @Schema(name="Request Token Data", description = "Schema used for requesting a Bearer token.")
 public class TokenRequest implements Serializable
 {
-    private static final long serialVersionUID = -4803869713444270526L;
-    GrantType grantType = null;
+    private static final long serialVersionUID = -2420082541650525792L;
+    GrantType grantType = GrantType.NONE;
     String clientId;
     String clientSecret;
     String code;
@@ -68,7 +68,12 @@ public class TokenRequest implements Serializable
     }
 
     @XmlElement(name = "grant_type", required = true )
-    @Schema(description = "The grant type. Currently only 'authorization_code' is supported.")
+    @Schema(
+        name = "grant_type",
+        description = "The grant type. Currently only 'authorization_code' is supported.",
+        allowableValues = {"authorization_code","access_token"},
+        defaultValue = "authorization_code",
+        example = "authorization_code")
     public GrantType getGrantType( )
     {
         return grantType;
@@ -80,6 +85,9 @@ public class TokenRequest implements Serializable
     }
 
     @XmlElement(name="client_id", nillable = true)
+    @Schema(
+        name = "client_id",
+        description = "The client identifier.")
     public String getClientId( )
     {
         return clientId;
@@ -91,6 +99,9 @@ public class TokenRequest implements Serializable
     }
 
     @XmlElement(name="client_secret", nillable = true)
+    @Schema(
+        name = "client_secret",
+        description = "The client application secret.")
     public String getClientSecret( )
     {
         return clientSecret;
@@ -113,7 +124,7 @@ public class TokenRequest implements Serializable
     }
 
     @XmlElement(name="user_id", required = true )
-    @Schema(description = "The user identifier.")
+    @Schema(name="user_id", description = "The user identifier.")
     public String getUserId( )
     {
         return userId;
@@ -131,7 +142,6 @@ public class TokenRequest implements Serializable
         return password;
     }
 
-    @XmlElement(name="password", required = true )
     public void setPassword( String password )
     {
         this.password = password;
@@ -149,6 +159,9 @@ public class TokenRequest implements Serializable
     }
 
     @XmlElement(name="redirect_uri" )
+    @Schema(
+        name = "redirect_uri",
+        description = "The URL to redirect to.")
     public String getRedirectUri( )
     {
         return redirectUri;
@@ -170,4 +183,21 @@ public class TokenRequest implements Serializable
         this.state = state;
     }
 
+
+    @Override
+    public String toString( )
+    {
+        final StringBuilder sb = new StringBuilder( "TokenRequest{" );
+        sb.append( "grantType=" ).append( grantType );
+        sb.append( ", clientId='" ).append( clientId ).append( '\'' );
+        sb.append( ", clientSecret='" ).append( clientSecret ).append( '\'' );
+        sb.append( ", code='" ).append( code ).append( '\'' );
+        sb.append( ", scope='" ).append( scope ).append( '\'' );
+        sb.append( ", state='" ).append( state ).append( '\'' );
+        sb.append( ", userId='" ).append( userId ).append( '\'' );
+        sb.append( ", password='*******'" );
+        sb.append( ", redirectUri='" ).append( redirectUri ).append( '\'' );
+        sb.append( '}' );
+        return sb.toString( );
+    }
 }

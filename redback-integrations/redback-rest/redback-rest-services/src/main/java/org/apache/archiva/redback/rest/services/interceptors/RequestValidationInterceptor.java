@@ -40,6 +40,8 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -68,7 +70,7 @@ import java.util.List;
 @Priority( Priorities.PRECHECK )
 public class RequestValidationInterceptor
     extends AbstractInterceptor
-    implements ContainerRequestFilter
+    implements ContainerRequestFilter, ContainerResponseFilter
 {
 
 
@@ -112,6 +114,21 @@ public class RequestValidationInterceptor
     private ResourceInfo resourceInfo;
 
     private UserConfiguration config;
+
+    @Override
+    public void filter( ContainerRequestContext requestContext, ContainerResponseContext responseContext ) throws IOException
+    {
+        responseContext.getHeaders().add(
+            "Access-Control-Allow-Origin", "http://localhost:4200");
+        responseContext.getHeaders().add(
+            "Access-Control-Allow-Credentials", "true");
+        responseContext.getHeaders().add(
+            "Access-Control-Allow-Headers",
+            "origin, content-type, accept, authorization");
+        responseContext.getHeaders().add(
+            "Access-Control-Allow-Methods",
+            "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+    }
 
     private class HeaderValidationInfo
     {

@@ -25,11 +25,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
+import org.apache.archiva.redback.rest.api.model.v2.TokenRefreshRequest;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
-import org.apache.archiva.redback.rest.api.model.TokenResponse;
+import org.apache.archiva.redback.rest.api.model.v2.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -44,6 +46,7 @@ import javax.ws.rs.core.MediaType;
 @Path( "/auth" )
 @Tag(name = "v2")
 @Tag(name = "v2/Authentication")
+@Consumes( { MediaType.APPLICATION_JSON })
 public interface AuthenticationService
 {
 
@@ -107,7 +110,7 @@ public interface AuthenticationService
         }
     )
     @SecurityRequirement( name="BearerAuth" )
-    TokenResponse token( org.apache.archiva.redback.rest.api.model.TokenRequest tokenRequest )
+    TokenResponse token( TokenRefreshRequest tokenRequest )
         throws RedbackServiceException;
 
 

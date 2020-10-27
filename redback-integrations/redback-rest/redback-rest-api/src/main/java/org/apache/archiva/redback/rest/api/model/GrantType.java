@@ -25,12 +25,19 @@ public enum GrantType
 {
     @XmlEnumValue( "refresh_token" )
     REFRESH_TOKEN("refresh_token"),
+
     @XmlEnumValue( "authorization_code" )
-    AUTHORIZATION_CODE("authorization_code");
+    AUTHORIZATION_CODE("authorization_code"),
 
-    private String label;
+    @XmlEnumValue( "none" )
+    NONE("none");
 
-    GrantType(String label) {
+    private final String label;
+
+    GrantType(final String label) {
+        if (label==null) {
+            throw new NullPointerException( "Label must not be null" );
+        }
         this.label = label;
     }
 
@@ -40,10 +47,19 @@ public enum GrantType
 
     public static GrantType byLabel(String label) {
         for (GrantType value : values()) {
-            if (value.equals( label )) {
+            if (value.getLabel().equals( label )) {
                 return value;
             }
         }
         throw new IllegalArgumentException( "Label does not exist " + label );
+    }
+
+    @Override
+    public String toString( )
+    {
+        final StringBuilder sb = new StringBuilder( "GrantType{" );
+        sb.append( "label='" ).append( label ).append( '\'' );
+        sb.append( '}' );
+        return sb.toString( );
     }
 }

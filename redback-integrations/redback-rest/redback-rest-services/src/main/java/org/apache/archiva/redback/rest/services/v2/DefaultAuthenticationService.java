@@ -35,6 +35,7 @@ import org.apache.archiva.redback.rest.api.model.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.UserLogin;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
+import org.apache.archiva.redback.rest.api.model.v2.TokenRefreshRequest;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
@@ -125,6 +126,7 @@ public class DefaultAuthenticationService
     public TokenResponse logIn( TokenRequest loginRequest )
         throws RedbackServiceException
     {
+        log.debug( "Login request: grantType={}, code={}", loginRequest.getGrantType( ), loginRequest.getCode( ) );
         if (!GrantType.AUTHORIZATION_CODE.equals(loginRequest.getGrantType())) {
             throw new RedbackServiceException( ErrorMessage.of( ERR_AUTH_BAD_CODE ), Response.Status.FORBIDDEN.getStatusCode( ) );
         }
@@ -203,7 +205,7 @@ public class DefaultAuthenticationService
     }
 
     @Override
-    public TokenResponse token( org.apache.archiva.redback.rest.api.model.TokenRequest request ) throws RedbackServiceException
+    public TokenResponse token( TokenRefreshRequest request ) throws RedbackServiceException
     {
         if (!GrantType.REFRESH_TOKEN.equals(request.getGrantType())) {
             log.debug( "Bad grant type {}, expected: refresh_token", request.getGrantType( ).name( ).toLowerCase( ) );

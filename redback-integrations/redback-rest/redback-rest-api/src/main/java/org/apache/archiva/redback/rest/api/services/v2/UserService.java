@@ -20,6 +20,7 @@ package org.apache.archiva.redback.rest.api.services.v2;
  */
 
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -119,13 +120,13 @@ public interface UserService
             @ApiResponse( responseCode = "201",
                 description = "If user creation was successful",
                 headers = {
-                    @Header( name="Location", description = "The URL of the created mapping")
+                    @Header( name="Location", description = "The URL of the created mapping", schema = @Schema(type="string"))
                 }
             ),
             @ApiResponse( responseCode = "422", description = "Invalid input" ),
             @ApiResponse( responseCode = "303", description = "The user exists already",
                 headers = {
-                    @Header( name="Location", description = "The URL of existing user")
+                    @Header( name="Location", description = "The URL of existing user", schema = @Schema(type="string"))
                 }
             )
         }
@@ -187,13 +188,13 @@ public interface UserService
             @ApiResponse( responseCode = "201",
                 description = "If user creation was successful",
                 headers = {
-                    @Header( name="Location", description = "The URL of the created mapping")
+                    @Header( name="Location", description = "The URL of the created mapping", schema = @Schema(type="string"))
                 }
             ),
             @ApiResponse( responseCode = "422", description = "Invalid input" ),
             @ApiResponse( responseCode = "303", description = "The user exists already",
                 headers = {
-                    @Header( name="Location", description = "The URL of the existing admin user")
+                    @Header( name="Location", description = "The URL of the existing admin user", schema = @Schema(type="string"))
                 }
             )
         }
