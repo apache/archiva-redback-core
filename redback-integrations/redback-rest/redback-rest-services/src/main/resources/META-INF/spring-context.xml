@@ -51,6 +51,9 @@
   </bean>
   <bean id="redbackJacksonXMLMapper" class="com.fasterxml.jackson.dataformat.xml.XmlMapper" >
   </bean>
+  <bean id="redbackJacksonJsonConfigurator" class="org.apache.archiva.redback.rest.services.interceptors.JacksonJsonConfigurator" />
+
+
   <!-- CXF OpenApiFeature -->
   <bean id="openApiFeature" class="org.apache.cxf.jaxrs.openapi.OpenApiFeature">
     <property name="scanKnownConfigLocations" value="true"/>
