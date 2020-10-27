@@ -15,9 +15,9 @@ openAPI:
         scheme: basic
 
   servers:
-    - url: /api/v2/redback
+    - url: /archiva/api/v2/redback
       description: Base URL Version 2 API
-    - url: /redbackServices
+    - url: /archiva/redbackServices
       description: Base URL Version 1 API
   tags:
     - name: v2
