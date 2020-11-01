@@ -21,7 +21,7 @@ package org.apache.archiva.redback.rest.services.v2;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.model.GrantType;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
-import org.apache.archiva.redback.rest.api.model.TokenResponse;
+import org.apache.archiva.redback.rest.api.model.v2.TokenResponse;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.services.BaseSetup;
 import org.apache.archiva.redback.users.User;
