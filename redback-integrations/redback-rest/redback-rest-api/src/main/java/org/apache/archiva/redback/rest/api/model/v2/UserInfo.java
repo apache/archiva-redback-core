@@ -31,13 +31,11 @@ import java.util.List;
 
 @XmlRootElement( name = "user" )
 @Schema(name="User", description = "User information data")
-public class User
+public class UserInfo
     implements Serializable
 {
 
-
-    private static final long serialVersionUID = 7457798933140993643L;
-
+    private static final long serialVersionUID = 822423853981984867L;
     private String id;
 
     private String userId;
@@ -50,13 +48,9 @@ public class User
 
     private boolean locked;
 
-    private String password;
-
     private boolean passwordChangeRequired;
 
     private boolean permanent;
-
-    private String confirmPassword;
 
     // Display Only Fields.
     private OffsetDateTime timestampAccountCreation;
@@ -64,12 +58,6 @@ public class User
     private OffsetDateTime timestampLastLogin;
 
     private OffsetDateTime timestampLastPasswordChange;
-
-    /**
-     * for password change only
-     *
-     */
-    private String currentPassword;
 
     /**
      * for roles update only <b>not return on user read</b>
@@ -98,12 +86,12 @@ public class User
     private String validationToken;
 
 
-    public User()
+    public UserInfo()
     {
         // no op
     }
 
-    public User( String userId, String fullName, String email, boolean validated, boolean locked )
+    public UserInfo( String userId, String fullName, String email, boolean validated, boolean locked )
     {
         this.userId = userId;
         this.fullName = fullName;
@@ -112,13 +100,12 @@ public class User
         this.locked = locked;
     }
 
-    public User( org.apache.archiva.redback.users.User user )
+    public UserInfo( org.apache.archiva.redback.users.User user )
     {
         setUserId( user.getUsername() );
         this.setEmail( user.getEmail() );
         this.setFullName( user.getFullName() );
         this.setLocked( user.isLocked() );
-        this.setPassword( user.getPassword() );
         this.setValidated( user.isValidated() );
         this.setPasswordChangeRequired( user.isPasswordChangeRequired() );
         this.setPermanent( user.isPermanent() );
@@ -201,18 +188,8 @@ public class User
         this.locked = isLocked;
     }
 
-
-    public String getPassword()
-    {
-        return password;
-    }
-
-    public void setPassword( String password )
-    {
-        this.password = password;
-    }
-
-    public boolean isPasswordChangeRequired()
+    @Schema( description = "True, if user has to change his password" )
+    public boolean isPasswordChangeRequired( )
     {
         return passwordChangeRequired;
     }
@@ -222,6 +199,7 @@ public class User
         this.passwordChangeRequired = passwordChangeRequired;
     }
 
+    @Schema(description = "True, if this is not a temporary user.")
     public boolean isPermanent()
     {
         return permanent;
@@ -232,16 +210,7 @@ public class User
         this.permanent = permanent;
     }
 
-    public String getConfirmPassword()
-    {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword( String confirmPassword )
-    {
-        this.confirmPassword = confirmPassword;
-    }
-
+    @Schema(description = "The date and time, when the account was first created.")
     public OffsetDateTime getTimestampAccountCreation()
     {
         return timestampAccountCreation;
@@ -257,6 +226,7 @@ public class User
         this.timestampAccountCreation = OffsetDateTime.ofInstant( timestampAccountCreation, ZoneId.systemDefault() );
     }
 
+    @Schema(description = "Date and time of the last successful login")
     public OffsetDateTime getTimestampLastLogin()
     {
         return timestampLastLogin;
@@ -272,6 +242,7 @@ public class User
         this.timestampLastLogin = OffsetDateTime.ofInstant( timestampLastLogin, ZoneId.systemDefault( ) );
     }
 
+    @Schema(description = "Date and time of the last password change")
     public OffsetDateTime getTimestampLastPasswordChange()
     {
         return timestampLastPasswordChange;
@@ -287,16 +258,7 @@ public class User
         this.timestampLastPasswordChange = OffsetDateTime.ofInstant( timestampLastPasswordChange, ZoneId.systemDefault() );
     }
 
-    public String getCurrentPassword()
-    {
-        return currentPassword;
-    }
-
-    public void setCurrentPassword( String currentPassword )
-    {
-        this.currentPassword = currentPassword;
-    }
-
+    @Schema(description = "The roles assigned to the user")
     public List<String> getAssignedRoles()
     {
         return assignedRoles;
@@ -307,6 +269,7 @@ public class User
         this.assignedRoles = assignedRoles;
     }
 
+    @Schema(description = "True, if this is user has readonly access")
     public boolean isReadOnly()
     {
         return readOnly;
@@ -317,6 +280,7 @@ public class User
         this.readOnly = readOnly;
     }
 
+    @Schema( description = "Id of the usermanager, where this user is registered")
     public String getUserManagerId()
     {
         return userManagerId;
@@ -327,6 +291,7 @@ public class User
         this.userManagerId = userManagerId;
     }
 
+    @Schema( description = "Current validation token of this user")
     public String getValidationToken() {
         return validationToken;
     }
@@ -335,6 +300,7 @@ public class User
         this.validationToken = validationToken;
     }
 
+    @Schema( description = "User id that is unique over all user managers")
     public String getId( )
     {
         return id;
@@ -357,11 +323,9 @@ public class User
             //", password='" + password + '\'' +
             ", passwordChangeRequired=" + passwordChangeRequired +
             ", permanent=" + permanent +
-            ", confirmPassword='" + confirmPassword + '\'' +
             ", timestampAccountCreation='" + timestampAccountCreation + '\'' +
             ", timestampLastLogin='" + timestampLastLogin + '\'' +
             ", timestampLastPasswordChange='" + timestampLastPasswordChange + '\'' +
-            ", previousPassword='" + currentPassword + '\'' +
             ", assignedRoles=" + assignedRoles +
             ", readOnly=" + readOnly +
             ", userManagerId='" + userManagerId + '\'' +
@@ -376,12 +340,12 @@ public class User
         {
             return true;
         }
-        if ( !( o instanceof User ) )
+        if ( !( o instanceof UserInfo ) )
         {
             return false;
         }
 
-        User user = (User) o;
+        UserInfo user = (UserInfo) o;
 
         if ( !userId.equals( user.userId ) )
         {

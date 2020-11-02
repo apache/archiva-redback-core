@@ -20,15 +20,19 @@ package org.apache.archiva.redback.rest.api.services.v2;
  */
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
+import org.apache.archiva.redback.rest.api.model.RedbackRestError;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRefreshRequest;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.v2.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.User;
+import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
 import javax.ws.rs.Consumes;
@@ -37,6 +41,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * Version 2 of authentication service
@@ -59,6 +65,13 @@ public interface AuthenticationService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
+    @Operation( summary = "Ping request.",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "Pong",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PingResult.class))
+            )
+        })
     PingResult ping()
         throws RedbackServiceException;
 
@@ -72,7 +85,15 @@ public interface AuthenticationService
     @GET
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = false, noPermission = true )
-    @Operation( summary = "Ping request to restricted service. You have to provide a valid authentication token." )
+    @Operation( summary = "Ping request to restricted service. You have to provide a valid authentication token.",
+        responses = {
+        @ApiResponse( responseCode = "200",
+            description = "Pong",
+            content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PingResult.class))
+        ),
+        @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to ping",
+            content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+    })
     @SecurityRequirement( name="BearerAuth" )
     PingResult pingWithAutz()
         throws RedbackServiceException;
@@ -89,7 +110,14 @@ public interface AuthenticationService
     @Operation( summary = "Authenticate by user/password login and return a bearer token, usable for further requests",
         responses = {
             @ApiResponse( description = "A access token, that has to be added to the Authorization header on authenticated requests. " +
-                "And refresh token, used to refresh the access token. Each token as a lifetime. After expiration it cannot be used anymore." )
+                "And refresh token, used to refresh the access token. Each token as a lifetime. After expiration it cannot be used anymore.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = TokenResponse.class))
+            ),
+            @ApiResponse( responseCode = "401", description = "Authentication failed. The response body tells more about the failure.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to gather the information",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+
         }
     )
     TokenResponse logIn( TokenRequest loginRequest )
@@ -106,7 +134,8 @@ public interface AuthenticationService
         "supported. You have to provide the refresh token in the payload. And you have to provide a valid Bearer access token in "+
         "the Authorization header.",
         responses = {
-            @ApiResponse( description = "The new access token," )
+            @ApiResponse( description = "The new access token",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = TokenResponse.class)))
         }
     )
     @SecurityRequirement( name="BearerAuth" )
@@ -122,8 +151,13 @@ public interface AuthenticationService
     @Produces( { MediaType.APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
     @Operation(summary = "Checks the request for a valid access token, and returns the user object that corresponds to the " +
-        "provided token.")
-    User getAuthenticatedUser()
+        "provided token.",
+        responses = {
+            @ApiResponse( description = "The new access token",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserInfo.class)))
+        }
+    )
+    UserInfo getAuthenticatedUser()
         throws RedbackServiceException;
 
 }

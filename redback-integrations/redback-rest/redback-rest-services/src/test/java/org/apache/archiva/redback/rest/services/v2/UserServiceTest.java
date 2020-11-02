@@ -20,14 +20,15 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import org.apache.archiva.redback.rest.api.model.GrantType;
-import org.apache.archiva.redback.rest.api.model.Operation;
+import org.apache.archiva.redback.rest.api.model.v2.Operation;
 import org.apache.archiva.redback.rest.api.model.v2.SelfUserData;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
-import org.apache.archiva.redback.rest.api.model.Permission;
+import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.v2.TokenResponse;
 import org.apache.archiva.redback.rest.api.model.v2.User;
+import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.model.v2.UserRegistrationRequest;
 import org.apache.archiva.redback.rest.api.services.v2.UserService;
 import org.apache.archiva.redback.rest.services.FakeCreateAdminService;
@@ -122,7 +123,7 @@ public class UserServiceTest
     {
         String adminHeader = getAdminAuthzHeader( );
         UserService userService = getUserService( adminHeader );
-        PagedResult<org.apache.archiva.redback.rest.api.model.v2.User> users = userService.getUsers( 0, Integer.MAX_VALUE );
+        PagedResult<org.apache.archiva.redback.rest.api.model.v2.UserInfo> users = userService.getUsers( 0, Integer.MAX_VALUE );
         assertNotNull( users );
         assertFalse( users.getData().isEmpty( ) );
     }
@@ -225,11 +226,11 @@ public class UserServiceTest
 
             service = getUserService( getAdminAuthzHeader( ) );
 
-            u = service.getUser( "toto" );
+            UserInfo uInfo = service.getUser( "toto" );
 
-            assertNotNull( u );
-            assertFalse( u.isValidated( ) );
-            assertTrue( u.isPasswordChangeRequired( ) );
+            assertNotNull( uInfo );
+            assertFalse( uInfo.isValidated( ) );
+            assertTrue( uInfo.isPasswordChangeRequired( ) );
 
             // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
 
@@ -287,11 +288,11 @@ public class UserServiceTest
 
             service = getUserService( getAdminAuthzHeader( ) );
 
-            u = service.getUser( "toto" );
+            UserInfo uInfo = service.getUser( "toto" );
 
-            assertNotNull( u );
-            assertTrue( u.isValidated( ) );
-            assertTrue( u.isPasswordChangeRequired( ) );
+            assertNotNull( uInfo );
+            assertTrue( uInfo.isValidated( ) );
+            assertTrue( uInfo.isPasswordChangeRequired( ) );
 
             // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
 
@@ -349,11 +350,11 @@ public class UserServiceTest
 
             service = getUserService( getAdminAuthzHeader( ) );
 
-            u = service.getUser( "toto" );
+            UserInfo uInfo = service.getUser( "toto" );
 
-            assertNotNull( u );
-            assertFalse( u.isValidated( ) );
-            assertTrue( u.isPasswordChangeRequired( ) );
+            assertNotNull( uInfo );
+            assertFalse( uInfo.isValidated( ) );
+            assertTrue( uInfo.isPasswordChangeRequired( ) );
 
             // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
 
@@ -410,11 +411,11 @@ public class UserServiceTest
 
             service = getUserService( getAdminAuthzHeader( ) );
 
-            u = service.getUser( "toto" );
+            UserInfo uInfo = service.getUser( "toto" );
 
-            assertNotNull( u );
-            assertFalse( u.isValidated( ) );
-            assertTrue( u.isPasswordChangeRequired( ) );
+            assertNotNull( uInfo );
+            assertFalse( uInfo.isValidated( ) );
+            assertTrue( uInfo.isPasswordChangeRequired( ) );
 
             // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
 
@@ -511,9 +512,9 @@ public class UserServiceTest
         selfUserData.setCurrentPassword( "toto123" );
         getUserService( getUserAuthzHeader( "toto" ) ).updateMe( selfUserData );
 
-        u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
-        assertEquals( "the toto123", u.getFullName( ) );
-        assertEquals( "toto@titi.fr", u.getEmail( ) );
+        UserInfo uInfo = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
+        assertEquals( "the toto123", uInfo.getFullName( ) );
+        assertEquals( "toto@titi.fr", uInfo.getEmail( ) );
 
         selfUserData.setFullName( "the toto1234" );
         selfUserData.setEmail( "toto@tititi.fr" );
@@ -521,9 +522,9 @@ public class UserServiceTest
         selfUserData.setCurrentPassword( "toto1234" );
         getUserService( getUserAuthzHeader( "toto" )) .updateMe( selfUserData );
 
-        u = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
-        assertEquals( "the toto1234", u.getFullName( ) );
-        assertEquals( "toto@tititi.fr", u.getEmail( ) );
+        uInfo = getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
+        assertEquals( "the toto1234", uInfo.getFullName( ) );
+        assertEquals( "toto@tititi.fr", uInfo.getEmail( ) );
 
         getUserService( getAdminAuthzHeader( ) ).deleteUser( "toto" );
     }
@@ -545,10 +546,10 @@ public class UserServiceTest
             UserService userService = getUserService( getAdminAuthzHeader( ) );
             userService.createUser( user );
             // END SNIPPET: create-user
-            user = userService.getUser( "toto" );
-            assertNotNull( user );
-            assertEquals( "toto the king", user.getFullName( ) );
-            assertEquals( "toto@toto.fr", user.getEmail( ) );
+            UserInfo userInfo = userService.getUser( "toto" );
+            assertNotNull( userInfo );
+            assertEquals( "toto the king", userInfo.getFullName( ) );
+            assertEquals( "toto@toto.fr", userInfo.getEmail( ) );
             TokenResponse result = getLoginServiceV2( null ).logIn( new TokenRequest( "toto", "foo123", GrantType.AUTHORIZATION_CODE ) );
             getLoginServiceV2( "Bearer " + result.getAccessToken( ) ).pingWithAutz( );
 

@@ -178,7 +178,7 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
             .when( ).get( "/authenticated" ).then( ).statusCode( 200 )
             .extract( ).response( );
         System.out.println( result.getBody( ).prettyPrint( ) );
-        assertEquals( "admin", result.getBody( ).jsonPath( ).getString( "username" ) );
+        assertEquals( "admin", result.getBody( ).jsonPath( ).getString( "user_id" ) );
 
     }
 

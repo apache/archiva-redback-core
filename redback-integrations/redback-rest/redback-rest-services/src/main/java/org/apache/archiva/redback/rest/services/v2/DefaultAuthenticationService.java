@@ -32,12 +32,11 @@ import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.rest.api.MessageKeys;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.GrantType;
-import org.apache.archiva.redback.rest.api.model.v2.TokenResponse;
-import org.apache.archiva.redback.rest.api.model.User;
-import org.apache.archiva.redback.rest.api.model.UserLogin;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRefreshRequest;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
+import org.apache.archiva.redback.rest.api.model.v2.TokenResponse;
+import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
 import org.apache.archiva.redback.rest.services.interceptors.RedbackPrincipal;
@@ -225,7 +224,7 @@ public class DefaultAuthenticationService
     }
 
     @Override
-    public User getAuthenticatedUser()
+    public UserInfo getAuthenticatedUser()
         throws RedbackServiceException
     {
         RedbackPrincipal pri = getPrincipal( );
@@ -237,11 +236,11 @@ public class DefaultAuthenticationService
         }
     }
 
-    private UserLogin buildRestUser( org.apache.archiva.redback.users.User user )
+    private UserInfo buildRestUser( org.apache.archiva.redback.users.User user )
     {
-        UserLogin restUser = new UserLogin();
+        UserInfo restUser = new UserInfo();
         restUser.setEmail( user.getEmail() );
-        restUser.setUsername( user.getUsername() );
+        restUser.setUserId( user.getUsername() );
         restUser.setPasswordChangeRequired( user.isPasswordChangeRequired() );
         restUser.setLocked( user.isLocked() );
         restUser.setValidated( user.isValidated() );

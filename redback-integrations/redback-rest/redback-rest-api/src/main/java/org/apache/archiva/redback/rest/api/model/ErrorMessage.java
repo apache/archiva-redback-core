@@ -18,6 +18,8 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
@@ -26,17 +28,18 @@ import java.io.Serializable;
  * @since 1.4
  */
 @XmlRootElement( name = "errorMessage" )
+@Schema(name="ErrorMessage",description = "Information about the error, that occured while processing the REST request.")
 public class ErrorMessage
     implements Serializable
 {
-    private String errorKey;
+    private String errorKey = "";
 
-    private String[] args;
+    private String[] args = EMPTY;
 
     /**
      * @since 2.1 for message without any key
      */
-    private String message;
+    private String message = "";
 
     private static final String[] EMPTY = new String[0];
 
@@ -61,6 +64,7 @@ public class ErrorMessage
         return new ErrorMessage( errorKey, args );
     }
 
+    @Schema(description = "The key of the error message. If this is empty, the message message must be set.")
     public String getErrorKey()
     {
         return errorKey;
@@ -71,6 +75,7 @@ public class ErrorMessage
         this.errorKey = errorKey;
     }
 
+    @Schema(description = "Parameters that can be filled to the translated error message")
     public String[] getArgs()
     {
         return args;
@@ -81,6 +86,7 @@ public class ErrorMessage
         this.args = args;
     }
 
+    @Schema(description = "Full error message. Either additional to the key in the default language, or if the message is without key.")
     public String getMessage()
     {
         return message;

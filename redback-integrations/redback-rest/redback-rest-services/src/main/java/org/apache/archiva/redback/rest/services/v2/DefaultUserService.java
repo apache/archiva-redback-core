@@ -46,15 +46,16 @@ import org.apache.archiva.redback.rest.api.MessageKeys;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
-import org.apache.archiva.redback.rest.api.model.Operation;
-import org.apache.archiva.redback.rest.api.model.Permission;
+import org.apache.archiva.redback.rest.api.model.v2.Operation;
+import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.SelfUserData;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
-import org.apache.archiva.redback.rest.api.model.Resource;
-import org.apache.archiva.redback.rest.api.model.VerificationStatus;
+import org.apache.archiva.redback.rest.api.model.v2.Resource;
+import org.apache.archiva.redback.rest.api.model.v2.VerificationStatus;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.v2.User;
+import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.model.v2.UserRegistrationRequest;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.UserService;
@@ -182,10 +183,10 @@ public class DefaultUserService
     }
 
     @Override
-    public User createUser( User user )
+    public UserInfo createUser( User user )
         throws RedbackServiceException
     {
-        User result;
+        UserInfo result;
         if ( Arrays.binarySearch( INVALID_CREATE_USER_NAMES, user.getUserId( ) ) >=0 )
         {
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USER_ID_INVALID, user.getUserId() ), 422 );
@@ -311,7 +312,7 @@ public class DefaultUserService
 
 
     @Override
-    public User getUser( String userId )
+    public UserInfo getUser( String userId )
         throws RedbackServiceException
     {
         try
@@ -333,7 +334,7 @@ public class DefaultUserService
     }
 
     @Override
-    public PagedResult<User> getUsers(Integer offset,
+    public PagedResult<UserInfo> getUsers(Integer offset,
                                       Integer limit)
         throws RedbackServiceException
     {
@@ -345,7 +346,7 @@ public class DefaultUserService
             }
             int endIndex = PagingHelper.getLastIndex( offset, limit, users.size( ) );
             List<? extends org.apache.archiva.redback.users.User> resultList = users.subList( offset, endIndex );
-            List<User> simpleUsers = new ArrayList<>( resultList.size() );
+            List<UserInfo> simpleUsers = new ArrayList<>( resultList.size() );
 
             for ( org.apache.archiva.redback.users.User user : resultList )
             {
@@ -360,7 +361,7 @@ public class DefaultUserService
     }
 
     @Override
-    public User updateMe( SelfUserData user )
+    public UserInfo updateMe( SelfUserData user )
         throws RedbackServiceException
     {
         RedbackPrincipal principal = getPrincipal( );
@@ -422,7 +423,7 @@ public class DefaultUserService
     }
 
     @Override
-    public User getLoggedInUser(  )
+    public UserInfo getLoggedInUser(  )
         throws RedbackServiceException
     {
         RedbackPrincipal principal = getPrincipal( );
@@ -442,7 +443,7 @@ public class DefaultUserService
     }
 
     @Override
-    public User updateUser( String userId,  User user )
+    public UserInfo updateUser( String userId,  User user )
         throws RedbackServiceException
     {
         try
@@ -513,20 +514,20 @@ public class DefaultUserService
         return new PingResult( true );
     }
 
-    private User getRestUser( org.apache.archiva.redback.users.User user )
+    private UserInfo getRestUser( org.apache.archiva.redback.users.User user )
     {
         if ( user == null )
         {
             return null;
         }
-        return new User( user );
+        return new UserInfo( user );
     }
 
     @Override
-    public User createAdminUser( User adminUser )
+    public UserInfo createAdminUser( User adminUser )
         throws RedbackServiceException
     {
-        User result;
+        UserInfo result;
         if ( getAdminStatus().isExists() )
         {
             log.warn( "Admin user exists already" );

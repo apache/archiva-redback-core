@@ -18,6 +18,7 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,6 +32,7 @@ import java.util.List;
  * @since 1.4
  */
 @XmlRootElement( name = "redbackRestError" )
+@Schema(name="RedbackRestError", description = "Contains a list of error messages that resulted from the current REST call")
 public class RedbackRestError
     implements Serializable
 {
@@ -51,7 +53,7 @@ public class RedbackRestError
         }
     }
 
-
+    @Schema(name="errorMessages", description = "The list of errors that occurred while processing the REST request")
     public List<ErrorMessage> getErrorMessages()
     {
         return errorMessages;

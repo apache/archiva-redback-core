@@ -19,7 +19,10 @@ package org.apache.archiva.redback.rest.api.services.v2;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,17 +30,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
+import org.apache.archiva.redback.rest.api.model.RedbackRestError;
+import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
-import org.apache.archiva.redback.rest.api.model.Operation;
-import org.apache.archiva.redback.rest.api.model.v2.SelfUserData;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
-import org.apache.archiva.redback.rest.api.model.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
-import org.apache.archiva.redback.rest.api.model.ResetPasswordRequest;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
+import org.apache.archiva.redback.rest.api.model.v2.SelfUserData;
 import org.apache.archiva.redback.rest.api.model.v2.User;
+import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.model.v2.UserRegistrationRequest;
-import org.apache.archiva.redback.rest.api.model.VerificationStatus;
+import org.apache.archiva.redback.rest.api.model.v2.VerificationStatus;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
 import javax.ws.rs.Consumes;
@@ -50,9 +53,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import java.util.Collection;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
 
 @Path( "/users" )
@@ -63,10 +66,10 @@ public interface UserService
 {
     @Path( "{userId}" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION,
         resource = "{userId}" )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Returns information about a specific user",
+    @Operation( summary = "Returns information about a specific user",
         security = {
             @SecurityRequirement(
                 name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION
@@ -74,21 +77,25 @@ public interface UserService
         },
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If user was found in the database"
+                description = "If user was found in the database",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserInfo.class))
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to gather the information" )
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))
+            ),
+            @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to gather the information",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
         }
     )
-    User getUser( @PathParam( "userId" ) String userId )
+    UserInfo getUser( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
 
     @Path( "" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Returns all users defined. The result is paged.",
+    @Operation( summary = "Returns all users defined. The result is paged.",
         security = {
             @SecurityRequirement(
                 name = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION
@@ -96,21 +103,23 @@ public interface UserService
         },
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If the list could be returned"
+                description = "If the list could be returned",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PagedResult.class))
             ),
-            @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to gather the information" )
+            @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to gather the information",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
         }
     )
-    PagedResult<User> getUsers( @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
+    PagedResult<UserInfo> getUsers( @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
                                       @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Integer limit)
         throws RedbackServiceException;
 
     @Path( "" )
     @POST
-    @Produces( { MediaType.APPLICATION_JSON } )
-    @Consumes( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
+    @Consumes( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_CREATE_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+    @Operation( summary = "Creates a user",
         security = {
             @SecurityRequirement(
                 name = RedbackRoleConstants.USER_MANAGEMENT_USER_CREATE_OPERATION
@@ -121,9 +130,11 @@ public interface UserService
                 description = "If user creation was successful",
                 headers = {
                     @Header( name="Location", description = "The URL of the created mapping", schema = @Schema(type="string"))
-                }
+                },
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserInfo.class))
             ),
-            @ApiResponse( responseCode = "422", description = "Invalid input" ),
+            @ApiResponse( responseCode = "422", description = "Invalid input",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
             @ApiResponse( responseCode = "303", description = "The user exists already",
                 headers = {
                     @Header( name="Location", description = "The URL of existing user", schema = @Schema(type="string"))
@@ -131,14 +142,14 @@ public interface UserService
             )
         }
     )
-    User createUser( User user )
+    UserInfo createUser( User user )
         throws RedbackServiceException;
 
     @Path( "{userId}" )
     @DELETE
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_DELETE_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Deletes a given user",
+    @Operation( summary = "Deletes a given user",
         security = {
             @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_DELETE_OPERATION )
         },
@@ -146,8 +157,10 @@ public interface UserService
             @ApiResponse( responseCode = "200",
                 description = "If user deletion was successful"
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for deletion." )
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for deletion.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
         }
     )
     void deleteUser( @PathParam( "userId" ) String userId )
@@ -155,22 +168,26 @@ public interface UserService
 
     @Path( "{userId}" )
     @PUT
-    @Produces( {MediaType.APPLICATION_JSON} )
+    @Produces( {APPLICATION_JSON} )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Updates an existing user",
+    @Operation( summary = "Updates an existing user",
         security = {
             @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
         },
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If update was successful"
+                description = "If update was successful",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserInfo.class))
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "422", description = "Update data was not valid. E.g. password violations." ),
-            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for update." )
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "422", description = "Update data was not valid. E.g. password violations.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for update." ,
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )))
         }
     )
-    User updateUser( @PathParam( "userId" ) String userId, User user )
+    UserInfo updateUser( @PathParam( "userId" ) String userId, User user )
         throws RedbackServiceException;
 
 
@@ -180,18 +197,20 @@ public interface UserService
      */
     @Path( "admin" )
     @POST
-    @Produces( { MediaType.APPLICATION_JSON } )
-    @Consumes( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
+    @Consumes( { APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Creates the admin user, if it does not exist",
+    @Operation( summary = "Creates the admin user, if it does not exist",
         responses = {
             @ApiResponse( responseCode = "201",
                 description = "If user creation was successful",
                 headers = {
                     @Header( name="Location", description = "The URL of the created mapping", schema = @Schema(type="string"))
-                }
+                },
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserInfo.class))
             ),
-            @ApiResponse( responseCode = "422", description = "Invalid input" ),
+            @ApiResponse( responseCode = "422", description = "Invalid input",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
             @ApiResponse( responseCode = "303", description = "The user exists already",
                 headers = {
                     @Header( name="Location", description = "The URL of the existing admin user", schema = @Schema(type="string"))
@@ -199,17 +218,18 @@ public interface UserService
             )
         }
     )
-    User createAdminUser( User user )
+    UserInfo createAdminUser( User user )
         throws RedbackServiceException;
 
     @Path( "admin/status" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Returns the availability status of the admin user. ",
+    @Operation( summary = "Returns the availability status of the admin user. ",
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If status can be retrieved"
+                description = "If status can be retrieved",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = AvailabilityStatus.class))
             )
         }
     )
@@ -222,9 +242,9 @@ public interface UserService
      */
     @Path( "{userId}/lock/set" )
     @POST
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Creates a user",
+    @Operation( summary = "Creates a user",
         security = {
             @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
         },
@@ -232,8 +252,10 @@ public interface UserService
             @ApiResponse( responseCode = "200",
                 description = "If locking was successful"
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for locking." )
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for locking.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  )
         }
     )
     void lockUser( @PathParam( "userId" ) String userId )
@@ -243,9 +265,9 @@ public interface UserService
      */
     @Path( "{userId}/lock/clear" )
     @POST
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Unlocks a user",
+    @Operation( summary = "Unlocks a user",
         security = {
             @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
         },
@@ -253,8 +275,10 @@ public interface UserService
             @ApiResponse( responseCode = "200",
                 description = "If unlocking was successful"
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for unlock." )
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for unlock.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  )
         }
     )
     void unlockUser( @PathParam( "userId" ) String userId )
@@ -265,9 +289,9 @@ public interface UserService
      */
     @Path( "{userId}/password/require/set" )
     @POST
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Sets the requirePassword flag for a given user",
+    @Operation( summary = "Sets the requirePassword flag for a given user",
         security = {
             @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
         },
@@ -275,8 +299,10 @@ public interface UserService
             @ApiResponse( responseCode = "200",
                 description = "If password change require flag was set"
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for editing." )
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for editing.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  )
 
         }
     )
@@ -287,9 +313,9 @@ public interface UserService
      */
     @Path( "{userId}/password/require/clear" )
     @POST
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Clears the requirePassword flag for a given user",
+    @Operation( summary = "Clears the requirePassword flag for a given user",
         security = {
             @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
         },
@@ -297,8 +323,10 @@ public interface UserService
             @ApiResponse( responseCode = "200",
                 description = "If password change require flag was unset"
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for editing." )
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for editing.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  )
 
         }
     )
@@ -309,78 +337,96 @@ public interface UserService
     /**
      * Update only the current logged in user and this fields: fullname, email, password.
      * The service verifies the current logged user with the one passed in the method
-     * @return
+     * @return the user info object
      */
     @Path( "me" )
     @PUT
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( noPermission = true )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Updates information of the current logged in user",
+    @Operation( summary = "Updates information of the current logged in user",
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If user data has been updated"
+                description = "The updated user information",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserInfo.class))
             ),
-            @ApiResponse( responseCode = "401", description = "User is not logged in" ),
-            @ApiResponse( responseCode = "400", description = "Provided data is not valid" )
+            @ApiResponse( responseCode = "401", description = "User is not logged in",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
+            @ApiResponse( responseCode = "400", description = "Provided data is not valid",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  )
         }
     )
-    User updateMe( SelfUserData user )
+    UserInfo updateMe( SelfUserData user )
         throws RedbackServiceException;
 
     @Path( "me" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( noPermission = true )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Gets information of the current logged in user",
-        responses = {
+    @Operation( summary = "Gets information of the current logged in user",
+             responses = {
             @ApiResponse( responseCode = "200",
-                description = "If user data is returned"
+                description = "The user information",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = UserInfo.class))
             ),
-            @ApiResponse( responseCode = "401", description = "User is not logged in" ),
+            @ApiResponse( responseCode = "401", description = "User is not logged in" ,
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
         }
     )
-    User getLoggedInUser( ) throws RedbackServiceException;
+    UserInfo getLoggedInUser( ) throws RedbackServiceException;
 
     @Path( "___ping___" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true )
+    @Operation( summary = "Checks the service availability",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "Pong",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PingResult.class))
+            )}
+    )
     PingResult ping()
         throws RedbackServiceException;
 
     @Path( "{userId}/cache/clear" )
     @POST
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION,
     resource = "{userId}")
-    @io.swagger.v3.oas.annotations.Operation( summary = "Clears the cache for the user",
+    @Operation( summary = "Clears the cache for the user",
         security = {
             @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_EDIT_OPERATION )
         },
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If the cache was cleared properly"
+                description = "Status of the clear operation",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ActionStatus.class))
+
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "403", description = "The authenticated user has not the required permission." )
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the required permission.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  )
         }
     )
     ActionStatus removeFromCache( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
     /**
-     * @return
+     * @return the registration key
      */
     @Path( "{userId}/register" )
     @POST
-    @Produces( {MediaType.APPLICATION_JSON} )
+    @Produces( {APPLICATION_JSON} )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Registers a new user",
+    @Operation( summary = "Registers a new user",
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If the registration was successful, a registration key is returned"
+                description = "If the registration was successful, a registration key is returned",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RegistrationKey.class))
             ),
-            @ApiResponse( responseCode = "422", description = "If the the provided user data is not valid" ),
+            @ApiResponse( responseCode = "422", description = "If the the provided user data is not valid",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
         }
     )
     RegistrationKey registerUser( @PathParam( "userId" ) String userId, UserRegistrationRequest userRegistrationRequest )
@@ -392,15 +438,18 @@ public interface UserService
      */
     @Path( "{userId}/password/reset" )
     @POST
-    @Produces( { MediaType.APPLICATION_JSON } )
-    @Consumes( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
+    @Consumes( { APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Asks for a password reset of the given user. This generates a reset email sent to the stored address of the given user.",
+    @Operation( summary = "Asks for a password reset of the given user. This generates a reset email sent to the stored address of the given user.",
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If the password reset email was sent"
+                description = "The result status of the password reset.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ActionStatus.class))
+
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
         }
     )
     ActionStatus resetPassword( @PathParam( "userId" )String userId )
@@ -410,19 +459,23 @@ public interface UserService
      */
     @Path( "{userId}/permissions" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_VIEW_OPERATION,
         resource = "{userId}")
-    @io.swagger.v3.oas.annotations.Operation( summary = "Returns a list of permissions assigned to the given user.",
+    @Operation( summary = "Returns a list of permissions assigned to the given user.",
         security = {
             @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_VIEW_OPERATION )
         },
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If the list could be returned"
+                description = "If the list could be returned",
+                content = @Content(mediaType = APPLICATION_JSON, array = @ArraySchema(schema =
+                    @Schema(implementation = Permission.class)))
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "403", description = "Logged in user does not have the permission to get this information." ),
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "Logged in user does not have the permission to get this information." ,
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))),
         }
     )
     Collection<Permission> getUserPermissions( @PathParam( "userId" ) String userName )
@@ -433,22 +486,26 @@ public interface UserService
      */
     @Path( "{userId}/operations" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_VIEW_OPERATION,
         resource = "{userId}")
-    @io.swagger.v3.oas.annotations.Operation( summary = "Returns a list of privileged operations assigned to the given user.",
+    @Operation( summary = "Returns a list of privileged operations assigned to the given user.",
         security = {
             @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_USER_VIEW_OPERATION )
         },
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If the list could be returned"
+                description = "If the list could be returned",
+                content = @Content(mediaType = APPLICATION_JSON, array = @ArraySchema(schema =
+                @Schema(implementation = org.apache.archiva.redback.rest.api.model.v2.Operation.class )))
             ),
-            @ApiResponse( responseCode = "404", description = "User does not exist" ),
-            @ApiResponse( responseCode = "403", description = "Logged in user does not have the permission to get this information." ),
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "Logged in user does not have the permission to get this information.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
         }
     )
-    Collection<Operation> getUserOperations( @PathParam( "userId" ) String userName )
+    Collection<org.apache.archiva.redback.rest.api.model.v2.Operation> getUserOperations( @PathParam( "userId" ) String userName )
         throws RedbackServiceException;
 
     /**
@@ -457,12 +514,14 @@ public interface UserService
      */
     @Path( "me/permissions" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Returns a list of permissions assigned to the logged in user.",
+    @Operation( summary = "Returns a list of permissions assigned to the logged in user.",
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If the list could be returned"
+                description = "If the list could be returned",
+                content = @Content(mediaType = APPLICATION_JSON, array = @ArraySchema(schema =
+            @Schema(implementation = Permission.class )))
             )
         }
     )
@@ -475,29 +534,33 @@ public interface UserService
      */
     @Path( "me/operations" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Returns a list of privileged operations assigned to the logged in user.",
+    @Operation( summary = "Returns a list of privileged operations assigned to the logged in user.",
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If the list could be returned"
+                description = "The list of operations assigne to the current user",
+                content = @Content(mediaType = APPLICATION_JSON, array = @ArraySchema(schema =
+                @Schema(implementation = org.apache.archiva.redback.rest.api.model.v2.Operation.class )))
             )
         }
     )
-    Collection<Operation> getCurrentUserOperations( )
+    Collection<org.apache.archiva.redback.rest.api.model.v2.Operation> getCurrentUserOperations( )
         throws RedbackServiceException;
 
 
     @Path( "{userId}/register/{key}/validate" )
     @POST
-    @Produces( {MediaType.APPLICATION_JSON} )
+    @Produces( {APPLICATION_JSON} )
     @RedbackAuthorization( noRestriction = true, noPermission = true )
-    @io.swagger.v3.oas.annotations.Operation( summary = "Validate the user registration for the given userid by checking the provided key.",
+    @Operation( summary = "Validate the user registration for the given userid by checking the provided key.",
         responses = {
             @ApiResponse( responseCode = "200",
-                description = "If the verification was successful"
+                description = "The status of the user registration",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = VerificationStatus.class))
             ),
-            @ApiResponse( responseCode = "404", description = "No user registration was found for the given id and key" )
+            @ApiResponse( responseCode = "404", description = "No user registration was found for the given id and key",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )))
         }
     )
     VerificationStatus validateUserRegistration( @PathParam( "userId" ) String userId, @PathParam( "key" ) String key )

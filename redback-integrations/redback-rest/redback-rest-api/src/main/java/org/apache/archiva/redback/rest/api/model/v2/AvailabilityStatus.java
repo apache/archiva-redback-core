@@ -18,6 +18,8 @@ package org.apache.archiva.redback.rest.api.model.v2;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -30,6 +32,7 @@ import java.time.ZoneId;
  * @author Martin Stockhammer <martin_s@apache.org>
  */
 @XmlRootElement(name="availabilityStatus")
+@Schema(name="AvailabilityStatus", description = "Status of availability of a requested resource")
 public class AvailabilityStatus
 {
     boolean exists = false;
@@ -50,6 +53,7 @@ public class AvailabilityStatus
         this.since = OffsetDateTime.ofInstant( Instant.EPOCH, ZoneId.systemDefault() );
     }
 
+    @Schema(description = "Returns true, if the resource exists")
     public boolean isExists( )
     {
         return exists;
@@ -60,6 +64,7 @@ public class AvailabilityStatus
         this.exists = exists;
     }
 
+    @Schema(description = "Returns the last date since the resource was updated")
     public OffsetDateTime getSince( )
     {
         return since;
