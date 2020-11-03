@@ -181,6 +181,7 @@ public class AdminAutoCreateCheck
                 // good add various tokens.
                 u = securitySession.getUser();
                 u.setLastLoginDate( new Date() );
+                u.setPassword( null );
                 securitySystem.getUserManager().updateUser( u );
             }
             assignAdminRole( u );
