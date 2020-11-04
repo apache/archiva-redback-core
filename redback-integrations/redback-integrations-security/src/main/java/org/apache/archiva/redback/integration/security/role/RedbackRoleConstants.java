@@ -47,7 +47,7 @@ public interface RedbackRoleConstants
     public static final String GUEST_ACCESS_OPERATION = "guest-access";
 
     // operations against configuration
-    public static final String CONFIGURATION_EDIT_OPERATION = "configuration-edit";
+    public static final String CONFIGURATION_EDIT_OPERATION = "redback-configuration-edit";
 
     // operations against user
     public static final String USER_MANAGEMENT_USER_CREATE_OPERATION = "user-management-user-create";

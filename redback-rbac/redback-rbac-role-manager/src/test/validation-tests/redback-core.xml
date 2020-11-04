@@ -46,8 +46,8 @@
 			</resources>
 			<operations>
 				<operation>
-					<id>configuration-edit</id>
-					<name>configuration-edit</name>
+					<id>redback-configuration-edit</id>
+					<name>redback-configuration-edit</name>
 					<description>edit configuration</description>
 					<permanent>true</permanent>
 				</operation>
@@ -116,7 +116,7 @@
 						<permission>
 							<id>edit-redback-configuration</id>
 							<name>Edit Redback Configuration</name>
-							<operation>configuration-edit</operation>
+							<operation>redback-configuration-edit</operation>
 							<resource>global</resource>
 							<permanent>true</permanent>
 						</permission>
