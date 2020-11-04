@@ -38,6 +38,8 @@ public class Permission
 
     private String description;
 
+    private String descriptionKey;
+
     private Operation operation;
 
     private Resource resource;
@@ -103,5 +105,15 @@ public class Permission
         sb.append( ", permanent=" ).append( permanent );
         sb.append( '}' );
         return sb.toString();
+    }
+
+    public String getDescriptionKey( )
+    {
+        return descriptionKey;
+    }
+
+    public void setDescriptionKey( String descriptionKey )
+    {
+        this.descriptionKey = descriptionKey;
     }
 }

@@ -19,9 +19,9 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import io.restassured.response.Response;
-import org.apache.archiva.redback.rest.api.model.Operation;
-import org.apache.archiva.redback.rest.api.model.Permission;
-import org.apache.archiva.redback.rest.api.model.VerificationStatus;
+import org.apache.archiva.redback.rest.api.model.v2.Operation;
+import org.apache.archiva.redback.rest.api.model.v2.Permission;
+import org.apache.archiva.redback.rest.api.model.v2.VerificationStatus;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.v2.User;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;

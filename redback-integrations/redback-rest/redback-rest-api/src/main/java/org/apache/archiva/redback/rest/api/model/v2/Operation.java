@@ -33,9 +33,12 @@ public class Operation
     implements Serializable
 {
     private static final long serialVersionUID = 3666638961610656624L;
+
     private String name;
 
     private String description;
+
+    private String descriptionKey;
 
     private boolean permanent;
 
@@ -94,5 +97,15 @@ public class Operation
         sb.append( ", permanent=" ).append( permanent );
         sb.append( '}' );
         return sb.toString();
+    }
+
+    public String getDescriptionKey( )
+    {
+        return descriptionKey;
+    }
+
+    public void setDescriptionKey( String descriptionKey )
+    {
+        this.descriptionKey = descriptionKey;
     }
 }

@@ -931,6 +931,12 @@ public class DefaultUserService
         }
     }
 
+    @Override
+    public Collection<Permission> getGuestPermissions( ) throws RedbackServiceException
+    {
+        return getUserPermissions( UserManager.GUEST_USERNAME );
+    }
+
     public void validateCredentialsLoose( User user )
         throws RedbackServiceException
     {

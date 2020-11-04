@@ -60,13 +60,6 @@ public class UserInfo
     private OffsetDateTime timestampLastPasswordChange;
 
     /**
-     * for roles update only <b>not return on user read</b>
-     *
-     * @since 2.0
-     */
-    private List<String> assignedRoles;
-
-    /**
      * with some userManagerImpl it's not possible to edit users;
      * @since 2.1
      */
@@ -258,17 +251,6 @@ public class UserInfo
         this.timestampLastPasswordChange = OffsetDateTime.ofInstant( timestampLastPasswordChange, ZoneId.systemDefault() );
     }
 
-    @Schema(description = "The roles assigned to the user")
-    public List<String> getAssignedRoles()
-    {
-        return assignedRoles;
-    }
-
-    public void setAssignedRoles( List<String> assignedRoles )
-    {
-        this.assignedRoles = assignedRoles;
-    }
-
     @Schema(description = "True, if this is user has readonly access")
     public boolean isReadOnly()
     {
@@ -326,7 +308,6 @@ public class UserInfo
             ", timestampAccountCreation='" + timestampAccountCreation + '\'' +
             ", timestampLastLogin='" + timestampLastLogin + '\'' +
             ", timestampLastPasswordChange='" + timestampLastPasswordChange + '\'' +
-            ", assignedRoles=" + assignedRoles +
             ", readOnly=" + readOnly +
             ", userManagerId='" + userManagerId + '\'' +
             ", validationToken='" + validationToken + '\'' +

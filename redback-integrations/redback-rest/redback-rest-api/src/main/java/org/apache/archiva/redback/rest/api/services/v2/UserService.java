@@ -57,6 +57,7 @@ import java.util.Collection;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
+import static org.apache.archiva.redback.users.UserManager.GUEST_USERNAME;
 
 @Path( "/users" )
 @Tag(name = "v2")
@@ -479,6 +480,22 @@ public interface UserService
         }
     )
     Collection<Permission> getUserPermissions( @PathParam( "userId" ) String userName )
+        throws RedbackServiceException;
+
+    @Path( GUEST_USERNAME+"/permissions" )
+    @GET
+    @Produces( { APPLICATION_JSON } )
+    @RedbackAuthorization( noRestriction = true )
+    @Operation( summary = "Returns a list of permissions assigned to the guest user.",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the list could be returned",
+                content = @Content(mediaType = APPLICATION_JSON, array = @ArraySchema(schema =
+                @Schema(implementation = Permission.class)))
+            )
+        }
+    )
+    Collection<Permission> getGuestPermissions(  )
         throws RedbackServiceException;
 
     /**
