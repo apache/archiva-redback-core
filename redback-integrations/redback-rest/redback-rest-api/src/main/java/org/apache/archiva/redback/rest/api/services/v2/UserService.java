@@ -20,6 +20,7 @@ package org.apache.archiva.redback.rest.api.services.v2;
  */
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -54,6 +55,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import java.util.Collection;
+import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
@@ -97,6 +99,13 @@ public interface UserService
     @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION )
     @Operation( summary = "Returns all users defined. The result is paged.",
+        parameters = {
+            @Parameter(name = "q", description = "Search term"),
+            @Parameter(name = "offset", description = "The offset of the first element returned"),
+            @Parameter(name = "limit", description = "Maximum number of items to return in the response"),
+            @Parameter(name = "orderBy", description = "List of attribute used for sorting (user_id, fullName, email, created"),
+            @Parameter(name = "order", description = "The sort order. Either ascending (asc) or descending (desc)")
+        },
         security = {
             @SecurityRequirement(
                 name = RedbackRoleConstants.USER_MANAGEMENT_USER_LIST_OPERATION
@@ -111,8 +120,11 @@ public interface UserService
                 content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
         }
     )
-    PagedResult<UserInfo> getUsers( @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
-                                      @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Integer limit)
+    PagedResult<UserInfo> getUsers( @QueryParam("q") @DefaultValue( "" ) String searchTerm,
+                                    @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
+                                    @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Integer limit,
+                                    @QueryParam( "orderBy") @DefaultValue( "id" ) List<String> orderBy,
+                                    @QueryParam("order") @DefaultValue( "asc" ) String order)
         throws RedbackServiceException;
 
     @Path( "" )

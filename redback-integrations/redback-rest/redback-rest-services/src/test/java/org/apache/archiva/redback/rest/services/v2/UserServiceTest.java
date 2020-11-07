@@ -123,7 +123,7 @@ public class UserServiceTest
     {
         String adminHeader = getAdminAuthzHeader( );
         UserService userService = getUserService( adminHeader );
-        PagedResult<org.apache.archiva.redback.rest.api.model.v2.UserInfo> users = userService.getUsers( 0, Integer.MAX_VALUE );
+        PagedResult<org.apache.archiva.redback.rest.api.model.v2.UserInfo> users = userService.getUsers( "", 0, Integer.MAX_VALUE, Collections.emptyList(), "asc" );
         assertNotNull( users );
         assertFalse( users.getData().isEmpty( ) );
     }
@@ -135,7 +135,7 @@ public class UserServiceTest
         assertThrows( ForbiddenException.class, ( ) -> {
             try
             {
-                userService.getUsers( 0, Integer.MAX_VALUE);
+                userService.getUsers( "", 0, Integer.MAX_VALUE, Collections.emptyList(), "asc");
             }
             catch ( ForbiddenException e )
             {

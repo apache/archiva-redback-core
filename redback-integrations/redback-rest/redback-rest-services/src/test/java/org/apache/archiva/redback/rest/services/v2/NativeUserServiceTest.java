@@ -81,15 +81,102 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             .when( ).get( ).then( ).statusCode( 200 ).extract( ).response( );
         assertNotNull( response );
         List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
-        for ( User user : userData )
-        {
-            System.out.println( user.getId( ) + " " + user.getFullName( ) );
-        }
         assertNotNull( userData );
         assertEquals( 2, userData.size( ) );
         assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
         assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
         assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+    }
+
+
+    @Test
+    void getMultipleUsers( )
+    {
+        int userNum = 25;
+        String token = getAdminToken( );
+        try
+        {
+            for ( int i = 0; i < userNum; i++ )
+            {
+                String suffix = String.format( "%03d", i );
+                Map<String, Object> jsonAsMap = new HashMap<>( );
+                jsonAsMap.put( "user_id", "aragorn" + suffix );
+                jsonAsMap.put( "email", "aragorn" + suffix+ "@lordoftherings.org" );
+                jsonAsMap.put( "fullName", "Aragorn King of Gondor " + i );
+                jsonAsMap.put( "password", "pAssw0rD" );
+                Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                    .body( jsonAsMap )
+                    .when( )
+                    .post( )
+                    .then( ).statusCode( 201 ).extract( ).response( );
+            }
+            Map<String, String> params = new HashMap<>( );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( ).get( ).then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            for(User user : userData) {
+                System.out.println( "User " + user.getUserId( ) );
+            }
+            assertNotNull( userData );
+            assertEquals( "admin", userData.get( 0 ).getUserId( ) );
+            assertEquals( userNum+2, userData.size( ) );
+            assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
+            assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+            assertEquals( Integer.valueOf( userNum+2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+
+            params = new HashMap<>( );
+            params.put( "limit", Integer.toString( 10 ) );
+            params.put( "offset", Integer.toString( 1 ) );
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
+            userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            assertNotNull( userData );
+            assertEquals( "aragorn000", userData.get( 0 ).getUserId( ) );
+            assertEquals( "aragorn009", userData.get( 9 ).getUserId( ) );
+            assertEquals( 10, userData.size( ) );
+            assertEquals( Integer.valueOf( 1 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
+            assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+            assertEquals( Integer.valueOf( userNum+2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+
+            params = new HashMap<>( );
+            params.put( "limit", Integer.toString( 10 ) );
+            params.put( "offset", Integer.toString( 0 ) );
+            params.put( "order", "desc" );
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
+            userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            assertNotNull( userData );
+            assertEquals( "guest", userData.get( 0 ).getUserId( ) );
+            assertEquals( "aragorn016", userData.get( 9 ).getUserId( ) );
+            assertEquals( 10, userData.size( ) );
+            assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
+            assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+            assertEquals( Integer.valueOf( userNum+2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+
+            params = new HashMap<>( );
+            params.put( "limit", Integer.toString( 10 ) );
+            params.put( "offset", Integer.toString( 0 ) );
+            params.put( "order", "asc" );
+            params.put( "q", "015" );
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
+            userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            assertNotNull( userData );
+            assertEquals( "aragorn015", userData.get( 0 ).getUserId( ) );
+            assertEquals( 1, userData.size( ) );
+            assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
+            assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+            assertEquals( Integer.valueOf( 1 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+
+        } finally {
+            for (int i=0; i<userNum; i++)
+            {
+                String suffix = String.format( "%03d", i );
+                given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                    .when( ).delete( "aragorn"+suffix ).then( ).statusCode( 200 );
+            }
+        }
     }
 
     @Test

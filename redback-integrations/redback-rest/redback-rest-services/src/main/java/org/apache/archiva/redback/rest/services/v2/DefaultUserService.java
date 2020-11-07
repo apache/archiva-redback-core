@@ -70,6 +70,7 @@ import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
+import org.apache.archiva.redback.users.UserQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,9 +91,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service( "v2.userService#rest" )
@@ -104,6 +112,22 @@ public class DefaultUserService
 
     private static final String VALID_USERNAME_CHARS = "[a-zA-Z_0-9\\-.@]*";
     private static final String[] INVALID_CREATE_USER_NAMES = { "admin", "guest", "me" };
+
+    private static final String[] DEFAULT_SEARCH_FIELDS = {"user_id", "fullName", "email"};
+    private static final Map<String, BiPredicate<String, org.apache.archiva.redback.users.User>> FILTER_MAP = new HashMap<>( );
+    private static final Map<String,Comparator<org.apache.archiva.redback.users.User>> ORDER_MAP = new HashMap<>( );
+    static  {
+        ORDER_MAP.put( "id", Comparator.comparing( org.apache.archiva.redback.users.User::getId ) );
+        ORDER_MAP.put( "user_id", Comparator.comparing( org.apache.archiva.redback.users.User::getUsername ) );
+        ORDER_MAP.put( "fullName", Comparator.comparing( org.apache.archiva.redback.users.User::getFullName) );
+        ORDER_MAP.put( "email", Comparator.comparing( org.apache.archiva.redback.users.User::getEmail) );
+        ORDER_MAP.put( "created", Comparator.comparing( org.apache.archiva.redback.users.User::getAccountCreationDate) );
+
+        FILTER_MAP.put( "user_id", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getUsername( ), q ) );
+        FILTER_MAP.put( "fullName", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getFullName( ), q ) );
+        FILTER_MAP.put( "email", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getEmail( ), q ) );
+    }
+
 
     private UserManager userManager;
 
@@ -333,26 +357,66 @@ public class DefaultUserService
         }
     }
 
+    Comparator<org.apache.archiva.redback.users.User> getAttributeComparator(String attributeName) {
+        return ORDER_MAP.get( attributeName );
+    }
+
+    Comparator<org.apache.archiva.redback.users.User> getComparator( List<String> orderBy, boolean ascending) {
+        if (ascending)
+        {
+            return orderBy.stream( ).map( ( String name ) -> getAttributeComparator( name ) ).reduce( Comparator::thenComparing ).get( );
+        } else {
+            return orderBy.stream( ).map( ( String name ) -> getAttributeComparator( name ).reversed() ).reduce( Comparator::thenComparing ).get( );
+        }
+    }
+
+    static Predicate<org.apache.archiva.redback.users.User> getFilter(final String attribute, final String queryToken) {
+        if (FILTER_MAP.containsKey( attribute ))
+        {
+            return ( org.apache.archiva.redback.users.User u ) -> FILTER_MAP.get( attribute ).test( queryToken, u );
+        } else {
+            return Arrays.stream( DEFAULT_SEARCH_FIELDS )
+                .map( att -> getFilter( att, queryToken ) ).reduce( Predicate::or ).get( );
+        }
+    }
+
+    Predicate<org.apache.archiva.redback.users.User> getUserFilter(String queryTerms) {
+        return Arrays.stream( queryTerms.split( "\\s+" ) )
+            .map( s -> {
+                    if ( s.contains( ":" ) )
+                    {
+                        String attr = StringUtils.substringBefore( s, ":" );
+                        String term = StringUtils.substringAfter( s, ":" );
+                        return getFilter( attr, term );
+                    }
+                    else
+                    {
+                        return Arrays.stream( DEFAULT_SEARCH_FIELDS )
+                            .map( att -> getFilter( att, s ) ).reduce( Predicate::or ).get( );
+                    }
+                }
+            ).reduce( Predicate::or ).get();
+    }
+
     @Override
-    public PagedResult<UserInfo> getUsers(Integer offset,
-                                      Integer limit)
+    public PagedResult<UserInfo> getUsers(String q, Integer offset,
+                                      Integer limit, List<String> orderBy, String order)
         throws RedbackServiceException
     {
+        boolean ascending = !"desc".equals( order );
         try
         {
-            List<? extends org.apache.archiva.redback.users.User> users = userManager.getUsers();
-            if (offset>=users.size()) {
-                return new PagedResult<>( users.size( ), offset, limit, Collections.emptyList( ) );
-            }
-            int endIndex = PagingHelper.getLastIndex( offset, limit, users.size( ) );
-            List<? extends org.apache.archiva.redback.users.User> resultList = users.subList( offset, endIndex );
-            List<UserInfo> simpleUsers = new ArrayList<>( resultList.size() );
-
-            for ( org.apache.archiva.redback.users.User user : resultList )
-            {
-                simpleUsers.add( getRestUser( user ) );
-            }
-            return new PagedResult<>( users.size( ), offset, limit, simpleUsers );
+            // UserQuery does not work here, because the configurable user manager does only return the query for
+            // the first user manager in the list. So we have to fetch the whole user list
+            List<? extends org.apache.archiva.redback.users.User> rawUsers =userManager.getUsers( );
+            Predicate<org.apache.archiva.redback.users.User> filter = getUserFilter( q );
+            long size = rawUsers.stream().filter(filter ).count();
+            List<UserInfo> users = rawUsers.stream( )
+                .filter( filter )
+                .sorted( getComparator( orderBy, ascending ) ).skip( offset ).limit( limit )
+                .map( user -> getRestUser( user ) )
+                .collect( Collectors.toList( ) );
+            return new PagedResult<>( (int)size, offset, limit, users );
         }
         catch ( UserManagerException e )
         {

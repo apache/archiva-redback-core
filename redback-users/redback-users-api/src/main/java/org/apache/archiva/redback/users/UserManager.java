@@ -24,6 +24,12 @@ import java.util.List;
 /**
  * User Manager Interface
  *
+ * @TODO: Add Streaming Methods
+ * @TODO: Improve query to allow multiple sort values
+ * @TODO: Improve query to avoid UnsupportedOperationExceptions (e.g. in LDAP or combined user manager)
+ * @TODO: Improve query to allow upper/lowercase and substring queries for all user managers
+ * @TODO: Add method for total count of users
+ *
  * @author Jason van Zyl
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  */
