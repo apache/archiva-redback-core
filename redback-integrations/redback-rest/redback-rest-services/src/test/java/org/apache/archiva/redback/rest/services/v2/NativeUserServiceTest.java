@@ -55,6 +55,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance( TestInstance.Lifecycle.PER_CLASS )
 @Tag( "rest-native" )
 @TestMethodOrder( MethodOrderer.Random.class )
+@DisplayName( "Native REST tests for V2 UserService" )
 public class NativeUserServiceTest extends AbstractNativeRestServices
 {
     @Override
@@ -107,10 +108,12 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             for ( int i = 0; i < userNum; i++ )
             {
                 String suffix = String.format( "%03d", i );
+                String reverseSuffix = String.format( "%03d", userNum - i );
+                String modSuffix = String.format( "%03d", ( i + 5 ) % userNum );
                 Map<String, Object> jsonAsMap = new HashMap<>( );
                 jsonAsMap.put( "user_id", "aragorn" + suffix );
-                jsonAsMap.put( "email", "aragorn" + suffix + "@lordoftherings.org" );
-                jsonAsMap.put( "fullName", "Aragorn King of Gondor " + i );
+                jsonAsMap.put( "email", "aragorn" + reverseSuffix + "@lordoftherings.org" );
+                jsonAsMap.put( "fullName", "Aragorn King of Gondor " + modSuffix );
                 jsonAsMap.put( "password", "pAssw0rD" );
                 Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                     .body( jsonAsMap )
@@ -157,14 +160,60 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( Integer.valueOf( 1 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
             assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+        }
 
-            params = new HashMap<>( );
+        @Test
+        void getMultipleUsersWithPagingOrderByMail( )
+        {
+            HashMap<String, String> params = new HashMap<>( );
+            params.put( "limit", Integer.toString( 5 ) );
+            params.put( "offset", Integer.toString( 3 ) );
+            params.put( "orderBy", "email" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
+            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            assertNotNull( userData );
+            // admin user has toto@toto.org as email so is after aragorn
+            assertEquals( "aragorn003@lordoftherings.org", userData.get( 0 ).getEmail() );
+            assertEquals( "aragorn022", userData.get( 0 ).getUserId() );
+            assertEquals( "aragorn007@lordoftherings.org", userData.get( 4 ).getEmail( ) );
+            assertEquals( 5, userData.size( ) );
+            assertEquals( Integer.valueOf( 3 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
+            assertEquals( Integer.valueOf( 5 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+        }
+
+        @Test
+        void getMultipleUsersWithPagingOrderByFullName( )
+        {
+            HashMap<String, String> params = new HashMap<>( );
+            params.put( "limit", Integer.toString( 8 ) );
+            params.put( "offset", Integer.toString( 10 ) );
+            params.put( "orderBy", "fullName" );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
+            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            assertNotNull( userData );
+            // admin user has toto@toto.org as email so is after aragorn
+            assertEquals( "Aragorn King of Gondor 010", userData.get( 0 ).getFullName() );
+            assertEquals( "aragorn005", userData.get(0 ).getUserId() );
+            assertEquals( "Aragorn King of Gondor 017", userData.get( 7 ).getFullName() );
+            assertEquals( 8, userData.size( ) );
+            assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
+            assertEquals( Integer.valueOf( 8 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+        }
+
+        @Test
+        void getMultipleUsersWithPagingReverseOrder( )
+        {
+            HashMap<String, String> params = new HashMap<>( );
             params.put( "limit", Integer.toString( 10 ) );
             params.put( "offset", Integer.toString( 0 ) );
             params.put( "order", "desc" );
-            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
-            userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
             assertNotNull( userData );
             assertEquals( "guest", userData.get( 0 ).getUserId( ) );
             assertEquals( "aragorn016", userData.get( 9 ).getUserId( ) );
@@ -172,21 +221,25 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
             assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
-
-            params = new HashMap<>( );
+        }
+        @Test
+        void getMultipleUsersWithPagingAndQuery( ) {
+        HashMap<String, String> params = new HashMap<>( );
             params.put( "limit", Integer.toString( 10 ) );
             params.put( "offset", Integer.toString( 0 ) );
             params.put( "order", "asc" );
             params.put( "q", "015" );
-            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
-            userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
             assertNotNull( userData );
-            assertEquals( "aragorn015", userData.get( 0 ).getUserId( ) );
-            assertEquals( 1, userData.size( ) );
+            assertEquals( "aragorn010", userData.get( 0 ).getUserId( ) );
+            assertEquals( "aragorn015@lordoftherings.org", userData.get( 0 ).getEmail( ) );
+            assertEquals( "aragorn015", userData.get( 1 ).getUserId( ) );
+            assertEquals( 2, userData.size( ) );
             assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-            assertEquals( Integer.valueOf( 1 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+            assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
 
         }
 
