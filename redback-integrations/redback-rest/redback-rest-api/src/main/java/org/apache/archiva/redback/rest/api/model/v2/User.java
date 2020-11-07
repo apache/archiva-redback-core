@@ -38,8 +38,6 @@ public class User
 
     private static final long serialVersionUID = 7457798933140993643L;
 
-    private String id;
-
     private String userId;
 
     private String fullName;
@@ -123,7 +121,6 @@ public class User
         this.setPasswordChangeRequired( user.isPasswordChangeRequired() );
         this.setPermanent( user.isPermanent() );
         this.setUserManagerId( user.getUserManagerId() );
-        this.setId( user.getId() );
 
         if (user.getAccountCreationDate()==null) {
             setTimestampAccountCreationByInstant( Instant.EPOCH );
@@ -333,16 +330,6 @@ public class User
 
     public void setValidationToken(String validationToken) {
         this.validationToken = validationToken;
-    }
-
-    public String getId( )
-    {
-        return id;
-    }
-
-    public void setId( String id )
-    {
-        this.id = id;
     }
 
     @Override

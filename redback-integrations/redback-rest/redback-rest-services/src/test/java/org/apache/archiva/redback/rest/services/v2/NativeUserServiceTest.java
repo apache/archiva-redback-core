@@ -23,6 +23,7 @@ import org.apache.archiva.redback.rest.api.model.v2.Operation;
 import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.v2.User;
+import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.model.v2.VerificationStatus;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
 import org.junit.jupiter.api.AfterAll;
@@ -83,7 +84,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .when( ).get( ).then( ).statusCode( 200 ).extract( ).response( );
         assertNotNull( response );
-        List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+        List<UserInfo> userData = response.body( ).jsonPath( ).getList( "data", UserInfo.class );
         assertNotNull( userData );
         assertEquals( 2, userData.size( ) );
         assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
@@ -130,11 +131,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).get( ).then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull( response );
-            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
-            for ( User user : userData )
-            {
-                System.out.println( "User " + user.getUserId( ) );
-            }
+            List<UserInfo> userData = response.body( ).jsonPath( ).getList( "data", UserInfo.class );
             assertNotNull( userData );
             assertEquals( "admin", userData.get( 0 ).getUserId( ) );
             assertEquals( userNum + 2, userData.size( ) );
@@ -152,7 +149,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             params.put( "offset", Integer.toString( 1 ) );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
-            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            List<UserInfo> userData = response.body( ).jsonPath( ).getList( "data", UserInfo.class );
             assertNotNull( userData );
             assertEquals( "aragorn000", userData.get( 0 ).getUserId( ) );
             assertEquals( "aragorn009", userData.get( 9 ).getUserId( ) );
@@ -171,7 +168,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             params.put( "orderBy", "email" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
-            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            List<UserInfo> userData = response.body( ).jsonPath( ).getList( "data", UserInfo.class );
             assertNotNull( userData );
             // admin user has toto@toto.org as email so is after aragorn
             assertEquals( "aragorn003@lordoftherings.org", userData.get( 0 ).getEmail() );
@@ -192,7 +189,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             params.put( "orderBy", "fullName" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
-            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            List<UserInfo> userData = response.body( ).jsonPath( ).getList( "data", UserInfo.class );
             assertNotNull( userData );
             // admin user has toto@toto.org as email so is after aragorn
             assertEquals( "Aragorn King of Gondor 010", userData.get( 0 ).getFullName() );
@@ -213,7 +210,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             params.put( "order", "desc" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
-            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            List<UserInfo> userData = response.body( ).jsonPath( ).getList( "data", UserInfo.class );
             assertNotNull( userData );
             assertEquals( "guest", userData.get( 0 ).getUserId( ) );
             assertEquals( "aragorn016", userData.get( 9 ).getUserId( ) );
@@ -231,7 +228,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             params.put( "q", "015" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
-            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            List<UserInfo> userData = response.body( ).jsonPath( ).getList( "data", UserInfo.class );
             assertNotNull( userData );
             assertEquals( "aragorn010", userData.get( 0 ).getUserId( ) );
             assertEquals( "aragorn015@lordoftherings.org", userData.get( 0 ).getEmail( ) );
