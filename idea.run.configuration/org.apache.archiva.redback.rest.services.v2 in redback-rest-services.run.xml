@@ -12,7 +12,7 @@
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="package" />
-    <option name="VM_PARAMETERS" value="-ea -Dbasedir=$MODULE_DIR$ -DldapPort=10389 -javaagent:$MAVEN_REPOSITORY$/org/apache/openjpa/openjpa/3.1.1/openjpa-3.1.1.jar" />
+    <option name="VM_PARAMETERS" value="-ea -Dbasedir=$MODULE_DIR$ -DldapPort=10389 -javaagent:/opt/driver/openjpa/openjpa.jar" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
     <method v="2">

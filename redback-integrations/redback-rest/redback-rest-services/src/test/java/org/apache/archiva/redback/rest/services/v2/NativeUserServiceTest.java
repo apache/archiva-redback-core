@@ -21,13 +21,15 @@ package org.apache.archiva.redback.rest.services.v2;
 import io.restassured.response.Response;
 import org.apache.archiva.redback.rest.api.model.v2.Operation;
 import org.apache.archiva.redback.rest.api.model.v2.Permission;
-import org.apache.archiva.redback.rest.api.model.v2.VerificationStatus;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.v2.User;
+import org.apache.archiva.redback.rest.api.model.v2.VerificationStatus;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -88,20 +90,26 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
     }
 
-
-    @Test
-    void getMultipleUsers( )
+    @Nested
+    @DisplayName( "Test User queries" )
+    @ContextConfiguration(
+        locations = {"classpath:/ldap-spring-test.xml"} )
+    @TestInstance( TestInstance.Lifecycle.PER_CLASS )
+    class TestUserRetrieval
     {
         int userNum = 25;
-        String token = getAdminToken( );
-        try
+        String token;
+
+        @BeforeAll
+        void initUsers( )
         {
+            this.token = getAdminToken( );
             for ( int i = 0; i < userNum; i++ )
             {
                 String suffix = String.format( "%03d", i );
                 Map<String, Object> jsonAsMap = new HashMap<>( );
                 jsonAsMap.put( "user_id", "aragorn" + suffix );
-                jsonAsMap.put( "email", "aragorn" + suffix+ "@lordoftherings.org" );
+                jsonAsMap.put( "email", "aragorn" + suffix + "@lordoftherings.org" );
                 jsonAsMap.put( "fullName", "Aragorn King of Gondor " + i );
                 jsonAsMap.put( "password", "pAssw0rD" );
                 Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -110,34 +118,45 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                     .post( )
                     .then( ).statusCode( 201 ).extract( ).response( );
             }
+        }
+
+        @Test
+        void getMultipleUsersWithoutParams( )
+        {
             Map<String, String> params = new HashMap<>( );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).get( ).then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull( response );
             List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
-            for(User user : userData) {
+            for ( User user : userData )
+            {
                 System.out.println( "User " + user.getUserId( ) );
             }
             assertNotNull( userData );
             assertEquals( "admin", userData.get( 0 ).getUserId( ) );
-            assertEquals( userNum+2, userData.size( ) );
+            assertEquals( userNum + 2, userData.size( ) );
             assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-            assertEquals( Integer.valueOf( userNum+2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
 
-            params = new HashMap<>( );
+        }
+
+        @Test
+        void getMultipleUsersWithPaging( )
+        {
+            HashMap<String, String> params = new HashMap<>( );
             params.put( "limit", Integer.toString( 10 ) );
             params.put( "offset", Integer.toString( 1 ) );
-            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
-            userData = response.body( ).jsonPath( ).getList( "data", User.class );
+            List<User> userData = response.body( ).jsonPath( ).getList( "data", User.class );
             assertNotNull( userData );
             assertEquals( "aragorn000", userData.get( 0 ).getUserId( ) );
             assertEquals( "aragorn009", userData.get( 9 ).getUserId( ) );
             assertEquals( 10, userData.size( ) );
             assertEquals( Integer.valueOf( 1 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-            assertEquals( Integer.valueOf( userNum+2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
 
             params = new HashMap<>( );
             params.put( "limit", Integer.toString( 10 ) );
@@ -152,7 +171,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( 10, userData.size( ) );
             assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-            assertEquals( Integer.valueOf( userNum+2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
 
             params = new HashMap<>( );
             params.put( "limit", Integer.toString( 10 ) );
@@ -169,13 +188,19 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
             assertEquals( Integer.valueOf( 1 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
 
-        } finally {
-            for (int i=0; i<userNum; i++)
+        }
+
+
+        @AfterAll
+        void cleanupUsers( )
+        {
+            for ( int i = 0; i < userNum; i++ )
             {
                 String suffix = String.format( "%03d", i );
                 given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                    .when( ).delete( "aragorn"+suffix ).then( ).statusCode( 200 );
+                    .when( ).delete( "aragorn" + suffix ).then( ).statusCode( 200 );
             }
+
         }
     }
 
@@ -1150,8 +1175,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( "aragorn@lordoftherings.org", emailMessages.get( 0 ).getTos( ).get( 0 ) );
             String messageContent = emailMessages.get( 0 ).getText( );
 
-            assertTrue( messageContent.contains( "Password Reset" ));
-            assertTrue(messageContent.contains( "Username: aragorn" ));
+            assertTrue( messageContent.contains( "Password Reset" ) );
+            assertTrue( messageContent.contains( "Username: aragorn" ) );
 
 
             given( ).spec( getRequestSpec( null ) ).contentType( JSON )
@@ -1268,7 +1293,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertTrue( result.stream( ).anyMatch( operation -> operation.getName( ).equals( "user-management-user-view" ) ) );
 
 
-
         }
         finally
         {
@@ -1379,7 +1403,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertTrue( result.stream( ).anyMatch( operation -> operation.getName( ).equals( "user-management-user-view" ) ) );
 
 
-
         }
         finally
         {
@@ -1390,7 +1413,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void validateUserRegistration() {
+    void validateUserRegistration( )
+    {
         String adminToken = getAdminToken( );
 
         Map<String, Object> userMap = new HashMap<>( );
@@ -1420,7 +1444,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             response = given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
                 .body( requestMap )
                 .when( )
-                .post( "bilbo/register/"+key.getKey()+"/validate" )
+                .post( "bilbo/register/" + key.getKey( ) + "/validate" )
                 .then( ).statusCode( 200 ).extract( ).response( );
 
             assertNotNull( response );
@@ -1428,7 +1452,8 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertNotNull( verificationStatus );
             assertTrue( verificationStatus.isSuccess( ) );
 
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
                 .delete( "bilbo" )
