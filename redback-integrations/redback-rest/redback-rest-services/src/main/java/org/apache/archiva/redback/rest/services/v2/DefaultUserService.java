@@ -260,7 +260,6 @@ public class DefaultUserService
             u.setPassword( user.getPassword() );
             u.setLocked( user.isLocked() );
             u.setPasswordChangeRequired( user.isPasswordChangeRequired() );
-            u.setPermanent( user.isPermanent() );
             u.setValidated( user.isValidated() );
             u = userManager.addUser( u );
             if ( !user.isPasswordChangeRequired() )
@@ -522,7 +521,6 @@ public class DefaultUserService
             if ( !StringUtils.isEmpty( user.getPassword( ) ) )
                 rawUser.setPassword( user.getPassword() );
             rawUser.setPasswordChangeRequired( user.isPasswordChangeRequired() );
-            rawUser.setPermanent( user.isPermanent() );
 
             org.apache.archiva.redback.users.User updatedUser = userManager.updateUser( rawUser );
 

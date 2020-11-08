@@ -539,7 +539,6 @@ public class UserServiceTest
             // START SNIPPET: create-user
             User user = new User( "toto", "toto the king", "toto@toto.fr", false, false );
             user.setPassword( "foo123" );
-            user.setPermanent( false );
             user.setPasswordChangeRequired( false );
             user.setLocked( false );
             user.setValidated( true );

@@ -52,8 +52,6 @@ public class User
 
     private boolean passwordChangeRequired;
 
-    private boolean permanent;
-
     private String confirmPassword;
 
     // Display Only Fields.
@@ -75,18 +73,6 @@ public class User
      * @since 2.0
      */
     private List<String> assignedRoles;
-
-    /**
-     * with some userManagerImpl it's not possible to edit users;
-     * @since 2.1
-     */
-    private boolean readOnly;
-
-    /**
-     * as we can user multiple userManagers implementation we must track from which one this one comes.
-     * @since 2.1
-     */
-    private String userManagerId;
 
     /**
      * for request validation
@@ -119,8 +105,6 @@ public class User
         this.setPassword( user.getPassword() );
         this.setValidated( user.isValidated() );
         this.setPasswordChangeRequired( user.isPasswordChangeRequired() );
-        this.setPermanent( user.isPermanent() );
-        this.setUserManagerId( user.getUserManagerId() );
 
         if (user.getAccountCreationDate()==null) {
             setTimestampAccountCreationByInstant( Instant.EPOCH );
@@ -142,7 +126,7 @@ public class User
     }
 
 
-    @Schema( name = "user_id", description = "The user id" )
+    @Schema( name = "user_id", description = "The user id", required = true )
     @XmlElement( name = "user_id" )
     public String getUserId( )
     {
@@ -198,7 +182,7 @@ public class User
         this.locked = isLocked;
     }
 
-
+    @Schema(description = "The password. This is required for creating new users." )
     public String getPassword()
     {
         return password;
@@ -209,6 +193,7 @@ public class User
         this.password = password;
     }
 
+    @Schema(description = "True, if user has to change password")
     public boolean isPasswordChangeRequired()
     {
         return passwordChangeRequired;
@@ -217,16 +202,6 @@ public class User
     public void setPasswordChangeRequired( boolean passwordChangeRequired )
     {
         this.passwordChangeRequired = passwordChangeRequired;
-    }
-
-    public boolean isPermanent()
-    {
-        return permanent;
-    }
-
-    public void setPermanent( boolean permanent )
-    {
-        this.permanent = permanent;
     }
 
     public String getConfirmPassword()
@@ -304,26 +279,6 @@ public class User
         this.assignedRoles = assignedRoles;
     }
 
-    public boolean isReadOnly()
-    {
-        return readOnly;
-    }
-
-    public void setReadOnly( boolean readOnly )
-    {
-        this.readOnly = readOnly;
-    }
-
-    public String getUserManagerId()
-    {
-        return userManagerId;
-    }
-
-    public void setUserManagerId( String userManagerId )
-    {
-        this.userManagerId = userManagerId;
-    }
-
     public String getValidationToken() {
         return validationToken;
     }
@@ -343,15 +298,12 @@ public class User
             ", locked=" + locked +
             //", password='" + password + '\'' +
             ", passwordChangeRequired=" + passwordChangeRequired +
-            ", permanent=" + permanent +
             ", confirmPassword='" + confirmPassword + '\'' +
             ", timestampAccountCreation='" + timestampAccountCreation + '\'' +
             ", timestampLastLogin='" + timestampLastLogin + '\'' +
             ", timestampLastPasswordChange='" + timestampLastPasswordChange + '\'' +
             ", previousPassword='" + currentPassword + '\'' +
             ", assignedRoles=" + assignedRoles +
-            ", readOnly=" + readOnly +
-            ", userManagerId='" + userManagerId + '\'' +
             ", validationToken='" + validationToken + '\'' +
             '}';
     }
