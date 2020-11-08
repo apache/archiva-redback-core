@@ -95,6 +95,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -122,6 +123,8 @@ public class DefaultUserService
         ORDER_MAP.put( "fullName", Comparator.comparing( org.apache.archiva.redback.users.User::getFullName) );
         ORDER_MAP.put( "email", Comparator.comparing( org.apache.archiva.redback.users.User::getEmail) );
         ORDER_MAP.put( "created", Comparator.comparing( org.apache.archiva.redback.users.User::getAccountCreationDate) );
+        ORDER_MAP.put( "lastLogin", Comparator.comparing( org.apache.archiva.redback.users.User::getLastLoginDate) );
+        ORDER_MAP.put( "validated", Comparator.comparing( org.apache.archiva.redback.users.User::isValidated) );
 
         FILTER_MAP.put( "user_id", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getUsername( ), q ) );
         FILTER_MAP.put( "fullName", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getFullName( ), q ) );
@@ -363,9 +366,9 @@ public class DefaultUserService
     Comparator<org.apache.archiva.redback.users.User> getComparator( List<String> orderBy, boolean ascending) {
         if (ascending)
         {
-            return orderBy.stream( ).map( ( String name ) -> getAttributeComparator( name ) ).reduce( Comparator::thenComparing ).get( );
+            return orderBy.stream( ).map( ( String name ) -> getAttributeComparator( name ) ).filter( Objects::nonNull ).reduce( Comparator::thenComparing ).get( );
         } else {
-            return orderBy.stream( ).map( ( String name ) -> getAttributeComparator( name ).reversed() ).reduce( Comparator::thenComparing ).get( );
+            return orderBy.stream( ).map( ( String name ) -> getAttributeComparator( name ).reversed() ).filter( Objects::nonNull ).reduce( Comparator::thenComparing ).get( );
         }
     }
 
