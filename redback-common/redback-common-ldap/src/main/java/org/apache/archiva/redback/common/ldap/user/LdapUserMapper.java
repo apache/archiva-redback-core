@@ -35,6 +35,7 @@ import javax.naming.directory.BasicAttributes;
 import java.util.Date;
 
 /**
+ * @TODO: Try to retrieve createTimestamp and modifyTimestamp attributes for setting the corresponding user properties
  * @author Jesse
  */
 @Service( "userMapper#ldap" )
