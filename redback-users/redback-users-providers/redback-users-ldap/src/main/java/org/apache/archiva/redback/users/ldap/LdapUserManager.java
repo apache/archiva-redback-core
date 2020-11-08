@@ -28,6 +28,7 @@ import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.users.AbstractUserManager;
 import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserExistsException;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
@@ -46,6 +47,7 @@ import javax.inject.Named;
 import javax.naming.directory.DirContext;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -123,12 +125,24 @@ public class LdapUserManager
         {
             return null;
         }
+        try
+        {
+            if (checked && userExists( user.getUsername() )){
+                throw new UserExistsException( "User exists already " + user.getUsername( ) );
+            }
+        }
+        catch ( UserManagerException e )
+        {
+            throw new LdapException( "Unexpected LDAP error " + e.getMessage( ) );
+        }
 
         if ( isReadOnly() && GUEST_USERNAME.equals( user.getUsername() ) )
         {
             guestUser = user;
             return guestUser;
         }
+
+        user.setAccountCreationDate( new Date( ) );
 
         LdapConnection ldapConnection = getLdapConnection();
         try

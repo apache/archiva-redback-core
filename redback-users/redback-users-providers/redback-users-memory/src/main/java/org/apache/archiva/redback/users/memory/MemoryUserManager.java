@@ -23,6 +23,7 @@ import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.users.AbstractUserManager;
 import org.apache.archiva.redback.users.PermanentUserException;
 import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserExistsException;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -96,8 +98,16 @@ public class MemoryUserManager
 
     private Map<Object, User> users = new HashMap<Object, User>();
 
-    public User addUser( User user )
+    public User addUser(User user) throws UserManagerException {
+        return addUser( user, false );
+    }
+
+    private User addUser( User user, boolean checked ) throws UserManagerException
     {
+        if (checked && userExists( user.getUsername() )) {
+            throw new UserExistsException( "User exists already " + user.getUsername( ) );
+        }
+        user.setAccountCreationDate( new Date( ) );
         saveUser( user );
         fireUserManagerUserAdded( user );
 
@@ -176,7 +186,14 @@ public class MemoryUserManager
 
     public void addUserUnchecked( User user )
     {
-        addUser( user );
+        try
+        {
+            addUser( user, false );
+        }
+        catch ( UserManagerException e )
+        {
+            log.error( "User manager exception " + e.getMessage( ) );
+        }
     }
 
     public void eraseDatabase()

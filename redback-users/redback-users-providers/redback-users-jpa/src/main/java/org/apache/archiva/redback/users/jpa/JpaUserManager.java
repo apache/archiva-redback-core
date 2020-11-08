@@ -24,6 +24,7 @@ import org.apache.archiva.redback.users.AbstractUserManager;
 import org.apache.archiva.redback.users.Messages;
 import org.apache.archiva.redback.users.PermanentUserException;
 import org.apache.archiva.redback.users.User;
+import org.apache.archiva.redback.users.UserExistsException;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
 import org.apache.archiva.redback.users.UserQuery;
@@ -127,6 +128,10 @@ public class JpaUserManager extends AbstractUserManager {
             throw new IllegalStateException(
                     Messages.getString( "user.manager.cannot.add.user.without.username" ) ); //$NON-NLS-1$
         }
+        if (userExists( user.getUsername() )) {
+            log.debug( "User exists already " + user.getUsername( ) );
+            throw new UserExistsException( "User exists already " + user.getUsername( ) );
+        }
 
         userSecurityPolicy.extensionChangePassword( user );
 
@@ -147,6 +152,8 @@ public class JpaUserManager extends AbstractUserManager {
         if (user.getLastPasswordChange()==null) {
             user.setLastPasswordChange(new Date());
         }
+        user.setAccountCreationDate( new Date(  ) );
+        log.debug( "Adding new user " + user.getUsername( ) );
         em.persist( user );
         return user;
     }
@@ -282,7 +289,7 @@ public class JpaUserManager extends AbstractUserManager {
     @Transactional
     @Override
     public void addUserUnchecked(User user) throws UserManagerException {
-        log.info("addUserUnchecked "+user.getUsername());
+        log.debug("addUserUnchecked "+user.getUsername());
         if ( !( user instanceof JpaUser ) )
         {
             throw new UserManagerException( "Unable to Add User. User object " + user.getClass().getName() +
@@ -294,12 +301,7 @@ public class JpaUserManager extends AbstractUserManager {
             throw new IllegalStateException(
                     Messages.getString( "user.manager.cannot.add.user.without.username" ) ); //$NON-NLS-1$
         }
-
-        TypedQuery<JpaUser> q = em.createQuery("SELECT u FROM JpaUser u", JpaUser.class);
-        for (JpaUser u : q.getResultList()) {
-            log.info("USER FOUND: "+u.getUsername());
-        }
-        log.info("NEW USER "+user.getUsername());
+        user.setAccountCreationDate( new Date(  ) );
         em.persist( user );
 
     }
