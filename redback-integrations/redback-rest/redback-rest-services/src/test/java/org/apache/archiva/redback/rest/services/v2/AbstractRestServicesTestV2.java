@@ -20,6 +20,7 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -146,6 +147,7 @@ public abstract class AbstractRestServicesTestV2
         mapper.registerModule( new JavaTimeModule( ) );
         mapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( mapper.getTypeFactory() ) );
         mapper.setDateFormat( new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ) );
+        mapper.setPropertyNamingStrategy( PropertyNamingStrategy.SNAKE_CASE );
         provider.setMapper( mapper );
         return provider;
     }

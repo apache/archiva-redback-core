@@ -43,11 +43,17 @@
     <property name="mapper" ref="redbackJacksonJsonMapper"/>
   </bean>
 
+  <bean id="v2.jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider">
+    <property name="mapper" ref="v2.redbackJacksonJsonMapper"/>
+  </bean>
+
   <bean id="xmlProvider" class="com.fasterxml.jackson.jaxrs.xml.JacksonJaxbXMLProvider">
     <property name="mapper" ref="redbackJacksonXMLMapper"/>
   </bean>
 
   <bean id="redbackJacksonJsonMapper" class="com.fasterxml.jackson.databind.ObjectMapper" >
+  </bean>
+  <bean id="v2.redbackJacksonJsonMapper" class="com.fasterxml.jackson.databind.ObjectMapper" >
   </bean>
   <bean id="redbackJacksonXMLMapper" class="com.fasterxml.jackson.dataformat.xml.XmlMapper" >
   </bean>
@@ -94,8 +100,7 @@
     </jaxrs:serviceBeans>
 
     <jaxrs:providers>
-      <ref bean="jsonProvider"/>
-      <ref bean="xmlProvider"/>
+      <ref bean="v2.jsonProvider"/>
       <ref bean="bearerAuthInterceptor#rest"/>
       <ref bean="permissionInterceptor#rest"/>
       <ref bean="redbackServiceExceptionMapper"/>

@@ -18,9 +18,15 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
@@ -45,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -330,6 +337,18 @@ public abstract class AbstractNativeRestServices
         String basePath = getBasePath( );
         this.requestSpec = getRequestSpecBuilder( ).build( );
         RestAssured.basePath = basePath;
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
+            new Jackson2ObjectMapperFactory() {
+                @Override
+                public ObjectMapper create( Type cls, String charset) {
+                    ObjectMapper om = new ObjectMapper().findAndRegisterModules();
+                    om.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                    om.setPropertyNamingStrategy( PropertyNamingStrategy.SNAKE_CASE );
+                    return om;
+                }
+
+            }
+        ));
     }
 
     protected RequestSpecBuilder getRequestSpecBuilder( ) {

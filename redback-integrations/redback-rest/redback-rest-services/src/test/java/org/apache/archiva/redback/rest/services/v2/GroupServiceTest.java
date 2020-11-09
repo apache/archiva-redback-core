@@ -18,7 +18,11 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.api.services.v2.GroupService;
@@ -45,6 +49,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.ws.rs.core.MediaType;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,12 +82,27 @@ public class GroupServiceTest
 
     private String groupSuffix;
 
+    private JacksonJaxbJsonProvider jsonProvider;
+
+    JacksonJaxbJsonProvider getJsonProvider() {
+        if (jsonProvider==null) {
+            jsonProvider = new JacksonJaxbJsonProvider( );
+            ObjectMapper mapper = new ObjectMapper( );
+            mapper.registerModule( new JavaTimeModule( ) );
+            mapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( mapper.getTypeFactory() ) );
+            mapper.setDateFormat( new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ) );
+            mapper.setPropertyNamingStrategy( PropertyNamingStrategy.SNAKE_CASE );
+            jsonProvider.setMapper( mapper );
+        }
+        return jsonProvider;
+    }
+
     protected GroupService getGroupService( String authzHeader )
     {
         GroupService service =
             JAXRSClientFactory.create( "http://localhost:" + getServerPort( ) + "/" + getRestServicesPath( ) + "/v2/redback/",
                 GroupService.class,
-                Collections.singletonList( new JacksonJaxbJsonProvider( ) ) );
+                Collections.singletonList( getJsonProvider() ) );
 
         // for debuging purpose
         WebClient.getConfig( service ).getHttpConduit( ).getClient( ).setReceiveTimeout( getTimeout( ) );

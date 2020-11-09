@@ -78,8 +78,8 @@ public class NativeAuthenticationServiceTest extends AbstractNativeRestServices
             .then( ).assertThat( ).statusCode( 200 ).and( )
             .contentType( JSON ).
                 body( "success", equalTo( true ) )
-            .body( "requestTime", notNullValue( ) ).extract().response();
-        OffsetDateTime dateTime = OffsetDateTime.parse( response.body( ).jsonPath( ).getString( "requestTime" ) );
+            .body( "request_time", notNullValue( ) ).extract().response();
+        OffsetDateTime dateTime = OffsetDateTime.parse( response.body( ).jsonPath( ).getString( "request_time" ) );
         Instant afterCall = Instant.now( );
         assertTrue( dateTime.toInstant( ).isAfter( beforeCall ) );
         assertTrue( dateTime.toInstant( ).isBefore( afterCall ) );

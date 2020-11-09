@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -47,17 +48,28 @@ public class JacksonJsonConfigurator
     private Logger log = LoggerFactory.getLogger( getClass() );
 
     @Inject
-    public JacksonJsonConfigurator( @Named("redbackJacksonJsonMapper") ObjectMapper objectMapper,
-                                    @Name( "redbackJacksonXMLMapper" ) XmlMapper xmlMapper)
+    public JacksonJsonConfigurator( @Named( "redbackJacksonJsonMapper" ) ObjectMapper objectMapper,
+                                    @Name( "redbackJacksonXMLMapper" ) XmlMapper xmlMapper, @Named( "v2.redbackJacksonJsonMapper" ) ObjectMapper objectMapperV2 )
     {
+
         log.info( "configure jackson ObjectMapper" );
         objectMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
         objectMapper.enable( DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL );
         objectMapper.enable( DeserializationFeature.USE_LONG_FOR_INTS );
-        objectMapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( objectMapper.getTypeFactory() ) );
+        objectMapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( objectMapper.getTypeFactory( ) ) );
         objectMapper.findAndRegisterModules( );
         objectMapper.registerModule( new JavaTimeModule( ) );
         objectMapper.setDateFormat( new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ) );
+
+        objectMapperV2.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
+        objectMapperV2.enable( DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL );
+        objectMapperV2.enable( DeserializationFeature.USE_LONG_FOR_INTS );
+        objectMapperV2.setAnnotationIntrospector( new JaxbAnnotationIntrospector( objectMapper.getTypeFactory( ) ) );
+        objectMapperV2.findAndRegisterModules( );
+        objectMapperV2.registerModule( new JavaTimeModule( ) );
+        objectMapperV2.setDateFormat( new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ) );
+        objectMapperV2.setPropertyNamingStrategy( PropertyNamingStrategy.SNAKE_CASE );
+
 
         xmlMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
         xmlMapper.setAnnotationIntrospector( new JaxbAnnotationIntrospector( xmlMapper.getTypeFactory( ) ) );

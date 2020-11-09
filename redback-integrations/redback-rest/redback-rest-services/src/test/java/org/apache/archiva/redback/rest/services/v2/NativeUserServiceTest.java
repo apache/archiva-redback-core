@@ -22,7 +22,6 @@ import io.restassured.response.Response;
 import org.apache.archiva.redback.rest.api.model.v2.Operation;
 import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
-import org.apache.archiva.redback.rest.api.model.v2.User;
 import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.model.v2.VerificationStatus;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
@@ -89,7 +88,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         assertEquals( 2, userData.size( ) );
         assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
         assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-        assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+        assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
     }
 
     @Nested
@@ -114,9 +113,9 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 Map<String, Object> jsonAsMap = new HashMap<>( );
                 jsonAsMap.put( "user_id", "aragorn" + suffix );
                 jsonAsMap.put( "email", "aragorn" + reverseSuffix + "@lordoftherings.org" );
-                jsonAsMap.put( "fullName", "Aragorn King of Gondor " + modSuffix );
+                jsonAsMap.put( "full_name", "Aragorn King of Gondor " + modSuffix );
                 jsonAsMap.put( "password", "pAssw0rD" );
-                Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                     .body( jsonAsMap )
                     .when( )
                     .post( )
@@ -127,7 +126,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         @Test
         void getMultipleUsersWithoutParams( )
         {
-            Map<String, String> params = new HashMap<>( );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).get( ).then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull( response );
@@ -137,7 +135,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( userNum + 2, userData.size( ) );
             assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
 
         }
 
@@ -156,7 +154,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( 10, userData.size( ) );
             assertEquals( Integer.valueOf( 1 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
         }
 
         @Test
@@ -177,7 +175,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( 5, userData.size( ) );
             assertEquals( Integer.valueOf( 3 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 5 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
         }
 
         @Test
@@ -186,7 +184,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             HashMap<String, String> params = new HashMap<>( );
             params.put( "limit", Integer.toString( 8 ) );
             params.put( "offset", Integer.toString( 10 ) );
-            params.put( "orderBy", "fullName" );
+            params.put( "orderBy", "full_name" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
             List<UserInfo> userData = response.body( ).jsonPath( ).getList( "data", UserInfo.class );
@@ -198,7 +196,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( 8, userData.size( ) );
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 8 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
         }
 
         @Test
@@ -217,7 +215,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( 10, userData.size( ) );
             assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+            assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
         }
         @Test
         void getMultipleUsersWithPagingAndQuery( ) {
@@ -236,7 +234,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( 2, userData.size( ) );
             assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-            assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+            assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
 
         }
 
@@ -270,7 +268,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         assertNotNull( response );
         assertEquals( "jpa:admin", response.body( ).jsonPath( ).get( "id" ) );
         assertEquals( "admin", response.body( ).jsonPath( ).get( "user_id" ) );
-        assertEquals( "the admin user", response.body( ).jsonPath( ).get( "fullName" ) );
+        assertEquals( "the admin user", response.body( ).jsonPath( ).get( "full_name" ) );
     }
 
     @Test
@@ -290,7 +288,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Map<String, Object> jsonAsMap = new HashMap<>( );
             jsonAsMap.put( "user_id", "aragorn" );
             jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-            jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+            jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
             jsonAsMap.put( "password", "pAssw0rD" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .body( jsonAsMap )
@@ -315,7 +313,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -332,7 +330,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "me" );
         jsonAsMap.put( "email", "me@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Its just me" );
+        jsonAsMap.put( "full_name", "Its just me" );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -352,7 +350,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Map<String, Object> jsonAsMap = new HashMap<>( );
             jsonAsMap.put( "user_id", "aragorn" );
             jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-            jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+            jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
             jsonAsMap.put( "validated", true );
             jsonAsMap.put( "password", "pAssw0rD" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -367,7 +365,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             jsonAsMap = new HashMap<>( );
             jsonAsMap.put( "user_id", "arwen" );
             jsonAsMap.put( "email", "arwen@lordoftherings.org" );
-            jsonAsMap.put( "fullName", "Arwen Daughter of Elrond" );
+            jsonAsMap.put( "full_name", "Arwen Daughter of Elrond" );
             jsonAsMap.put( "password", "pAssw0rD" );
             given( ).spec( getRequestSpec( userToken ) ).contentType( JSON )
                 .body( jsonAsMap )
@@ -394,7 +392,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Map<String, Object> jsonAsMap = new HashMap<>( );
             jsonAsMap.put( "user_id", "aragorn" );
             jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-            jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+            jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
             jsonAsMap.put( "validated", true );
             jsonAsMap.put( "password", "pAssw0rD" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -407,7 +405,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             jsonAsMap = new HashMap<>( );
             jsonAsMap.put( "user_id", "aragorn" );
             jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-            jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+            jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
             jsonAsMap.put( "validated", true );
             jsonAsMap.put( "password", "pAssw0rD" );
 
@@ -436,7 +434,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -465,7 +463,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -494,7 +492,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -506,7 +504,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         {
             jsonAsMap = new HashMap<>( );
             jsonAsMap.put( "email", "aragorn2@lordoftherings.org" );
-            jsonAsMap.put( "fullName", "Aragorn King of Gondor the Second" );
+            jsonAsMap.put( "full_name", "Aragorn King of Gondor the Second" );
             jsonAsMap.put( "password", "pAssw0rDXX" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .body( jsonAsMap )
@@ -530,7 +528,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         String token = getAdminToken( );
         HashMap<Object, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "email", "aragorn2@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor the Second" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor the Second" );
         jsonAsMap.put( "password", "pAssw0rDXX" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -546,7 +544,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -558,7 +556,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         {
             jsonAsMap = new HashMap<>( );
             jsonAsMap.put( "email", "aragorn2@lordoftherings.org" );
-            jsonAsMap.put( "fullName", "Aragorn King of Gondor the Second" );
+            jsonAsMap.put( "full_name", "Aragorn King of Gondor the Second" );
             jsonAsMap.put( "password", "pAssw0rD" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .body( jsonAsMap )
@@ -567,7 +565,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .prettyPeek( )
                 .then( ).statusCode( 422 ).extract( ).response( );
             assertNotNull( response );
-            assertEquals( "user.password.violation.reuse", response.body( ).jsonPath( ).get( "errorMessages[0].errorKey" ) );
+            assertEquals( "user.password.violation.reuse", response.body( ).jsonPath( ).get( "error_messages[0].error_key" ) );
         }
         finally
         {
@@ -585,7 +583,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "admin" );
         jsonAsMap.put( "email", "admin@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Admin" );
+        jsonAsMap.put( "full_name", "Admin" );
         jsonAsMap.put( "password", "pAssw0rD" );
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -616,7 +614,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "locked", false );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -658,7 +656,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "locked", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -705,7 +703,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "locked", false );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -721,7 +719,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .get( "aragorn" )
                 .then( ).statusCode( 200 ).extract( ).response( );
-            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
+            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "password_change_required" ) );
         }
         finally
         {
@@ -738,9 +736,9 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "locked", false );
-        jsonAsMap.put( "passwordChangeRequired", true );
+        jsonAsMap.put( "password_change_required", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -750,7 +748,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .get( "aragorn" )
             .then( ).statusCode( 200 ).extract( ).response( );
-        assertTrue( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
+        assertTrue( response.getBody( ).jsonPath( ).getBoolean( "password_change_required" ) );
         try
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -759,7 +757,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .get( "aragorn" )
                 .then( ).statusCode( 200 ).extract( ).response( );
-            assertFalse( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
+            assertFalse( response.getBody( ).jsonPath( ).getBoolean( "password_change_required" ) );
         }
         finally
         {
@@ -794,10 +792,10 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "locked", false );
         jsonAsMap.put( "validated", true );
-        jsonAsMap.put( "passwordChangeRequired", false );
+        jsonAsMap.put( "password_change_required", false );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -808,10 +806,10 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "elrond" );
         jsonAsMap.put( "email", "elrond@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Elrond King of Elves" );
+        jsonAsMap.put( "full_name", "Elrond King of Elves" );
         jsonAsMap.put( "locked", false );
         jsonAsMap.put( "validated", true );
-        jsonAsMap.put( "passwordChangeRequired", false );
+        jsonAsMap.put( "password_change_required", false );
         jsonAsMap.put( "password", "pAssw0rDElrond" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -829,7 +827,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .get( "aragorn" )
                 .then( ).statusCode( 200 ).extract( ).response( );
-            assertFalse( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
+            assertFalse( response.getBody( ).jsonPath( ).getBoolean( "password_change_required" ) );
         }
         finally
         {
@@ -849,10 +847,10 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "locked", false );
         jsonAsMap.put( "validated", true );
-        jsonAsMap.put( "passwordChangeRequired", true );
+        jsonAsMap.put( "password_change_required", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -863,10 +861,10 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "elrond" );
         jsonAsMap.put( "email", "elrond@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Elrond King of Elves" );
+        jsonAsMap.put( "full_name", "Elrond King of Elves" );
         jsonAsMap.put( "locked", false );
         jsonAsMap.put( "validated", true );
-        jsonAsMap.put( "passwordChangeRequired", false );
+        jsonAsMap.put( "password_change_required", false );
         jsonAsMap.put( "password", "pAssw0rDElrond" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .body( jsonAsMap )
@@ -884,7 +882,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .get( "aragorn" )
                 .then( ).statusCode( 200 ).extract( ).response( );
-            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "passwordChangeRequired" ) );
+            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "password_change_required" ) );
         }
         finally
         {
@@ -905,7 +903,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -919,13 +917,13 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             String userToken = getUserToken( "aragorn", "pAssw0rD" );
             Map<String, Object> updateMap = new HashMap<>( );
             updateMap.put( "email", "aragorn-swiss@lordoftherings.org" );
-            updateMap.put( "fullName", "Aragorn King of Switzerland" );
+            updateMap.put( "full_name", "Aragorn King of Switzerland" );
             Response response = given( ).spec( getRequestSpec( userToken ) ).contentType( JSON )
                 .body( updateMap )
                 .when( )
                 .put( "me" )
                 .then( ).statusCode( 200 ).extract( ).response( );
-            assertEquals( "Aragorn King of Switzerland", response.getBody( ).jsonPath( ).getString( "fullName" ) );
+            assertEquals( "Aragorn King of Switzerland", response.getBody( ).jsonPath( ).getString( "full_name" ) );
             assertEquals( "aragorn-swiss@lordoftherings.org", response.getBody( ).jsonPath( ).getString( "email" ) );
         }
         finally
@@ -943,7 +941,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -958,15 +956,15 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Map<String, Object> updateMap = new HashMap<>( );
             updateMap.put( "user_id", "aragorn" );
             updateMap.put( "email", "aragorn-sweden@lordoftherings.org" );
-            updateMap.put( "fullName", "Aragorn King of Sweden" );
-            updateMap.put( "currentPassword", "pAssw0rD" );
+            updateMap.put( "full_name", "Aragorn King of Sweden" );
+            updateMap.put( "current_password", "pAssw0rD" );
             updateMap.put( "password", "x1y2z3a4b5c6d8##" );
             Response response = given( ).spec( getRequestSpec( userToken ) ).contentType( JSON )
                 .body( updateMap )
                 .when( )
                 .put( "me" )
                 .then( ).statusCode( 200 ).extract( ).response( );
-            assertEquals( "Aragorn King of Sweden", response.getBody( ).jsonPath( ).getString( "fullName" ) );
+            assertEquals( "Aragorn King of Sweden", response.getBody( ).jsonPath( ).getString( "full_name" ) );
             assertEquals( "aragorn-sweden@lordoftherings.org", response.getBody( ).jsonPath( ).getString( "email" ) );
             userToken = getUserToken( "aragorn", "x1y2z3a4b5c6d8##" );
             given( ).spec( getRequestSpec( userToken ) ).contentType( JSON ).get( "aragorn" )
@@ -987,7 +985,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -1004,7 +1002,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .get( "me" )
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertEquals( "aragorn", response.getBody( ).jsonPath( ).getString( "user_id" ) );
-            assertEquals( "Aragorn King of Gondor", response.getBody( ).jsonPath( ).getString( "fullName" ) );
+            assertEquals( "Aragorn King of Gondor", response.getBody( ).jsonPath( ).getString( "full_name" ) );
             assertEquals( "aragorn@lordoftherings.org", response.getBody( ).jsonPath( ).getString( "email" ) );
             assertTrue( response.getBody( ).jsonPath( ).getBoolean( "validated" ) );
         }
@@ -1023,7 +1021,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -1054,7 +1052,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
@@ -1087,7 +1085,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
@@ -1129,10 +1127,10 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
 
         userMap.put( "user_id", "bilbo" );
         userMap.put( "email", "bilbo@lordoftherings.org" );
-        userMap.put( "fullName", "Bilbo Beutlin" );
+        userMap.put( "full_name", "Bilbo Beutlin" );
         userMap.put( "validated", true );
         userMap.put( "password", "pAssw0rD" );
-        userMap.put( "confirmPassword", "pAssw0rD" );
+        userMap.put( "confirm_password", "pAssw0rD" );
         requestMap.put( "user", userMap );
         requestMap.put( "applicationUrl", "http://localhost" );
 
@@ -1174,7 +1172,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
 
         userMap.put( "user_id", "bilbo" );
         userMap.put( "email", "bilbo@lordoftherings.org" );
-        userMap.put( "fullName", "Bilbo Beutlin" );
+        userMap.put( "full_name", "Bilbo Beutlin" );
         userMap.put( "validated", true );
         userMap.put( "password", "pAssw0rD" );
         userMap.put( "confirmPassword", "xxx" );
@@ -1201,7 +1199,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
@@ -1250,7 +1248,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
@@ -1287,7 +1285,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
@@ -1319,7 +1317,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
@@ -1359,7 +1357,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
@@ -1392,7 +1390,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
@@ -1429,7 +1427,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         Map<String, Object> jsonAsMap = new HashMap<>( );
         jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
-        jsonAsMap.put( "fullName", "Aragorn King of Gondor" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor" );
         jsonAsMap.put( "validated", true );
         jsonAsMap.put( "password", "pAssw0rD" );
         given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
@@ -1473,10 +1471,10 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
 
         userMap.put( "user_id", "bilbo" );
         userMap.put( "email", "bilbo@lordoftherings.org" );
-        userMap.put( "fullName", "Bilbo Beutlin" );
+        userMap.put( "full_name", "Bilbo Beutlin" );
         userMap.put( "validated", true );
         userMap.put( "password", "pAssw0rD" );
-        userMap.put( "confirmPassword", "pAssw0rD" );
+        userMap.put( "confirm_password", "pAssw0rD" );
         requestMap.put( "user", userMap );
         requestMap.put( "applicationUrl", "http://localhost" );
 

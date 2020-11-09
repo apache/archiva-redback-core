@@ -266,7 +266,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         return "cn=" + cn + "," + groupSuffix;
     }
 
-    private void createGroup( DirContext context, String groupName, String dn )
+    private void createGroup( DirContext context, String group_name, String dn )
         throws Exception
     {
         if ( !exists( context, dn ) )
@@ -276,7 +276,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
             objectClass.add( "top" );
             objectClass.add( "groupOfUniqueNames" );
             attributes.put( objectClass );
-            attributes.put( "cn", groupName );
+            attributes.put( "cn", group_name );
             BasicAttribute basicAttribute = new BasicAttribute( "uniquemember" );
 
             basicAttribute.add( "uid=admin," + peopleSuffix );
@@ -324,7 +324,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         assertNotNull( data );
         assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
         assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-        assertEquals( Integer.valueOf( 6 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+        assertEquals( Integer.valueOf( 6 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
         assertEquals( 6, data.size( ) );
         String[] values = data.stream( ).map( ldapInfo -> ldapInfo.getName( ) ).sorted( ).collect( Collectors.toList( ) ).toArray( new String[0] );
         assertArrayEquals( getTestGroupList( ).toArray( new String[0] ), values );
@@ -345,7 +345,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         assertNotNull( data );
         assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
         assertEquals( Integer.valueOf( 3 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-        assertEquals( Integer.valueOf( 6 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+        assertEquals( Integer.valueOf( 6 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
         assertEquals( 3, data.size( ) );
         String[] values = data.stream( ).map( ldapInfo -> ldapInfo.getName( ) ).sorted( ).collect( Collectors.toList( ) ).toArray( new String[0] );
         assertArrayEquals( getTestGroupList( ).subList( 0, 3 ).toArray( new String[0] ), values );
@@ -364,7 +364,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         assertNotNull( data );
         assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
         assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
-        assertEquals( Integer.valueOf( 6 ), response.body( ).jsonPath( ).get( "pagination.totalCount" ) );
+        assertEquals( Integer.valueOf( 6 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
         assertEquals( 4, data.size( ) );
         String[] values = data.stream( ).map( ldapInfo -> ldapInfo.getName( ) ).sorted( ).collect( Collectors.toList( ) ).toArray( new String[0] );
         assertArrayEquals( getTestGroupList( ).subList( 2, getTestGroupList().size() ).toArray( new String[0] ), values );
@@ -390,7 +390,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         try
         {
             Map<String, Object> jsonAsMap = new HashMap<>( );
-            jsonAsMap.put( "groupName", "ldap group" );
+            jsonAsMap.put( "group_name", "ldap group" );
             jsonAsMap.put( "roles", Arrays.asList( "role1", "role2" ) );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .body( jsonAsMap )
@@ -417,7 +417,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         try
         {
             Map<String, Object> jsonAsMap = new HashMap<>( );
-            jsonAsMap.put( "groupName", "ldap group" );
+            jsonAsMap.put( "group_name", "ldap group" );
             jsonAsMap.put( "roles", Arrays.asList( "role1", "role2" ) );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .body( jsonAsMap )
@@ -457,7 +457,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         } finally {
             // Put it back
             Map<String, Object> jsonAsMap = new HashMap<>( );
-            jsonAsMap.put( "groupName", "archiva-admin" );
+            jsonAsMap.put( "group_name", "archiva-admin" );
             jsonAsMap.put( "roles", Arrays.asList( "System Administrator" ) );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .body( jsonAsMap )
