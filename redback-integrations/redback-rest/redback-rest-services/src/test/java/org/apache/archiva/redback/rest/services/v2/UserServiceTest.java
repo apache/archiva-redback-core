@@ -48,6 +48,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.inject.Inject;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import java.util.Collection;
 import java.util.Collections;
@@ -564,7 +565,13 @@ public class UserServiceTest
         {
             getUserService( getAdminAuthzHeader( ) ).deleteUser( "toto" );
             getUserService( getAdminAuthzHeader( ) ).removeFromCache( "toto" );
-            assertNull( getUserService( getAdminAuthzHeader( ) ).getUser( "toto" ) );
+            try
+            {
+                getUserService( getAdminAuthzHeader( ) ).getUser( "toto" );
+                assertTrue( false, "404 should be thrown for non existing resource" );
+            } catch ( NotFoundException e ) {
+                assertEquals( 404, e.getResponse( ).getStatus( ) );
+            }
         }
     }
 

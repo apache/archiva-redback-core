@@ -220,6 +220,9 @@ public class DefaultUserService
     public UserInfo createUser( User user )
         throws RedbackServiceException
     {
+        if (user==null) {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USER_ID_EMPTY ), 422 );
+        }
         UserInfo result;
         if ( Arrays.binarySearch( INVALID_CREATE_USER_NAMES, user.getUserId( ) ) >= 0 )
         {
@@ -307,6 +310,9 @@ public class DefaultUserService
     public void deleteUser( String userId )
         throws RedbackServiceException
     {
+        if (StringUtils.isEmpty( userId )) {
+            throw new RedbackServiceException( MessageKeys.ERR_USER_ID_EMPTY, 404 );
+        }
 
         try
         {
@@ -348,6 +354,9 @@ public class DefaultUserService
     public UserInfo getUser( String userId )
         throws RedbackServiceException
     {
+        if (StringUtils.isEmpty( userId)) {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USER_ID_EMPTY ), 404 );
+        }
         try
         {
             if ( "guest".equals( userId ) )
@@ -359,7 +368,7 @@ public class DefaultUserService
         }
         catch ( UserNotFoundException e )
         {
-            return null;
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USER_NOT_FOUND ), 404 );
         }
         catch ( UserManagerException e )
         {
