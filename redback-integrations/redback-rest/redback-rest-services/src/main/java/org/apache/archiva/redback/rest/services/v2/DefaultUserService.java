@@ -242,7 +242,7 @@ public class DefaultUserService
         catch ( UserNotFoundException e )
         {
             //ignore we just want to prevent non human readable error message from backend :-)
-            log.debug( "user {} not exists", user.getUserId( ) );
+            log.debug( "User {} does not exist", user.getUserId( ) );
         }
         catch ( UserManagerException e )
         {
@@ -281,7 +281,7 @@ public class DefaultUserService
                 try
                 {
                     u = userManager.updateUser( u );
-                    log.debug( "user {} created", u.getUsername( ) );
+                    log.debug( "User {} created", u.getUsername( ) );
                 }
                 catch ( UserNotFoundException e )
                 {
@@ -301,6 +301,7 @@ public class DefaultUserService
         }
         catch ( UserManagerException e )
         {
+            log.error( "UserManagerException: {}", e.getMessage( ), e );
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_UNKNOWN, e.getMessage( ) ) );
         }
         return result;

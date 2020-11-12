@@ -104,7 +104,7 @@
       <ref bean="bearerAuthInterceptor#rest"/>
       <ref bean="permissionInterceptor#rest"/>
       <ref bean="redbackServiceExceptionMapper"/>
-      <ref bean="passwordRuleViolationExceptionMapper"/>
+      <ref bean="v2.passwordRuleViolationExceptionMapper"/>
       <ref bean="requestValidationInterceptor#rest" />
       <ref bean="threadLocalUserCleaner#rest"/>
     </jaxrs:providers>
