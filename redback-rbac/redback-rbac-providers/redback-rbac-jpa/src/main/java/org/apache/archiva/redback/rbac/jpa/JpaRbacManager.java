@@ -35,6 +35,7 @@ import org.apache.archiva.redback.rbac.jpa.model.JpaPermission;
 import org.apache.archiva.redback.rbac.jpa.model.JpaResource;
 import org.apache.archiva.redback.rbac.jpa.model.JpaRole;
 import org.apache.archiva.redback.rbac.jpa.model.JpaUserAssignment;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -43,6 +44,9 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -68,12 +72,49 @@ public class JpaRbacManager extends AbstractRBACManager  {
     }
 
 
+    @Override
+    public Role createRole( String id, String name )
+    {
+        JpaRole role = new JpaRole( );
+        role.setId( id );
+        role.setName( name );
+        return role;
+    }
 
     @Override
-    public Role createRole(String name) {
-        JpaRole role = new JpaRole();
-        role.setName(name);
-        return role;
+    public boolean roleExistsById( String id ) throws RbacManagerException
+    {
+        final EntityManager em = getEm();
+        TypedQuery<Long> q = em.createQuery("SELECT COUNT(r) FROM JpaRole  r WHERE r.id = :roleid", Long.class);
+        q.setParameter("roleid",id);
+        Long num;
+        try {
+            num = q.getSingleResult();
+        } catch (NoResultException ex) {
+            return false;
+        }
+        return num>0;
+    }
+
+    @Override
+    public boolean roleExists( String name ) throws RbacManagerException
+    {
+        final EntityManager em = getEm();
+        TypedQuery<Long> q = em.createQuery("SELECT COUNT(r) FROM JpaRole  r WHERE r.name = :rolename", Long.class);
+        q.setParameter("rolename",name);
+        Long num;
+        try {
+            num = q.getSingleResult();
+        } catch (NoResultException ex) {
+            return false;
+        }
+        return num>0;
+    }
+
+    @Override
+    public boolean roleExists( Role role ) throws RbacManagerException
+    {
+        return this.roleExistsById( role.getId() );
     }
 
     @Transactional
@@ -139,6 +180,22 @@ public class JpaRbacManager extends AbstractRBACManager  {
         } catch (NoResultException ex) {
             log.warn("Role {} not found", roleName);
             throw new RbacObjectNotFoundException("Role not found "+roleName);
+        }
+        return role;
+    }
+
+    @Override
+    public Role getRoleById( String id ) throws RbacObjectNotFoundException, RbacManagerException
+    {
+        final EntityManager em = getEm();
+        TypedQuery<JpaRole> q = em.createQuery("SELECT r FROM JpaRole  r WHERE r.id = :roleid", JpaRole.class);
+        q.setParameter("roleid",id);
+        Role role;
+        try {
+            role = q.getSingleResult();
+        } catch (NoResultException ex) {
+            log.warn("Role {} not found", id);
+            throw new RbacObjectNotFoundException("Role not found "+id);
         }
         return role;
     }

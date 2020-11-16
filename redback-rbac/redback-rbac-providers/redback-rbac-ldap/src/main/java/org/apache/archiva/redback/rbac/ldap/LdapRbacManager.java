@@ -169,9 +169,9 @@ public class LdapRbacManager
     }
 
     @Override
-    public Role createRole( String name )
+    public Role createRole( String id, String name )
     {
-        return this.rbacImpl.createRole( name );
+        return this.rbacImpl.createRole( id, name );
     }
 
     @Override
@@ -459,6 +459,10 @@ public class LdapRbacManager
         catch ( LdapException e )
         {
             throw new RbacManagerException( e.getMessage(), e );
+        } finally
+        {
+            closeContext( context );
+            closeLdapConnection( ldapConnection );
         }
     }
 
@@ -544,26 +548,7 @@ public class LdapRbacManager
         {
             return role;
         }
-        LdapConnection ldapConnection = null;
-        DirContext context = null;
-        //verify it's a ldap group
-        try
-        {
-            ldapConnection = ldapConnectionFactory.getConnection();
-            context = ldapConnection.getDirContext();
-            if ( !ldapRoleMapper.hasRole( context, roleName ) )
-            {
-                return null;
-            }
-        }
-        catch ( MappingException e )
-        {
-            throw new RbacManagerException( e.getMessage(), e );
-        }
-        catch ( LdapException e )
-        {
-            throw new RbacManagerException( e.getMessage(), e );
-        }
+        if ( !checkIfLdapRole( roleName ) ) return null;
         role = this.rbacImpl.getRole( roleName );
         if (role==null)
         {
@@ -579,9 +564,52 @@ public class LdapRbacManager
                 role = new RoleImpl( roleName );
             }
         };
-        role = ( role == null ) ? new RoleImpl( roleName ) : role;
         rolesCache.put( roleName, role );
         return role;
+    }
+
+    protected boolean checkIfLdapRole( String roleName ) throws RbacManagerException
+    {
+        LdapConnection ldapConnection = null;
+        DirContext context = null;
+        //verify it's a ldap group
+        try
+        {
+            ldapConnection = ldapConnectionFactory.getConnection();
+            context = ldapConnection.getDirContext();
+            if ( !ldapRoleMapper.hasRole( context, roleName ) )
+            {
+                return false;
+            }
+        }
+        catch ( MappingException e )
+        {
+            throw new RbacManagerException( e.getMessage(), e );
+        }
+        catch ( LdapException e )
+        {
+            throw new RbacManagerException( e.getMessage(), e );
+        } finally
+        {
+            closeContext( context );
+            closeLdapConnection( ldapConnection );
+        }
+        return true;
+    }
+
+    @Override
+    public Role getRoleById( String id ) throws RbacObjectNotFoundException, RbacManagerException
+    {
+        Role role = rbacImpl.getRoleById( id );
+        if (role==null) {
+            throw new RbacObjectNotFoundException( "Role with id " + id + " not found" );
+        } else {
+            if (checkIfLdapRole( role.getName() )) {
+                return role;
+            } else {
+                return null;
+            }
+        }
     }
 
     @Override
@@ -852,6 +880,9 @@ public class LdapRbacManager
             catch ( LdapException e )
             {
                 throw new RbacManagerException( e.getMessage(), e );
+            } finally {
+                closeContext( context );
+                closeLdapConnection( ldapConnection );
             }
             fireRbacRoleRemoved( role );
         }
@@ -948,6 +979,17 @@ public class LdapRbacManager
         {
             closeContext( context );
             closeLdapConnection( ldapConnection );
+        }
+    }
+
+    @Override
+    public boolean roleExistsById( String id ) throws RbacManagerException
+    {
+        Role role = rbacImpl.getRoleById( id );
+        if (role==null) {
+            return false;
+        } else {
+            return roleExists( role.getName() );
         }
     }
 

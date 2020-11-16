@@ -16,6 +16,7 @@ package org.apache.archiva.redback.rbac;
  * limitations under the License.
  */
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -186,10 +187,22 @@ public abstract class AbstractRBACManager
     }
 
     @Override
+    public Role createRole(String name) {
+        final String id = DigestUtils.sha1Hex( name );
+        return createRole( id, name );
+    }
+
+    @Override
     public void removeRole( String roleName )
         throws RbacObjectNotFoundException, RbacManagerException
     {
         removeRole( getRole( roleName ) );
+    }
+
+    @Override
+    public void removeRoleById( String id ) throws RbacManagerException
+    {
+        removeRole( getRoleById( id ) );
     }
 
     @Override
@@ -356,6 +369,14 @@ public abstract class AbstractRBACManager
         }
 
         return false;
+    }
+
+    @Override
+    public boolean roleExistsById( final String id )
+        throws RbacManagerException
+    {
+        return getAllRoles( ).stream( ).filter( role -> StringUtils.equals( role.getId( ), id ) )
+            .findAny( ).isPresent( );
     }
 
     @Override

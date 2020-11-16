@@ -196,6 +196,9 @@ public class DefaultRoleModelProcessor
                 try
                 {
                     Role role = rbacManager.createRole( roleProfile.getName() );
+                    role.setId( roleProfile.getId() );
+                    role.setModelId( roleProfile.getId() );
+                    role.setTemplateInstance( false );
                     role.setDescription( roleProfile.getDescription() );
                     role.setPermanent( roleProfile.isPermanent() );
                     role.setAssignable( roleProfile.isAssignable() );

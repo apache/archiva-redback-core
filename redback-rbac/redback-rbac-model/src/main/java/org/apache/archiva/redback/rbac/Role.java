@@ -157,9 +157,7 @@ public interface Role
      * @since 3.0
      * @return the role identifier
      */
-    default String getId() {
-        return StringUtils.isEmpty( getModelId() )?getName():(isTemplateInstance()?getModelId()+"."+getResource():getModelId());
-    }
+    String getId();
 
     /**
      * Sets the role id

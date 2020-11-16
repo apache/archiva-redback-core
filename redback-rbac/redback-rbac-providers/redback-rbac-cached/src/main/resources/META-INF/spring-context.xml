@@ -75,6 +75,17 @@
     <property name="timeToLiveSeconds" value="14400"/>
   </bean>
 
+  <bean name="cache#rolesById" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
+        init-method="initialize">
+    <property name="diskPersistent" value="false"/>
+    <property name="eternal" value="false"/>
+    <property name="maxElementsInMemory" value="1000"/>
+    <property name="memoryEvictionPolicy" value="LRU"/>
+    <property name="name" value="roles"/>
+    <property name="timeToIdleSeconds" value="1800"/>
+    <property name="timeToLiveSeconds" value="14400"/>
+  </bean>
+
   <bean name="cache#effectiveRoleSet" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
       init-method="initialize">
     <property name="diskPersistent" value="false"/>

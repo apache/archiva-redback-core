@@ -81,7 +81,7 @@ public abstract class AbstractRoleManagerTest
         assertTrue( roleManager.templatedRoleExists( "test-template-2", "foo" ) );
         assertTrue( roleManager.templatedRoleExists( "test-template", "foo" ) );
 
-        roleManager.updateRole( "test-template-2", "foo", "bar" );
+        roleManager.moveTemplatedRole( "test-template-2", "foo", "bar" );
 
         assertFalse( roleManager.templatedRoleExists( "test-template-2", "foo" ) );
         // TODO: bug - assertFalse( roleManager.templatedRoleExists( "test-template", "foo" ) );
@@ -104,7 +104,7 @@ public abstract class AbstractRoleManagerTest
         roleManager.createTemplatedRole( "test-template-2", "cold" );
         roleManager.assignTemplatedRole( "test-template-2", "cold", principal );
 
-        roleManager.updateRole( "test-template-2", "cold", "frigid" );
+        roleManager.moveTemplatedRole( "test-template-2", "cold", "frigid" );
 
         assertTrue( roleManager.templatedRoleExists( "test-template-2", "frigid" ) );
 

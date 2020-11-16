@@ -97,17 +97,14 @@ public class DefaultRoleManager
     private RBACManager rbacManager;
 
 
+    @Override
     public void loadRoleModel( URL resource )
         throws RoleManagerException
     {
         RedbackRoleModelStaxReader reader = new RedbackRoleModelStaxReader();
 
-        InputStreamReader inputStreamReader = null;
-
-        try
+        try(InputStreamReader inputStreamReader = new InputStreamReader( resource.openStream() ))
         {
-
-            inputStreamReader = new InputStreamReader( resource.openStream() );
 
             RedbackRoleModel roleModel = reader.read( inputStreamReader );
 
@@ -132,12 +129,9 @@ public class DefaultRoleManager
         {
             throw new RoleManagerException( "error parsing redback profile", e );
         }
-        finally
-        {
-            IOUtils.closeQuietly( inputStreamReader );
-        }
     }
 
+    @Override
     public void loadRoleModel( RedbackRoleModel roleModel )
         throws RoleManagerException
     {
@@ -189,6 +183,7 @@ public class DefaultRoleManager
      * create a role for the given roleName using the resource passed in for
      * resolving the ${resource} expression
      */
+    @Override
     public void createTemplatedRole( String templateId, String resource )
         throws RoleManagerException
     {
@@ -199,6 +194,7 @@ public class DefaultRoleManager
      * remove the role corresponding to the role using the resource passed in for resolving the
      * ${resource} expression
      */
+    @Override
     public void removeTemplatedRole( String templateId, String resource )
         throws RoleManagerException
     {
@@ -232,7 +228,8 @@ public class DefaultRoleManager
      * NOTE: this requires removal and creation of the role since the jdo store does not tolerate renaming
      * because of the use of the name as an identifier
      */
-    public void updateRole( String templateId, String oldResource, String newResource )
+    @Override
+    public void moveTemplatedRole( String templateId, String oldResource, String newResource )
         throws RoleManagerException
     {
         // make the new role
@@ -264,6 +261,7 @@ public class DefaultRoleManager
         templateProcessor.remove( blessedModel, templateId, oldResource );
     }
 
+    @Override
     public void assignRole( String roleId, String principal )
         throws RoleManagerException
     {
@@ -296,6 +294,7 @@ public class DefaultRoleManager
         }
     }
 
+    @Override
     public void assignRoleByName( String roleName, String principal )
         throws RoleManagerException
     {
@@ -326,6 +325,7 @@ public class DefaultRoleManager
         }
     }
 
+    @Override
     public void assignTemplatedRole( String templateId, String resource, String principal )
         throws RoleManagerException
     {
@@ -363,6 +363,7 @@ public class DefaultRoleManager
         }
     }
 
+    @Override
     public void unassignRole( String roleId, String principal )
         throws RoleManagerException
     {
@@ -396,6 +397,7 @@ public class DefaultRoleManager
         }
     }
 
+    @Override
     public void unassignRoleByName( String roleName, String principal )
         throws RoleManagerException
     {
@@ -427,6 +429,7 @@ public class DefaultRoleManager
         }
     }
 
+    @Override
     public boolean roleExists( String roleId )
         throws RoleManagerException
     {
@@ -458,6 +461,7 @@ public class DefaultRoleManager
         }
     }
 
+    @Override
     public boolean templatedRoleExists( String templateId, String resource )
         throws RoleManagerException
     {
@@ -488,6 +492,7 @@ public class DefaultRoleManager
         }
     }
 
+    @Override
     @PostConstruct
     public void initialize()
     {
@@ -531,11 +536,13 @@ public class DefaultRoleManager
         log.info( "DefaultRoleManager initialize time {}", stopWatch.getTime() );
     }
 
+    @Override
     public RedbackRoleModel getModel()
     {
         return blessedModel;
     }
 
+    @Override
     public void verifyTemplatedRole( String templateId, String resource )
         throws RoleManagerException
     {

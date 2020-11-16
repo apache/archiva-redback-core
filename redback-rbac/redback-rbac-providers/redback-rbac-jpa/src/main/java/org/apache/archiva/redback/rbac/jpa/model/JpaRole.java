@@ -40,6 +40,7 @@ import java.util.List;
 public class JpaRole extends AbstractRole implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger( JpaRole.class );
+    private static final long serialVersionUID = 4564608138465995665L;
 
     @Id
     @Column(name="NAME")
@@ -82,6 +83,10 @@ public class JpaRole extends AbstractRole implements Serializable {
 
     @Column(name="RESOURCE",nullable = false)
     private String resource = "";
+
+    public JpaRole( )
+    {
+    }
 
     @Override
     public void addPermission(Permission permission) {

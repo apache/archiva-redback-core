@@ -177,7 +177,8 @@ public class DefaultRoleTemplateProcessor
     private void processTemplate( RedbackRoleModel model, ModelTemplate template, String resource )
         throws RoleManagerException
     {
-        String templateName = template.getNamePrefix() + template.getDelimiter() + resource;
+        final String templateName = template.getNamePrefix() + template.getDelimiter() + resource;
+        final String roleId = template.getId( ) + "." + resource;
 
         List<Permission> permissions = processPermissions( model, template, resource );
 
@@ -197,6 +198,10 @@ public class DefaultRoleTemplateProcessor
             try
             {
                 Role role = rbacManager.createRole( templateName );
+                role.setId( roleId );
+                role.setModelId( template.getId() );
+                role.setResource( resource );
+                role.setTemplateInstance( true );
                 role.setDescription( template.getDescription() );
                 role.setPermanent( template.isPermanent() );
                 role.setAssignable( template.isAssignable() );

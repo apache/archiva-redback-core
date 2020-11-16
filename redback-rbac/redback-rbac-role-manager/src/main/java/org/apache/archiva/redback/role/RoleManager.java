@@ -70,17 +70,15 @@ public interface RoleManager
 
 
     /**
-     * allows for a role coming from a template to be renamed effectively swapping out the bits of it that
-     * were labeled with the oldResource with the newResource
+     * Moves the instance of the templated role from the old resource to the new resource and updates the
+     * user assignments.
      *
-     * it also manages any user assignments for that role
-     *
-     * @param templateId
-     * @param oldResource
-     * @param newResource
+     * @param templateId the name of the role template
+     * @param oldResource the old resource name
+     * @param newResource the new resource name
      * @throws RoleManagerException
      */
-    void updateRole( String templateId, String oldResource, String newResource )
+    void moveTemplatedRole( String templateId, String oldResource, String newResource )
         throws RoleManagerException;
 
 

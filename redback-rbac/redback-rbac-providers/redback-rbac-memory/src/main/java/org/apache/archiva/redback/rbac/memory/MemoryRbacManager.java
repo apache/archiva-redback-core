@@ -71,6 +71,7 @@ public class MemoryRbacManager
     // Role methods
     // ----------------------------------------------------------------------
 
+    @Override
     public Role saveRole( Role role )
         throws RbacManagerException
     {
@@ -93,6 +94,7 @@ public class MemoryRbacManager
         return role;
     }
 
+    @Override
     public void saveRoles( Collection<Role> roles )
         throws RbacObjectInvalidException, RbacManagerException
     {
@@ -117,6 +119,7 @@ public class MemoryRbacManager
         }
     }
 
+    @Override
     public Role getRole( String roleName )
         throws RbacObjectNotFoundException
     {
@@ -127,6 +130,16 @@ public class MemoryRbacManager
         return roles.get( roleName );
     }
 
+    @Override
+    public Role getRoleById( String id ) throws RbacObjectNotFoundException, RbacManagerException
+    {
+        triggerInit();
+        return roles.values( ).stream( ).filter( role -> StringUtils.equals( role.getId( ), id ) ).findAny( ).orElseThrow(
+            () -> new RbacObjectNotFoundException( "Role with id " + id + " not found" )
+        );
+    }
+
+    @Override
     public void removeRole( Role role )
         throws RbacManagerException, RbacObjectNotFoundException
     {
@@ -144,6 +157,7 @@ public class MemoryRbacManager
         roles.remove( role.getName() );
     }
 
+    @Override
     public List<Role> getAllRoles()
         throws RbacManagerException
     {
@@ -156,6 +170,7 @@ public class MemoryRbacManager
     // Permission methods
     // ----------------------------------------------------------------------
 
+    @Override
     public Operation saveOperation( Operation operation )
         throws RbacManagerException
     {
@@ -167,6 +182,7 @@ public class MemoryRbacManager
         return operation;
     }
 
+    @Override
     public Permission savePermission( Permission permission )
         throws RbacManagerException
     {
@@ -183,6 +199,7 @@ public class MemoryRbacManager
         return permission;
     }
 
+    @Override
     public Resource saveResource( Resource resource )
         throws RbacManagerException
     {
@@ -194,6 +211,7 @@ public class MemoryRbacManager
         return resource;
     }
 
+    @Override
     public UserAssignment saveUserAssignment( UserAssignment userAssignment )
         throws RbacManagerException
     {
@@ -207,6 +225,7 @@ public class MemoryRbacManager
         return userAssignment;
     }
 
+    @Override
     public Operation createOperation( String name )
         throws RbacManagerException
     {
@@ -225,6 +244,7 @@ public class MemoryRbacManager
         return operation;
     }
 
+    @Override
     public Permission createPermission( String name )
         throws RbacManagerException
     {
@@ -243,6 +263,7 @@ public class MemoryRbacManager
         return permission;
     }
 
+    @Override
     public Permission createPermission( String name, String operationName, String resourceIdentifier )
         throws RbacManagerException
     {
@@ -274,6 +295,7 @@ public class MemoryRbacManager
         return permission;
     }
 
+    @Override
     public Resource createResource( String identifier )
         throws RbacManagerException
     {
@@ -292,10 +314,12 @@ public class MemoryRbacManager
         return resource;
     }
 
-    public Role createRole( String name )
+    @Override
+    public Role createRole( String id, String name )
     {
         Role role = new MemoryRole();
         role.setName( name );
+        role.setId( id );
 
         return role;
     }
@@ -309,6 +333,7 @@ public class MemoryRbacManager
         }
     }
 
+    @Override
     public Permission getPermission( String permissionName )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -327,6 +352,7 @@ public class MemoryRbacManager
         return Collections.unmodifiableList( new ArrayList<Resource>( resources.values() ) );
     }
 
+    @Override
     public void removeOperation( Operation operation )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -351,6 +377,7 @@ public class MemoryRbacManager
         }
     }
 
+    @Override
     public void removePermission( Permission permission )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -368,6 +395,7 @@ public class MemoryRbacManager
         permissions.remove( permission.getName() );
     }
 
+    @Override
     public void removeResource( Resource resource )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -402,6 +430,7 @@ public class MemoryRbacManager
         }
     }
 
+    @Override
     public void removeUserAssignment( UserAssignment userAssignment )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -420,6 +449,7 @@ public class MemoryRbacManager
         userAssignments.remove( userAssignment.getPrincipal() );
     }
 
+    @Override
     public void eraseDatabase()
     {
         userAssignments.clear();
@@ -429,6 +459,7 @@ public class MemoryRbacManager
         roles.clear();
     }
 
+    @Override
     public UserAssignment createUserAssignment( String principal )
         throws RbacManagerException
     {
@@ -447,6 +478,7 @@ public class MemoryRbacManager
         }
     }
 
+    @Override
     public List<Operation> getAllOperations()
         throws RbacManagerException
     {
@@ -455,6 +487,7 @@ public class MemoryRbacManager
         return Collections.unmodifiableList( new ArrayList<Operation>( operations.values() ) );
     }
 
+    @Override
     public List<Permission> getAllPermissions()
         throws RbacManagerException
     {
@@ -463,6 +496,7 @@ public class MemoryRbacManager
         return Collections.unmodifiableList( new ArrayList<Permission>( permissions.values() ) );
     }
 
+    @Override
     public List<Resource> getAllResources()
         throws RbacManagerException
     {
@@ -471,6 +505,7 @@ public class MemoryRbacManager
         return Collections.unmodifiableList( new ArrayList<Resource>( resources.values() ) );
     }
 
+    @Override
     public List<UserAssignment> getAllUserAssignments()
         throws RbacManagerException
     {
@@ -479,6 +514,7 @@ public class MemoryRbacManager
         return Collections.unmodifiableList( new ArrayList<UserAssignment>( userAssignments.values() ) );
     }
 
+    @Override
     public List<UserAssignment> getUserAssignmentsForRoles( Collection<String> roleNames )
         throws RbacManagerException
     {
@@ -501,6 +537,7 @@ public class MemoryRbacManager
         return userAssignments;
     }
 
+    @Override
     public UserAssignment getUserAssignment( String principal )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -511,6 +548,7 @@ public class MemoryRbacManager
         return userAssignments.get( principal );
     }
 
+    @Override
     public Operation getOperation( String operationName )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -521,6 +559,7 @@ public class MemoryRbacManager
         return operations.get( operationName );
     }
 
+    @Override
     public Resource getResource( String resourceIdentifier )
         throws RbacObjectNotFoundException, RbacManagerException
     {
@@ -546,11 +585,13 @@ public class MemoryRbacManager
         return true;
     }
 
+    @Override
     public String getDescriptionKey()
     {
         return "archiva.redback.rbacmanager.memory";
     }
 
+    @Override
     public boolean isReadOnly()
     {
         return false;

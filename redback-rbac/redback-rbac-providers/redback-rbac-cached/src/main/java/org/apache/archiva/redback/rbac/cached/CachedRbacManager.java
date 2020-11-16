@@ -74,6 +74,10 @@ public class CachedRbacManager
     private Cache<String, Role> rolesCache;
 
     @Inject
+    @Named( value = "cache#rolesById" )
+    private Cache<String, Role> rolesByIdCache;
+
+    @Inject
     @Named( value = "cache#userAssignments" )
     private Cache<String, UserAssignment> userAssignmentsCache;
 
@@ -147,8 +151,23 @@ public class CachedRbacManager
     @Override
     public Role createRole( String name )
     {
-        rolesCache.remove( name );
+        if (rolesCache.hasKey( name ))
+        {
+            Role role = rolesCache.remove( name );
+            rolesByIdCache.remove( role.getId( ) );
+        }
         return this.rbacImpl.createRole( name );
+    }
+
+    @Override
+    public Role createRole( String id, String name )
+    {
+        if (rolesByIdCache.hasKey( id ))
+        {
+            Role role = rolesByIdCache.remove( id );
+            rolesCache.remove( role.getName( ) );
+        }
+        return this.rbacImpl.createRole( id, name );
     }
 
     @Override
@@ -397,7 +416,18 @@ public class CachedRbacManager
         {
             Role role = this.rbacImpl.getRole( roleName );
             rolesCache.put( roleName, role );
+            rolesByIdCache.put( role.getId( ), role );
             return role;
+        }
+    }
+
+    @Override
+    public Role getRoleById( String id ) throws RbacObjectNotFoundException, RbacManagerException
+    {
+        if (rolesByIdCache.hasKey( id )) {
+            return rolesByIdCache.get( id );
+        } else {
+            return this.rbacImpl.getRoleById( id );
         }
     }
 
@@ -508,6 +538,7 @@ public class CachedRbacManager
         this.operationsCache.clear();
         this.permissionsCache.clear();
         this.rolesCache.clear();
+        this.rolesByIdCache.clear();
         this.userAssignmentsCache.clear();
         this.userPermissionsCache.clear();
     }
@@ -644,8 +675,21 @@ public class CachedRbacManager
     public void removeRole( String roleName )
         throws RbacObjectNotFoundException, RbacObjectInvalidException, RbacManagerException
     {
-        rolesCache.remove( roleName );
+        Role role = rolesCache.remove( roleName );
+        if (role!=null) {
+            rolesByIdCache.remove( role.getId( ) );
+        }
         this.rbacImpl.removeRole( roleName );
+    }
+
+    @Override
+    public void removeRoleById( String id ) throws RbacObjectNotFoundException, RbacManagerException
+    {
+        Role role = rolesByIdCache.remove( id );
+        if (role!=null) {
+            rolesCache.remove( role.getName( ) );
+        }
+        this.rbacImpl.removeRoleById( id );
     }
 
     @Override
@@ -690,7 +734,7 @@ public class CachedRbacManager
     public boolean roleExists( Role role )
         throws RbacManagerException
     {
-        if ( rolesCache.hasKey( role.getName() ) )
+        if ( rolesByIdCache.hasKey( role.getId() ) )
         {
             return true;
         }
@@ -708,6 +752,16 @@ public class CachedRbacManager
         }
 
         return this.rbacImpl.roleExists( name );
+    }
+
+    @Override
+    public boolean roleExistsById( String id ) throws RbacManagerException
+    {
+        if (rolesByIdCache.hasKey( id )) {
+            return true;
+        } else {
+            return this.rbacImpl.roleExistsById( id );
+        }
     }
 
     @Override
@@ -819,6 +873,7 @@ public class CachedRbacManager
         if ( role != null )
         {
             rolesCache.remove( role.getName() );
+            rolesByIdCache.remove( role.getId( ) );
             // if a role changes we need to invalidate the entire effective role set cache
             // since we have no concept of the heirarchy involved in the role sets
             effectiveRoleSetCache.clear();
@@ -909,10 +964,21 @@ public class CachedRbacManager
         return rolesCache;
     }
 
+
     @SuppressWarnings( "unchecked" )
     public void setRolesCache( Cache<String, ? extends Role> rolesCache )
     {
         this.rolesCache = (Cache<String, Role>) rolesCache;
+    }
+
+    public Cache<String, ? extends Role> getRolesByIdCache( )
+    {
+        return rolesByIdCache;
+    }
+
+    public void setRolesByIdCache( Cache<String, ? extends Role> rolesByIdCache )
+    {
+        this.rolesByIdCache = (Cache<String, Role>) rolesByIdCache;
     }
 
     public Cache<String, ? extends UserAssignment> getUserAssignmentsCache()
