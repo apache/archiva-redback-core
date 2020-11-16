@@ -63,7 +63,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * LdapRbacManager will read datas from ldap for mapping groups to role.
@@ -220,19 +223,14 @@ public class LdapRbacManager
     {
         try
         {
-            Collection<Collection<String>> roleNames = ldapRoleMapperConfiguration.getLdapGroupMappings().values();
-
-            Set<Role> roles = new HashSet<Role>();
-
-            for ( Collection<String> names : roleNames )
-            {
-                for ( String name : names )
+            return ldapRoleMapperConfiguration.getLdapGroupMappings( ).entrySet( ).stream( ).flatMap( entry ->{
+                if (entry.getValue()==null) {
+                    return Stream.empty( );
+                } else
                 {
-                    roles.add( new RoleImpl( name ) );
+                    return entry.getValue( ).stream( ).map( role -> new RoleImpl( entry.getKey( ) + role, role ) );
                 }
-            }
-
-            return new ArrayList<Role>( roles );
+            } ).collect( Collectors.toList( ) );
         }
         catch ( MappingException e )
         {
@@ -373,45 +371,38 @@ public class LdapRbacManager
         {
             return Collections.emptyList();
         }
-
-        List<Role> roles = new ArrayList<Role>( groups.size() );
-        Map<String, Collection<String>> mappedGroups = ldapRoleMapperConfiguration.getLdapGroupMappings();
-        for ( String group : groups )
+        final Map<String, Collection<String>> mappedGroups = ldapRoleMapperConfiguration.getLdapGroupMappings();
+        try
         {
-            Collection<String> roleNames = mappedGroups.get( group );
-            if ( roleNames != null )
+            return groups.stream( ).flatMap( group -> mappedGroups.get( group ) == null ?
+                ( this.ldapRoleMapper.isUseDefaultRoleName( ) ? Stream.of( this.buildRole( group, group ) ) : Stream.empty( ) )
+                : mappedGroups.get( group ).stream( ).map( roleName -> this.buildRole( group + roleName, roleName ) ) ).collect( Collectors.toList( ) );
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof RbacManagerException)
             {
-                for ( String roleName : roleNames )
-                {
-                    Role role = buildRole( roleName );
-                    roles.add( role );
-                }
-            }
-            else if ( this.ldapRoleMapper.isUseDefaultRoleName() )
-            {
-                Role role = buildRole( group );
-                roles.add( role );
-
-
+                throw ( (RbacManagerException) e.getCause( ) );
+            } else {
+                throw new MappingException( e.getMessage(), e );
             }
         }
-        return roles;
-
     }
 
-    private Role buildRole( String group )
-        throws RbacManagerException
+    private Role buildRole( String groupId, String roleName )
     {
         Role role = null;
         try
         {
-            role = this.rbacImpl.getRole( group );
+            role = this.rbacImpl.getRole( roleName );
         }
         catch ( RbacObjectNotFoundException e )
         {
             // if it's mapped role to a group it doesn't exist in jpa
         }
-        role = ( role == null ) ? new RoleImpl( group ) : role;
+        catch ( RbacManagerException e )
+        {
+            throw new RuntimeException( e );
+        }
+        role = ( role == null ) ? new RoleImpl( groupId, roleName ) : role;
         if ( role != null )
         {
             rolesCache.put( role.getName(), role );
@@ -574,10 +565,22 @@ public class LdapRbacManager
             throw new RbacManagerException( e.getMessage(), e );
         }
         role = this.rbacImpl.getRole( roleName );
+        if (role==null)
+        {
+            try
+            {
+                String groupName = ldapRoleMapperConfiguration.getLdapGroupMappings( ).entrySet( ).stream( )
+                    .filter( entry -> entry.getValue( ).contains( roleName ) )
+                    .map( entry -> entry.getKey( ) ).findFirst( ).orElseGet( String::new );
+                role = new RoleImpl( groupName + roleName, roleName );
+            }
+            catch ( MappingException e )
+            {
+                role = new RoleImpl( roleName );
+            }
+        };
         role = ( role == null ) ? new RoleImpl( roleName ) : role;
-
         rolesCache.put( roleName, role );
-
         return role;
     }
 
@@ -1191,6 +1194,10 @@ public class LdapRbacManager
         private String name;
 
         private String description;
+        private String id="";
+        private String modelId="";
+        private boolean isTemplateInstance=false;
+        private String resource="";
 
         private List<Permission> permissions = new ArrayList<Permission>();
 
@@ -1198,6 +1205,12 @@ public class LdapRbacManager
 
         private RoleImpl( String name )
         {
+            this.name = name;
+            this.id = name;
+        }
+
+        private RoleImpl(String id, String name) {
+            this.id = id;
             this.name = name;
         }
 
@@ -1334,6 +1347,72 @@ public class LdapRbacManager
         {
             return name != null ? name.hashCode() : 0;
         }
+
+
+        @Override
+        public String getId( )
+        {
+            return id;
+        }
+
+        @Override
+        public void setId( String id )
+        {
+            if (id==null) {
+                this.id = "";
+            } else
+            {
+                this.id = id;
+            }
+        }
+
+        @Override
+        public String getModelId( )
+        {
+            return modelId;
+        }
+
+        @Override
+        public void setModelId( String modelId )
+        {
+            if (modelId==null) {
+                this.modelId = "";
+            } else
+            {
+                this.modelId = modelId;
+            }
+        }
+
+        @Override
+        public boolean isTemplateInstance( )
+        {
+            return isTemplateInstance;
+        }
+
+        @Override
+        public void setTemplateInstance( boolean templateInstance )
+        {
+            isTemplateInstance = templateInstance;
+        }
+
+        @Override
+        public String getResource( )
+        {
+            return resource;
+        }
+
+        @Override
+        public void setResource( String resource )
+        {
+            if (resource==null) {
+                this.resource = "";
+            } else
+            {
+                this.resource = resource;
+            }
+        }
+
+
     }
 
     private static class UserAssignmentImpl

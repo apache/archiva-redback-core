@@ -21,6 +21,8 @@ package org.apache.archiva.redback.rbac.jpa.model;
 
 import org.apache.archiva.redback.rbac.AbstractRole;
 import org.apache.archiva.redback.rbac.Permission;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 
 import javax.persistence.*;
@@ -37,9 +39,13 @@ import java.util.List;
 )
 public class JpaRole extends AbstractRole implements Serializable {
 
+    private static final Logger log = LoggerFactory.getLogger( JpaRole.class );
+
     @Id
     @Column(name="NAME")
     private String name;
+    @Column(name="ID", unique = true)
+    private String id;
     @Column(name="DESCRIPTION")
     private String description;
     @Column(name="ASSIGNABLE",nullable = false)
@@ -68,7 +74,14 @@ public class JpaRole extends AbstractRole implements Serializable {
     )
     List<String> childRoleNames = new ArrayList<String>();
 
+    @Column(name="TEMPLATE_INSTANCE",nullable = false)
+    private Boolean templateInstance = false;
 
+    @Column(name="MODEL_ID",nullable = false)
+    private String modelId = "";
+
+    @Column(name="RESOURCE",nullable = false)
+    private String resource = "";
 
     @Override
     public void addPermission(Permission permission) {
@@ -157,19 +170,82 @@ public class JpaRole extends AbstractRole implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        JpaRole jpaRole = (JpaRole) o;
-
-        return name.equals(jpaRole.name);
-
+    public void setId( String id )
+    {
+        if (id==null)  {
+            log.error( "Null value for role id" );
+            throw new NullPointerException( "ID may not be null" );
+        }
+        this.id = id;
     }
 
     @Override
-    public int hashCode() {
-        return name.hashCode();
+    public String getId( )
+    {
+        return id;
+    }
+
+    @Override
+    public void setModelId( String modelId )
+    {
+        if (modelId==null) {
+            this.modelId = "";
+        } else
+        {
+            this.modelId = modelId;
+        }
+    }
+
+    @Override
+    public String getModelId( )
+    {
+        return modelId;
+    }
+
+    @Override
+    public void setTemplateInstance( boolean templateInstanceFlag )
+    {
+        this.templateInstance = templateInstanceFlag;
+    }
+
+    @Override
+    public boolean isTemplateInstance( )
+    {
+        return this.templateInstance;
+    }
+
+    @Override
+    public void setResource( String resource )
+    {
+        if (resource==null) {
+            this.resource = "";
+        } else
+        {
+            this.resource = resource;
+        }
+    }
+
+    @Override
+    public String getResource( )
+    {
+        return resource;
+    }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o ) return true;
+        if ( o == null || getClass( ) != o.getClass( ) ) return false;
+        if ( !super.equals( o ) ) return false;
+
+        JpaRole jpaRole = (JpaRole) o;
+
+        return name.equals( jpaRole.name );
+    }
+
+    @Override
+    public int hashCode( )
+    {
+        return name.hashCode( );
     }
 }

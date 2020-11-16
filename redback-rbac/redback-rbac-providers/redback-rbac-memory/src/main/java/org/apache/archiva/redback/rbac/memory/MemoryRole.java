@@ -30,6 +30,7 @@ import java.util.List;
  * MemoryRole
  *
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
+ * @author Martin Stockhammer <martin_s@apache.org>
  *
  */
 public class MemoryRole
@@ -37,10 +38,13 @@ public class MemoryRole
     implements Role, java.io.Serializable
 {
 
+    private static final long serialVersionUID = -2784061560950152088L;
     /**
      * Field name
      */
     private String name;
+
+    private String id;
 
     /**
      * Field description
@@ -55,23 +59,23 @@ public class MemoryRole
     /**
      * Field childRoleNames
      */
-    private List<String> childRoleNames = new ArrayList<String>( 0 );
+    private List<String> childRoleNames = new ArrayList<>( 0 );
 
     /**
      * Field permissions
      */
-    private List<Permission> permissions = new ArrayList<Permission>( 0 );
+    private List<Permission> permissions = new ArrayList<>( 0 );
 
     /**
      * Field permanent
      */
     private boolean permanent = false;
 
-    /**
-     * Method addPermission
-     *
-     * @param memoryPermission
-     */
+    private String modelId = "";
+    private String resource = "";
+    private boolean isTemplateInstance;
+
+    @Override
     public void addPermission( Permission memoryPermission )
     {
         if ( !( memoryPermission instanceof MemoryPermission ) )
@@ -82,86 +86,55 @@ public class MemoryRole
         getPermissions().add( memoryPermission );
     }
 
-    /**
-     * Method equals
-     *
-     * @param other
-     */
-    public boolean equals( Object other )
+    @Override
+    public boolean equals( Object o )
     {
-        if ( this == other )
-        {
-            return true;
-        }
+        if ( this == o ) return true;
+        if ( o == null || getClass( ) != o.getClass( ) ) return false;
+        if ( !super.equals( o ) ) return false;
 
-        if ( !( other instanceof MemoryRole ) )
-        {
-            return false;
-        }
+        MemoryRole that = (MemoryRole) o;
 
-        MemoryRole that = (MemoryRole) other;
-        boolean result = true;
-        result = result && ( getName() == null ? that.getName() == null : getName().equals( that.getName() ) );
-        return result;
+        return name.equals( that.name );
     }
 
-    /**
-     * Method getChildRoles
-     */
+    @Override
+    public int hashCode( )
+    {
+        return name.hashCode( );
+    }
+
+    @Override
     public List<String> getChildRoleNames()
     {
         return this.childRoleNames;
     }
 
-    /**
-     * Get null
-     */
+    @Override
     public String getDescription()
     {
         return this.description;
     }
 
-    /**
-     * Get null
-     */
+    @Override
     public String getName()
     {
         return this.name;
     }
 
-    /**
-     * Method getPermissions
-     */
+    @Override
     public List<Permission> getPermissions()
     {
         return this.permissions;
     }
 
-    /**
-     * Method hashCode
-     */
-    public int hashCode()
-    {
-        int result = 17;
-        result = 37 * result + ( name != null ? name.hashCode() : 0 );
-        return result;
-    }
-
-    /**
-     * Get
-     * true if this role is available to be assigned to
-     * a user
-     */
+    @Override
     public boolean isAssignable()
     {
         return this.assignable;
     }
 
-    /**
-     * Method removePermission
-     *
-     * @param memoryPermission
-     */
+    @Override
     public void removePermission( Permission memoryPermission )
     {
         if ( !( memoryPermission instanceof MemoryPermission ) )
@@ -172,64 +145,47 @@ public class MemoryRole
         getPermissions().remove( memoryPermission );
     }
 
-    /**
-     * Set
-     * true if this role is available to be assigned to
-     * a user
-     *
-     * @param assignable
-     */
+    @Override
     public void setAssignable( boolean assignable )
     {
         this.assignable = assignable;
     }
 
-    /**
-     * Set null
-     *
-     * @param description
-     */
+    @Override
     public void setDescription( String description )
     {
         this.description = description;
     }
 
-    /**
-     * Set null
-     *
-     * @param name
-     */
+    @Override
     public void setName( String name )
     {
         this.name = name;
     }
 
-    /**
-     * Set null
-     *
-     * @param permissions
-     */
+    @Override
     public void setPermissions( List<Permission> permissions )
     {
         this.permissions = permissions;
     }
 
-    /**
-     * Method toString
-     */
-    public java.lang.String toString()
+    @Override
+    public String toString( )
     {
-        StringBuilder buf = new StringBuilder();
-        buf.append( "name = '" );
-        buf.append( getName() + "'" );
-        return buf.toString();
+        final StringBuilder sb = new StringBuilder( "MemoryRole{" );
+        sb.append( "name='" ).append( name ).append( '\'' );
+        sb.append( ", id='" ).append( id ).append( '\'' );
+        sb.append( '}' );
+        return sb.toString( );
     }
 
+    @Override
     public void addChildRoleName( String name )
     {
         this.childRoleNames.add( name );
     }
 
+    @Override
     public void setChildRoleNames( List<String> names )
     {
         if ( names == null )
@@ -242,13 +198,80 @@ public class MemoryRole
         }
     }
 
+    @Override
     public boolean isPermanent()
     {
         return permanent;
     }
 
+    @Override
     public void setPermanent( boolean permanent )
     {
         this.permanent = permanent;
     }
+
+
+    @Override
+    public String getId( )
+    {
+        return id;
+    }
+
+    @Override
+    public void setId( String id )
+    {
+        if (id==null) {
+            this.id = "";
+        } else
+        {
+            this.id = id;
+        }
+    }
+
+    @Override
+    public String getModelId( )
+    {
+        return modelId;
+    }
+
+    @Override
+    public void setModelId( String modelId )
+    {
+        if (modelId==null) {
+            this.modelId = "";
+        } else
+        {
+            this.modelId = modelId;
+        }
+    }
+
+    @Override
+    public String getResource( )
+    {
+        return resource;
+    }
+
+    @Override
+    public void setResource( String resource )
+    {
+        if (resource==null) {
+            this.resource = "";
+        } else
+        {
+            this.resource = resource;
+        }
+    }
+
+    @Override
+    public boolean isTemplateInstance( )
+    {
+        return isTemplateInstance;
+    }
+
+    @Override
+    public void setTemplateInstance( boolean templateInstance )
+    {
+        isTemplateInstance = templateInstance;
+    }
+
 }

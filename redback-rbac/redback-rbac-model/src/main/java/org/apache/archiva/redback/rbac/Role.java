@@ -16,6 +16,8 @@ package org.apache.archiva.redback.rbac;
  * limitations under the License.
  */
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 
 /**
@@ -31,32 +33,33 @@ import java.util.List;
  *
  * @author Jesse McConnell
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
+ * @author Martin Stockhammer <martin_s@apache.org>
  *
  */
 public interface Role
 {
 
     /**
-     * Method addPermission
+     * Adds a permission to the list
      *
-     * @param permission
+     * @param permission the permission to add to the list
      */
     void addPermission( Permission permission );
 
     /**
-     * Method addChildRoleName
+     * Adds a role to the list of child roles
      *
      * @param name the name of the child role.
      */
     void addChildRoleName( String name );
 
     /**
-     * Method getChildRoleNames
+     * Returns the list of child roles
      */
     List<String> getChildRoleNames();
 
     /**
-     * Convienence method to see if Role has Child Roles.
+     * Convenience method to see if Role has Child Roles.
      *
      * @return true if child roles exists and has any roles being tracked.
      */
@@ -64,74 +67,80 @@ public interface Role
 
     /**
      * Long description of the role.
+     * @return the role description
      */
     String getDescription();
 
     /**
-     * Get the name.
+     * Get the name. Must be unique.
      *
      * NOTE: This field is considered the Primary Key for this object.
+     * @return the name of the role
      */
     String getName();
 
     /**
-     * Method getPermissions
+     * Returns the list of permissions assigned to this role.
+     * @return the list of permissions assigned to this role
      */
     List<? extends Permission> getPermissions();
 
     /**
-     * true if this role is available to be assigned to a user
+     * <code>True</code>, if this role is available to be assigned to a user, otherwise <code>false</code>.
+     *
+     * @return <code>true</code>, if this role can be assigned to users, otherwise <code>false</code>
      */
     boolean isAssignable();
 
     /**
-     * Method removePermission
+     * Removes the given permission from the list. If the permission does not exist in the list of assigned
+     * permissions, nothing happens.
      *
-     * @param permission
+     * @param permission the permission to remove.
      */
     void removePermission( Permission permission );
 
     /**
-     * true if this role is available to be assigned to a user
+     * Set to <code>true</code>, if this role should available to be assigned to a user
      *
-     * @param assignable
+     * @param assignable the assignable flag
      */
     void setAssignable( boolean assignable );
 
     /**
-     * The names of the roles that will inherit the permissions of this role
+     * Sets the names of children roles. Children roles inherit the permissions of the parent role.
      *
-     * @param names the list of names of other roles.
+     * @param names the list of names of child roles.
      */
     void setChildRoleNames( List<String> names );
 
     /**
      * Set the Description
      *
-     * @param description
+     * @param description the role description
      */
     void setDescription( String description );
 
     /**
-     * Set Name
+     * Set the role name
      *
      * NOTE: This field is considered the Primary Key for this object.
      *
-     * @param name
+     * @param name the role name
      */
     void setName( String name );
 
     /**
-     * Set Permissions
+     * Set role permissions. The list of assigned permissions is replaced by this list.
      *
-     * @param permissions
+     * @param permissions the permissions to set
      */
     void setPermissions( List<Permission> permissions );
 
     /**
      * Test to see if the object is a permanent object or not.
      *
-     * @return true if the object is permanent.
+     * @return <code>true</code>, if the object is permanent.
      */
     boolean isPermanent();
 
@@ -141,4 +150,76 @@ public interface Role
      * @param permanent true if the object is permanent.
      */
     void setPermanent( boolean permanent );
+
+    /**
+     * The role identifier. Should be built from the modelId and the resource. And must be unique.
+     *
+     * @since 3.0
+     * @return the role identifier
+     */
+    default String getId() {
+        return StringUtils.isEmpty( getModelId() )?getName():(isTemplateInstance()?getModelId()+"."+getResource():getModelId());
+    }
+
+    /**
+     * Sets the role id
+     *
+     * @since 3.0
+     * @param id the identifier of the role, should not be null or empty.
+     */
+    void setId(String id);
+
+    /**
+     * Returns the model the role is derived from.
+     *
+     * @since 3.0
+     * @return The model id or empty string, if this role was not created from a model
+     */
+    default String getModelId( ) {
+        return "";
+    }
+
+    /**
+     * Sets the model id.
+     *
+     * @param modelId the identifier of the model, or empty string. Should not be null.
+     */
+    void setModelId(String modelId);
+
+    /**
+     * Returns <code>true</code>, if this role is a instance of a template role, otherwise <code>false</code>.
+     * Templated roles are built from a template together with a resource identifier.
+     *
+     * @since 3.0
+     * @return <code>true</code>, if this role is a templated role, otherwise <code>false</code>
+     */
+    default boolean isTemplateInstance( ) {
+        return StringUtils.isEmpty( getResource() );
+    }
+
+    /**
+     * Sets the template instance flag.
+     *
+     * @since 3.0
+     * @param templateInstanceFlag Set to <code>true</code>, if this is a template instance, otherwise <code>false</code>
+     */
+    void setTemplateInstance(boolean templateInstanceFlag);
+
+    /**
+     * Returns the resource that is used to build this role from a template. If this is not a templated
+     * role, a empty string should be returned.
+     *
+     * @since 3.0
+     * @return the resource identifier, used to build this role or a empty string, if this role is not templated
+     */
+    default String getResource() {
+        return "";
+    }
+
+    /**
+     * Sets the resource, this template instance is attached to.
+     *
+     * @param resource the resource identifier. Must not be null.
+     */
+    void setResource( String resource );
 }

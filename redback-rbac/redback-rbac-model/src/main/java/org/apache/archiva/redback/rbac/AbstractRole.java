@@ -26,6 +26,7 @@ public abstract class AbstractRole
     implements Role
 {
 
+    @Override
     public boolean hasChildRoles()
     {
         return ( getChildRoleNames() != null ) && !getChildRoleNames().isEmpty();
