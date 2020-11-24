@@ -1,6 +1,4 @@
-package org.apache.archiva.redback.rest.api;
-
-/*
+package org.apache.archiva.redback.role;/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,9 +19,15 @@ package org.apache.archiva.redback.rest.api;
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
  */
-public interface Constants
+public class RoleNotFoundException extends RoleManagerException
 {
-    String DEFAULT_PAGE_LIMIT = "100";
+    public RoleNotFoundException( String string )
+    {
+        super( string );
+    }
 
-
+    public RoleNotFoundException( String string, Throwable throwable )
+    {
+        super( string, throwable );
+    }
 }

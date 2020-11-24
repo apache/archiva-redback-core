@@ -41,17 +41,22 @@ import org.apache.archiva.redback.policy.PasswordRuleViolationException;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
+import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.rbac.UserAssignment;
 import org.apache.archiva.redback.rest.api.MessageKeys;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
+import org.apache.archiva.redback.rest.api.model.v2.Application;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
+import org.apache.archiva.redback.rest.api.model.v2.BaseRoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.Operation;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
 import org.apache.archiva.redback.rest.api.model.v2.Resource;
+import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
+import org.apache.archiva.redback.rest.api.model.v2.RoleTree;
 import org.apache.archiva.redback.rest.api.model.v2.SelfUserData;
 import org.apache.archiva.redback.rest.api.model.v2.User;
 import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
@@ -65,6 +70,7 @@ import org.apache.archiva.redback.rest.services.interceptors.RedbackPrincipal;
 import org.apache.archiva.redback.rest.services.utils.PasswordValidator;
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
+import org.apache.archiva.redback.role.model.ModelApplication;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.system.SecuritySystem;
 import org.apache.archiva.redback.users.UserManager;
@@ -91,17 +97,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service( "v2.userService#rest" )
-public class DefaultUserService
+public class DefaultUserService extends BaseRedbackService
     implements UserService
 {
 
@@ -113,6 +121,7 @@ public class DefaultUserService
     private static final String[] DEFAULT_SEARCH_FIELDS = {"user_id", "full_name", "email"};
     private static final Map<String, BiPredicate<String, org.apache.archiva.redback.users.User>> FILTER_MAP = new HashMap<>( );
     private static final Map<String, Comparator<org.apache.archiva.redback.users.User>> ORDER_MAP = new HashMap<>( );
+    private static final QueryHelper<org.apache.archiva.redback.users.User> QUERY_HELPER;
 
     static
     {
@@ -133,10 +142,9 @@ public class DefaultUserService
         FILTER_MAP.put( "user_id", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getUsername( ), q ) );
         FILTER_MAP.put( "full_name", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getFullName( ), q ) );
         FILTER_MAP.put( "email", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getEmail( ), q ) );
+
+        QUERY_HELPER = new QueryHelper<>( FILTER_MAP, ORDER_MAP, DEFAULT_SEARCH_FIELDS );
     }
-
-
-    private UserManager userManager;
 
     private SecuritySystem securitySystem;
 
@@ -174,9 +182,10 @@ public class DefaultUserService
     @Inject
     private Mailer mailer;
 
+
     @Inject
-    @Named( value = "rbacManager#default" )
-    private RBACManager rbacManager;
+    @Named( value = "v2.roleService#rest" )
+    private DefaultRoleService roleManagementService;
 
     private HttpAuthenticator httpAuthenticator;
 
@@ -196,10 +205,11 @@ public class DefaultUserService
     private SecurityContext securityContext;
 
     @Inject
-    public DefaultUserService( @Named( value = "userManager#default" ) UserManager userManager,
+    public DefaultUserService(@Named( value = "rbacManager#default" ) RBACManager rbacManager,
+                              @Named( value = "userManager#default" ) UserManager userManager ,
                                SecuritySystem securitySystem )
     {
-        this.userManager = userManager;
+        super( rbacManager, userManager );
         this.securitySystem = securitySystem;
     }
 
@@ -220,7 +230,8 @@ public class DefaultUserService
     public UserInfo createUser( User user )
         throws RedbackServiceException
     {
-        if (user==null) {
+        if ( user == null )
+        {
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USER_ID_EMPTY ), 422 );
         }
         UserInfo result;
@@ -311,7 +322,8 @@ public class DefaultUserService
     public void deleteUser( String userId )
         throws RedbackServiceException
     {
-        if (StringUtils.isEmpty( userId )) {
+        if ( StringUtils.isEmpty( userId ) )
+        {
             throw new RedbackServiceException( MessageKeys.ERR_USER_ID_EMPTY, 404 );
         }
 
@@ -355,7 +367,8 @@ public class DefaultUserService
     public UserInfo getUser( String userId )
         throws RedbackServiceException
     {
-        if (StringUtils.isEmpty( userId)) {
+        if ( StringUtils.isEmpty( userId ) )
+        {
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USER_ID_EMPTY ), 404 );
         }
         try
@@ -377,55 +390,6 @@ public class DefaultUserService
         }
     }
 
-    Comparator<org.apache.archiva.redback.users.User> getAttributeComparator( String attributeName )
-    {
-        return ORDER_MAP.get( attributeName );
-    }
-
-    Comparator<org.apache.archiva.redback.users.User> getComparator( List<String> orderBy, boolean ascending )
-    {
-        if ( ascending )
-        {
-            return orderBy.stream( ).map( ( String name ) -> getAttributeComparator( name ) ).filter( Objects::nonNull ).reduce( Comparator::thenComparing ).get( );
-        }
-        else
-        {
-            return orderBy.stream( ).map( ( String name ) -> getAttributeComparator( name ) == null ? null : getAttributeComparator( name ).reversed( ) ).filter( Objects::nonNull ).reduce( Comparator::thenComparing ).get( );
-        }
-    }
-
-    static Predicate<org.apache.archiva.redback.users.User> getFilter( final String attribute, final String queryToken )
-    {
-        if ( FILTER_MAP.containsKey( attribute ) )
-        {
-            return ( org.apache.archiva.redback.users.User u ) -> FILTER_MAP.get( attribute ).test( queryToken, u );
-        }
-        else
-        {
-            return Arrays.stream( DEFAULT_SEARCH_FIELDS )
-                .map( att -> getFilter( att, queryToken ) ).reduce( Predicate::or ).get( );
-        }
-    }
-
-    Predicate<org.apache.archiva.redback.users.User> getUserFilter( String queryTerms )
-    {
-        return Arrays.stream( queryTerms.split( "\\s+" ) )
-            .map( s -> {
-                    if ( s.contains( ":" ) )
-                    {
-                        String attr = StringUtils.substringBefore( s, ":" );
-                        String term = StringUtils.substringAfter( s, ":" );
-                        return getFilter( attr, term );
-                    }
-                    else
-                    {
-                        return Arrays.stream( DEFAULT_SEARCH_FIELDS )
-                            .map( att -> getFilter( att, s ) ).reduce( Predicate::or ).get( );
-                    }
-                }
-            ).reduce( Predicate::or ).get( );
-    }
-
     @Override
     public PagedResult<UserInfo> getUsers( String q, Integer offset,
                                            Integer limit, List<String> orderBy, String order )
@@ -437,11 +401,11 @@ public class DefaultUserService
             // UserQuery does not work here, because the configurable user manager does only return the query for
             // the first user manager in the list. So we have to fetch the whole user list
             List<? extends org.apache.archiva.redback.users.User> rawUsers = userManager.getUsers( );
-            Predicate<org.apache.archiva.redback.users.User> filter = getUserFilter( q );
+            Predicate<org.apache.archiva.redback.users.User> filter = QUERY_HELPER.getQueryFilter( q );
             long size = rawUsers.stream( ).filter( filter ).count( );
             List<UserInfo> users = rawUsers.stream( )
                 .filter( filter )
-                .sorted( getComparator( orderBy, ascending ) ).skip( offset ).limit( limit )
+                .sorted( QUERY_HELPER.getComparator( orderBy, ascending ) ).skip( offset ).limit( limit )
                 .map( user -> getRestUser( user ) )
                 .collect( Collectors.toList( ) );
             return new PagedResult<>( (int) size, offset, limit, users );
@@ -971,6 +935,101 @@ public class DefaultUserService
         catch ( UserManagerException e )
         {
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USERMANAGER_FAIL, e.getMessage( ) ), 400 );
+        }
+    }
+
+    @Override
+    public List<RoleInfo> getEffectivelyAssignedRoles( String username ) throws RedbackServiceException
+    {
+        try
+        {
+            return rbacManager.getEffectivelyAssignedRoles( username ).stream( )
+                .filter( org.apache.archiva.redback.rbac.Role::isAssignable )
+                .map( this::getRoleInfoOptional )
+                .filter( Optional::isPresent )
+                .map(Optional::get).collect( Collectors.toList());
+        }
+        catch ( RbacManagerException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
+        }
+    }
+
+    private static final Application toApplication( ModelApplication app )
+    {
+        Application application = new Application( );
+        application.setId( app.getId( ) );
+        application.setVersion( app.getVersion( ) );
+        application.setDescription( app.getDescription( ) == null ? "" :app.getDescription() );
+        application.setLongDescription( app.getLongDescription( ) == null ? "" : app.getLongDescription( ) );
+        return application;
+    }
+
+    private List<Application> getAllApplications( )
+    {
+        return roleManager.getModel( ).getApplications( ).stream( ).map( DefaultUserService::toApplication ).collect( Collectors.toList( ) );
+    }
+
+
+    @Override
+    public RoleTree getRoleTree( final String username ) throws RedbackServiceException
+    {
+        final Map<String, String> roleApplicationMap = roleManager.getModel( ).getApplications( ).stream( )
+            .flatMap( modelApplication -> modelApplication.getRoles( ).stream( ).map( role -> {
+                BaseRoleInfo roleInfo = new BaseRoleInfo( );
+                roleInfo.setId( role.getId( ) );
+                roleInfo.setApplicationId( modelApplication.getId( ) );
+                return roleInfo;
+            } ) ).collect( Collectors.toMap( BaseRoleInfo::getId, BaseRoleInfo::getApplicationId ) );
+
+        try
+        {
+            final Set<String> assignedRoleNames = new HashSet( rbacManager.getUserAssignment( username ).getRoleNames( ) );
+            // We have to reuse the BaseRoleInfo objects, because the roles are not returned starting from the roots
+            final Map<String, BaseRoleInfo> roleNameCache = new HashMap<>( );
+            List<BaseRoleInfo> roleList = rbacManager.getAllRoles( ).stream( ).flatMap( this::flattenRole ).map( role ->
+            {
+                BaseRoleInfo roleInfo = roleNameCache.computeIfAbsent( role.getName( ), s -> new BaseRoleInfo( ) );
+                // Setting the role data, as there may be child role objects that are not completely initialized
+                roleInfo = BaseRoleInfo.of( role, roleInfo );
+                roleInfo.setApplicationId( roleApplicationMap.get( role.getId( ) ) );
+                roleInfo.setAssigned( assignedRoleNames.contains( role.getName( ) ) );
+                roleInfo.setChildren( role.getChildRoleNames( ).stream( )
+                    .map( roleName ->
+                    {
+                        BaseRoleInfo childRoleInfo = roleNameCache.computeIfAbsent( roleName, s -> BaseRoleInfo.ofName( roleName ) );
+                        childRoleInfo.setChild( true );
+                        return childRoleInfo;
+                    } )
+                    .collect( Collectors.toList( ) ) );
+                return roleInfo;
+            } ).collect( Collectors.toList( ) );
+            RoleTree roleTree = new RoleTree( );
+            roleTree.setApplications( getAllApplications( ).stream( ).collect( Collectors.toMap( Application::getId, Function.identity( ) ) ) );
+            roleTree.setRootRoles( roleList.stream( ).filter( BaseRoleInfo::isNotChild ).collect( Collectors.toList( ) ) );
+            roleTree.setUserId( username );
+            return roleTree;
+        }
+        catch ( RbacManagerException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
+        }
+    }
+
+    private Stream<Role> flattenRole( Role role )
+    {
+        return Stream.concat( Stream.of( role ), this.getChildren( role ).flatMap( this::flattenRole ) ).distinct( );
+    }
+
+    private Stream<? extends Role> getChildren( Role role )
+    {
+        try
+        {
+            return rbacManager.getChildRoleNames( role ).values( ).stream( );
+        }
+        catch ( RbacManagerException e )
+        {
+            throw new RuntimeException( e );
         }
     }
 

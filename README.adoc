@@ -2,6 +2,17 @@ Archiva Redback - Documentation
 ===============================
 :toc:
 
+== Update Information for 3.0
+
+=== Database Schema Changes
+
+==== org.apache.archiva.redback.rbac.Role
+
+New fields:
+id, modelId, isTemplateInstance, resource
+
+Primary key changed from name to combined key id,name
+
 
 == How to build and publish the pages for the archiva web content
 

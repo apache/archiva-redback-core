@@ -59,6 +59,24 @@ public interface Role
     List<String> getChildRoleNames();
 
     /**
+     * Adds a child role and sets the list of child names and child ids.
+     * @param child the child role
+     */
+    void addChildRole( Role child );
+
+    /**
+     * Adds a child role id
+     * @param id the id
+     */
+    void addChildRoleId( String id );
+
+    /**
+     * Returns the child role ids
+     * @return the list of child role ids
+     */
+    List<String> getChildRoleIds();
+
+    /**
      * Convenience method to see if Role has Child Roles.
      *
      * @return true if child roles exists and has any roles being tracked.
@@ -113,6 +131,12 @@ public interface Role
      * @param names the list of names of child roles.
      */
     void setChildRoleNames( List<String> names );
+
+    /**
+     * Sets the list of child role ids
+     * @param ids
+     */
+    void setChildRoleIds( List<String> ids );
 
     /**
      * Set the Description
@@ -220,4 +244,6 @@ public interface Role
      * @param resource the resource identifier. Must not be null.
      */
     void setResource( String resource );
+
+
 }

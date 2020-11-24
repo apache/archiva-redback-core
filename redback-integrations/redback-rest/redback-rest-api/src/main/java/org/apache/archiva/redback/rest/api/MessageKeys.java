@@ -40,10 +40,19 @@ public interface MessageKeys
     String ERR_USER_ADMIN_EXISTS = "rb.user.admin.exists";
     String ERR_USER_ADMIN_BAD_NAME = "rb.user.admin.badname";
     String ERR_USER_NOT_FOUND = "rb.user.not_found";
+    String ERR_USER_BAD_PASSWORD = "rb.user.bad.password";
     String ERR_PASSWORD_VIOLATION = "rb.user.password_violation";
+
     String ERR_LDAP_GENERIC = "rb.ldap.error";
     String ERR_ROLE_MAPPING = "rb.role.mapping.error";
     String ERR_ROLE_MAPPING_NOT_FOUND = "rb.role.mapping.not_found";
+    String ERR_ROLE_NOT_FOUND = "rb.role.not_found";
+    // A template instance not found. With arguments templateId, resource
+    String ERR_ROLE_INSTANCE_NOT_FOUND = "rb.role.instance.not_found";
+    String ERR_ROLE_EXISTS = "rb.role.exists";
+    // A template instance exists. With arguments templateId, resource
+    String ERR_ROLE_INSTANCE_EXISTS = "rb.role.instance.exists";
+
     String ERR_AUTH_BAD_CODE = "rb.auth.bad_authorization_code";
     String ERR_AUTH_INVALID_CREDENTIALS = "rb.auth.invalid_credentials";
     String ERR_AUTH_FAIL_MSG = "rb.auth.fail";
@@ -52,9 +61,11 @@ public interface MessageKeys
     String ERR_AUTH_UNSUPPORTED_GRANT_TYPE = "rb.auth.unsupported_grant";
     String ERR_AUTH_INVALID_TOKEN = "rb.auth.invalid_token";
     String ERR_AUTH_UNAUTHORIZED_REQUEST = "rb.auth.unauthorized_request";
+
     String ERR_PASSWD_RESET_FAILED = "rb.passwd.reset.fail";
-    String ERR_USER_BAD_PASSWORD = "rb.user.bad.password";
+
     String ERR_REGISTRATION_KEY_INVALID = "rb.registration.key.invalid";
     String ERR_REGISTRATION_USER_VALIDATED = "rb.registration.user.validated";
     String ERR_REGISTRATION_ROLE_ASSIGNMENT_FAILED = "rb.registration.role.assignment.failed";
+
 }

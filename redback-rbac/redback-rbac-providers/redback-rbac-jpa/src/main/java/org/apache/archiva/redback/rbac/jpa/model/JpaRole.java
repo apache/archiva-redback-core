@@ -21,6 +21,7 @@ package org.apache.archiva.redback.rbac.jpa.model;
 
 import org.apache.archiva.redback.rbac.AbstractRole;
 import org.apache.archiva.redback.rbac.Permission;
+import org.apache.archiva.redback.rbac.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -37,15 +38,17 @@ import java.util.List;
 @Table(
         name="SECURITY_ROLES"
 )
+@IdClass( RoleId.class )
 public class JpaRole extends AbstractRole implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger( JpaRole.class );
     private static final long serialVersionUID = 4564608138465995665L;
 
     @Id
-    @Column(name="NAME")
+    @Column(name="NAME", unique = true)
     private String name;
-    @Column(name="ID", unique = true)
+    @Id
+    @Column( name = "ID", unique = true )
     private String id;
     @Column(name="DESCRIPTION")
     private String description;
@@ -75,6 +78,17 @@ public class JpaRole extends AbstractRole implements Serializable {
     )
     List<String> childRoleNames = new ArrayList<String>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @OrderColumn(name="INTEGER_IDX",nullable = false)
+    @Column(name="CHILD_IDS")
+    @CollectionTable(
+        name="SECURITY_ROLE_CHILDROLE_ID_MAP",
+        joinColumns = {
+            @JoinColumn(name="ID_OID",referencedColumnName = "ID", nullable = false)
+        }
+    )
+    List<String> childRoleIds = new ArrayList<String>();
+
     @Column(name="TEMPLATE_INSTANCE",nullable = false)
     private Boolean templateInstance = false;
 
@@ -102,8 +116,20 @@ public class JpaRole extends AbstractRole implements Serializable {
     }
 
     @Override
+    public void addChildRoleId( String id )
+    {
+        this.childRoleIds.add( id );
+    }
+
+    @Override
     public List<String> getChildRoleNames() {
         return childRoleNames;
+    }
+
+    @Override
+    public List<String> getChildRoleIds( )
+    {
+        return childRoleIds;
     }
 
     @Override
@@ -140,6 +166,13 @@ public class JpaRole extends AbstractRole implements Serializable {
     public void setChildRoleNames(List<String> names) {
         this.childRoleNames.clear();
         this.childRoleNames.addAll(names);
+    }
+
+    @Override
+    public void setChildRoleIds( List<String> childRoleIds )
+    {
+        this.childRoleIds.clear();
+        this.childRoleIds.addAll( childRoleIds );
     }
 
     @Override
@@ -245,12 +278,15 @@ public class JpaRole extends AbstractRole implements Serializable {
 
         JpaRole jpaRole = (JpaRole) o;
 
-        return name.equals( jpaRole.name );
+        if ( !name.equals( jpaRole.name ) ) return false;
+        return id.equals( jpaRole.id );
     }
 
     @Override
     public int hashCode( )
     {
-        return name.hashCode( );
+        int result = name.hashCode( );
+        result = 31 * result + id.hashCode( );
+        return result;
     }
 }

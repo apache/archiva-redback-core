@@ -155,21 +155,39 @@ public interface RBACManager
         throws RbacObjectInvalidException, RbacManagerException;
 
     /**
-     * Returns all the child roles of a given role.
+     * Returns all the child roles of a given role as (name, role) pairs.
      * @param role the parent role
      * @return the list of child roles
      * @throws RbacManagerException if the access to the backend datastore failed
      */
-    Map<String, ? extends Role> getChildRoles( Role role )
+    Map<String, ? extends Role> getChildRoleNames( Role role )
         throws RbacManagerException;
 
     /**
-     * Returns all the parent roles of a given role.
+     * Returns all the child roles of a given role as (role id, role) pairs.
+     * @param role the parent role
+     * @return the map of child roles as (role id, role) pairs
+     * @throws RbacManagerException if the access to the backend datastore failed
+     */
+    Map<String, ? extends Role> getChildRoleIds( Role role )
+        throws RbacManagerException;
+
+    /**
+     * Returns all the parent roles of a given role as map of (name, role)  elements.
      * @param role the role to check for parent roles
      * @return the list of parent roles that have <code>role</code> als child
      * @throws RbacManagerException if the access to the backend datastore failed
      */
-    Map<String, ? extends Role> getParentRoles( Role role )
+    Map<String, ? extends Role> getParentRoleNames( Role role )
+        throws RbacManagerException;
+
+    /**
+     * Returns all the parent roles of a given role as map of (id, role) elements.
+     * @param role the role to check for parents roles
+     * @return a map of (role id, role) pairs that have <code>role</code> as child
+     * @throws RbacManagerException if the access to the backend datastore failed
+     */
+    Map<String, ? extends Role> getParentRoleIds( Role role )
         throws RbacManagerException;
 
     /**

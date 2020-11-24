@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * AbstractRBACManager
@@ -499,7 +500,7 @@ public abstract class AbstractRBACManager
 
         if ( role.hasChildRoles() )
         {
-            Map<String, ? extends Role> childRoles = getChildRoles( role );
+            Map<String, ? extends Role> childRoles = getChildRoleNames( role );
             Iterator<? extends Role> it = childRoles.values().iterator();
             while ( it.hasNext() )
             {
@@ -736,11 +737,11 @@ public abstract class AbstractRBACManager
         throws RbacObjectInvalidException, RbacManagerException
     {
         saveRole( childRole );
-        role.addChildRoleName( childRole.getName() );
+        role.addChildRole( childRole );
     }
 
     @Override
-    public Map<String, ? extends Role> getChildRoles( Role role )
+    public Map<String, ? extends Role> getChildRoleNames( Role role )
         throws RbacManagerException
     {
         Map<String, Role> childRoles = new HashMap<String, Role>();
@@ -797,7 +798,64 @@ public abstract class AbstractRBACManager
     }
 
     @Override
-    public Map<String, ? extends Role> getParentRoles( Role role )
+    public Map<String, ? extends Role> getChildRoleIds( Role role )
+        throws RbacManagerException
+    {
+        Map<String, Role> childRoles = new HashMap<String, Role>();
+
+        boolean childRoleNamesUpdated = false;
+
+        Iterator<String> it = role.getChildRoleIds().listIterator();
+
+        final List<String> updatedChildRoleList = new ArrayList<String>( role.getChildRoleIds().size() );
+
+        while ( it.hasNext() )
+        {
+            String roleId = it.next();
+            try
+            {
+                Role child = getRoleById(  roleId );
+                // archiva can change role manager but LDAP can be non writable so in such case
+                // some roles doesn't exists !!
+                if ( child != null )
+                {
+                    childRoles.put( child.getId(), child );
+                    updatedChildRoleList.add( roleId );
+                }
+                else
+                {
+                    log.warn(
+                        "error searching role with name '{}' probably some issues when migrating your role manager",
+                        roleId );
+                }
+            }
+            catch ( RbacObjectNotFoundException e )
+            {
+                // Found a bad roleName! - trigger new List save
+                //it.remove();
+                childRoleNamesUpdated = true;
+            }
+            catch ( RbacManagerException e )
+            {
+                if ( !( e.getCause() instanceof RbacObjectNotFoundException ) )
+                {
+                    throw e;
+                }
+                childRoleNamesUpdated = true;
+            }
+        }
+
+        if ( childRoleNamesUpdated )
+        {
+            role.setChildRoleIds( updatedChildRoleList );
+            saveRole( role );
+        }
+
+        return childRoles;
+    }
+
+    @Override
+    public Map<String, ? extends Role> getParentRoleNames( Role role )
         throws RbacManagerException
     {
         Map<String, Role> parentRoles = new HashMap<String, Role>();
@@ -820,6 +878,23 @@ public abstract class AbstractRBACManager
             }
         }
         return parentRoles;
+    }
+
+    @Override
+    public Map<String, ? extends Role> getParentRoleIds( final Role role ) throws RbacManagerException
+    {
+        return getAllRoles( ).stream( ).filter( r -> !r.getId( ).equals( role.getId( ) ) )
+            .filter( r -> {
+                    try
+                    {
+                        return getEffectiveRoles( r ).stream( ).map( Role::getId ).filter( cRoleId -> cRoleId.equals( role.getId( ) ) ).findAny( ).isPresent( );
+                    }
+                    catch ( RbacManagerException e )
+                    {
+                        return false;
+                    }
+                }
+            ).distinct().collect( Collectors.toMap( Role::getId, Function.identity( ) ) );
     }
 
     @Override

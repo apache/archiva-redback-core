@@ -35,7 +35,7 @@ import org.apache.archiva.redback.rbac.jpa.model.JpaPermission;
 import org.apache.archiva.redback.rbac.jpa.model.JpaResource;
 import org.apache.archiva.redback.rbac.jpa.model.JpaRole;
 import org.apache.archiva.redback.rbac.jpa.model.JpaUserAssignment;
-import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.archiva.redback.rbac.jpa.model.RoleId;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -44,9 +44,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -138,8 +135,15 @@ public class JpaRbacManager extends AbstractRBACManager  {
 
     @Transactional
     @Override
-    public Map<String, ? extends Role> getChildRoles(Role role) throws RbacManagerException {
-        return super.getChildRoles(role);
+    public Map<String, ? extends Role> getChildRoleNames( Role role) throws RbacManagerException {
+        return super.getChildRoleNames(role);
+    }
+
+    @Transactional
+    @Override
+    public Map<String, ? extends Role> getChildRoleIds( Role role ) throws RbacManagerException
+    {
+        return super.getChildRoleIds( role );
     }
 
     @Transactional
@@ -219,7 +223,7 @@ public class JpaRbacManager extends AbstractRBACManager  {
             throw new RbacPermanentException( "Unable to delete permanent role [" + role.getName() + "]" );
         }
         final EntityManager em = getEm();
-        JpaRole myRole = em.find(JpaRole.class, role.getName());
+        JpaRole myRole = em.find(JpaRole.class, new RoleId( role.getId(), role.getName()));
         if (myRole == null) {
             throw new RbacObjectNotFoundException("Role not found "+role.getName());
         }

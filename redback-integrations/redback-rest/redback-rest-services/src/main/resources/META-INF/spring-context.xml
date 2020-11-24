@@ -93,7 +93,7 @@
     <jaxrs:serviceBeans>
       <ref bean="v2.userService#rest"/>
       <ref bean="v2.authenticationService#rest"/>
-      <ref bean="roleManagementService#rest"/>
+      <ref bean="v2.roleService#rest"/>
       <ref bean="utilServices#rest"/>
       <ref bean="passwordService#rest"/>
       <ref bean="v2.groupService#rest"/>

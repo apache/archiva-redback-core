@@ -53,7 +53,7 @@ public interface RoleManager
      * @param resource
      * @throws RoleManagerException
      */
-    void createTemplatedRole( String templateId, String resource )
+    String createTemplatedRole( String templateId, String resource )
         throws RoleManagerException;
 
     /**
@@ -78,7 +78,7 @@ public interface RoleManager
      * @param newResource the new resource name
      * @throws RoleManagerException
      */
-    void moveTemplatedRole( String templateId, String oldResource, String newResource )
+    String moveTemplatedRole( String templateId, String oldResource, String newResource )
         throws RoleManagerException;
 
 

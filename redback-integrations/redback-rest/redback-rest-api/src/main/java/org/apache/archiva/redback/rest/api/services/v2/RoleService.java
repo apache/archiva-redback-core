@@ -20,6 +20,7 @@ package org.apache.archiva.redback.rest.api.services.v2;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,7 +32,6 @@ import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Application;
 import org.apache.archiva.redback.rest.api.model.ApplicationRoles;
 import org.apache.archiva.redback.rest.api.model.RedbackRestError;
-import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.Role;
 import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.VerificationStatus;
@@ -40,14 +40,19 @@ import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -60,15 +65,12 @@ import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
 @Tag(name = "v2")
 @Tag(name = "v2/Roles")
 @SecurityRequirement(name = "BearerAuth")
-public interface RoleManagementService
+public interface RoleService
 {
 
-    /**
-     * @since 2.0
-     */
     @Path( "" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
     @Operation( summary = "Returns all roles defined. The result is paged.",
         parameters = {
@@ -99,47 +101,181 @@ public interface RoleManagementService
                                        @QueryParam("order") @DefaultValue( "asc" ) String order)
         throws RedbackServiceException;
 
-    @Path( "createTemplatedRole" )
+    @Path( "{roleId}" )
     @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus createTemplatedRole( @QueryParam( "templateId" ) String templateId,
-                                      @QueryParam( "resource" ) String resource )
+    @Operation( summary = "Returns information about a specific role. Use HTTP HEAD method for checking, if the resource exists.",
+        security = {
+            @SecurityRequirement(
+                name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION
+            )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If role was found in the database",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RoleInfo.class))
+            ),
+            @ApiResponse( responseCode = "404", description = "Role does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))
+            ),
+            @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to gather the information",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    RoleInfo getRole( @PathParam( "roleId" ) String roleId )
+        throws RedbackServiceException;
+
+    @Path( "{roleId}" )
+    @HEAD
+    @Produces( { APPLICATION_JSON } )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+    @Operation( summary = "Returns information about a specific role. Use HTTP HEAD method for checking, if the resource exists.",
+        security = {
+            @SecurityRequirement(
+                name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION
+            )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If role was found in the database"
+            ),
+            @ApiResponse( responseCode = "404", description = "Role does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))
+            ),
+            @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to gather the information",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    Response checkRole( @PathParam( "roleId" ) String roleId )
+        throws RedbackServiceException;
+
+
+    /**
+     * Moves a templated role from one resource to another resource
+     * @TODO: Not sure, if it makes sense to keep the child template at the source. Shouldn't we move the childs too?
+     *
+     * @param templateId the template identifier
+     * @param oldResource the resource of the current role
+     * @param newResource the resource of the new role
+     */
+    @Path( "template/{templateId}/{oldResource}/moveto/{newResource}" )
+    @POST
+    @Produces( {APPLICATION_JSON} )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+    @Operation( summary = "Moves a templated role from one resource to another resource. If the template has child templates," +
+        " then child instances will be created on for the destination resource. But the child instances on the source are not deleted.",
+        security = {
+            @SecurityRequirement(
+                name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION
+            )
+        },
+        responses = {
+            @ApiResponse( responseCode = "201",
+                description = "If user creation was successful",
+                headers = {
+                    @Header( name="Location", description = "The URL of the moved role", schema = @Schema(type="string"))
+                },
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RoleInfo.class))
+            ),
+            @ApiResponse( responseCode = "404", description = "The source role does not exist" ),
+            @ApiResponse( responseCode = "303", description = "The destination role exists already" ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission to move the role.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+
+        }
+    )
+    RoleInfo moveTemplatedRole( @PathParam( "templateId" ) String templateId, @PathParam( "oldResource" ) String oldResource,
+                                @PathParam( "newResource" ) String newResource )
+        throws RedbackServiceException;
+
+    @Path( "template/{templateId}/{resource}" )
+    @HEAD
+    @Produces( { APPLICATION_JSON} )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+    @Operation( summary = "Checks, if a instance of the role template exists for the given resource",
+        security = {
+            @SecurityRequirement(
+                name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION
+            )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the role instance exists"
+            ),
+            @ApiResponse( responseCode = "404", description = "Role does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))
+            ),
+            @ApiResponse( responseCode = "403", description = "Authenticated user is not permitted to gather the information",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    Response checkTemplateRole( @PathParam( "templateId" ) String templateId,
+                                @PathParam( "resource" ) String resource )
+        throws RedbackServiceException;
+
+    @Path( "template/{templateId}/{resource}" )
+    @PUT
+    @Produces( { APPLICATION_JSON } )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+    @Operation( summary = "Creates a role instance from a template for the given resource",
+        security = {
+            @SecurityRequirement(
+                name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION
+            )
+        },
+        responses = {
+            @ApiResponse( responseCode = "201",
+                description = "If user creation was successful",
+                headers = {
+                    @Header( name = "Location", description = "The URL of the created role", schema = @Schema( type = "string" ) )
+                },
+                content = @Content( mediaType = APPLICATION_JSON, schema = @Schema( implementation = RoleInfo.class ) )
+            ),
+            @ApiResponse( responseCode = "200",
+                description = "If the role instance existed before and was updated",
+                headers = {
+                    @Header( name = "Location", description = "The URL of the updated role", schema = @Schema( type = "string" ) )
+                },
+                content = @Content( mediaType = APPLICATION_JSON, schema = @Schema( implementation = RoleInfo.class ) )
+            ),
+            @ApiResponse( responseCode = "404", description = "The template does not exist" ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role creation.",
+                content = @Content( mediaType = APPLICATION_JSON, schema = @Schema( implementation = RedbackRestError.class ) ) )
+
+        }
+    )
+    RoleInfo createTemplatedRole( @PathParam( "templateId" ) String templateId,
+                                      @PathParam( "resource" ) String resource )
         throws RedbackServiceException;
 
     /**
-     * removes a role corresponding to the role Id that was manufactured with the given resource
-     *
+     * Removes a role corresponding to the role Id that was manufactured with the given resource
      * it also removes any user assignments for that role
      *
      * @param templateId
      * @param resource
      */
-    @Path( "removeTemplatedRole" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Path( "template/{templateId}/{resource}" )
+    @DELETE
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus removeTemplatedRole( @QueryParam( "templateId" ) String templateId,
-                                 @QueryParam( "resource" ) String resource )
-        throws RedbackServiceException;
-
-
-    /**
-     * allows for a role coming from a template to be renamed effectively swapping out the bits of it that
-     * were labeled with the oldResource with the newResource
-     *
-     * it also manages any user assignments for that role
-     *
-     * @param templateId
-     * @param oldResource
-     * @param newResource
-     */
-    @Path( "updateRole" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus updateRole( @QueryParam( "templateId" ) String templateId, @QueryParam( "oldResource" ) String oldResource,
-                        @QueryParam( "newResource" ) String newResource )
+    @Operation( summary = "Deletes a role template instance",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If role deletion was successful"
+            ),
+            @ApiResponse( responseCode = "404", description = "Role does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for deletion.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    Response removeTemplatedRole( @PathParam(  "templateId" ) String templateId,
+                                 @PathParam( "resource" ) String resource )
         throws RedbackServiceException;
 
 
@@ -147,27 +283,27 @@ public interface RoleManagementService
      * Assigns the role indicated by the roleId to the given principal
      *
      * @param roleId
-     * @param principal
+     * @param userId
      */
-    @Path( "assignRole" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Path( "{roleId}/assign/{userId}" )
+    @PUT
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus assignRole( @QueryParam( "roleId" ) String roleId, @QueryParam( "principal" ) String principal )
-        throws RedbackServiceException;
-
-    /**
-     * Assigns the role indicated by the roleName to the given principal
-     *
-     * @param roleName
-     * @param principal
-     * @throws RedbackServiceException
-     */
-    @Path( "assignRoleByName" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus assignRoleByName( @QueryParam( "roleName" ) String roleName, @QueryParam( "principal" ) String principal )
+    @Operation( summary = "Assigns a role to a given user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the role was assigned"
+            ),
+            @ApiResponse( responseCode = "404", description = "Role does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role assignment.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    RoleInfo assignRole( @PathParam( "roleId" ) String roleId, @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
     /**
@@ -179,11 +315,25 @@ public interface RoleManagementService
      * @param resource
      * @param principal
      */
-    @Path( "assignTemplatedRole" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Path( "template/{templateId}/{resource}/assign/{userId}" )
+    @POST
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus assignTemplatedRole( @QueryParam( "templateId" ) String templateId,
+    @Operation( summary = "Assigns a template role instance to a given user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the role instance was assigned"
+            ),
+            @ApiResponse( responseCode = "404", description = "Role instance does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role assignment.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    RoleInfo assignTemplatedRole( @QueryParam( "templateId" ) String templateId,
                                  @QueryParam( "resource" ) String resource,
                                  @QueryParam( "principal" ) String principal )
         throws RedbackServiceException;
@@ -195,161 +345,53 @@ public interface RoleManagementService
      * @param principal
      * @throws RedbackServiceException
      */
-    @Path( "unassignRole" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Path( "{roleId}/{userId}" )
+    @DELETE
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus unassignRole( @QueryParam( "roleId" ) String roleId, @QueryParam( "principal" ) String principal )
+    @Operation( summary = "Removes a role assignment for the given role and user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the role assignment was removed"
+            ),
+            @ApiResponse( responseCode = "404", description = "Role instance does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role assignment.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    RoleInfo unassignRole( @QueryParam( "roleId" ) String roleId, @QueryParam( "principal" ) String principal )
         throws RedbackServiceException;
 
+
     /**
-     * Unassigns the role indicated by the role name from the given principal
+     * Updates a role. Attributes that are empty or null will be ignored.
      *
-     * @param roleName
-     * @param principal
-     * @throws RedbackServiceException
+     * @since 3.0
      */
-    @Path( "unassignRoleByName" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
+    @Path( "{roleId}" )
+    @PATCH
+    @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus unassignRoleByName( @QueryParam( "roleName" ) String roleName, @QueryParam( "principal" ) String principal )
-        throws RedbackServiceException;
+    @Operation( summary = "Creates or updates the given role",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the update was successful"
+            ),
+            @ApiResponse( responseCode = "404", description = "Role does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role assignment.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    RoleInfo updateRole( @QueryParam("roleId") String roleId, Role role )
+    throws RedbackServiceException;
 
-    /**
-     * true of a role exists with the given roleId
-     *
-     * @param roleId
-     * @return
-     * @throws RedbackServiceException
-     */
-    @Path( "roleExists" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    AvailabilityStatus roleExists( @QueryParam( "roleId" ) String roleId )
-        throws RedbackServiceException;
-
-    /**
-     * true of a role exists with the given roleId
-     *
-     * @param templateId
-     * @param resource
-     * @return
-     * @throws RedbackServiceException
-     */
-    @Path( "templatedRoleExists" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    AvailabilityStatus templatedRoleExists( @QueryParam( "templateId" ) String templateId,
-                                 @QueryParam( "resource" ) String resource )
-        throws RedbackServiceException;
-
-
-    /**
-     * Check a role template is complete in the RBAC store.
-     *
-     * @param templateId the templated role
-     * @param resource   the resource to verify
-     * @throws RedbackServiceException
-     */
-    @Path( "verifyTemplatedRole" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    VerificationStatus verifyTemplatedRole( @QueryParam( "templateId" ) String templateId,
-                                            @QueryParam( "resource" ) String resource )
-        throws RedbackServiceException;
-
-    /**
-     * @since 1.4
-     */
-    @Path( "getEffectivelyAssignedRoles/{username}" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    List<Role> getEffectivelyAssignedRoles( @PathParam( "username" ) String username )
-        throws RedbackServiceException;
-
-
-
-
-    /**
-     * @since 2.0
-     */
-    @Path( "detailledAllRoles" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    List<Role> getDetailedAllRoles()
-        throws RedbackServiceException;
-
-
-    /**
-     * @since 2.0
-     */
-    @Path( "getApplications/{username}" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    List<Application> getApplications( @PathParam( "username" ) String username )
-        throws RedbackServiceException;
-
-
-    /**
-     * @since 2.0
-     */
-    @Path( "getRole/{roleName}" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    Role getRole( @PathParam( "roleName" ) String roleName )
-        throws RedbackServiceException;
-
-    /**
-     * @since 2.0
-     */
-    @Path( "updateRoleDescription" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus updateRoleDescription( @QueryParam( "roleName" ) String roleName,
-                                   @QueryParam( "roleDescription" ) String description )
-        throws RedbackServiceException;
-
-    /**
-     * update users assigned to a role
-     * @since 2.0
-     */
-    @Path( "updateRoleUsers" )
-    @POST
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
-    @Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus updateRoleUsers( Role role )
-        throws RedbackServiceException;
-
-    /**
-     * @since 2.0
-     */
-    @Path( "getApplicationRoles/{username}" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    List<ApplicationRoles> getApplicationRoles( @PathParam( "username" ) String username )
-        throws RedbackServiceException;
-
-    /**
-     * update roles assigned to a user
-     * @since 2.0
-     */
-    @Path( "updateUserRoles" )
-    @POST
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
-    @Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    ActionStatus updateUserRoles( User user )
-        throws RedbackServiceException;
 
 }

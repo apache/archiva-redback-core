@@ -21,6 +21,7 @@ package org.apache.archiva.redback.role;
 
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
+import org.apache.archiva.redback.rbac.RbacObjectNotFoundException;
 import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.rbac.UserAssignment;
 import org.apache.archiva.redback.role.model.ModelApplication;
@@ -184,10 +185,10 @@ public class DefaultRoleManager
      * resolving the ${resource} expression
      */
     @Override
-    public void createTemplatedRole( String templateId, String resource )
+    public String createTemplatedRole( String templateId, String resource )
         throws RoleManagerException
     {
-        templateProcessor.create( blessedModel, templateId, resource );
+        return templateProcessor.create( blessedModel, templateId, resource );
     }
 
     /**
@@ -198,13 +199,10 @@ public class DefaultRoleManager
     public void removeTemplatedRole( String templateId, String resource )
         throws RoleManagerException
     {
-        ModelTemplate template = RoleModelUtils.getModelTemplate( blessedModel, templateId );
-
-        String roleName = template.getNamePrefix() + template.getDelimiter() + resource;
-
+        String roleId = templateProcessor.getRoleId( templateId, resource );
         try
         {
-            Role role = rbacManager.getRole( roleName );
+            Role role = rbacManager.getRoleById( roleId );
 
             for ( UserAssignment assignment : rbacManager.getUserAssignmentsForRoles(
                 Arrays.asList( role.getName() ) ) )
@@ -213,10 +211,12 @@ public class DefaultRoleManager
                 rbacManager.saveUserAssignment( assignment );
             }
 
+        } catch ( RbacObjectNotFoundException e) {
+            throw new RoleNotFoundException( e.getMessage( ), e );
         }
         catch ( RbacManagerException e )
         {
-            throw new RoleManagerException( "unable to remove role", e );
+            throw new RoleManagerException( "Unable to remove role", e );
         }
 
         templateProcessor.remove( blessedModel, templateId, resource );
@@ -229,11 +229,11 @@ public class DefaultRoleManager
      * because of the use of the name as an identifier
      */
     @Override
-    public void moveTemplatedRole( String templateId, String oldResource, String newResource )
+    public String moveTemplatedRole( String templateId, String oldResource, String newResource )
         throws RoleManagerException
     {
         // make the new role
-        templateProcessor.create( blessedModel, templateId, newResource );
+        String roleId = templateProcessor.create( blessedModel, templateId, newResource );
 
         ModelTemplate template = RoleModelUtils.getModelTemplate( blessedModel, templateId );
 
@@ -259,6 +259,7 @@ public class DefaultRoleManager
         }
 
         templateProcessor.remove( blessedModel, templateId, oldResource );
+        return roleId;
     }
 
     @Override
@@ -269,7 +270,7 @@ public class DefaultRoleManager
 
         if ( modelRole == null )
         {
-            throw new RoleManagerException( "Unable to assign role: " + roleId + " does not exist." );
+            throw new RoleNotFoundException( "Unable to assign role: " + roleId + " does not exist." );
         }
 
         try

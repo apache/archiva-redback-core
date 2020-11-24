@@ -91,7 +91,7 @@ public abstract class AbstractRbacManagerTestCase
     private Role getAdminRole()
         throws RbacManagerException
     {
-        Role role = rbacManager.createRole( "ADMIN" );
+        Role role = rbacManager.createRole( "admin", "ADMIN" );
         role.setAssignable( false );
 
         Permission perm = rbacManager.createPermission( "EDIT_ANY_USER", "EDIT", "User:*" );
@@ -375,6 +375,7 @@ public abstract class AbstractRbacManagerTestCase
         manager.saveRole( projectRole );
 
         develRole.addChildRoleName( projectRoleName );
+        develRole.addChildRoleId( projectRole.getId() );
 
         manager.saveRole( develRole );
 
@@ -428,7 +429,7 @@ public abstract class AbstractRbacManagerTestCase
 
         Role adminRole = getAdminRole();
 
-        adminRole.addChildRoleName( developerRole.getName() );
+        adminRole.addChildRole( developerRole );
 
         adminRole = manager.saveRole( adminRole );
 
@@ -631,6 +632,7 @@ public abstract class AbstractRbacManagerTestCase
         Role devRole = getDeveloperRole();
         Role devPlusRole = getSuperDeveloperRole();
         devPlusRole.setChildRoleNames( Collections.singletonList( devRole.getName() ) );
+        devPlusRole.setChildRoleIds( Collections.singletonList( devRole.getId() ) );
         manager.saveRole( devRole );
         manager.saveRole( devPlusRole );
 

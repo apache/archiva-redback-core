@@ -60,10 +60,8 @@ import javax.naming.directory.DirContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -474,17 +472,29 @@ public class LdapRbacManager
     }
 
     @Override
-    public Map<String, ? extends Role> getChildRoles( Role role )
+    public Map<String, ? extends Role> getChildRoleNames( Role role )
         throws RbacManagerException
     {
-        return this.rbacImpl.getChildRoles( role );
+        return this.rbacImpl.getChildRoleNames( role );
     }
 
     @Override
-    public Map<String, ? extends Role> getParentRoles( Role role )
+    public Map<String, ? extends Role> getChildRoleIds( Role role ) throws RbacManagerException
+    {
+        return this.rbacImpl.getChildRoleIds( role );
+    }
+
+    @Override
+    public Map<String, ? extends Role> getParentRoleNames( Role role )
         throws RbacManagerException
     {
-        return this.rbacImpl.getParentRoles( role );
+        return this.rbacImpl.getParentRoleNames( role );
+    }
+
+    @Override
+    public Map<String, ? extends Role> getParentRoleIds( Role role ) throws RbacManagerException
+    {
+        return this.rbacImpl.getParentRoleIds( role );
     }
 
     //
@@ -1241,9 +1251,10 @@ public class LdapRbacManager
         private boolean isTemplateInstance=false;
         private String resource="";
 
-        private List<Permission> permissions = new ArrayList<Permission>();
+        private List<Permission> permissions = new ArrayList<>();
 
-        private List<String> childRoleNames = new ArrayList<String>();
+        private List<String> childRoleNames = new ArrayList<>();
+        private List<String> childRoleIds = new ArrayList<>( );
 
         private RoleImpl( String name )
         {
@@ -1278,6 +1289,18 @@ public class LdapRbacManager
         public List<String> getChildRoleNames()
         {
             return this.childRoleNames;
+        }
+
+        @Override
+        public void addChildRoleId( String id )
+        {
+            this.childRoleIds.add( id );
+        }
+
+        @Override
+        public List<String> getChildRoleIds( )
+        {
+            return this.childRoleIds;
         }
 
         @Override
@@ -1320,6 +1343,12 @@ public class LdapRbacManager
         public void setChildRoleNames( List<String> names )
         {
             this.childRoleNames = names;
+        }
+
+        @Override
+        public void setChildRoleIds( List<String> ids )
+        {
+
         }
 
         @Override

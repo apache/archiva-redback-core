@@ -61,6 +61,8 @@ public class MemoryRole
      */
     private List<String> childRoleNames = new ArrayList<>( 0 );
 
+    private List<String> childRoleIds = new ArrayList<>( 0 );
+
     /**
      * Field permissions
      */
@@ -108,6 +110,20 @@ public class MemoryRole
     public List<String> getChildRoleNames()
     {
         return this.childRoleNames;
+    }
+
+
+
+    @Override
+    public void addChildRoleId( String id )
+    {
+        this.childRoleIds.add( id );
+    }
+
+    @Override
+    public List<String> getChildRoleIds( )
+    {
+        return this.childRoleIds;
     }
 
     @Override
@@ -196,6 +212,12 @@ public class MemoryRole
         {
             this.childRoleNames = names;
         }
+    }
+
+    @Override
+    public void setChildRoleIds( List<String> ids )
+    {
+
     }
 
     @Override

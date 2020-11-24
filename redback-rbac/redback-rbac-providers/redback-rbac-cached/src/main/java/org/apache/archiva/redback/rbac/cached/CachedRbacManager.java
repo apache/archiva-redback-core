@@ -291,19 +291,33 @@ public class CachedRbacManager
     }
 
     @Override
-    public Map<String, ? extends Role> getChildRoles( Role role )
+    public Map<String, ? extends Role> getChildRoleNames( Role role )
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getChildRoles(Role)" );
-        return this.rbacImpl.getChildRoles( role );
+        return this.rbacImpl.getChildRoleNames( role );
     }
 
     @Override
-    public Map<String, ? extends Role> getParentRoles( Role role )
+    public Map<String, ? extends Role> getChildRoleIds( Role role ) throws RbacManagerException
+    {
+        log.debug( "NOT CACHED - .getChildRoles(Role)" );
+        return this.rbacImpl.getChildRoleIds( role );
+    }
+
+    @Override
+    public Map<String, ? extends Role> getParentRoleNames( Role role )
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getParentRoles(Role)" );
-        return this.rbacImpl.getParentRoles( role );
+        return this.rbacImpl.getParentRoleNames( role );
+    }
+
+    @Override
+    public Map<String, ? extends Role> getParentRoleIds( Role role ) throws RbacManagerException
+    {
+        log.debug( "NOT CACHED - .getParentRoles(Role)" );
+        return this.rbacImpl.getParentRoleIds( role );
     }
 
     @Override

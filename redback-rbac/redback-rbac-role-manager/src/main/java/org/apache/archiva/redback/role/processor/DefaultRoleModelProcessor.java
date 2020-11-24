@@ -216,6 +216,7 @@ public class DefaultRoleModelProcessor
                         {
                             ModelRole childRoleProfile = RoleModelUtils.getModelRole( model, childRoleId );
                             role.addChildRoleName( childRoleProfile.getName() );
+                            role.addChildRoleId( childRoleProfile.getId() );
                         }
                     }
 
@@ -229,7 +230,7 @@ public class DefaultRoleModelProcessor
                         {
                             ModelRole parentModelRole = RoleModelUtils.getModelRole( model, parentRoleId );
                             Role parentRole = rbacManager.getRole( parentModelRole.getName() );
-                            parentRole.addChildRoleName( role.getName() );
+                            parentRole.addChildRole( role );
                             rbacManager.saveRole( parentRole );
                             allRoleNames.add( parentRole.getName() );
                         }

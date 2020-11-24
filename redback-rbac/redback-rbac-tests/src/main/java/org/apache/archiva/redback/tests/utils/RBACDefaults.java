@@ -159,6 +159,7 @@ public class RBACDefaults
         {
             Role admin = manager.createRole( "System Administrator" );
             admin.addChildRoleName( "User Administrator" );
+            admin.addChildRoleId( "user-administrator" );
             admin.addPermission( manager.getPermission( "Edit Configuration" ) );
             admin.addPermission( manager.getPermission( "Run Indexer" ) );
             admin.addPermission( manager.getPermission( "Add Repository" ) );
@@ -171,6 +172,7 @@ public class RBACDefaults
         {
             Role developer = manager.createRole( "Trusted Developer" );
             developer.addChildRoleName( "System Administrator" );
+            developer.addChildRoleId( "system-administrator" );
             developer.addPermission( manager.getPermission( "Run Indexer" ) );
             developer.setAssignable( true );
             manager.saveRole( developer );
@@ -180,6 +182,7 @@ public class RBACDefaults
         {
             Role developer = manager.createRole( "Developer" );
             developer.addChildRoleName( "Trusted Developer" );
+            developer.addChildRoleId( "trusted-developer" );
             developer.addPermission( manager.getPermission( "Run Indexer" ) );
             developer.setAssignable( true );
             manager.saveRole( developer );

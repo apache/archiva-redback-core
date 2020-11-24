@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
  * @author Martin Stockhammer
  * @since 3.0
  */
+@SuppressWarnings( "SpringJavaAutowiredFieldsWarningInspection" )
 @Service("v2.groupService#rest")
 public class DefaultGroupService
     implements GroupService
@@ -85,7 +86,10 @@ public class DefaultGroupService
     @Named(value = "ldapConnectionFactory#configurable")
     private LdapConnectionFactory ldapConnectionFactory;
 
-    private static final Group getGroupFromLdap( LdapGroup ldapGroup ) {
+    public DefaultGroupService( ) {
+    }
+
+    private static Group getGroupFromLdap( LdapGroup ldapGroup ) {
         Group group = new Group( );
         group.setName( ldapGroup.getName() );
         group.setUniqueName( ldapGroup.getDn() );
@@ -128,7 +132,7 @@ public class DefaultGroupService
      * be found, it will set "" for the uniqueName
      *
      * @return the list of mapping
-     * @throws RedbackServiceException
+     * @throws RedbackServiceException if there was an error retrieving the mapping data
      */
     @Override
     public List<GroupMapping> getGroupMappings()

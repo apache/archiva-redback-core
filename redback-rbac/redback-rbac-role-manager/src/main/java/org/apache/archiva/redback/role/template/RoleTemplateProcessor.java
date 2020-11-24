@@ -30,9 +30,33 @@ import org.apache.archiva.redback.role.model.RedbackRoleModel;
 public interface RoleTemplateProcessor
 {
 
-    void create( RedbackRoleModel model, String templateId, String resource )
+    /**
+     * Creates a role instance from a template for the given resource and returns the id of the new role.
+     * @param model the model
+     * @param templateId the template identifier
+     * @param resource the resource to which the role is applied
+     * @return the id of the role
+     * @throws RoleManagerException if the access to the backend datastore failed
+     */
+    String create( RedbackRoleModel model, String templateId, String resource )
         throws RoleManagerException;
 
+    /**
+     * Removes the role instance that belongs to the template from the datastore
+     * @param model the model
+     * @param templateId the template identifier
+     * @param resource the resource to which the role is applied
+     * @throws RoleManagerException if the access to the backend datastore failed
+     */
     void remove( RedbackRoleModel model, String templateId, String resource )
         throws RoleManagerException;
+
+
+    /**
+     * Returns the role id that identifies the role that is a instance of the given template for the given resource.
+     * @param templateId the template identifier
+     * @param resource the resource
+     * @return the role identifier
+     */
+    String getRoleId( String templateId, String resource );
 }

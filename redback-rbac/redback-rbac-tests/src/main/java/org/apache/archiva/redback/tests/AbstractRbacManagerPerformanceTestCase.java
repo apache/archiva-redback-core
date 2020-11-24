@@ -169,6 +169,7 @@ public class AbstractRbacManagerPerformanceTestCase
         Role devRole = getDeveloperRole();
         Role devPlusRole = getSuperDeveloperRole();
         devPlusRole.setChildRoleNames( Collections.singletonList( devRole.getName() ) );
+        devPlusRole.setChildRoleIds( Collections.singletonList( devRole.getId() ) );
         devRole = manager.saveRole( devRole );
         devPlusRole = manager.saveRole( devPlusRole );
 
@@ -197,6 +198,7 @@ public class AbstractRbacManagerPerformanceTestCase
         username = "janet";
 
         devPlusRole.setChildRoleNames( Collections.singletonList( devRole.getName() ) );
+        devPlusRole.setChildRoleIds( Collections.singletonList( devRole.getId() ) );
         devRole = manager.saveRole( devRole );
         manager.saveRole( devPlusRole );
 

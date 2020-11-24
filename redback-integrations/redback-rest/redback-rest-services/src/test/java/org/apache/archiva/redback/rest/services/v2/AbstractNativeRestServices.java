@@ -128,7 +128,7 @@ public abstract class AbstractNativeRestServices
     }
 
 
-    private String getServiceBasePath( )
+    protected String getServiceBasePath( )
     {
         return "/v2/redback";
     }

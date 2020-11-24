@@ -66,7 +66,6 @@ public interface LdapRoleMapper
     boolean hasRole( DirContext context, String role )
         throws MappingException;
 
-
     /**
      * @return the base dn which contains all ldap groups
      */

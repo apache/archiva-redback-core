@@ -2,13 +2,11 @@ package org.apache.archiva.redback.rest.api.model.v2;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.List;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -31,14 +29,11 @@ import java.util.List;
 
 @XmlRootElement( name = "user" )
 @Schema(name="User", description = "User information data")
-public class UserInfo
+public class UserInfo extends BaseUserInfo
     implements Serializable
 {
 
     private static final long serialVersionUID = 822423853981984867L;
-    private String id;
-
-    private String userId;
 
     private String fullName;
 
@@ -124,18 +119,6 @@ public class UserInfo
         }
     }
 
-
-    @Schema( name = "user_id", description = "The user id" )
-    @XmlElement( name = "user_id" )
-    public String getUserId( )
-    {
-        return userId;
-    }
-
-    public void setUserId( String userId )
-    {
-        this.userId = userId;
-    }
 
     @Schema( description = "The full name of the user" )
     public String getFullName( )
@@ -282,22 +265,11 @@ public class UserInfo
         this.validationToken = validationToken;
     }
 
-    @Schema( description = "User id that is unique over all user managers")
-    public String getId( )
-    {
-        return id;
-    }
-
-    public void setId( String id )
-    {
-        this.id = id;
-    }
-
     @Override
     public String toString()
     {
         return "User{" +
-            "username='" + userId + '\'' +
+            "username='" + getUserId( ) + '\'' +
             ", fullName='" + fullName + '\'' +
             ", email='" + email + '\'' +
             ", validated=" + validated +
@@ -328,7 +300,7 @@ public class UserInfo
 
         UserInfo user = (UserInfo) o;
 
-        if ( !userId.equals( user.userId ) )
+        if ( !getUserId( ).equals( user.getUserId( ) ) )
         {
             return false;
         }
@@ -339,6 +311,6 @@ public class UserInfo
     @Override
     public int hashCode()
     {
-        return userId.hashCode();
+        return getUserId( ).hashCode();
     }
 }

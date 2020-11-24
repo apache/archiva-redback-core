@@ -31,12 +31,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
+import org.apache.archiva.redback.rest.api.model.Application;
 import org.apache.archiva.redback.rest.api.model.RedbackRestError;
-import org.apache.archiva.redback.rest.api.model.v2.Permission;
+import org.apache.archiva.redback.rest.api.model.v2.RoleTree;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
+import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
+import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.SelfUserData;
 import org.apache.archiva.redback.rest.api.model.v2.User;
 import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
@@ -54,6 +57,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import java.util.Collection;
 import java.util.List;
 
@@ -594,4 +598,59 @@ public interface UserService
     )
     VerificationStatus validateUserRegistration( @PathParam( "userId" ) String userId, @PathParam( "key" ) String key )
         throws RedbackServiceException;
+
+
+    /**
+     * Returns all roles for a given user id. Recurses all child roles.
+     *
+     * @since 3.0
+     */
+    @Path( "{userId}/roles" )
+    @GET
+    @Produces( { MediaType.APPLICATION_JSON } )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+    @Operation( summary = "Returns a list of all roles effectively assigned to the given user.",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "The list of roles assigned to the given user",
+                content = @Content(mediaType = APPLICATION_JSON, array = @ArraySchema(schema =
+                @Schema(implementation = org.apache.archiva.redback.rest.api.model.v2.RoleInfo.class )))
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for retrieving the information.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    List<RoleInfo> getEffectivelyAssignedRoles( @PathParam( "userId" ) String username )
+        throws RedbackServiceException;
+
+
+    /**
+     * @since 3.0
+     */
+    @Path( "{userId}/roletree" )
+    @GET
+    @Produces( { APPLICATION_JSON } )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+    @Operation( summary = "Returns a list of all roles that are assigned, or can be assigned to the given user. "+
+        "This method sets the 'assigned' flag on all returned role objects.",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "The list of roles separated by application that are assigned or assignable for the given user",
+                content = @Content(mediaType = APPLICATION_JSON, array = @ArraySchema(schema =
+                @Schema(implementation = Application.class )))
+            ),
+            @ApiResponse( responseCode = "404", description = "User does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for retrieving the information.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    RoleTree getRoleTree( @PathParam( "userId" ) String username )
+        throws RedbackServiceException;
+
 }

@@ -25,7 +25,9 @@ import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.Resource;
 import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.rbac.RBACManager;
+import org.apache.archiva.redback.role.RoleExistsException;
 import org.apache.archiva.redback.role.RoleManagerException;
+import org.apache.archiva.redback.role.RoleNotFoundException;
 import org.apache.archiva.redback.role.model.ModelApplication;
 import org.apache.archiva.redback.role.model.ModelOperation;
 import org.apache.archiva.redback.role.model.ModelPermission;
@@ -60,8 +62,9 @@ public class DefaultRoleTemplateProcessor
     @Named(value = "rbacManager#default")
     private RBACManager rbacManager;
 
+    @Override
     @SuppressWarnings("unchecked")
-    public void create( RedbackRoleModel model, String templateId, String resource )
+    public String create( final RedbackRoleModel model, final String templateId, final String resource )
         throws RoleManagerException
     {
         for ( ModelApplication application : model.getApplications() )
@@ -74,16 +77,16 @@ public class DefaultRoleTemplateProcessor
                     processResource( template, resource );
 
                     // templates are roles that have yet to be paired with a resource for creation
-                    processTemplate( model, template, resource );
+                    return processTemplate( model, template, resource );
 
-                    return;
                 }
             }
         }
 
-        throw new RoleManagerException( "unknown template '" + templateId + "'" );
+        throw new RoleNotFoundException( "unknown template '" + templateId + "'" );
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void remove( RedbackRoleModel model, String templateId, String resource )
         throws RoleManagerException
@@ -106,11 +109,11 @@ public class DefaultRoleTemplateProcessor
     private void removeTemplatedRole( RedbackRoleModel model, ModelTemplate template, String resource )
         throws RoleManagerException
     {
-        String roleName = template.getNamePrefix() + template.getDelimiter() + resource;
+        String roleId = getRoleId( template.getId( ), resource );
 
         try
         {
-            Role role = rbacManager.getRole( roleName );
+            Role role = rbacManager.getRoleById( roleId );
 
             if ( !role.isPermanent() )
             {
@@ -142,12 +145,12 @@ public class DefaultRoleTemplateProcessor
             }
             else
             {
-                throw new RoleManagerException( "unable to remove role, it is flagged permanent" );
+                throw new RoleManagerException( "Unable to remove role, it is flagged permanent" );
             }
         }
         catch ( RbacManagerException e )
         {
-            throw new RoleManagerException( "unable to remove templated role: " + roleName, e );
+            throw new RoleManagerException( "Unable to remove templated role: " + roleId, e );
         }
         //catch ( RoleTemplateProcessorException e )
         //{
@@ -173,12 +176,17 @@ public class DefaultRoleTemplateProcessor
         }
     }
 
+    @Override
+    public String getRoleId( String templateId, String resource) {
+        return templateId + "." + resource;
+    }
+
     @SuppressWarnings("unchecked")
-    private void processTemplate( RedbackRoleModel model, ModelTemplate template, String resource )
+    private String processTemplate( RedbackRoleModel model, ModelTemplate template, String resource )
         throws RoleManagerException
     {
         final String templateName = template.getNamePrefix() + template.getDelimiter() + resource;
-        final String roleId = template.getId( ) + "." + resource;
+        final String roleId = getRoleId( template.getId( ), resource );
 
         List<Permission> permissions = processPermissions( model, template, resource );
 
@@ -190,7 +198,7 @@ public class DefaultRoleTemplateProcessor
         }
         catch ( RbacManagerException e )
         {
-            throw new RoleManagerException( e.getMessage(), e );
+            throw new RoleExistsException( e.getMessage(), e );
         }
 
         if ( !roleExists )
@@ -221,6 +229,7 @@ public class DefaultRoleTemplateProcessor
                     {
                         ModelRole childRoleProfile = RoleModelUtils.getModelRole( model, childRoleId );
                         role.addChildRoleName( childRoleProfile.getName() );
+                        role.addChildRoleId( childRoleProfile.getId() );
                     }
                 }
 
@@ -246,12 +255,14 @@ public class DefaultRoleTemplateProcessor
                         if ( rbacManager.roleExists( childRoleName ) )
                         {
                             role.addChildRoleName( childRoleName );
+                            role.addChildRoleId( getRoleId( childTemplateId, resource ) );
                         }
                         else
                         {
                             processTemplate( model, childModelTemplate, resource );
 
                             role.addChildRoleName( childRoleName );
+                            role.addChildRoleId( getRoleId( childTemplateId, resource ) );
                         }
                     }
                 }
@@ -270,7 +281,7 @@ public class DefaultRoleTemplateProcessor
                     {
                         ModelRole parentModelRole = RoleModelUtils.getModelRole( model, parentRoleId );
                         Role parentRole = rbacManager.getRole( parentModelRole.getName() );
-                        parentRole.addChildRoleName( role.getName() );
+                        parentRole.addChildRole( role );
                         rbacManager.saveRole( parentRole );
                     }
                 }
@@ -298,7 +309,7 @@ public class DefaultRoleTemplateProcessor
                         {
                             Role parentRole = rbacManager.getRole( parentRoleName );
 
-                            parentRole.addChildRoleName( role.getName() );
+                            parentRole.addChildRole( role );
                             rbacManager.saveRole( parentRole );
                         }
                         else
@@ -307,7 +318,7 @@ public class DefaultRoleTemplateProcessor
 
                             Role parentRole = rbacManager.getRole( parentRoleName );
 
-                            parentRole.addChildRoleName( role.getName() );
+                            parentRole.addChildRole( role );
                             rbacManager.saveRole( parentRole );
                         }
                     }
@@ -358,6 +369,7 @@ public class DefaultRoleTemplateProcessor
                 throw new RoleManagerException( "error updating role '" + templateName + "'", e );
             }
         }
+        return roleId;
     }
 
     @SuppressWarnings("unchecked")

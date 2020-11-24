@@ -1,6 +1,4 @@
-package org.apache.archiva.redback.rest.api;
-
-/*
+package org.apache.archiva.redback.rbac.jpa.model;/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,12 +16,44 @@ package org.apache.archiva.redback.rest.api;
  * under the License.
  */
 
+import java.io.Serializable;
+
 /**
  * @author Martin Stockhammer <martin_s@apache.org>
  */
-public interface Constants
+public class RoleId implements Serializable
 {
-    String DEFAULT_PAGE_LIMIT = "100";
+    private static final long serialVersionUID = -3358026083136193536L;
+    private String id;
+    private String name;
 
+    public RoleId( )
+    {
+    }
 
+    public RoleId( String id, String name )
+    {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o ) return true;
+        if ( o == null || getClass( ) != o.getClass( ) ) return false;
+
+        RoleId roleId = (RoleId) o;
+
+        if ( !id.equals( roleId.id ) ) return false;
+        return name.equals( roleId.name );
+    }
+
+    @Override
+    public int hashCode( )
+    {
+        int result = id.hashCode( );
+        result = 31 * result + name.hashCode( );
+        return result;
+    }
 }

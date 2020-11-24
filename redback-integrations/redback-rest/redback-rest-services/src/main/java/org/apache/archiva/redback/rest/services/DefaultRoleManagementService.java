@@ -29,7 +29,6 @@ import org.apache.archiva.redback.rbac.UserAssignment;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Application;
 import org.apache.archiva.redback.rest.api.model.ApplicationRoles;
-import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Role;
 import org.apache.archiva.redback.rest.api.model.RoleTemplate;
@@ -127,7 +126,7 @@ public class DefaultRoleManagementService
     {
         try
         {
-            roleManager.updateRole( templateId, oldResource, newResource );
+            roleManager.moveTemplatedRole( templateId, oldResource, newResource );
         }
         catch ( RoleManagerException e )
         {
@@ -391,7 +390,7 @@ public class DefaultRoleManagementService
             org.apache.archiva.redback.rbac.Role rbacRole = rbacManager.getRole( roleName );
             Role role = new Role( rbacRole );
 
-            Map<String, ? extends org.apache.archiva.redback.rbac.Role> parentRoles = rbacManager.getParentRoles( rbacRole );
+            Map<String, ? extends org.apache.archiva.redback.rbac.Role> parentRoles = rbacManager.getParentRoleNames( rbacRole );
             for ( String parentRoleName : parentRoles.keySet() )
             {
                 role.getParentRoleNames().add( parentRoleName );

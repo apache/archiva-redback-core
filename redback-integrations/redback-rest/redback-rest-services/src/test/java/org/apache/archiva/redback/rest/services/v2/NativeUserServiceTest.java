@@ -18,10 +18,13 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import org.apache.archiva.redback.rest.api.model.v2.BaseRoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.Operation;
 import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
+import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.model.v2.VerificationStatus;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
@@ -44,6 +47,7 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -87,7 +91,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         assertNotNull( userData );
         assertEquals( 2, userData.size( ) );
         assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
-        assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+        assertEquals( Integer.valueOf( DEFAULT_PAGE_LIMIT ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
         assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
     }
 
@@ -134,7 +138,7 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertEquals( "admin", userData.get( 0 ).getUserId( ) );
             assertEquals( userNum + 2, userData.size( ) );
             assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
-            assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+            assertEquals( Integer.valueOf( DEFAULT_PAGE_LIMIT ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
             assertEquals( Integer.valueOf( userNum + 2 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
 
         }
@@ -1499,6 +1503,130 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             VerificationStatus verificationStatus = response.getBody( ).jsonPath( ).getObject( "", VerificationStatus.class );
             assertNotNull( verificationStatus );
             assertTrue( verificationStatus.isSuccess( ) );
+
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "bilbo" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void getUserRoles() {
+        String adminToken = getAdminToken( );
+
+        Map<String, Object> userMap = new HashMap<>( );
+        userMap.put( "user_id", "bilbo" );
+        userMap.put( "email", "bilbo@lordoftherings.org" );
+        userMap.put( "full_name", "Bilbo Beutlin" );
+        userMap.put( "validated", true );
+        userMap.put( "password", "pAssw0rD" );
+        userMap.put( "confirm_password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( userMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+
+
+        try
+        {
+            Response response = given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .when( )
+                .get( "bilbo/roles" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            JsonPath jsonPath = response.getBody( ).jsonPath( );
+            List<RoleInfo> roleList = jsonPath.getList( "", RoleInfo.class );
+            assertEquals( 1, roleList.size( ) );
+            assertEquals( "registered-user", roleList.get( 0 ).getId( ) );
+
+            response = given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .when( )
+                .get( "admin/roles" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            jsonPath = response.getBody( ).jsonPath( );
+            roleList = jsonPath.getList( "", RoleInfo.class );
+            jsonPath.prettyPrint( );
+            assertEquals( 4, roleList.size( ) );
+            assertTrue( roleList.stream( ).filter( role -> "system-administrator".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
+            assertTrue( roleList.stream( ).filter( role -> "archiva-global-repository-manager".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
+            assertTrue( roleList.stream( ).filter( role -> "archiva-global-repository-observer".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
+            assertTrue( roleList.stream( ).filter( role -> "user-administrator".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
+
+
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "bilbo" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void getRoleTree() {
+        String adminToken = getAdminToken( );
+
+        Map<String, Object> userMap = new HashMap<>( );
+        userMap.put( "user_id", "bilbo" );
+        userMap.put( "email", "bilbo@lordoftherings.org" );
+        userMap.put( "full_name", "Bilbo Beutlin" );
+        userMap.put( "validated", true );
+        userMap.put( "password", "pAssw0rD" );
+        userMap.put( "confirm_password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( userMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+
+
+        try
+        {
+            Response response = given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .when( )
+                .get( "bilbo/roletree" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            JsonPath jsonPath = response.getBody( ).jsonPath( );
+            assertTrue( jsonPath.getMap( "applications" ).containsKey( "System" ) );
+            assertTrue( jsonPath.getMap( "applications" ).containsKey( "Archiva" ) );
+            List<BaseRoleInfo> roleList = jsonPath.getList( "root_roles", BaseRoleInfo.class );
+            assertEquals( 3, roleList.size( ) );
+            assertTrue( roleList.stream( ).filter( role -> role.getId( ).equals( "guest" ) ).findFirst( ).isPresent( ) );
+            BaseRoleInfo registered = roleList.stream( ).filter( role -> role.getId( ).equals( "registered-user" ) ).findFirst( ).get( );
+            assertTrue( registered.isAssigned( ) );
+            BaseRoleInfo sysadmin = roleList.stream( ).filter( role -> role.getId( ).equals( "system-administrator" ) ).findFirst( ).get( );
+            assertFalse( sysadmin.isAssigned( ) );
+            assertFalse( sysadmin.isChild( ) );
+            assertEquals( 2, sysadmin.getChildren( ).size( ) );
+            assertTrue( sysadmin.getChildren( ).stream( ).filter( role -> role.getId( ).equals( "user-administrator" ) ).findFirst( ).isPresent( ) );
+
+
+            response = given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .when( )
+                .get( "admin/roletree" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            System.out.println( response.getBody( ).prettyPrint( ) );
+            jsonPath = response.getBody( ).jsonPath( );
+            assertTrue( jsonPath.getMap( "applications" ).containsKey( "System" ) );
+            assertTrue( jsonPath.getMap( "applications" ).containsKey( "Archiva" ) );
+            roleList = jsonPath.getList( "root_roles", BaseRoleInfo.class );
+            assertEquals( 3, roleList.size( ) );
+            assertTrue( roleList.stream( ).filter( role -> role.getId( ).equals( "guest" ) ).findFirst( ).isPresent( ) );
+            registered = roleList.stream( ).filter( role -> role.getId( ).equals( "registered-user" ) ).findFirst( ).get( );
+            assertFalse( registered.isAssigned( ) );
+            sysadmin = roleList.stream( ).filter( role -> role.getId( ).equals( "system-administrator" ) ).findFirst( ).get( );
+            assertTrue( sysadmin.isAssigned( ) );
+            assertFalse( sysadmin.isChild( ) );
+            assertEquals( 2, sysadmin.getChildren( ).size( ) );
+            assertTrue( sysadmin.getChildren( ).stream( ).filter( role -> role.getId( ).equals( "user-administrator" ) ).findFirst( ).isPresent( ) );
+
 
         }
         finally

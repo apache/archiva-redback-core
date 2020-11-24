@@ -29,7 +29,7 @@ public abstract class AbstractRole
     @Override
     public boolean hasChildRoles()
     {
-        return ( getChildRoleNames() != null ) && !getChildRoleNames().isEmpty();
+        return ( getChildRoleIds() != null ) && !getChildRoleIds().isEmpty();
     }
 
     /**
@@ -56,5 +56,12 @@ public abstract class AbstractRole
         result = result && ( getName() == null ? that.getName() == null : getName().equals( that.getName() ) );
 
         return result;
+    }
+
+    @Override
+    public void addChildRole( Role child )
+    {
+        addChildRoleName( child.getName() );
+        addChildRoleId( child.getId() );
     }
 }
