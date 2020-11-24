@@ -75,14 +75,13 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         super.shutdownNative( );
     }
 
-    private String getUserServicePath()
+    private String getUserServicePath( )
     {
         return new StringBuilder( )
             .append( getContextRoot( ) )
             .append( getServiceBasePath( ) )
             .append( "/users" ).toString( );
     }
-
 
 
     @Test
@@ -159,12 +158,9 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .when( )
                 .delete( "template/archiva-repository-manager/repository05" )
                 .then( ).statusCode( 404 );
-        } finally
+        }
+        finally
         {
-            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( )
-                .delete( "template/archiva-repository-observer/repository01" )
-                .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .delete( "template/archiva-repository-observer/repository05" )
@@ -174,13 +170,15 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void checkTemplatedRole() {
+    void checkTemplatedRole( )
+    {
         String token = getAdminToken( );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .when( )
             .put( "template/archiva-repository-observer/repository01" )
             .then( ).statusCode( 201 );
-        try {
+        try
+        {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .head( "template/archiva-repository-observer/repository01" )
@@ -190,7 +188,8 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .when( )
                 .head( "archiva-repository-observer.repository01" )
                 .then( ).statusCode( 200 );
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
@@ -364,18 +363,20 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void checkRole() {
+    void checkRole( )
+    {
         String token = getAdminToken( );
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .when( ).head( "archiva-system-administrator" ).then( ).statusCode( 200 ).extract( ).response( );
-        assertEquals(0,response.getBody( ).asByteArray().length);
+        assertEquals( 0, response.getBody( ).asByteArray( ).length );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .when( ).head( "abcdefg" ).then( ).statusCode( 404 );
 
     }
 
     @Test
-    void moveRole() {
+    void moveRole( )
+    {
         String token = getAdminToken( );
         try
         {
@@ -400,7 +401,8 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).head( "template/archiva-repository-observer/repository02" ).then( ).statusCode( 200 );
 
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
@@ -420,7 +422,8 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void moveRoleToExistingDestination() {
+    void moveRoleToExistingDestination( )
+    {
         String token = getAdminToken( );
         try
         {
@@ -440,7 +443,8 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             assertTrue( response.getHeader( "Location" ).endsWith( "/roles/template/archiva-repository-manager/repository02" ) );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).head( "template/archiva-repository-manager/repository01" ).then( ).statusCode( 200 );
-        } finally
+        }
+        finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
@@ -461,23 +465,24 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
 
 
     @Test
-    void assignRole() {
+    void assignRole( )
+    {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
-        jsonAsMap.put( "user_id", "aragorn");
+        jsonAsMap.put( "user_id", "aragorn" );
         jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
         jsonAsMap.put( "full_name", "Aragorn King of Gondor " );
         jsonAsMap.put( "password", "pAssw0rD" );
 
         try
         {
-            given( ).spec( getRequestSpec( token, getUserServicePath() ) ).contentType( JSON )
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .body( jsonAsMap )
                 .when( )
                 .post( )
                 .then( ).statusCode( 201 );
 
-            Response response = given( ).spec( getRequestSpec( token, getUserServicePath() ) ).contentType( JSON )
+            Response response = given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
                 .get( "aragorn/roles" )
                 .then( ).statusCode( 200 ).extract( ).response( );
@@ -486,20 +491,76 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .put( "system-administrator/assign/aragorn" )
-                .prettyPeek()
+                .prettyPeek( )
                 .then( ).statusCode( 200 );
-            response = given( ).spec( getRequestSpec( token, getUserServicePath() ) ).contentType( JSON )
+            response = given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
                 .get( "aragorn/roles" )
                 .then( ).statusCode( 200 ).extract( ).response( );
             roles = response.getBody( ).jsonPath( ).getList( "", RoleInfo.class );
             assertTrue( roles.stream( ).filter( role -> "system-administrator".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
-        } finally
+        }
+        finally
         {
-            given( ).spec( getRequestSpec( token, getUserServicePath() ) ).contentType( JSON )
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
                 .delete( "aragorn" ).getBody( );
         }
+    }
+
+    @Test
+    void assignNonexistentRole( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor " );
+        jsonAsMap.put( "password", "pAssw0rD" );
+
+        try
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 );
+
+            Response response = given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .get( "aragorn/roles" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            List<RoleInfo> roles = response.getBody( ).jsonPath( ).getList( "", RoleInfo.class );
+            assertFalse( roles.stream( ).filter( role -> "abcdefg".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "abcdefg/assign/aragorn" )
+                .prettyPeek( )
+                .then( ).statusCode( 404 );
+            response = given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .get( "aragorn/roles" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            roles = response.getBody( ).jsonPath( ).getList( "", RoleInfo.class );
+            assertFalse( roles.stream( ).filter( role -> "abcdefg".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .delete( "aragorn" ).getBody( );
+        }
+    }
+
+    @Test
+    void assignRoleToNonexistentUser( )
+    {
+        String token = getAdminToken( );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( )
+            .put( "system-administrator/assign/aragorn" )
+            .prettyPeek( )
+            .then( ).statusCode( 404 );
     }
 
 }
