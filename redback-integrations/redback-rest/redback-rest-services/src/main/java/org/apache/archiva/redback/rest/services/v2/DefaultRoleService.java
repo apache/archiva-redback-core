@@ -40,6 +40,7 @@ import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
 import org.apache.archiva.redback.role.RoleNotFoundException;
 import org.apache.archiva.redback.role.model.ModelTemplate;
+import org.apache.archiva.redback.role.util.RoleModelUtils;
 import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
@@ -358,33 +359,75 @@ public class DefaultRoleService extends BaseRedbackService
 
 
     @Override
-    public RoleInfo assignTemplatedRole( String templateId, String resource, String principal )
+    public RoleInfo assignTemplatedRole( String templateId, String resource, String userId )
         throws RedbackServiceException
     {
         try
         {
-            roleManager.assignTemplatedRole( templateId, resource, principal );
+            userManager.findUser( userId );
+            roleManager.assignTemplatedRole( templateId, resource, userId );
+            String roleId = RoleModelUtils.getRoleId( templateId, resource );
+            return getRoleInfo( rbacManager.getRoleById( roleId ) );
+
+        }
+        catch ( RoleNotFoundException e ) {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_NOT_FOUND, e.getMessage( ) ), 404 );
         }
         catch ( RoleManagerException e )
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return null;
+        catch ( UserNotFoundException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USER_NOT_FOUND, e.getMessage( ) ), 404 );
+        }
+        catch ( UserManagerException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USERMANAGER_FAIL, e.getMessage( ) ) );
+        }
+        catch ( RbacObjectNotFoundException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
+        }
+        catch ( RbacManagerException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
+        }
     }
 
     @Override
-    public RoleInfo unassignRole( String roleId, String principal )
+    public RoleInfo unassignRole( String roleId, String userId )
         throws RedbackServiceException
     {
         try
         {
-            roleManager.unassignRole( roleId, principal );
+            userManager.findUser( userId );
+            roleManager.unassignRole( roleId, userId );
+            return getRoleInfo( rbacManager.getRoleById( roleId ) );
+        }
+        catch ( RoleNotFoundException e ) {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_NOT_FOUND, e.getMessage( ) ), 404 );
         }
         catch ( RoleManagerException e )
         {
             throw new RedbackServiceException( e.getMessage() );
         }
-        return null;
+        catch ( UserNotFoundException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USER_NOT_FOUND, e.getMessage( ) ), 404 );
+        }
+        catch ( UserManagerException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USERMANAGER_FAIL, e.getMessage( ) ) );
+        }
+        catch ( RbacObjectNotFoundException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
+        }
+        catch ( RbacManagerException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
+        }
     }
 
     @Override

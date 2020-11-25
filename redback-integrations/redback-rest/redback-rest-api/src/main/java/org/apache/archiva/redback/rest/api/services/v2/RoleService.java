@@ -285,7 +285,7 @@ public interface RoleService
      * @param roleId
      * @param userId
      */
-    @Path( "{roleId}/assign/{userId}" )
+    @Path( "{roleId}/user/{userId}" )
     @PUT
     @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
@@ -313,10 +313,10 @@ public interface RoleService
      *
      * @param templateId
      * @param resource
-     * @param principal
+     * @param userId
      */
-    @Path( "template/{templateId}/{resource}/assign/{userId}" )
-    @POST
+    @Path( "template/{templateId}/{resource}/user/{userId}" )
+    @PUT
     @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
     @Operation( summary = "Assigns a template role instance to a given user",
@@ -333,19 +333,19 @@ public interface RoleService
                 content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
         }
     )
-    RoleInfo assignTemplatedRole( @QueryParam( "templateId" ) String templateId,
-                                 @QueryParam( "resource" ) String resource,
-                                 @QueryParam( "principal" ) String principal )
+    RoleInfo assignTemplatedRole( @PathParam( "templateId" ) String templateId,
+                                 @PathParam( "resource" ) String resource,
+                                 @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
     /**
      * Unassigns the role indicated by the role id from the given principal
      *
      * @param roleId
-     * @param principal
+     * @param userId
      * @throws RedbackServiceException
      */
-    @Path( "{roleId}/{userId}" )
+    @Path( "{roleId}/user/{userId}" )
     @DELETE
     @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
@@ -363,7 +363,7 @@ public interface RoleService
                 content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
         }
     )
-    RoleInfo unassignRole( @QueryParam( "roleId" ) String roleId, @QueryParam( "principal" ) String principal )
+    RoleInfo unassignRole( @PathParam( "roleId" ) String roleId, @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
 
