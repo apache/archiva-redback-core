@@ -178,7 +178,7 @@ public class DefaultRoleTemplateProcessor
 
     @Override
     public String getRoleId( String templateId, String resource) {
-        return templateId + "." + resource;
+        return RoleModelUtils.getRoleId( templateId, resource );
     }
 
     @SuppressWarnings("unchecked")

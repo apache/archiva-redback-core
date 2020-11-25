@@ -372,4 +372,8 @@ public class RoleModelUtils
         return sortedGraph;
     }
 
+    public static String getRoleId( String templateId, String resource) {
+        return templateId + "." + resource;
+    }
+
 }

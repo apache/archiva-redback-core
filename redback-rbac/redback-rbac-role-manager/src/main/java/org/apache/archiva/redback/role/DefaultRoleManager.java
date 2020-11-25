@@ -334,7 +334,7 @@ public class DefaultRoleManager
 
         if ( modelTemplate == null )
         {
-            throw new RoleManagerException( "Unable to assign role: " + templateId + " does not exist." );
+            throw new RoleNotFoundException( "Unable to assign role: " + templateId + " does not exist." );
         }
         try
         {
@@ -372,7 +372,7 @@ public class DefaultRoleManager
 
         if ( modelRole == null )
         {
-            throw new RoleManagerException( "Unable to assign role: " + roleId + " does not exist." );
+            throw new RoleNotFoundException( "Unable to assign role: " + roleId + " does not exist." );
         }
 
         try
