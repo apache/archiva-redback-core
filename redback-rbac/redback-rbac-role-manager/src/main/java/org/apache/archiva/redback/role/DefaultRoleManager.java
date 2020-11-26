@@ -205,9 +205,9 @@ public class DefaultRoleManager
             Role role = rbacManager.getRoleById( roleId );
 
             for ( UserAssignment assignment : rbacManager.getUserAssignmentsForRoles(
-                Arrays.asList( role.getName() ) ) )
+                Arrays.asList( role.getId() ) ) )
             {
-                assignment.removeRoleName( role );
+                assignment.removeRoleId( role );
                 rbacManager.saveUserAssignment( assignment );
             }
 
@@ -240,16 +240,19 @@ public class DefaultRoleManager
         String oldRoleName = template.getNamePrefix() + template.getDelimiter() + oldResource;
         String newRoleName = template.getNamePrefix() + template.getDelimiter() + newResource;
 
+        String oldRoleId = RoleModelUtils.getRoleId( templateId, oldResource );
+        String newRoleId = RoleModelUtils.getRoleId( templateId, newResource );
+
         try
         {
             Role role = rbacManager.getRole( oldRoleName );
 
             // remove the user assignments
             for ( UserAssignment assignment : rbacManager.getUserAssignmentsForRoles(
-                Arrays.asList( role.getName() ) ) )
+                Arrays.asList( role.getId() ) ) )
             {
-                assignment.removeRoleName( oldRoleName );
-                assignment.addRoleName( newRoleName );
+                assignment.removeRoleId( oldRoleId );
+                assignment.addRoleId( newRoleId );
                 rbacManager.saveUserAssignment( assignment );
             }
         }
@@ -286,7 +289,7 @@ public class DefaultRoleManager
                 userAssignment = rbacManager.createUserAssignment( principal );
             }
 
-            userAssignment.addRoleName( modelRole.getName() );
+            userAssignment.addRoleId( modelRole.getId() );
             rbacManager.saveUserAssignment( userAssignment );
         }
         catch ( RbacManagerException e )
@@ -301,6 +304,7 @@ public class DefaultRoleManager
     {
         try
         {
+            Role role = rbacManager.getRole( roleName );
             UserAssignment userAssignment;
 
             if ( rbacManager.userAssignmentExists( principal ) )
@@ -317,7 +321,7 @@ public class DefaultRoleManager
                 throw new RoleManagerException( "Unable to assign role: " + roleName + " does not exist." );
             }
 
-            userAssignment.addRoleName( roleName );
+            userAssignment.addRoleId( role.getId() );
             rbacManager.saveUserAssignment( userAssignment );
         }
         catch ( RbacManagerException e )
@@ -355,7 +359,7 @@ public class DefaultRoleManager
                 userAssignment = rbacManager.createUserAssignment( principal );
             }
 
-            userAssignment.addRoleName( modelTemplate.getNamePrefix() + modelTemplate.getDelimiter() + resource );
+            userAssignment.addRoleId( RoleModelUtils.getRoleId( modelTemplate.getId(),   resource ) );
             rbacManager.saveUserAssignment( userAssignment );
         }
         catch ( RbacManagerException e )
@@ -368,15 +372,10 @@ public class DefaultRoleManager
     public void unassignRole( String roleId, String principal )
         throws RoleManagerException
     {
-        ModelRole modelRole = RoleModelUtils.getModelRole( blessedModel, roleId );
-
-        if ( modelRole == null )
-        {
-            throw new RoleNotFoundException( "Unable to assign role: " + roleId + " does not exist." );
-        }
 
         try
         {
+            rbacManager.getRoleById( roleId );
             UserAssignment userAssignment;
 
             if ( rbacManager.userAssignmentExists( principal ) )
@@ -389,8 +388,11 @@ public class DefaultRoleManager
                     "UserAssignment for principal " + principal + "does not exist, can't unassign role." );
             }
 
-            userAssignment.removeRoleName( modelRole.getName() );
+            userAssignment.removeRoleId( roleId );
             rbacManager.saveUserAssignment( userAssignment );
+        }
+        catch (RoleNotFoundException e) {
+            throw new RoleNotFoundException( "Unable to unassign role: " + roleId + " does not exist." );
         }
         catch ( RbacManagerException e )
         {
@@ -421,7 +423,8 @@ public class DefaultRoleManager
                 throw new RoleManagerException( "Unable to unassign role: " + roleName + " does not exist." );
             }
 
-            userAssignment.removeRoleName( roleName );
+            Role rbacRole = rbacManager.getRole( roleName );
+            userAssignment.removeRoleId( rbacRole.getId() );
             rbacManager.saveUserAssignment( userAssignment );
         }
         catch ( RbacManagerException e )

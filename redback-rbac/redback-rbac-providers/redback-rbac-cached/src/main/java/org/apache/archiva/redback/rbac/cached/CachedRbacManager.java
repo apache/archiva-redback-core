@@ -479,11 +479,11 @@ public class CachedRbacManager
     }
 
     @Override
-    public List<? extends UserAssignment> getUserAssignmentsForRoles( Collection<String> roleNames )
+    public List<? extends UserAssignment> getUserAssignmentsForRoles( Collection<String> roleIds )
         throws RbacManagerException
     {
         log.debug( "NOT CACHED - .getUserAssignmentsForRoles(Collection)" );
-        return this.rbacImpl.getUserAssignmentsForRoles( roleNames );
+        return this.rbacImpl.getUserAssignmentsForRoles( roleIds );
     }
 
     @Override

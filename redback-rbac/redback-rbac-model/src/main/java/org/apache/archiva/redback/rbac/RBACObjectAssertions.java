@@ -140,7 +140,7 @@ public class RBACObjectAssertions
             throw new RbacObjectInvalidException( scope, "UserAssigment.principal cannot be empty." );
         }
 
-        if ( assignment.getRoleNames() == null )
+        if ( assignment.getRoleIds() == null )
         {
             throw new RbacObjectInvalidException( scope, "UserAssignment.roles cannot be null." );
         }
@@ -153,11 +153,11 @@ public class RBACObjectAssertions
         }
           */
         int i = 0;
-        for ( String name : assignment.getRoleNames() )
+        for ( String name : assignment.getRoleIds() )
         {
             if ( StringUtils.isEmpty( name ) )
             {
-                throw new RbacObjectInvalidException( scope, "UserAssignment.rolename[" + i + "] cannot be empty." );
+                throw new RbacObjectInvalidException( scope, "UserAssignment.roleid[" + i + "] cannot be empty." );
             }
             i++;
         }

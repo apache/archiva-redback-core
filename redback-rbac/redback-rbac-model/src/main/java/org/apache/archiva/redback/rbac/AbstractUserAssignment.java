@@ -33,6 +33,12 @@ public abstract class AbstractUserAssignment
         addRoleName( role.getName() );
     }
 
+    @Override
+    public void addRoleId( Role role )
+    {
+        addRoleId( role.getId( ) );
+    }
+
     public void addRoleName( String roleName )
     {
         List<String> names = getRoleNames();
@@ -43,6 +49,16 @@ public abstract class AbstractUserAssignment
         setRoleNames( names );
     }
 
+    @Override
+    public void addRoleId( String roleId )
+    {
+        final List<String> ids  = getRoleIds( );
+        if (!ids.contains( roleId )) {
+            ids.add( roleId );
+        }
+        setRoleIds( ids );
+    }
+
     public void removeRoleName( Role role )
     {
         removeRoleName( role.getName() );
@@ -51,5 +67,17 @@ public abstract class AbstractUserAssignment
     public void removeRoleName( String roleName )
     {
         getRoleNames().remove( roleName );
+    }
+
+    @Override
+    public void removeRoleId( Role role )
+    {
+        removeRoleId( role.getId() );
+    }
+
+    @Override
+    public void removeRoleId( String roleId )
+    {
+        getRoleIds( ).remove( roleId );
     }
 }

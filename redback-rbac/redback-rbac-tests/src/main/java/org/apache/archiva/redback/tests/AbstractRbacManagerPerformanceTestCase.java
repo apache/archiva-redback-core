@@ -176,7 +176,7 @@ public class AbstractRbacManagerPerformanceTestCase
         // Setup User / Assignment with 1 role.
         String username = "bob";
         UserAssignment assignment = manager.createUserAssignment( username );
-        assignment.addRoleName( devRole );
+        assignment.addRoleId( devRole );
         assignment = manager.saveUserAssignment( assignment );
 
         assertEquals( 1, manager.getAllUserAssignments().size() );
@@ -187,11 +187,11 @@ public class AbstractRbacManagerPerformanceTestCase
         assertEquals( 2, manager.getAllRoles().size() );
 
         // assign the same role again to the same user
-        assignment.addRoleName( devRole.getName() );
+        assignment.addRoleId( devRole.getId() );
         manager.saveUserAssignment( assignment );
 
         // we certainly shouldn't have 2 roles here now
-        assertEquals( 1, assignment.getRoleNames().size() );
+        assertEquals( 1, assignment.getRoleIds().size() );
 
         String bobId = assignment.getPrincipal();
 
@@ -203,7 +203,7 @@ public class AbstractRbacManagerPerformanceTestCase
         manager.saveRole( devPlusRole );
 
         assignment = manager.createUserAssignment( username );
-        assignment.addRoleName( devRole );
+        assignment.addRoleId( devRole );
         assignment = manager.saveUserAssignment( assignment );
 
         assertEquals( 2, manager.getAllUserAssignments().size() );
@@ -214,11 +214,11 @@ public class AbstractRbacManagerPerformanceTestCase
         assertEquals( 2, manager.getAllRoles().size() );
 
         // assign the same role again to the same user
-        assignment.addRoleName( devRole.getName() );
+        assignment.addRoleId( devRole.getId() );
         manager.saveUserAssignment( assignment );
 
         // we certainly shouldn't have 2 roles here now
-        assertEquals( 1, assignment.getRoleNames().size() );
+        assertEquals( 1, assignment.getRoleIds().size() );
 
         String janetId = assignment.getPrincipal();
 

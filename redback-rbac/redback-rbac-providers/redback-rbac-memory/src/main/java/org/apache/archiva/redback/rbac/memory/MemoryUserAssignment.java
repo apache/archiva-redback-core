@@ -97,6 +97,17 @@ public class MemoryUserAssignment
         return this.roles;
     }
 
+    @Override
+    public List<String> getRoleIds( )
+    {
+        if ( this.roles == null )
+        {
+            this.roles = new ArrayList<String>( 0 );
+        }
+
+        return this.roles;
+    }
+
     /**
      * Method hashCode
      */
@@ -123,6 +134,12 @@ public class MemoryUserAssignment
      * @param roles
      */
     public void setRoleNames( List<String> roles )
+    {
+        this.roles = roles;
+    }
+
+    @Override
+    public void setRoleIds( List<String> roles )
     {
         this.roles = roles;
     }

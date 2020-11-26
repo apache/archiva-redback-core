@@ -31,6 +31,7 @@ public interface RedbackRoleConstants
 
     // roles
     public static final String SYSTEM_ADMINISTRATOR_ROLE = "System Administrator";
+    public static final String SYSTEM_ADMINISTRATOR_ROLE_ID = "system-administrator";
 
     public static final String USER_ADMINISTRATOR_ROLE = "User Administrator";
 

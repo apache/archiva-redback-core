@@ -56,7 +56,8 @@ public class JpaUserAssignment extends AbstractUserAssignment implements UserAss
                     @JoinColumn(name = "PRINCIPAL_OID", referencedColumnName = "PRINCIPAL", nullable = false)
             }
     )
-    private List<String> roleNames = new ArrayList<String>();
+    private List<String> roleIds = new ArrayList<>( );
+
     @Column(name="PERMANENT", nullable = false)
     private Boolean permanent = false;
 
@@ -69,18 +70,30 @@ public class JpaUserAssignment extends AbstractUserAssignment implements UserAss
     }
 
     @Override
+    public List<String> getRoleNames( )
+    {
+        return roleIds;
+    }
+
+    @Override
     public void setPrincipal(String principal) {
         this.principal = principal;
     }
 
     @Override
-    public List<String> getRoleNames() {
-        return roleNames;
+    public void setRoleNames( List<String> roles )
+    {
+        this.roleIds = roles;
     }
 
     @Override
-    public void setRoleNames(List<String> roleNames) {
-        this.roleNames = roleNames;
+    public List<String> getRoleIds() {
+        return roleIds;
+    }
+
+    @Override
+    public void setRoleIds( List<String> roleIds ) {
+        this.roleIds = roleIds;
     }
 
     @Override

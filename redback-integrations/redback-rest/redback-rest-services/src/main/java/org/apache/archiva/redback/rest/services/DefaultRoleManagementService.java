@@ -60,7 +60,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Olivier Lamy
@@ -390,13 +392,14 @@ public class DefaultRoleManagementService
             org.apache.archiva.redback.rbac.Role rbacRole = rbacManager.getRole( roleName );
             Role role = new Role( rbacRole );
 
-            Map<String, ? extends org.apache.archiva.redback.rbac.Role> parentRoles = rbacManager.getParentRoleNames( rbacRole );
-            for ( String parentRoleName : parentRoles.keySet() )
+            Map<String, ? extends org.apache.archiva.redback.rbac.Role> parentRoleIds = rbacManager.getParentRoleIds( rbacRole );
+            for ( String parentRoleId : parentRoleIds.keySet() )
             {
-                role.getParentRoleNames().add( parentRoleName );
+                org.apache.archiva.redback.rbac.Role rbacParentRole = rbacManager.getRoleById( parentRoleId );
+                role.getParentRoleNames().add( rbacParentRole.getName() );
             }
 
-            List<? extends UserAssignment> userAssignments = rbacManager.getUserAssignmentsForRoles( Arrays.asList( roleName ) );
+            List<? extends UserAssignment> userAssignments = rbacManager.getUserAssignmentsForRoles( Arrays.asList( rbacRole.getId() ) );
 
             if ( userAssignments != null )
             {
@@ -417,7 +420,7 @@ public class DefaultRoleManagementService
             if ( !role.getParentRoleNames().isEmpty() )
             {
                 List<? extends UserAssignment> userParentAssignments =
-                    rbacManager.getUserAssignmentsForRoles( parentRoles.keySet() );
+                    rbacManager.getUserAssignmentsForRoles( parentRoleIds.keySet() );
                 if ( userParentAssignments != null )
                 {
                     for ( UserAssignment userAssignment : userParentAssignments )
@@ -507,7 +510,8 @@ public class DefaultRoleManagementService
                     assignment = rbacManager.createUserAssignment( username );
                 }
 
-                assignment.addRoleName( role.getName() );
+                org.apache.archiva.redback.rbac.Role rbacRole = rbacManager.getRole( role.getName( ) );
+                assignment.addRoleId( rbacRole.getId() );
                 assignment = rbacManager.saveUserAssignment( assignment );
                 log.info( "{} role assigned to {}", role.getName(), username );
             }
@@ -548,7 +552,8 @@ public class DefaultRoleManagementService
                     assignment = rbacManager.createUserAssignment( username );
                 }
 
-                assignment.removeRoleName( role.getName() );
+                org.apache.archiva.redback.rbac.Role rbacRole = rbacManager.getRole( role.getName( ) );
+                assignment.removeRoleId( rbacRole.getId() );
                 assignment = rbacManager.saveUserAssignment( assignment );
                 log.info( "{} role unassigned to {}", role.getName(), username );
             }
@@ -724,10 +729,18 @@ public class DefaultRoleManagementService
             {
                 assignment = rbacManager.createUserAssignment( username );
             }
-
-            assignment.setRoleNames( user.getAssignedRoles() );
-
-            assignment = rbacManager.saveUserAssignment( assignment );
+            List<String> assignedRoleIds = user.getAssignedRoles().stream().map(roleName -> {
+                try
+                {
+                    return Optional.of( rbacManager.getRole( roleName ).getId( ) );
+                }
+                catch ( RbacManagerException e )
+                {
+                    return Optional.<String>empty( );
+                }
+            } ).filter( Optional::isPresent ).map(Optional::get).collect( Collectors.toList());
+            assignment.setRoleIds( assignedRoleIds );
+            rbacManager.saveUserAssignment( assignment );
 
         }
         catch ( RbacManagerException e )

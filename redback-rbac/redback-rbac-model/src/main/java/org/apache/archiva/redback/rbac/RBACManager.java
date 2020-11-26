@@ -433,10 +433,10 @@ public interface RBACManager
 
     /**
      * Returns the assignments for the given roles
-     * @param roleNames collection of role names
+     * @param roleIds collection of role names
      * @throws RbacManagerException if the access to the backend datastore failed
      */
-    List<? extends UserAssignment> getUserAssignmentsForRoles( Collection<String> roleNames )
+    List<? extends UserAssignment> getUserAssignmentsForRoles( Collection<String> roleIds )
         throws RbacManagerException;
 
     /**

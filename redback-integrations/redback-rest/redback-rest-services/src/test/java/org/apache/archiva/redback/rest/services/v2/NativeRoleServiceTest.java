@@ -664,5 +664,61 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         }
     }
 
+    @Test
+    void unAssignTemplatedRole( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor " );
+        jsonAsMap.put( "password", "pAssw0rD" );
+
+        try
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "template/archiva-repository-manager/repository12" )
+                .then( ).statusCode( 201 );
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "template/archiva-repository-manager/repository12/user/aragorn" )
+                .then( ).statusCode( 200 );
+            Response response = given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .get( "aragorn/roles" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            List<RoleInfo> roles = response.getBody( ).jsonPath( ).getList( "", RoleInfo.class );
+            assertTrue( roles.stream( ).filter( role -> "archiva-repository-manager.repository12".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "archiva-repository-manager.repository12/user/aragorn" )
+                .then( ).statusCode( 200 );
+            response = given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .get( "aragorn/roles" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            roles = response.getBody( ).jsonPath( ).getList( "", RoleInfo.class );
+            assertFalse( roles.stream( ).filter( role -> "archiva-repository-manager.repository12".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .delete( "aragorn" ).then().statusCode( 200 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-manager/repository12" ).then().statusCode( 200 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-observer/repository12" ).then().statusCode( 200 );
+
+        }
+    }
 
 }

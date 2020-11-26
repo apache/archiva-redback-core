@@ -515,18 +515,18 @@ public class MemoryRbacManager
     }
 
     @Override
-    public List<UserAssignment> getUserAssignmentsForRoles( Collection<String> roleNames )
+    public List<UserAssignment> getUserAssignmentsForRoles( Collection<String> roleIds )
         throws RbacManagerException
     {
 
         List<UserAssignment> allUserAssignments = getAllUserAssignments();
-        List<UserAssignment> userAssignments = new ArrayList<UserAssignment>( allUserAssignments.size() );
+        List<UserAssignment> userAssignments = new ArrayList<>( allUserAssignments.size( ) );
 
         for ( UserAssignment ua : allUserAssignments )
         {
-            for ( String roleName : roleNames )
+            for ( String roleId : roleIds )
             {
-                if ( ua.getRoleNames().contains( roleName ) )
+                if ( ua.getRoleIds().contains( roleId ) )
                 {
                     userAssignments.add( ua );
                     break;

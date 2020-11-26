@@ -62,6 +62,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -688,7 +689,17 @@ public class LdapRbacManager
         {
             ldapConnection = ldapConnectionFactory.getConnection();
             context = ldapConnection.getDirContext();
-            List<String> roles = ldapRoleMapper.getRoles( username, context, getRealRoles() );
+            List<String> roles = ldapRoleMapper.getRoles( username, context, getRealRoles() )
+                .stream( ).map( roleName -> {
+                    try
+                    {
+                        return Optional.of( rbacImpl.getRole( roleName ).getId() );
+                    }
+                    catch ( RbacManagerException e )
+                    {
+                        return Optional.<String>empty( );
+                    }
+                } ).filter( Optional::isPresent ).map( Optional::get ).collect( Collectors.toList() );
 
             ua = new UserAssignmentImpl( username, roles );
 
@@ -714,11 +725,11 @@ public class LdapRbacManager
     }
 
     @Override
-    public List<? extends UserAssignment> getUserAssignmentsForRoles( Collection<String> roleNames )
+    public List<? extends UserAssignment> getUserAssignmentsForRoles( Collection<String> roleIds )
         throws RbacManagerException
     {
         // TODO from ldap
-        return this.rbacImpl.getUserAssignmentsForRoles( roleNames );
+        return this.rbacImpl.getUserAssignmentsForRoles( roleIds );
     }
 
     @Override
@@ -1114,27 +1125,41 @@ public class LdapRbacManager
 
             List<String> currentUserRoles =
                 ldapRoleMapper.getRoles( userAssignment.getPrincipal(), context, getRealRoles() );
+            Map<String, String> currentUserIds = currentUserRoles.stream( ).map( roleName -> {
+                try
+                {
+                    return Optional.of( rbacImpl.getRole( roleName ) );
+                }
+                catch ( RbacManagerException e )
+                {
+                    return Optional.<Role>empty( );
+                }
+            } ).filter( Optional::isPresent ).map(Optional::get)
+                .collect( Collectors.toMap( Role::getName, Role::getId ) );
 
-            for ( String role : userAssignment.getRoleNames() )
+            for ( String roleId : userAssignment.getRoleIds() )
             {
-                if ( !currentUserRoles.contains( role ) && writableLdap )
+                Role rbacRole = rbacImpl.getRoleById( roleId );
+                String roleName = rbacRole.getName( );
+                if ( !currentUserRoles.contains( roleName ) && writableLdap )
                 {
                     // role exists in ldap ?
-                    if ( !allRoles.contains( role ) )
+                    if ( !allRoles.contains( roleName ) )
                     {
-                        ldapRoleMapper.saveRole( role, context );
-                        allRoles.add( role );
+                        ldapRoleMapper.saveRole( roleName, context );
+                        allRoles.add( roleName );
                     }
-                    ldapRoleMapper.saveUserRole( role, userAssignment.getPrincipal(), context );
-                    currentUserRoles.add( role );
+                    ldapRoleMapper.saveUserRole( roleName, userAssignment.getPrincipal(), context );
+                    currentUserRoles.add( roleName );
+                    currentUserIds.put( roleName, rbacRole.getId( ) );
                 }
             }
 
-            for ( String role : currentUserRoles )
+            for ( String roleName : currentUserRoles )
             {
-                if ( !userAssignment.getRoleNames().contains( role ) && writableLdap )
+                if ( !userAssignment.getRoleIds().contains( currentUserIds.get(roleName) ) && writableLdap )
                 {
-                    ldapRoleMapper.removeUserRole( role, userAssignment.getPrincipal(), context );
+                    ldapRoleMapper.removeUserRole( roleName, userAssignment.getPrincipal(), context );
                 }
             }
 
@@ -1491,21 +1516,21 @@ public class LdapRbacManager
     {
         private String username;
 
-        private List<String> roleNames;
+        private List<String> roleIds;
 
         private boolean permanent;
 
-        private UserAssignmentImpl( String username, Collection<String> roleNames )
+        private UserAssignmentImpl( String username, Collection<String> roleIds )
         {
             this.username = username;
 
-            if ( roleNames == null )
+            if ( roleIds == null )
             {
-                this.roleNames = new ArrayList<String>();
+                this.roleIds = new ArrayList<>( );
             }
             else
             {
-                this.roleNames = new ArrayList<String>( roleNames );
+                this.roleIds = new ArrayList<>( roleIds );
             }
         }
 
@@ -1518,7 +1543,13 @@ public class LdapRbacManager
         @Override
         public List<String> getRoleNames()
         {
-            return this.roleNames;
+            return this.roleIds;
+        }
+
+        @Override
+        public List<String> getRoleIds( )
+        {
+            return this.roleIds;
         }
 
         @Override
@@ -1528,7 +1559,7 @@ public class LdapRbacManager
             {
                 return;
             }
-            this.roleNames.add( role.getName() );
+            this.roleIds.add( role.getName() );
         }
 
         @Override
@@ -1538,7 +1569,27 @@ public class LdapRbacManager
             {
                 return;
             }
-            this.roleNames.add( roleName );
+            this.roleIds.add( roleName );
+        }
+
+        @Override
+        public void addRoleId( Role role )
+        {
+            if ( role == null )
+            {
+                return;
+            }
+            this.roleIds.add( role.getId() );
+        }
+
+        @Override
+        public void addRoleId( String roleId )
+        {
+            if ( roleId == null )
+            {
+                return;
+            }
+            this.roleIds.add( roleId );
         }
 
         @Override
@@ -1548,7 +1599,7 @@ public class LdapRbacManager
             {
                 return;
             }
-            this.roleNames.remove( role.getName() );
+            this.roleIds.remove( role.getName() );
         }
 
         @Override
@@ -1558,7 +1609,27 @@ public class LdapRbacManager
             {
                 return;
             }
-            this.roleNames.remove( roleName );
+            this.roleIds.remove( roleName );
+        }
+
+        @Override
+        public void removeRoleId( Role role )
+        {
+            if ( role == null )
+            {
+                return;
+            }
+            this.roleIds.remove( role.getId() );
+        }
+
+        @Override
+        public void removeRoleId( String roleId )
+        {
+            if ( roleId == null )
+            {
+                return;
+            }
+            this.roleIds.remove( roleId );
         }
 
         @Override
@@ -1570,7 +1641,13 @@ public class LdapRbacManager
         @Override
         public void setRoleNames( List<String> roles )
         {
-            this.roleNames = roles;
+            this.roleIds = roles;
+        }
+
+        @Override
+        public void setRoleIds( List<String> roles )
+        {
+            this.roleIds = roles;
         }
 
         @Override
@@ -1591,7 +1668,7 @@ public class LdapRbacManager
             final StringBuilder sb = new StringBuilder();
             sb.append( "UserAssignmentImpl" );
             sb.append( "{username='" ).append( username ).append( '\'' );
-            sb.append( ", roleNames=" ).append( roleNames );
+            sb.append( ", roleNames=" ).append( roleIds );
             sb.append( ", permanent=" ).append( permanent );
             sb.append( '}' );
             return sb.toString();

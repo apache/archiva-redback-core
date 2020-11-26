@@ -466,11 +466,11 @@ public class JpaRbacManager extends AbstractRBACManager  {
     }
 
     @Override
-    public List<? extends UserAssignment> getUserAssignmentsForRoles(Collection<String> roleNames) throws RbacManagerException {
+    public List<? extends UserAssignment> getUserAssignmentsForRoles(Collection<String> roleIds ) throws RbacManagerException {
         try {
             final EntityManager em = getEm();
-            TypedQuery<JpaUserAssignment> q = em.createQuery("SELECT ua FROM JpaUserAssignment ua WHERE ua.roleNames IN :roles", JpaUserAssignment.class);
-            q.setParameter("roles", roleNames);
+            TypedQuery<JpaUserAssignment> q = em.createQuery("SELECT ua FROM JpaUserAssignment ua WHERE ua.roleIds IN :roles", JpaUserAssignment.class);
+            q.setParameter("roles", roleIds );
             return q.getResultList();
         } catch (Exception ex) {
             log.error("Query failed: {}",ex.getMessage(),ex);

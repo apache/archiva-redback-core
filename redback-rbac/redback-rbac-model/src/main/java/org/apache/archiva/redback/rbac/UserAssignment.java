@@ -48,7 +48,9 @@ public interface UserAssignment
      * @return List of &lt;{@link String}&gt; objects representing the Role Names.
      */
     List<String> getRoleNames();
-    
+
+    List<String> getRoleIds();
+
     /**
      * Add a rolename to this assignment.
      * 
@@ -62,6 +64,13 @@ public interface UserAssignment
      * @param roleName the role name.
      */
     void addRoleName( String roleName );
+
+    void addRoleId( Role role );
+    /**
+     * Adds a role id to this assignment
+     * @param roleId
+     */
+    void addRoleId( String roleId );
     
     /**
      * Remove a rolename from this assignment.
@@ -76,6 +85,10 @@ public interface UserAssignment
      * @param roleName the role name to be removed.
      */
     void removeRoleName( String roleName );
+
+    void removeRoleId( Role role );
+
+    void removeRoleId( String roleId );
 
     /**
      * Set the user principal object for this association.
@@ -92,6 +105,8 @@ public interface UserAssignment
      * @param roles the List of &lt;{@link String}&gt; objects representing the Role Names.
      */
     void setRoleNames( List<String> roles );
+
+    void setRoleIds( List<String> roles );
     
     /**
      * Test to see if the object is a permanent object or not.

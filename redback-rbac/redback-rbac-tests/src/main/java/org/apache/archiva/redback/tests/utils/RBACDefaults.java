@@ -149,6 +149,7 @@ public class RBACDefaults
         if ( !manager.roleExists( "User Administrator" ) )
         {
             Role userAdmin = manager.createRole( "User Administrator" );
+            userAdmin.setId( "user-administrator" );
             userAdmin.addPermission( manager.getPermission( "Edit All Users" ) );
             userAdmin.addPermission( manager.getPermission( "Remove Roles" ) );
             userAdmin.setAssignable( true );
@@ -158,6 +159,7 @@ public class RBACDefaults
         if ( !manager.roleExists( "System Administrator" ) )
         {
             Role admin = manager.createRole( "System Administrator" );
+            admin.setId( "system-administrator" );
             admin.addChildRoleName( "User Administrator" );
             admin.addChildRoleId( "user-administrator" );
             admin.addPermission( manager.getPermission( "Edit Configuration" ) );
@@ -171,6 +173,7 @@ public class RBACDefaults
         if ( !manager.roleExists( "Trusted Developer" ) )
         {
             Role developer = manager.createRole( "Trusted Developer" );
+            developer.setId( "trusted-developer" );
             developer.addChildRoleName( "System Administrator" );
             developer.addChildRoleId( "system-administrator" );
             developer.addPermission( manager.getPermission( "Run Indexer" ) );
@@ -181,6 +184,7 @@ public class RBACDefaults
         if ( !manager.roleExists( "Developer" ) )
         {
             Role developer = manager.createRole( "Developer" );
+            developer.setId( "developer" );
             developer.addChildRoleName( "Trusted Developer" );
             developer.addChildRoleId( "trusted-developer" );
             developer.addPermission( manager.getPermission( "Run Indexer" ) );

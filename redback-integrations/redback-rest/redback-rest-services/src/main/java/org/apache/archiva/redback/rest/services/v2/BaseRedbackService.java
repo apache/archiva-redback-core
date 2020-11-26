@@ -86,7 +86,7 @@ public class BaseRedbackService
     {
         try
         {
-            return rbacManager.getUserAssignmentsForRoles( recurseRoles( rbacRole ).map( role -> role.getName( ) ).collect( Collectors.toList( ) ) )
+            return rbacManager.getUserAssignmentsForRoles( recurseRoles( rbacRole ).map( role -> role.getId( ) ).collect( Collectors.toList( ) ) )
                 .stream( ).map( assignment -> getUserInfo( assignment.getPrincipal( ) ) ).collect( Collectors.toList( ) );
         }
         catch ( RuntimeException e )

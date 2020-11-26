@@ -432,17 +432,17 @@ public abstract class AbstractRBACManager
 
         Set<Permission> permissionSet = new HashSet<Permission>();
 
-        if ( ua.getRoleNames() != null )
+        if ( ua.getRoleIds() != null )
         {
             boolean childRoleNamesUpdated = false;
 
-            Iterator<String> it = ua.getRoleNames().listIterator();
+            Iterator<String> it = ua.getRoleIds().listIterator();
             while ( it.hasNext() )
             {
-                String roleName = it.next();
+                String roleId = it.next();
                 try
                 {
-                    Role role = getRole( roleName );
+                    Role role = getRoleById( roleId );
                     gatherUniquePermissions( role, permissionSet );
                 }
                 catch ( RbacObjectNotFoundException e )
@@ -563,17 +563,17 @@ public abstract class AbstractRBACManager
     {
         Set<Role> roleSet = new HashSet<Role>();
 
-        if ( ua.getRoleNames() != null )
+        if ( ua.getRoleIds() != null )
         {
             boolean childRoleNamesUpdated = false;
 
-            Iterator<String> it = ua.getRoleNames().listIterator();
+            Iterator<String> it = ua.getRoleIds().listIterator();
             while ( it.hasNext() )
             {
-                String roleName = it.next();
+                String roleId = it.next();
                 try
                 {
-                    Role role = getRole( roleName );
+                    Role role = getRoleById( roleId );
 
                     if ( !roleSet.contains( role ) )
                     {
@@ -650,17 +650,17 @@ public abstract class AbstractRBACManager
     {
         Set<Role> roleSet = new HashSet<Role>();
 
-        if ( ua != null && ua.getRoleNames() != null )
+        if ( ua != null && ua.getRoleIds() != null )
         {
             boolean childRoleNamesUpdated = false;
 
-            Iterator<String> it = ua.getRoleNames().listIterator();
+            Iterator<String> it = ua.getRoleIds().listIterator();
             while ( it.hasNext() )
             {
-                String roleName = it.next();
+                String roleId = it.next();
                 try
                 {
-                    Role role = getRole( roleName );
+                    Role role = getRoleById( roleId );
 
                     gatherEffectiveRoles( role, roleSet );
                 }

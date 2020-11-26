@@ -74,7 +74,7 @@ public class LockedAdminEnvironmentCheck
         if ( !checked && !userManager.isReadOnly() )
         {
             List<String> roles = new ArrayList<String>();
-            roles.add( RedbackRoleConstants.SYSTEM_ADMINISTRATOR_ROLE );
+            roles.add( RedbackRoleConstants.SYSTEM_ADMINISTRATOR_ROLE_ID );
 
             List<? extends UserAssignment> systemAdminstrators;
             try

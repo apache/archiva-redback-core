@@ -22,6 +22,7 @@ import io.restassured.filter.log.UrlDecoder;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.apache.archiva.components.apacheds.ApacheDs;
+import org.apache.archiva.redback.rest.api.Constants;
 import org.apache.archiva.redback.rest.api.model.Group;
 import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.services.BaseSetup;
@@ -323,7 +324,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         List<Group> data = response.body( ).jsonPath( ).getList(  "data", Group.class );
         assertNotNull( data );
         assertEquals( Integer.valueOf( 0 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
-        assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+        assertEquals( Integer.valueOf( Constants.DEFAULT_PAGE_LIMIT ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
         assertEquals( Integer.valueOf( 6 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
         assertEquals( 6, data.size( ) );
         String[] values = data.stream( ).map( ldapInfo -> ldapInfo.getName( ) ).sorted( ).collect( Collectors.toList( ) ).toArray( new String[0] );
@@ -363,7 +364,7 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         List<Group> data = response.body( ).jsonPath( ).getList(  "data", Group.class );
         assertNotNull( data );
         assertEquals( Integer.valueOf( 2 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
-        assertEquals( Integer.valueOf( 1000 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
+        assertEquals( Integer.valueOf( Constants.DEFAULT_PAGE_LIMIT ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
         assertEquals( Integer.valueOf( 6 ), response.body( ).jsonPath( ).get( "pagination.total_count" ) );
         assertEquals( 4, data.size( ) );
         String[] values = data.stream( ).map( ldapInfo -> ldapInfo.getName( ) ).sorted( ).collect( Collectors.toList( ) ).toArray( new String[0] );

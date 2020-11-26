@@ -984,20 +984,20 @@ public class DefaultUserService extends BaseRedbackService
 
         try
         {
-            final Set<String> assignedRoleNames = new HashSet( rbacManager.getUserAssignment( username ).getRoleNames( ) );
+            final Set<String> assignedRoleIds = new HashSet( rbacManager.getUserAssignment( username ).getRoleIds( ) );
             // We have to reuse the BaseRoleInfo objects, because the roles are not returned starting from the roots
-            final Map<String, BaseRoleInfo> roleNameCache = new HashMap<>( );
+            final Map<String, BaseRoleInfo> roleIdCache = new HashMap<>( );
             List<BaseRoleInfo> roleList = rbacManager.getAllRoles( ).stream( ).flatMap( this::flattenRole ).map( role ->
             {
-                BaseRoleInfo roleInfo = roleNameCache.computeIfAbsent( role.getName( ), s -> new BaseRoleInfo( ) );
+                BaseRoleInfo roleInfo = roleIdCache.computeIfAbsent( role.getId( ), s -> new BaseRoleInfo( ) );
                 // Setting the role data, as there may be child role objects that are not completely initialized
                 roleInfo = BaseRoleInfo.of( role, roleInfo );
                 roleInfo.setApplicationId( roleApplicationMap.get( role.getId( ) ) );
-                roleInfo.setAssigned( assignedRoleNames.contains( role.getName( ) ) );
-                roleInfo.setChildren( role.getChildRoleNames( ).stream( )
-                    .map( roleName ->
+                roleInfo.setAssigned( assignedRoleIds.contains( role.getId( ) ) );
+                roleInfo.setChildren( role.getChildRoleIds( ).stream( )
+                    .map( roleId ->
                     {
-                        BaseRoleInfo childRoleInfo = roleNameCache.computeIfAbsent( roleName, s -> BaseRoleInfo.ofName( roleName ) );
+                        BaseRoleInfo childRoleInfo = roleIdCache.computeIfAbsent( roleId, s -> BaseRoleInfo.ofId( roleId ) );
                         childRoleInfo.setChild( true );
                         return childRoleInfo;
                     } )

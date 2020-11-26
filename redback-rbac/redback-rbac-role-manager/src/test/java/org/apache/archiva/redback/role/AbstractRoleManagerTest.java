@@ -110,14 +110,14 @@ public abstract class AbstractRoleManagerTest
 
         UserAssignment assignment = rbacManager.getUserAssignment( principal );
 
-        List<String> assignments = assignment.getRoleNames();
+        List<String> assignments = assignment.getRoleIds();
 
         assertEquals( 3, assignments.size() );
 
-        for ( String roleName : assignments )
+        for ( String roleId : assignments )
         {
-            logger.info( roleName );
-            assertTrue( "Test Role".equals( roleName ) || "Foo 2 - frigid".equals( roleName ) || "Test Role 1".equals( roleName ) );
+            logger.info( roleId );
+            assertTrue( "test-role".equals( roleId ) || "test-template-2.frigid".equals( roleId ) || "test-role-1".equals( roleId ) );
         }
     }
 
