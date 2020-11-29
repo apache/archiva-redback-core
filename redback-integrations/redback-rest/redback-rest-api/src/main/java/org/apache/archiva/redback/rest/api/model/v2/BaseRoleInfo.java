@@ -191,17 +191,6 @@ public class BaseRoleInfo implements Serializable
     }
 
 
-    @Override
-    public boolean equals( Object o )
-    {
-        if ( this == o ) return true;
-        if ( o == null || getClass( ) != o.getClass( ) ) return false;
-
-        BaseRoleInfo that = (BaseRoleInfo) o;
-
-        return id.equals( that.id );
-    }
-
     @Schema( description = "If true, the role is assignable to users or roles. Otherwise, it can be used only as parent role.")
     public boolean isAssignable()
     {
@@ -258,5 +247,24 @@ public class BaseRoleInfo implements Serializable
     @XmlTransient
     public boolean isNotChild() {
         return !isChild;
+    }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o ) return true;
+        if ( o == null || getClass( ) != o.getClass( ) ) return false;
+
+        BaseRoleInfo that = (BaseRoleInfo) o;
+
+        if ( permanent != that.permanent ) return false;
+        if ( isTemplateInstance != that.isTemplateInstance ) return false;
+        if ( assignable != that.assignable ) return false;
+        if ( !id.equals( that.id ) ) return false;
+        if ( !name.equals( that.name ) ) return false;
+        if ( description != null ? !description.equals( that.description ) : that.description != null ) return false;
+        if ( modelId != null ? !modelId.equals( that.modelId ) : that.modelId != null ) return false;
+        if ( resource != null ? !resource.equals( that.resource ) : that.resource != null ) return false;
+        return applicationId != null ? applicationId.equals( that.applicationId ) : that.applicationId == null;
     }
 }

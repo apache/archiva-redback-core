@@ -18,30 +18,22 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
-import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
-import org.apache.archiva.redback.integration.util.RoleSorter;
-import org.apache.archiva.redback.rbac.Permission;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.RbacObjectNotFoundException;
-import org.apache.archiva.redback.rbac.Resource;
 import org.apache.archiva.redback.rest.api.MessageKeys;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
-import org.apache.archiva.redback.rest.api.model.Role;
-import org.apache.archiva.redback.rest.api.model.RoleTemplate;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
+import org.apache.archiva.redback.rest.api.model.v2.Role;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.RoleService;
-import org.apache.archiva.redback.rest.services.RedbackAuthenticationThreadLocal;
-import org.apache.archiva.redback.rest.services.RedbackRequestInformation;
+import org.apache.archiva.redback.role.PermanentRoleDeletionInvalid;
 import org.apache.archiva.redback.role.RoleExistsException;
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
 import org.apache.archiva.redback.role.RoleNotFoundException;
-import org.apache.archiva.redback.role.model.ModelTemplate;
 import org.apache.archiva.redback.role.util.RoleModelUtils;
-import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
@@ -57,16 +49,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -311,6 +298,9 @@ public class DefaultRoleService extends BaseRedbackService
             roleManager.removeTemplatedRole( templateId, resource );
             return Response.ok( ).build( );
         }
+        catch ( PermanentRoleDeletionInvalid e ) {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_DELETION_WITH_PERMANENT_FLAG, RoleModelUtils.getRoleId( templateId, resource ) ), 400 );
+        }
         catch ( RoleNotFoundException e ) {
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_INSTANCE_NOT_FOUND, templateId, resource ), 404 );
         }
@@ -433,7 +423,52 @@ public class DefaultRoleService extends BaseRedbackService
     @Override
     public RoleInfo updateRole( String roleId, Role role ) throws RedbackServiceException
     {
-        return null;
+        try
+        {
+            if (role==null) {
+                throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_EMPTY_DATA ), 400 );
+            }
+            if ( !StringUtils.equals( roleId, role.getId( ) ) )
+            {
+                throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_ID_INVALID ), 422 );
+            }
+            org.apache.archiva.redback.rbac.Role rbacRole = rbacManager.getRoleById( roleId );
+            if (StringUtils.isNotEmpty( role.getName()) && !StringUtils.equals(rbacRole.getName(), role.getName()) ) {
+                rbacRole.setName( role.getName( ) );
+            }
+            if (StringUtils.isNotEmpty( role.getDescription()) && !StringUtils.equals(rbacRole.getDescription(), role.getDescription()) ) {
+                rbacRole.setDescription( role.getDescription( ) );
+            }
+            if (role.isPermanent()!=null && rbacRole.isPermanent()!=role.isPermanent().booleanValue()) {
+                rbacRole.setPermanent( role.isPermanent( ) );
+            }
+            if (role.isAssignable()!=null && rbacRole.isAssignable()!=role.isAssignable().booleanValue()) {
+                rbacRole.setAssignable( role.isAssignable( ) );
+            }
+            if (role.getAssignedUsers()!=null && role.getAssignedUsers().size()>0) {
+                role.getAssignedUsers().stream().forEach( user ->
+                {
+                    try
+                    {
+                        roleManager.assignRole( role.getId( ), user.getUserId( ) );
+                    }
+                    catch ( RoleManagerException e )
+                    {
+                        // silently ignore
+                    }
+                }
+                );
+            }
+            org.apache.archiva.redback.rbac.Role updatedRole = rbacManager.saveRole( rbacRole );
+            return getRoleInfo( updatedRole );
+        }
+        catch (RbacObjectNotFoundException e) {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_NOT_FOUND, roleId ), 404 );
+        }
+        catch ( RbacManagerException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage() ));
+        }
     }
 
 

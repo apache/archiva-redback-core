@@ -25,6 +25,7 @@ import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.Resource;
 import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.rbac.RBACManager;
+import org.apache.archiva.redback.role.PermanentRoleDeletionInvalid;
 import org.apache.archiva.redback.role.RoleExistsException;
 import org.apache.archiva.redback.role.RoleManagerException;
 import org.apache.archiva.redback.role.RoleNotFoundException;
@@ -145,7 +146,7 @@ public class DefaultRoleTemplateProcessor
             }
             else
             {
-                throw new RoleManagerException( "Unable to remove role, it is flagged permanent" );
+                throw new PermanentRoleDeletionInvalid( "Unable to remove role, it is flagged permanent: "+roleId );
             }
         }
         catch ( RbacManagerException e )

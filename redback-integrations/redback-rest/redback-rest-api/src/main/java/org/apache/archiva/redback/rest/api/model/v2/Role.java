@@ -35,7 +35,9 @@ public class Role implements Serializable
     protected String name;
     protected String id;
     protected String description;
-    protected boolean permanent = false;
+    protected Boolean permanent;
+    protected Boolean assignable;
+
     /**
      * The ids of all the assigned users.
      */
@@ -64,15 +66,17 @@ public class Role implements Serializable
     }
 
     @Schema( description = "True, if this role cannot be deleted.")
-    public boolean isPermanent()
+    public Boolean isPermanent()
     {
         return permanent;
     }
 
-    public void setPermanent( boolean permanent )
+    @Schema( description = "True, if this role can be assigned" )
+    public Boolean isAssignable( )
     {
-        this.permanent = permanent;
+        return assignable;
     }
+
 
     @Schema(description = "The identifier of this role")
     public String getId( )
@@ -101,4 +105,19 @@ public class Role implements Serializable
     }
 
 
+    public Boolean getPermanent( )
+    {
+        return permanent;
+    }
+
+    public void setPermanent( Boolean permanent )
+    {
+        this.permanent = permanent;
+    }
+
+
+    public void setAssignable( Boolean assignable )
+    {
+        this.assignable = assignable;
+    }
 }

@@ -163,6 +163,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
 
     }
 
+
     @Test
     void checkTemplatedRole( )
     {
@@ -719,6 +720,234 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .delete( "template/archiva-repository-observer/repository12" ).then().statusCode( 200 );
 
         }
+    }
+
+    @Test
+    void updateRole( )
+    {
+        String token = getAdminToken( );
+        try
+        {
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "template/archiva-repository-manager/repository13" )
+                .then( ).statusCode( 201 ).extract( ).response( );
+            assertNotNull( response );
+            RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "id", roleInfo.getId( ) );
+            jsonAsMap.put( "name", roleInfo.getName( ) );
+            jsonAsMap.put( "description", "This description was updated." );
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .body( jsonAsMap )
+                .patch( roleInfo.getId( ) )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            RoleInfo updatedRole = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
+            assertEquals( roleInfo.getId( ), updatedRole.getId( ) );
+            assertEquals( roleInfo.getName( ), updatedRole.getName( ) );
+            assertEquals( "This description was updated.", updatedRole.getDescription( ) );
+            assertEquals( true, updatedRole.isAssignable( ) );
+            assertEquals( false, updatedRole.isPermanent( ) );
+            assertArrayEquals( roleInfo.getAssignedUsers( ).toArray( ), updatedRole.getAssignedUsers( ).toArray( ) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-manager/repository13" )
+                .then( ).statusCode( 200 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-observer/repository13" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void updateRoleWithAssignedUsers( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor " );
+        jsonAsMap.put( "password", "pAssw0rD" );
+        String id = "";
+
+        try
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 );
+
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "template/archiva-repository-manager/repository14" )
+                .then( ).statusCode( 201 ).extract( ).response( );
+            assertNotNull( response );
+            RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
+            id = roleInfo.getId( );
+            jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "id", roleInfo.getId( ) );
+            jsonAsMap.put( "name", roleInfo.getName( ) );
+            jsonAsMap.put( "description", "New description" );
+            jsonAsMap.put( "assignable", "false" );
+            jsonAsMap.put( "permanent", "true" );
+
+            HashMap<Object, Object> aragornMap = new HashMap<>( );
+            aragornMap.put( "id", "jpa:aragorn" );
+            aragornMap.put( "user_id", "aragorn" );
+            jsonAsMap.put( "assigned_users", Arrays.asList( aragornMap ) );
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .body( jsonAsMap )
+                .patch( roleInfo.getId( ) )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            RoleInfo updatedRole = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
+            assertEquals( roleInfo.getId( ), updatedRole.getId( ) );
+            assertEquals( roleInfo.getName( ), updatedRole.getName( ) );
+            assertEquals( "New description", updatedRole.getDescription( ) );
+            assertEquals( false, updatedRole.isAssignable( ) );
+            assertEquals( true, updatedRole.isPermanent( ) );
+            assertEquals( 2, updatedRole.getAssignedUsers( ).size() );
+            assertTrue( updatedRole.getAssignedUsers( ).stream( ).filter( user -> "aragorn".equals( user.getUserId( ) ) ).findAny().isPresent() );
+        }
+        finally
+        {
+            // Switching back permanent flag
+            jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "id", id );
+            jsonAsMap.put( "permanent", "false" );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .body( jsonAsMap )
+                .patch( id )
+                .then( ).statusCode( 200 ).extract( ).response( );
+
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .delete( "aragorn" ).then().statusCode( 200 );
+
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-manager/repository14" )
+                .then( ).statusCode( 200 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-observer/repository14" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+
+    @Test
+    void updateRoleWithBadId( )
+    {
+        String token = getAdminToken( );
+        try
+        {
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "template/archiva-repository-manager/repository15" )
+                .then( ).statusCode( 201 ).extract( ).response( );
+            assertNotNull( response );
+            RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "id", "abcdefg" );
+            jsonAsMap.put( "name", roleInfo.getName( ) );
+            jsonAsMap.put( "description", "This description was updated." );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .body( jsonAsMap )
+                .patch( roleInfo.getId( ) )
+                .then( ).statusCode( 422 );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-manager/repository15" )
+                .then( ).statusCode( 200 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-observer/repository15" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void deleteTemplatedRolePermanentThrowsError( )
+    {
+        String token = getAdminToken( );
+        String id = "";
+        try
+        {
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "template/archiva-repository-manager/repository16" )
+                .then( ).statusCode( 201 ).extract( ).response( );
+            assertNotNull( response );
+            RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
+            id = roleInfo.getId( );
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "id", roleInfo.getId( ) );
+            jsonAsMap.put( "name", roleInfo.getName( ) );
+            jsonAsMap.put( "description", "This description was updated." );
+            jsonAsMap.put( "permanent", "true" );
+            response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .body( jsonAsMap )
+                .patch( roleInfo.getId( ) )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-manager/repository16" )
+                .then( ).statusCode( 400 );
+
+        }
+        finally
+        {
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "id", id );
+            jsonAsMap.put( "permanent", "false" );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .body( jsonAsMap )
+                .patch( id )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-manager/repository16" )
+                .then( ).statusCode( 200 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .delete( "template/archiva-repository-observer/repository16" )
+                .then( ).statusCode( 200 );
+        }
+
+
+    }
+
+    @Test
+    void updateRoleNotExist( )
+    {
+        String token = getAdminToken( );
+            Map<String, Object> jsonAsMap = new HashMap<>( );
+            jsonAsMap.put( "id", "abcdefg" );
+            jsonAsMap.put( "name", "abcdefg" );
+            jsonAsMap.put( "description", "This description was updated." );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .body( jsonAsMap )
+                .patch( "abcdefg" )
+                .then( ).statusCode( 404 );
     }
 
 }

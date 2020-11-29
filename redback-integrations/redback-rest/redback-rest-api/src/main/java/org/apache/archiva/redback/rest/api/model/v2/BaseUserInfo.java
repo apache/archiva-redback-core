@@ -64,4 +64,34 @@ public class BaseUserInfo implements Serializable
     {
         this.id = id;
     }
+
+    @Override
+    public String toString( )
+    {
+        final StringBuilder sb = new StringBuilder( "BaseUserInfo{" );
+        sb.append( "userId='" ).append( userId ).append( '\'' );
+        sb.append( ", id='" ).append( id ).append( '\'' );
+        sb.append( '}' );
+        return sb.toString( );
+    }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o ) return true;
+        if ( o == null || getClass( ) != o.getClass( ) ) return false;
+
+        BaseUserInfo that = (BaseUserInfo) o;
+
+        if ( !userId.equals( that.userId ) ) return false;
+        return id.equals( that.id );
+    }
+
+    @Override
+    public int hashCode( )
+    {
+        int result = userId.hashCode( );
+        result = 31 * result + id.hashCode( );
+        return result;
+    }
 }

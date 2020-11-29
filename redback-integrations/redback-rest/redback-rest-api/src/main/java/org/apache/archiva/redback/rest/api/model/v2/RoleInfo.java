@@ -160,23 +160,7 @@ public class RoleInfo extends BaseRoleInfo
         return sb.toString( );
     }
 
-    @Override
-    public boolean equals( Object o )
-    {
-        if ( this == o )
-        {
-            return true;
-        }
-        if ( o == null || getClass() != o.getClass() )
-        {
-            return false;
-        }
 
-        RoleInfo role = (RoleInfo) o;
-
-        return Objects.equals( getName( ), role.getName( ) );
-
-    }
 
 
 }

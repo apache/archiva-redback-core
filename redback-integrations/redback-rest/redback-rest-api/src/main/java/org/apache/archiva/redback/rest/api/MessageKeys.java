@@ -27,7 +27,8 @@ public interface MessageKeys
     String ERR_USERMANAGER_FAIL = "rb.usermanager_error";
     String ERR_ROLEMANAGER_FAIL = "rb.rolemanager_error";
     String ERR_RBACMANAGER_FAIL = "rb.rbacmanager_error";
-    String ERR_KEYMANAGER_FAIL = "reback:keymanager_error";
+    String ERR_KEYMANAGER_FAIL = "rb.keymanager_error";
+    String ERR_EMPTY_DATA = "rb.empty_data_received";
     String ERR_INVALID_POST_DATA = "rb.invalid_post_data";
     String ERR_USER_EXISTS = "rb.user.exists";
     String ERR_USER_ID_EMPTY = "rb.user.id.empty";
@@ -52,6 +53,8 @@ public interface MessageKeys
     String ERR_ROLE_EXISTS = "rb.role.exists";
     // A template instance exists. With arguments templateId, resource
     String ERR_ROLE_INSTANCE_EXISTS = "rb.role.instance.exists";
+    String ERR_ROLE_ID_INVALID = "rb.role.invalid_id";
+    String ERR_ROLE_DELETION_WITH_PERMANENT_FLAG = "rb.role.deletion_with_permanent_flag";
 
     String ERR_AUTH_BAD_CODE = "rb.auth.bad_authorization_code";
     String ERR_AUTH_INVALID_CREDENTIALS = "rb.auth.invalid_credentials";

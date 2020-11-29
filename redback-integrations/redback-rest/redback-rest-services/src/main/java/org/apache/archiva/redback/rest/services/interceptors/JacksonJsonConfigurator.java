@@ -62,6 +62,7 @@ public class JacksonJsonConfigurator
         objectMapper.setDateFormat( new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ) );
 
         objectMapperV2.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
+        objectMapperV2.disable( DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES );
         objectMapperV2.enable( DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL );
         objectMapperV2.enable( DeserializationFeature.USE_LONG_FOR_INTS );
         objectMapperV2.setAnnotationIntrospector( new JaxbAnnotationIntrospector( objectMapper.getTypeFactory( ) ) );

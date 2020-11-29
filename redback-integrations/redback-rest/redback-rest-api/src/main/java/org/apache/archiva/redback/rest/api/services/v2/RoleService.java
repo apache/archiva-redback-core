@@ -28,18 +28,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
-import org.apache.archiva.redback.rest.api.model.ActionStatus;
-import org.apache.archiva.redback.rest.api.model.Application;
-import org.apache.archiva.redback.rest.api.model.ApplicationRoles;
 import org.apache.archiva.redback.rest.api.model.RedbackRestError;
-import org.apache.archiva.redback.rest.api.model.Role;
-import org.apache.archiva.redback.rest.api.model.User;
-import org.apache.archiva.redback.rest.api.model.VerificationStatus;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
+import org.apache.archiva.redback.rest.api.model.v2.Role;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -51,7 +45,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -386,11 +379,13 @@ public interface RoleService
             ),
             @ApiResponse( responseCode = "404", description = "Role does not exist",
                 content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "422", description = "Role id does not match the id of the request path",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
             @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role assignment.",
                 content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
         }
     )
-    RoleInfo updateRole( @QueryParam("roleId") String roleId, Role role )
+    RoleInfo updateRole( @PathParam("roleId") String roleId, Role role )
     throws RedbackServiceException;
 
 

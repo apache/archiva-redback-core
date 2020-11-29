@@ -269,13 +269,17 @@ public class DefaultRoleManager
     public void assignRole( String roleId, String principal )
         throws RoleManagerException
     {
-        ModelRole modelRole = RoleModelUtils.getModelRole( blessedModel, roleId );
-
-        if ( modelRole == null )
+        try
         {
-            throw new RoleNotFoundException( "Unable to assign role: " + roleId + " does not exist." );
+            rbacManager.getRoleById( roleId );
         }
-
+        catch ( RbacObjectNotFoundException e ) {
+            throw new RoleNotFoundException( e.getMessage(), e );
+        }
+        catch ( RbacManagerException e )
+        {
+            throw new RoleManagerException( e.getMessage( ), e );
+        }
         try
         {
             UserAssignment userAssignment;
@@ -289,7 +293,7 @@ public class DefaultRoleManager
                 userAssignment = rbacManager.createUserAssignment( principal );
             }
 
-            userAssignment.addRoleId( modelRole.getId() );
+            userAssignment.addRoleId( roleId );
             rbacManager.saveUserAssignment( userAssignment );
         }
         catch ( RbacManagerException e )
