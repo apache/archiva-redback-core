@@ -32,6 +32,7 @@ import org.apache.archiva.redback.rest.api.model.RedbackRestError;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.Role;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
+import org.apache.archiva.redback.rest.api.model.v2.RoleTemplate;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
 import javax.ws.rs.DELETE;
@@ -152,7 +153,7 @@ public interface RoleService
      * @param oldResource the resource of the current role
      * @param newResource the resource of the new role
      */
-    @Path( "template/{templateId}/{oldResource}/moveto/{newResource}" )
+    @Path( "templates/{templateId}/{oldResource}/moveto/{newResource}" )
     @POST
     @Produces( {APPLICATION_JSON} )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
@@ -182,7 +183,7 @@ public interface RoleService
                                 @PathParam( "newResource" ) String newResource )
         throws RedbackServiceException;
 
-    @Path( "template/{templateId}/{resource}" )
+    @Path( "templates/{templateId}/{resource}" )
     @HEAD
     @Produces( { APPLICATION_JSON} )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
@@ -207,7 +208,7 @@ public interface RoleService
                                 @PathParam( "resource" ) String resource )
         throws RedbackServiceException;
 
-    @Path( "template/{templateId}/{resource}" )
+    @Path( "templates/{templateId}/{resource}" )
     @PUT
     @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
@@ -249,7 +250,7 @@ public interface RoleService
      * @param templateId
      * @param resource
      */
-    @Path( "template/{templateId}/{resource}" )
+    @Path( "templates/{templateId}/{resource}" )
     @DELETE
     @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
@@ -308,7 +309,7 @@ public interface RoleService
      * @param resource
      * @param userId
      */
-    @Path( "template/{templateId}/{resource}/user/{userId}" )
+    @Path( "templates/{templateId}/{resource}/user/{userId}" )
     @PUT
     @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
@@ -388,5 +389,22 @@ public interface RoleService
     RoleInfo updateRole( @PathParam("roleId") String roleId, Role role )
     throws RedbackServiceException;
 
+    @Path( "templates" )
+    @GET
+    @Produces( { APPLICATION_JSON } )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+    @Operation( summary = "Returns all role templates",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the list could be retrieved"
+            ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role assignment.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    List<RoleTemplate> getTemplates( ) throws RedbackServiceException;
 
 }

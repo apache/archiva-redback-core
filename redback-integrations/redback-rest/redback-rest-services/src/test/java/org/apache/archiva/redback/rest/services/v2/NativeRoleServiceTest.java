@@ -20,6 +20,7 @@ package org.apache.archiva.redback.rest.services.v2;
 
 import io.restassured.response.Response;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
+import org.apache.archiva.redback.rest.api.model.v2.RoleTemplate;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -38,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
@@ -92,7 +94,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository01" )
+                .put( "templates/archiva-repository-manager/repository01" )
                 .then( ).statusCode( 201 ).extract( ).response( );
             assertNotNull( response );
             RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
@@ -100,16 +102,16 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             assertTrue( response.getHeader( "Location" ).endsWith( "/roles/" + roleInfo.getId( ) ) );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository01" )
+                .put( "templates/archiva-repository-manager/repository01" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .head( "template/archiva-repository-manager/repository01" )
+                .head( "templates/archiva-repository-manager/repository01" )
                 .then( ).statusCode( 200 );
             // Repository observer is child template of repository-manager and will be created too
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .head( "template/archiva-repository-observer/repository01" )
+                .head( "templates/archiva-repository-observer/repository01" )
                 .then( ).statusCode( 200 );
 
         }
@@ -117,11 +119,11 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository01" )
+                .delete( "templates/archiva-repository-manager/repository01" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository01" )
+                .delete( "templates/archiva-repository-observer/repository01" )
                 .then( ).statusCode( 200 );
         }
     }
@@ -132,7 +134,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         String token = getAdminToken( );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .when( )
-            .put( "template/abcdefg/repository01" )
+            .put( "templates/abcdefg/repository01" )
             .then( ).statusCode( 404 );
     }
 
@@ -142,23 +144,23 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         String token = getAdminToken( );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository05" )
+                .put( "templates/archiva-repository-manager/repository05" )
                 .then( ).statusCode( 201 ).extract( ).response( );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository01" )
+                .delete( "templates/archiva-repository-manager/repository01" )
                 .then( ).statusCode( 404 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository05" )
+                .delete( "templates/archiva-repository-manager/repository05" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository05" )
+                .delete( "templates/archiva-repository-manager/repository05" )
                 .then( ).statusCode( 404 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository05" )
+                .delete( "templates/archiva-repository-observer/repository05" )
                 .then( ).statusCode( 200 );
 
     }
@@ -170,13 +172,13 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         String token = getAdminToken( );
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .when( )
-            .put( "template/archiva-repository-observer/repository06" )
+            .put( "templates/archiva-repository-observer/repository06" )
             .then( ).statusCode( 201 );
         try
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .head( "template/archiva-repository-observer/repository06" )
+                .head( "templates/archiva-repository-observer/repository06" )
                 .then( ).statusCode( 200 );
 
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
@@ -188,7 +190,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository06" )
+                .delete( "templates/archiva-repository-observer/repository06" )
                 .then( ).statusCode( 200 );
         }
 
@@ -214,11 +216,11 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 String suffix = String.format( "%03d", i );
                 given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                     .when( )
-                    .put( "template/archiva-repository-manager/repo" + suffix )
+                    .put( "templates/archiva-repository-manager/repo" + suffix )
                     .then( ).statusCode( 201 ).extract( ).response( );
                 given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                     .when( )
-                    .put( "template/archiva-repository-observer/repo" + suffix )
+                    .put( "templates/archiva-repository-observer/repo" + suffix )
                     .then( ).statusCode( anyOf( equalTo( 200 ), equalTo( 201 ) ) ).extract( ).response( );
             }
         }
@@ -328,9 +330,9 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             {
                 String suffix = String.format( "%03d", i );
                 given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                    .when( ).delete( "template/archiva-repository-manager/repo" + suffix ).then( ).statusCode( 200 );
+                    .when( ).delete( "templates/archiva-repository-manager/repo" + suffix ).then( ).statusCode( 200 );
                 given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                    .when( ).delete( "template/archiva-repository-observer/repo" + suffix ).then( ).statusCode( 200 );
+                    .when( ).delete( "templates/archiva-repository-observer/repo" + suffix ).then( ).statusCode( 200 );
             }
 
         }
@@ -377,39 +379,39 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository07" )
+                .put( "templates/archiva-repository-manager/repository07" )
                 .then( ).statusCode( 201 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( ).head( "template/archiva-repository-observer/repository07" ).then( ).statusCode( 200 );
+                .when( ).head( "templates/archiva-repository-observer/repository07" ).then( ).statusCode( 200 );
 
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( ).post( "template/archiva-repository-manager/repository07/moveto/repository08" ).then( ).statusCode( 201 ).extract( ).response( );
+                .when( ).post( "templates/archiva-repository-manager/repository07/moveto/repository08" ).then( ).statusCode( 201 ).extract( ).response( );
             RoleInfo role = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
             assertNotNull( role );
             assertEquals( "archiva-repository-manager.repository08", role.getId( ) );
             assertEquals( "repository08", role.getResource( ) );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( ).head( "template/archiva-repository-manager/repository07" ).then( ).statusCode( 404 );
+                .when( ).head( "templates/archiva-repository-manager/repository07" ).then( ).statusCode( 404 );
             // Child templates are copied and not moved
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( ).head( "template/archiva-repository-observer/repository07" ).then( ).statusCode( 200 );
+                .when( ).head( "templates/archiva-repository-observer/repository07" ).then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( ).head( "template/archiva-repository-observer/repository08" ).then( ).statusCode( 200 );
+                .when( ).head( "templates/archiva-repository-observer/repository08" ).then( ).statusCode( 200 );
 
         }
         finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository08" )
+                .delete( "templates/archiva-repository-manager/repository08" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository07" )
+                .delete( "templates/archiva-repository-observer/repository07" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository08" )
+                .delete( "templates/archiva-repository-observer/repository08" )
                 .then( ).statusCode( 200 );
 
         }
@@ -424,37 +426,37 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository09" )
+                .put( "templates/archiva-repository-manager/repository09" )
                 .then( ).statusCode( 201 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository10" )
+                .put( "templates/archiva-repository-manager/repository10" )
                 .then( ).statusCode( 201 );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).redirects( ).follow( false )
-                .post( "template/archiva-repository-manager/repository09/moveto/repository10" ).then( ).statusCode( 303 )
+                .post( "templates/archiva-repository-manager/repository09/moveto/repository10" ).then( ).statusCode( 303 )
                 .extract( ).response( );
-            assertTrue( response.getHeader( "Location" ).endsWith( "/roles/template/archiva-repository-manager/repository10" ) );
+            assertTrue( response.getHeader( "Location" ).endsWith( "/roles/templates/archiva-repository-manager/repository10" ) );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( ).head( "template/archiva-repository-manager/repository09" ).then( ).statusCode( 200 );
+                .when( ).head( "templates/archiva-repository-manager/repository09" ).then( ).statusCode( 200 );
         }
         finally
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository09" )
+                .delete( "templates/archiva-repository-manager/repository09" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository09" )
+                .delete( "templates/archiva-repository-observer/repository09" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository10" )
+                .delete( "templates/archiva-repository-manager/repository10" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository10" )
+                .delete( "templates/archiva-repository-observer/repository10" )
                 .then( ).statusCode( 200 );
 
         }
@@ -489,7 +491,6 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .put( "system-administrator/user/aragorn" )
-                .prettyPeek( )
                 .then( ).statusCode( 200 );
             response = given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
@@ -533,7 +534,6 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .put( "abcdefg/user/aragorn" )
-                .prettyPeek( )
                 .then( ).statusCode( 404 );
             response = given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
@@ -557,7 +557,6 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .when( )
             .put( "system-administrator/user/aragorn" )
-            .prettyPeek( )
             .then( ).statusCode( 404 );
     }
 
@@ -576,7 +575,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository11" )
+                .put( "templates/archiva-repository-manager/repository11" )
                 .then( ).statusCode( 201 );
 
             given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
@@ -593,8 +592,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             assertFalse( roles.stream( ).filter( role -> "archiva-repository-manager.repository11".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository11/user/aragorn" )
-                .prettyPeek( )
+                .put( "templates/archiva-repository-manager/repository11/user/aragorn" )
                 .then( ).statusCode( 200 );
             response = given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
@@ -610,10 +608,10 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .delete( "aragorn" ).then().statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository11" ).then().statusCode( 200 );
+                .delete( "templates/archiva-repository-manager/repository11" ).then().statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository11" ).then().statusCode( 200 );
+                .delete( "templates/archiva-repository-observer/repository11" ).then().statusCode( 200 );
 
         }
     }
@@ -679,7 +677,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository12" )
+                .put( "templates/archiva-repository-manager/repository12" )
                 .then( ).statusCode( 201 );
             given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .body( jsonAsMap )
@@ -688,7 +686,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .then( ).statusCode( 201 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository12/user/aragorn" )
+                .put( "templates/archiva-repository-manager/repository12/user/aragorn" )
                 .then( ).statusCode( 200 );
             Response response = given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
@@ -714,10 +712,10 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .delete( "aragorn" ).then().statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository12" ).then().statusCode( 200 );
+                .delete( "templates/archiva-repository-manager/repository12" ).then().statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository12" ).then().statusCode( 200 );
+                .delete( "templates/archiva-repository-observer/repository12" ).then().statusCode( 200 );
 
         }
     }
@@ -730,7 +728,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository13" )
+                .put( "templates/archiva-repository-manager/repository13" )
                 .then( ).statusCode( 201 ).extract( ).response( );
             assertNotNull( response );
             RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
@@ -756,11 +754,11 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository13" )
+                .delete( "templates/archiva-repository-manager/repository13" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository13" )
+                .delete( "templates/archiva-repository-observer/repository13" )
                 .then( ).statusCode( 200 );
         }
     }
@@ -786,7 +784,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
 
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository14" )
+                .put( "templates/archiva-repository-manager/repository14" )
                 .then( ).statusCode( 201 ).extract( ).response( );
             assertNotNull( response );
             RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
@@ -835,11 +833,11 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
 
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository14" )
+                .delete( "templates/archiva-repository-manager/repository14" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository14" )
+                .delete( "templates/archiva-repository-observer/repository14" )
                 .then( ).statusCode( 200 );
         }
     }
@@ -853,7 +851,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository15" )
+                .put( "templates/archiva-repository-manager/repository15" )
                 .then( ).statusCode( 201 ).extract( ).response( );
             assertNotNull( response );
             RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
@@ -871,11 +869,11 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository15" )
+                .delete( "templates/archiva-repository-manager/repository15" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository15" )
+                .delete( "templates/archiva-repository-observer/repository15" )
                 .then( ).statusCode( 200 );
         }
     }
@@ -889,7 +887,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "template/archiva-repository-manager/repository16" )
+                .put( "templates/archiva-repository-manager/repository16" )
                 .then( ).statusCode( 201 ).extract( ).response( );
             assertNotNull( response );
             RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
@@ -908,7 +906,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
 
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository16" )
+                .delete( "templates/archiva-repository-manager/repository16" )
                 .then( ).statusCode( 400 );
 
         }
@@ -924,11 +922,11 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .then( ).statusCode( 200 ).extract( ).response( );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-manager/repository16" )
+                .delete( "templates/archiva-repository-manager/repository16" )
                 .then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "template/archiva-repository-observer/repository16" )
+                .delete( "templates/archiva-repository-observer/repository16" )
                 .then( ).statusCode( 200 );
         }
 
@@ -948,6 +946,21 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .body( jsonAsMap )
                 .patch( "abcdefg" )
                 .then( ).statusCode( 404 );
+    }
+
+
+    @Test
+    void getTemplates() {
+        String token = getAdminToken( );
+        Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( )
+            .get( "templates" )
+            .then( ).statusCode( 200 ).extract( ).response( );
+        assertNotNull( response );
+        List<RoleTemplate> templates = response.getBody( ).jsonPath( ).getList( "", RoleTemplate.class );
+        assertEquals( 2, templates.size( ) );
+        assertTrue( templates.stream( ).filter( tmpl -> "archiva-repository-manager".equals( tmpl.getId( ) ) ).findAny().isPresent() );
+        assertTrue( templates.stream( ).filter( tmpl -> "archiva-repository-observer".equals( tmpl.getId( ) ) ).findAny().isPresent() );
     }
 
 }

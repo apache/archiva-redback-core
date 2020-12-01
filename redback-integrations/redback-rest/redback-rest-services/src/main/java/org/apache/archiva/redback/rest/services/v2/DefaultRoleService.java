@@ -26,6 +26,7 @@ import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.Role;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
+import org.apache.archiva.redback.rest.api.model.v2.RoleTemplate;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.RoleService;
 import org.apache.archiva.redback.role.PermanentRoleDeletionInvalid;
@@ -33,6 +34,8 @@ import org.apache.archiva.redback.role.RoleExistsException;
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
 import org.apache.archiva.redback.role.RoleNotFoundException;
+import org.apache.archiva.redback.role.model.ModelApplication;
+import org.apache.archiva.redback.role.model.ModelTemplate;
 import org.apache.archiva.redback.role.util.RoleModelUtils;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
@@ -472,41 +475,13 @@ public class DefaultRoleService extends BaseRedbackService
     }
 
 
-
-//    public List<Role> getEffectivelyAssignedRoles( String username )
-//        throws RedbackServiceException
-//    {
-//        if ( StringUtils.isEmpty( username ) )
-//        {
-//            throw new RedbackServiceException( new ErrorMessage( "user.cannot.be.null" ) );
-//        }
-//        try
-//        {
-//            List<? extends org.apache.archiva.redback.rbac.Role> roles =
-//                filterAssignableRoles( rbacManager.getEffectivelyAssignedRoles( username ) );
-//
-//            List<Role> effectivelyAssignedRoles = new ArrayList<Role>( roles.size() );
-//
-//            for ( org.apache.archiva.redback.rbac.Role r : roles )
-//            {
-//                effectivelyAssignedRoles.add( new Role( r ) );
-//            }
-//
-//            Collections.sort( effectivelyAssignedRoles, RoleComparator.INSTANCE  );
-//
-//            return effectivelyAssignedRoles;
-//        }
-//        catch ( RbacManagerException rme )
-//        {
-//            // ignore, this can happen when the user has no roles assigned
-//        }
-//        return new ArrayList<Role>( 0 );
-//    }
-
-
-    //----------------------------------------------------------------
-    // Internal methods
-    //----------------------------------------------------------------
+    @Override
+    public List<RoleTemplate> getTemplates( ) throws RedbackServiceException
+    {
+        return roleManager.getModel( ).getApplications( ).stream( ).flatMap( app ->
+            app.getTemplates( ).stream( ).map( modelTempl -> RoleTemplate.of( app, modelTempl ) )
+        ).collect( Collectors.toList( ) );
+    }
 
 
 }
