@@ -19,8 +19,14 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import io.restassured.response.Response;
+import io.restassured.response.ResponseBodyExtractionOptions;
+import org.apache.archiva.redback.rest.api.model.User;
+import org.apache.archiva.redback.rest.api.model.v2.BaseUserInfo;
+import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
+import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.RoleTemplate;
+import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -38,8 +44,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
@@ -142,26 +148,26 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
     void deleteTemplatedRole( )
     {
         String token = getAdminToken( );
-            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( )
-                .put( "templates/archiva-repository-manager/repository05" )
-                .then( ).statusCode( 201 ).extract( ).response( );
-            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( )
-                .delete( "templates/archiva-repository-manager/repository01" )
-                .then( ).statusCode( 404 );
-            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( )
-                .delete( "templates/archiva-repository-manager/repository05" )
-                .then( ).statusCode( 200 );
-            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( )
-                .delete( "templates/archiva-repository-manager/repository05" )
-                .then( ).statusCode( 404 );
-            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( )
-                .delete( "templates/archiva-repository-observer/repository05" )
-                .then( ).statusCode( 200 );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( )
+            .put( "templates/archiva-repository-manager/repository05" )
+            .then( ).statusCode( 201 ).extract( ).response( );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( )
+            .delete( "templates/archiva-repository-manager/repository01" )
+            .then( ).statusCode( 404 );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( )
+            .delete( "templates/archiva-repository-manager/repository05" )
+            .then( ).statusCode( 200 );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( )
+            .delete( "templates/archiva-repository-manager/repository05" )
+            .then( ).statusCode( 404 );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( )
+            .delete( "templates/archiva-repository-observer/repository05" )
+            .then( ).statusCode( 200 );
 
     }
 
@@ -343,12 +349,20 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
     {
         String token = getAdminToken( );
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-            .when( ).get( "archiva-system-administrator" ).then( ).statusCode( 200 ).extract( ).response( );
+            .when( ).get( "archiva-system-administrator" ).prettyPeek( ).then( ).statusCode( 200 ).extract( ).response( );
         assertNotNull( response );
         RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
         assertNotNull( roleInfo );
         assertEquals( "archiva-system-administrator", roleInfo.getId( ) );
         assertEquals( "Archiva System Administrator", roleInfo.getName( ) );
+        List<Permission> perms = roleInfo.getPermissions( );
+        assertNotNull( perms );
+        assertTrue( perms.size( ) > 0 );
+        assertTrue( perms.stream( ).filter( perm -> "archiva-manage-configuration".equals( perm.getName( ) ) ).findAny( ).isPresent( ) );
+        List<String> childs = roleInfo.getChildRoleIds( );
+        assertNotNull( childs );
+        assertTrue( childs.size( ) > 0 );
+        assertTrue( childs.stream( ).filter( id -> "archiva-global-repository-manager".equals( id ) ).findAny( ).isPresent( ) );
     }
 
     @Test
@@ -463,6 +477,47 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
 
     }
 
+    @Test
+    void getAssignedUsers( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor " );
+        jsonAsMap.put( "password", "pAssw0rD" );
+
+        try
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "system-administrator/user/aragorn" )
+                .then( ).statusCode( 200 );
+            Response result = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "system-administrator/user" )
+                .prettyPeek()
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull(result);
+            PagedResult<UserInfo> userResult = result.getBody( ).jsonPath( ).getObject( "", PagedResult.class );
+            assertNotNull( userResult );
+            assertEquals( 2, userResult.getPagination( ).getTotalCount( ) );
+            List<UserInfo> users = result.getBody( ).jsonPath( ).getList( "data", UserInfo.class );
+            assertArrayEquals( new String[] {"admin","aragorn"}, users.stream( ).map( BaseUserInfo::getUserId ).sorted().toArray(String[]::new) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .delete( "aragorn" ).then( ).statusCode( 200 );
+        }
+
+    }
 
     @Test
     void assignRole( )
@@ -503,7 +558,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
-                .delete( "aragorn" ).then().statusCode( 200 );
+                .delete( "aragorn" ).then( ).statusCode( 200 );
         }
     }
 
@@ -546,7 +601,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
-                .delete( "aragorn" ).then().statusCode( 200 );
+                .delete( "aragorn" ).then( ).statusCode( 200 );
         }
     }
 
@@ -605,13 +660,13 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
-                .delete( "aragorn" ).then().statusCode( 200 );
+                .delete( "aragorn" ).then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "templates/archiva-repository-manager/repository11" ).then().statusCode( 200 );
+                .delete( "templates/archiva-repository-manager/repository11" ).then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "templates/archiva-repository-observer/repository11" ).then().statusCode( 200 );
+                .delete( "templates/archiva-repository-observer/repository11" ).then( ).statusCode( 200 );
 
         }
     }
@@ -659,7 +714,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
-                .delete( "aragorn" ).then().statusCode( 200 );
+                .delete( "aragorn" ).then( ).statusCode( 200 );
         }
     }
 
@@ -709,13 +764,13 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         {
             given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
-                .delete( "aragorn" ).then().statusCode( 200 );
+                .delete( "aragorn" ).then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "templates/archiva-repository-manager/repository12" ).then().statusCode( 200 );
+                .delete( "templates/archiva-repository-manager/repository12" ).then( ).statusCode( 200 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .delete( "templates/archiva-repository-observer/repository12" ).then().statusCode( 200 );
+                .delete( "templates/archiva-repository-observer/repository12" ).then( ).statusCode( 200 );
 
         }
     }
@@ -748,7 +803,13 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             assertEquals( "This description was updated.", updatedRole.getDescription( ) );
             assertEquals( true, updatedRole.isAssignable( ) );
             assertEquals( false, updatedRole.isPermanent( ) );
-            assertArrayEquals( roleInfo.getAssignedUsers( ).toArray( ), updatedRole.getAssignedUsers( ).toArray( ) );
+            response  = given().spec(getRequestSpec(token)).contentType( JSON )
+                .when()
+                .get("archiva-repository-manager.repository13/user")
+                .then()
+                .extract( ).response( );
+            List<UserInfo> userList = response.getBody( ).jsonPath( ).getList( "data", UserInfo.class );
+            assertEquals( 1, userList.size( ) );
         }
         finally
         {
@@ -812,8 +873,15 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             assertEquals( "New description", updatedRole.getDescription( ) );
             assertEquals( false, updatedRole.isAssignable( ) );
             assertEquals( true, updatedRole.isPermanent( ) );
-            assertEquals( 2, updatedRole.getAssignedUsers( ).size() );
-            assertTrue( updatedRole.getAssignedUsers( ).stream( ).filter( user -> "aragorn".equals( user.getUserId( ) ) ).findAny().isPresent() );
+
+            response  = given().spec(getRequestSpec(token)).contentType( JSON )
+                .when()
+                .get("archiva-repository-manager.repository14/user")
+                .then()
+                .extract( ).response( );
+            List<UserInfo> userList = response.getBody( ).jsonPath( ).getList( "data", UserInfo.class );
+            assertEquals( 2, userList.size( ) );
+            assertTrue( userList.stream( ).filter( user -> "aragorn".equals( user.getUserId( ) ) ).findAny( ).isPresent( ) );
         }
         finally
         {
@@ -829,7 +897,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
 
             given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
                 .when( )
-                .delete( "aragorn" ).then().statusCode( 200 );
+                .delete( "aragorn" ).then( ).statusCode( 200 );
 
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
@@ -937,20 +1005,21 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
     void updateRoleNotExist( )
     {
         String token = getAdminToken( );
-            Map<String, Object> jsonAsMap = new HashMap<>( );
-            jsonAsMap.put( "id", "abcdefg" );
-            jsonAsMap.put( "name", "abcdefg" );
-            jsonAsMap.put( "description", "This description was updated." );
-            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-                .when( )
-                .body( jsonAsMap )
-                .patch( "abcdefg" )
-                .then( ).statusCode( 404 );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "id", "abcdefg" );
+        jsonAsMap.put( "name", "abcdefg" );
+        jsonAsMap.put( "description", "This description was updated." );
+        given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+            .when( )
+            .body( jsonAsMap )
+            .patch( "abcdefg" )
+            .then( ).statusCode( 404 );
     }
 
 
     @Test
-    void getTemplates() {
+    void getTemplates( )
+    {
         String token = getAdminToken( );
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
             .when( )
@@ -959,8 +1028,8 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         assertNotNull( response );
         List<RoleTemplate> templates = response.getBody( ).jsonPath( ).getList( "", RoleTemplate.class );
         assertEquals( 2, templates.size( ) );
-        assertTrue( templates.stream( ).filter( tmpl -> "archiva-repository-manager".equals( tmpl.getId( ) ) ).findAny().isPresent() );
-        assertTrue( templates.stream( ).filter( tmpl -> "archiva-repository-observer".equals( tmpl.getId( ) ) ).findAny().isPresent() );
+        assertTrue( templates.stream( ).filter( tmpl -> "archiva-repository-manager".equals( tmpl.getId( ) ) ).findAny( ).isPresent( ) );
+        assertTrue( templates.stream( ).filter( tmpl -> "archiva-repository-observer".equals( tmpl.getId( ) ) ).findAny( ).isPresent( ) );
     }
 
 }

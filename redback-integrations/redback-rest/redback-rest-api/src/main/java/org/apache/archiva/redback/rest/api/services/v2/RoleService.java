@@ -33,6 +33,7 @@ import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.Role;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.RoleTemplate;
+import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
 import javax.ws.rs.DELETE;
@@ -99,7 +100,7 @@ public interface RoleService
     @GET
     @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    @Operation( summary = "Returns information about a specific role. Use HTTP HEAD method for checking, if the resource exists.",
+    @Operation( summary = "Returns the definition about a specific role.",
         security = {
             @SecurityRequirement(
                 name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION
@@ -124,7 +125,7 @@ public interface RoleService
     @HEAD
     @Produces( { APPLICATION_JSON } )
     @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    @Operation( summary = "Returns information about a specific role. Use HTTP HEAD method for checking, if the resource exists.",
+    @Operation( summary = "Checks, if the role with the given id exists.",
         security = {
             @SecurityRequirement(
                 name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION
@@ -273,32 +274,6 @@ public interface RoleService
         throws RedbackServiceException;
 
 
-    /**
-     * Assigns the role indicated by the roleId to the given principal
-     *
-     * @param roleId
-     * @param userId
-     */
-    @Path( "{roleId}/user/{userId}" )
-    @PUT
-    @Produces( { APPLICATION_JSON } )
-    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-    @Operation( summary = "Assigns a role to a given user",
-        security = {
-            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
-        },
-        responses = {
-            @ApiResponse( responseCode = "200",
-                description = "If the role was assigned"
-            ),
-            @ApiResponse( responseCode = "404", description = "Role does not exist",
-                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
-            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role assignment.",
-                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
-        }
-    )
-    RoleInfo assignRole( @PathParam( "roleId" ) String roleId, @PathParam( "userId" ) String userId )
-        throws RedbackServiceException;
 
     /**
      * Assigns the templated role indicated by the templateId
@@ -333,10 +308,37 @@ public interface RoleService
         throws RedbackServiceException;
 
     /**
-     * Unassigns the role indicated by the role id from the given principal
+     * Assigns the role indicated by the roleId to the given principal
      *
      * @param roleId
      * @param userId
+     */
+    @Path( "{roleId}/user/{userId}" )
+    @PUT
+    @Produces( { APPLICATION_JSON } )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+    @Operation( summary = "Assigns a role to a given user",
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the role was assigned"
+            ),
+            @ApiResponse( responseCode = "404", description = "Role does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role assignment.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    RoleInfo assignRole( @PathParam( "roleId" ) String roleId, @PathParam( "userId" ) String userId )
+        throws RedbackServiceException;
+
+    /**
+     * Deletes the assignment of a role to a user.
+     *
+     * @param roleId the role id
+     * @param userId the user id
      * @throws RedbackServiceException
      */
     @Path( "{roleId}/user/{userId}" )
@@ -357,9 +359,40 @@ public interface RoleService
                 content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
         }
     )
-    RoleInfo unassignRole( @PathParam( "roleId" ) String roleId, @PathParam( "userId" ) String userId )
+    RoleInfo deleteRoleAssignment( @PathParam( "roleId" ) String roleId, @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
+    @Path("{roleId}/user")
+    @GET
+    @Produces({APPLICATION_JSON})
+    @RedbackAuthorization(permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION)
+    @Operation( summary = "Returns the users assigned to the given role",
+        parameters = {
+            @Parameter(name = "q", description = "Search term"),
+            @Parameter(name = "offset", description = "The offset of the first element returned"),
+            @Parameter(name = "limit", description = "Maximum number of items to return in the response"),
+            @Parameter(name = "orderBy", description = "List of attribute used for sorting (user_id, fullName, email, created"),
+            @Parameter(name = "order", description = "The sort order. Either ascending (asc) or descending (desc)")
+        },
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the users could be retrieved"
+            ),
+            @ApiResponse( responseCode = "404", description = "Role instance does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role assignment.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    PagedResult<UserInfo> getRoleUsers(@PathParam( "roleId" ) String roleId,
+                                       @QueryParam("q") @DefaultValue( "" ) String searchTerm,
+                                       @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
+                                       @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Integer limit,
+                                       @QueryParam( "orderBy") @DefaultValue( "id" ) List<String> orderBy,
+                                       @QueryParam("order") @DefaultValue( "asc" ) String order) throws RedbackServiceException;
 
     /**
      * Updates a role. Attributes that are empty or null will be ignored.

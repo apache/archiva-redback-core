@@ -24,18 +24,26 @@ import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.rest.api.MessageKeys;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.v2.BaseUserInfo;
+import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
+import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,7 +52,35 @@ import java.util.stream.Stream;
  */
 public class BaseRedbackService
 {
+    protected static final String[] DEFAULT_SEARCH_FIELDS = {"user_id", "full_name", "email"};
+    protected static final Map<String, BiPredicate<String, User>> USER_FILTER_MAP = new HashMap<>( );
+    protected static final Map<String, Comparator<User>> USER_ORDER_MAP = new HashMap<>( );
+    protected static final QueryHelper<User> USER_QUERY_HELPER;
     private static final Logger log = LoggerFactory.getLogger( BaseRedbackService.class );
+
+
+    static
+    {
+        // The simple Comparator.comparing(attribute) is not null safe
+        // As there are attributes that may have a null value, we have to use a comparator with nullsLast(naturalOrder)
+        // and the wrapping Comparator.nullsLast(Comparator.comparing(attribute)) does not work, because the attribute is not checked by the nullsLast-Comparator
+        USER_ORDER_MAP.put( "id", Comparator.comparing( org.apache.archiva.redback.users.User::getId, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
+        USER_ORDER_MAP.put( "user_id", Comparator.comparing( org.apache.archiva.redback.users.User::getUsername, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
+        USER_ORDER_MAP.put( "full_name", Comparator.comparing( org.apache.archiva.redback.users.User::getFullName, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
+        USER_ORDER_MAP.put( "email", Comparator.comparing( org.apache.archiva.redback.users.User::getEmail, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
+        USER_ORDER_MAP.put( "created", Comparator.comparing( org.apache.archiva.redback.users.User::getAccountCreationDate, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
+        USER_ORDER_MAP.put( "last_login", Comparator.comparing( org.apache.archiva.redback.users.User::getLastLoginDate, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
+        USER_ORDER_MAP.put( "validated", Comparator.comparing( org.apache.archiva.redback.users.User::isValidated, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
+        USER_ORDER_MAP.put( "locked", Comparator.comparing( org.apache.archiva.redback.users.User::isLocked, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
+        USER_ORDER_MAP.put( "password_change_required", Comparator.comparing( org.apache.archiva.redback.users.User::isPasswordChangeRequired, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
+        USER_ORDER_MAP.put( "last_password_change", Comparator.comparing( org.apache.archiva.redback.users.User::getLastPasswordChange, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
+
+        USER_FILTER_MAP.put( "user_id", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getUsername( ), q ) );
+        USER_FILTER_MAP.put( "full_name", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getFullName( ), q ) );
+        USER_FILTER_MAP.put( "email", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getEmail( ), q ) );
+
+        USER_QUERY_HELPER = new QueryHelper<>( USER_FILTER_MAP, USER_ORDER_MAP, DEFAULT_SEARCH_FIELDS );
+    }
 
     protected RBACManager rbacManager;
     protected UserManager userManager;
@@ -62,7 +98,6 @@ public class BaseRedbackService
             RoleInfo role = RoleInfo.of( rbacRole );
             role.setParentRoleIds( getParentRoles( rbacRole ) );
             role.setChildRoleIds( getChildRoles( rbacRole ) );
-            role.setAssignedUsers( getAssignedUsersRecursive( rbacRole ) );
             return role;
         }
         catch ( RbacManagerException e )
@@ -70,6 +105,10 @@ public class BaseRedbackService
             log.error( "Error while retrieving role information {}", e.getMessage( ), e );
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
         }
+    }
+
+    protected boolean isAscending(String order) {
+        return !"desc".equals( order );
     }
 
     protected List<String> getParentRoles( org.apache.archiva.redback.rbac.Role rbacRole ) throws RbacManagerException
@@ -95,6 +134,33 @@ public class BaseRedbackService
             throw new RbacManagerException( e.getCause( ) );
         }
     }
+
+    protected List<User> getAssignedRedbackUsersRecursive( org.apache.archiva.redback.rbac.Role rbacRole ) throws RbacManagerException
+    {
+        try
+        {
+            return rbacManager.getUserAssignmentsForRoles( recurseRoles( rbacRole ).map( role -> role.getId( ) ).collect( Collectors.toList( ) ) )
+                .stream( ).map( assignment -> getRedbackUser( assignment.getPrincipal( ) ) ).collect( Collectors.toList( ) );
+        }
+        catch ( RuntimeException e )
+        {
+            log.error( "Could not recurse roles for assignments {}", e.getMessage( ) );
+            throw new RbacManagerException( e.getCause( ) );
+        }
+    }
+
+    protected User getRedbackUser(String userId) throws RuntimeException {
+        try
+        {
+            return userManager.findUser( userId, true );
+        }
+        catch ( UserManagerException e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+
 
     private Stream<Role> recurseRoles( Role startRole )
     {
@@ -133,7 +199,6 @@ public class BaseRedbackService
             RoleInfo role = RoleInfo.of( rbacRole );
             role.setParentRoleIds( getParentRoles( rbacRole ) );
             role.setChildRoleIds( getChildRoles( rbacRole ) );
-            role.setAssignedUsers( getAssignedUsersRecursive( rbacRole ) );
             return Optional.of( role );
         }
         catch ( RbacManagerException e )
@@ -141,5 +206,26 @@ public class BaseRedbackService
             log.error( "Error while retrieving role information {}", e.getMessage( ), e );
             return Optional.empty( );
         }
+    }
+
+    protected UserInfo getRestUser( User user )
+    {
+        if ( user == null )
+        {
+            return null;
+        }
+        return new UserInfo( user );
+    }
+
+    protected PagedResult<UserInfo> getUserInfoPagedResult( List<? extends User> rawUsers, String q, Integer offset, Integer limit, List<String> orderBy, boolean ascending)
+    {
+        Predicate<User> filter = USER_QUERY_HELPER.getQueryFilter( q );
+        long size = rawUsers.stream( ).filter( filter ).count( );
+        List<UserInfo> users = rawUsers.stream( )
+            .filter( filter )
+            .sorted( USER_QUERY_HELPER.getComparator( orderBy, ascending ) ).skip( offset ).limit( limit )
+            .map( user -> getRestUser( user ) )
+            .collect( Collectors.toList( ) );
+        return new PagedResult<>( (int) size, offset, limit, users );
     }
 }

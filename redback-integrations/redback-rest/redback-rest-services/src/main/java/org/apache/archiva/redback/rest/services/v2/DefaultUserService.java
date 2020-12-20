@@ -102,7 +102,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -118,33 +117,6 @@ public class DefaultUserService extends BaseRedbackService
     private static final String VALID_USERNAME_CHARS = "[a-zA-Z_0-9\\-.@]*";
     private static final String[] INVALID_CREATE_USER_NAMES = {"admin", "guest", "me"};
 
-    private static final String[] DEFAULT_SEARCH_FIELDS = {"user_id", "full_name", "email"};
-    private static final Map<String, BiPredicate<String, org.apache.archiva.redback.users.User>> FILTER_MAP = new HashMap<>( );
-    private static final Map<String, Comparator<org.apache.archiva.redback.users.User>> ORDER_MAP = new HashMap<>( );
-    private static final QueryHelper<org.apache.archiva.redback.users.User> QUERY_HELPER;
-
-    static
-    {
-        // The simple Comparator.comparing(attribute) is not null safe
-        // As there are attributes that may have a null value, we have to use a comparator with nullsLast(naturalOrder)
-        // and the wrapping Comparator.nullsLast(Comparator.comparing(attribute)) does not work, because the attribute is not checked by the nullsLast-Comparator
-        ORDER_MAP.put( "id", Comparator.comparing( org.apache.archiva.redback.users.User::getId, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
-        ORDER_MAP.put( "user_id", Comparator.comparing( org.apache.archiva.redback.users.User::getUsername, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
-        ORDER_MAP.put( "full_name", Comparator.comparing( org.apache.archiva.redback.users.User::getFullName, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
-        ORDER_MAP.put( "email", Comparator.comparing( org.apache.archiva.redback.users.User::getEmail, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
-        ORDER_MAP.put( "created", Comparator.comparing( org.apache.archiva.redback.users.User::getAccountCreationDate, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
-        ORDER_MAP.put( "last_login", Comparator.comparing( org.apache.archiva.redback.users.User::getLastLoginDate, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
-        ORDER_MAP.put( "validated", Comparator.comparing( org.apache.archiva.redback.users.User::isValidated, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
-        ORDER_MAP.put( "locked", Comparator.comparing( org.apache.archiva.redback.users.User::isLocked, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
-        ORDER_MAP.put( "password_change_required", Comparator.comparing( org.apache.archiva.redback.users.User::isPasswordChangeRequired, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
-        ORDER_MAP.put( "last_password_change", Comparator.comparing( org.apache.archiva.redback.users.User::getLastPasswordChange, Comparator.nullsLast( Comparator.naturalOrder( ) ) ) );
-
-        FILTER_MAP.put( "user_id", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getUsername( ), q ) );
-        FILTER_MAP.put( "full_name", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getFullName( ), q ) );
-        FILTER_MAP.put( "email", ( String q, org.apache.archiva.redback.users.User u ) -> StringUtils.containsIgnoreCase( u.getEmail( ), q ) );
-
-        QUERY_HELPER = new QueryHelper<>( FILTER_MAP, ORDER_MAP, DEFAULT_SEARCH_FIELDS );
-    }
 
     private SecuritySystem securitySystem;
 
@@ -395,26 +367,20 @@ public class DefaultUserService extends BaseRedbackService
                                            Integer limit, List<String> orderBy, String order )
         throws RedbackServiceException
     {
-        boolean ascending = !"desc".equals( order );
+        boolean ascending = isAscending( order );
         try
         {
             // UserQuery does not work here, because the configurable user manager does only return the query for
             // the first user manager in the list. So we have to fetch the whole user list
             List<? extends org.apache.archiva.redback.users.User> rawUsers = userManager.getUsers( );
-            Predicate<org.apache.archiva.redback.users.User> filter = QUERY_HELPER.getQueryFilter( q );
-            long size = rawUsers.stream( ).filter( filter ).count( );
-            List<UserInfo> users = rawUsers.stream( )
-                .filter( filter )
-                .sorted( QUERY_HELPER.getComparator( orderBy, ascending ) ).skip( offset ).limit( limit )
-                .map( user -> getRestUser( user ) )
-                .collect( Collectors.toList( ) );
-            return new PagedResult<>( (int) size, offset, limit, users );
+            return getUserInfoPagedResult( rawUsers, q, offset, limit, orderBy, ascending );
         }
         catch ( UserManagerException e )
         {
             throw new RedbackServiceException( new ErrorMessage( e.getMessage( ) ) );
         }
     }
+
 
     @Override
     public UserInfo updateMe( SelfUserData user )
@@ -571,15 +537,6 @@ public class DefaultUserService extends BaseRedbackService
         throws RedbackServiceException
     {
         return new PingResult( true );
-    }
-
-    private UserInfo getRestUser( org.apache.archiva.redback.users.User user )
-    {
-        if ( user == null )
-        {
-            return null;
-        }
-        return new UserInfo( user );
     }
 
     @Override

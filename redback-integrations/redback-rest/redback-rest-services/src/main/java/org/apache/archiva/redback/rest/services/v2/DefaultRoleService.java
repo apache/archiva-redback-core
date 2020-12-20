@@ -27,6 +27,7 @@ import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.Role;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.RoleTemplate;
+import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.RoleService;
 import org.apache.archiva.redback.role.PermanentRoleDeletionInvalid;
@@ -34,9 +35,8 @@ import org.apache.archiva.redback.role.RoleExistsException;
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.role.RoleManagerException;
 import org.apache.archiva.redback.role.RoleNotFoundException;
-import org.apache.archiva.redback.role.model.ModelApplication;
-import org.apache.archiva.redback.role.model.ModelTemplate;
 import org.apache.archiva.redback.role.util.RoleModelUtils;
+import org.apache.archiva.redback.users.User;
 import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.UserManagerException;
 import org.apache.archiva.redback.users.UserNotFoundException;
@@ -83,7 +83,7 @@ public class DefaultRoleService extends BaseRedbackService
     @Context
     private UriInfo uriInfo;
 
-    private static final String[] DEFAULT_SEARCH_FIELDS = {"name", "description"};
+    private static final String[] DEFAULT_SEARCH_FIELDS = {"id", "name", "description"};
     private static final Map<String, BiPredicate<String, org.apache.archiva.redback.rbac.Role>> FILTER_MAP = new HashMap<>( );
     private static final Map<String, Comparator<org.apache.archiva.redback.rbac.Role>> ORDER_MAP = new HashMap<>( );
     private static final QueryHelper<org.apache.archiva.redback.rbac.Role> QUERY_HELPER;
@@ -92,6 +92,7 @@ public class DefaultRoleService extends BaseRedbackService
     {
 
         QUERY_HELPER = new QueryHelper<>( FILTER_MAP, ORDER_MAP, DEFAULT_SEARCH_FIELDS );
+        QUERY_HELPER.addStringFilter( "id", org.apache.archiva.redback.rbac.Role::getId );
         QUERY_HELPER.addStringFilter( "name", org.apache.archiva.redback.rbac.Role::getName );
         QUERY_HELPER.addStringFilter( "description", org.apache.archiva.redback.rbac.Role::getDescription );
         QUERY_HELPER.addBooleanFilter( "assignable", org.apache.archiva.redback.rbac.Role::isAssignable );
@@ -103,6 +104,7 @@ public class DefaultRoleService extends BaseRedbackService
         QUERY_HELPER.addNullsafeFieldComparator( "id", org.apache.archiva.redback.rbac.Role::getId );
         QUERY_HELPER.addNullsafeFieldComparator( "resource", org.apache.archiva.redback.rbac.Role::getResource );
         QUERY_HELPER.addNullsafeFieldComparator( "assignable", org.apache.archiva.redback.rbac.Role::isAssignable );
+        QUERY_HELPER.addNullsafeFieldComparator( "description", org.apache.archiva.redback.rbac.Role::getDescription );
         QUERY_HELPER.addNullsafeFieldComparator( "template_instance", org.apache.archiva.redback.rbac.Role::isTemplateInstance );
     }
 
@@ -121,7 +123,7 @@ public class DefaultRoleService extends BaseRedbackService
     @Override
     public PagedResult<RoleInfo> getAllRoles( String searchTerm, Integer offset, Integer limit, List<String> orderBy, String order ) throws RedbackServiceException
     {
-        boolean ascending = !"desc".equals( order );
+        boolean ascending = isAscending( order );
         try
         {
             // UserQuery does not work here, because the configurable user manager does only return the query for
@@ -389,7 +391,7 @@ public class DefaultRoleService extends BaseRedbackService
     }
 
     @Override
-    public RoleInfo unassignRole( String roleId, String userId )
+    public RoleInfo deleteRoleAssignment( String roleId, String userId )
         throws RedbackServiceException
     {
         try
@@ -415,7 +417,27 @@ public class DefaultRoleService extends BaseRedbackService
         }
         catch ( RbacObjectNotFoundException e )
         {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_NOT_FOUND, e.getMessage( ) ), 404 );
+        }
+        catch ( RbacManagerException e )
+        {
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
+        }
+    }
+
+    @Override
+    public PagedResult<UserInfo> getRoleUsers( String roleId, String searchTerm, Integer offset, Integer limit, List<String> orderBy, String order )  throws RedbackServiceException
+    {
+        boolean ascending = isAscending( order );
+        try
+        {
+            org.apache.archiva.redback.rbac.Role rbacRole = rbacManager.getRoleById( roleId );
+            List<User> rawUsers = getAssignedRedbackUsersRecursive( rbacRole );
+            return getUserInfoPagedResult( rawUsers, searchTerm, offset, limit, orderBy, ascending );
+        }
+        catch ( RbacObjectNotFoundException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_NOT_FOUND, e.getMessage( ) ), 404 );
         }
         catch ( RbacManagerException e )
         {

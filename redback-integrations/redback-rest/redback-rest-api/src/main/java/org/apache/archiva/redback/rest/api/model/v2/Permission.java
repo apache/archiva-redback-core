@@ -60,6 +60,10 @@ public class Permission
         this.permanent = permission.isPermanent();
     }
 
+    public static Permission of( org.apache.archiva.redback.rbac.Permission perm )  {
+        return new Permission( perm );
+    }
+
     @Schema(name="name", description = "The identifier of the permission")
     public String getName()
     {

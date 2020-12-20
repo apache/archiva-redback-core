@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Result object for role information.
@@ -36,7 +37,7 @@ import java.util.Objects;
  * @since 3.0
  */
 @XmlRootElement( name = "role" )
-@Schema(name="RoleInfo",description = "Information about role")
+@Schema(name="RoleInfo",description = "Information about role.")
 public class RoleInfo extends BaseRoleInfo
     implements Serializable
 {
@@ -57,26 +58,6 @@ public class RoleInfo extends BaseRoleInfo
      */
     private List<String> parentRoleIds = new ArrayList<>(0);
 
-    /**
-     * The ids of all the assigned users.
-     */
-    protected List<BaseUserInfo> assignedUsers = new ArrayList<>( 0 );
-
-    @Schema( description = "List of user ids that are assigned to this role.")
-    public List<BaseUserInfo> getAssignedUsers( )
-    {
-        return assignedUsers;
-    }
-
-    public void setAssignedUsers( List<BaseUserInfo> assignedUsers )
-    {
-        this.assignedUsers = assignedUsers;
-    }
-
-    public void addAssignedUser( BaseUserInfo id) {
-        this.assignedUsers.add( id );
-    }
-
     public RoleInfo()
     {
         // no op
@@ -85,6 +66,12 @@ public class RoleInfo extends BaseRoleInfo
 
     public static RoleInfo of( Role rbacRole) {
         RoleInfo role = BaseRoleInfo.of( rbacRole, new RoleInfo( ) );
+        if(rbacRole.getPermissions()!=null)
+        {
+            role.permissions = rbacRole.getPermissions( ).stream( ).map( rbacPerm ->
+                Permission.of( rbacPerm )
+            ).collect( Collectors.toList( ) );
+        }
         return role;
     }
 
@@ -151,7 +138,6 @@ public class RoleInfo extends BaseRoleInfo
         sb.append( ", childRoleNames=" ).append( childRoleIds );
         sb.append( ", permissions=" ).append( permissions );
         sb.append( ", parentRoleNames=" ).append( parentRoleIds );
-        sb.append( ", assignedUsers=" ).append( assignedUsers );
         sb.append( ", permanent=" ).append( isPermanent( ) );
         sb.append( ", modelId='" ).append( modelId ).append( '\'' );
         sb.append( ", resource='" ).append( resource ).append( '\'' );
