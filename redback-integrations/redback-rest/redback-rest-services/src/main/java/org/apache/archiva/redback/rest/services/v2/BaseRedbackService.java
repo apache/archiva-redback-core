@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -135,11 +136,24 @@ public class BaseRedbackService
         }
     }
 
-    protected List<User> getAssignedRedbackUsersRecursive( org.apache.archiva.redback.rbac.Role rbacRole ) throws RbacManagerException
+    protected List<User> getAssignedRedbackUsers( Role rbacRole ) {
+        try
+        {
+            return rbacManager.getUserAssignmentsForRoles( Arrays.asList( rbacRole.getId( ) ) ).stream( ).map(
+                assignment -> getRedbackUser( assignment.getPrincipal( ) )
+            ).collect( Collectors.toList( ) );
+        }
+        catch ( RbacManagerException e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    protected List<User> getAssignedRedbackUsersRecursive( final Role rbacRole, final boolean parentsOnly ) throws RbacManagerException
     {
         try
         {
-            return rbacManager.getUserAssignmentsForRoles( recurseRoles( rbacRole ).map( role -> role.getId( ) ).collect( Collectors.toList( ) ) )
+            return rbacManager.getUserAssignmentsForRoles( recurseRoles( rbacRole ).map( role -> role.getId( ) ).filter(roleId -> ((!parentsOnly) || ( !rbacRole.getId().equals(roleId)))).collect( Collectors.toList( ) ) )
                 .stream( ).map( assignment -> getRedbackUser( assignment.getPrincipal( ) ) ).collect( Collectors.toList( ) );
         }
         catch ( RuntimeException e )

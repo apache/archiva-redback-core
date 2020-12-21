@@ -478,7 +478,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
     }
 
     @Test
-    void getAssignedUsers( )
+    void getAssignedUsersNonRecursive( )
     {
         String token = getAdminToken( );
         Map<String, Object> jsonAsMap = new HashMap<>( );
@@ -496,11 +496,54 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .then( ).statusCode( 201 );
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .put( "system-administrator/user/aragorn" )
+                .put( "archiva-global-repository-observer/user/aragorn" )
                 .then( ).statusCode( 200 );
             Response result = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
-                .get( "system-administrator/user" )
+                .get( "archiva-global-repository-observer/user" )
+                .prettyPeek()
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull(result);
+            PagedResult<UserInfo> userResult = result.getBody( ).jsonPath( ).getObject( "", PagedResult.class );
+            assertNotNull( userResult );
+            assertEquals( 1, userResult.getPagination( ).getTotalCount( ) );
+            List<UserInfo> users = result.getBody( ).jsonPath( ).getList( "data", UserInfo.class );
+            assertArrayEquals( new String[] {"aragorn"}, users.stream( ).map( BaseUserInfo::getUserId ).sorted().toArray(String[]::new) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .delete( "aragorn" ).then( ).statusCode( 200 );
+        }
+
+    }
+
+    @Test
+    void getAssignedUsersRecursive( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor " );
+        jsonAsMap.put( "password", "pAssw0rD" );
+
+        try
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "archiva-global-repository-observer/user/aragorn" )
+                .then( ).statusCode( 200 );
+            Response result = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .param( "recurse")
+                .get( "archiva-global-repository-observer/user" )
                 .prettyPeek()
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull(result);
@@ -509,6 +552,49 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             assertEquals( 2, userResult.getPagination( ).getTotalCount( ) );
             List<UserInfo> users = result.getBody( ).jsonPath( ).getList( "data", UserInfo.class );
             assertArrayEquals( new String[] {"admin","aragorn"}, users.stream( ).map( BaseUserInfo::getUserId ).sorted().toArray(String[]::new) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .delete( "aragorn" ).then( ).statusCode( 200 );
+        }
+
+    }
+
+    @Test
+    void getAssignedUsersRecursiveParentsOnly( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor " );
+        jsonAsMap.put( "password", "pAssw0rD" );
+
+        try
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "archiva-global-repository-observer/user/aragorn" )
+                .then( ).statusCode( 200 );
+            Response result = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .param( "recurse","parentsOnly")
+                .get( "archiva-global-repository-observer/user" )
+                .prettyPeek()
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull(result);
+            PagedResult<UserInfo> userResult = result.getBody( ).jsonPath( ).getObject( "", PagedResult.class );
+            assertNotNull( userResult );
+            assertEquals( 1, userResult.getPagination( ).getTotalCount( ) );
+            List<UserInfo> users = result.getBody( ).jsonPath( ).getList( "data", UserInfo.class );
+            assertArrayEquals( new String[] {"admin"}, users.stream( ).map( BaseUserInfo::getUserId ).sorted().toArray(String[]::new) );
         }
         finally
         {
@@ -809,7 +895,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .then()
                 .extract( ).response( );
             List<UserInfo> userList = response.getBody( ).jsonPath( ).getList( "data", UserInfo.class );
-            assertEquals( 1, userList.size( ) );
+            assertEquals( 0, userList.size( ) );
         }
         finally
         {
@@ -880,7 +966,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .then()
                 .extract( ).response( );
             List<UserInfo> userList = response.getBody( ).jsonPath( ).getList( "data", UserInfo.class );
-            assertEquals( 2, userList.size( ) );
+            assertEquals( 1, userList.size( ) );
             assertTrue( userList.stream( ).filter( user -> "aragorn".equals( user.getUserId( ) ) ).findAny( ).isPresent( ) );
         }
         finally

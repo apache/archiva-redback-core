@@ -22,6 +22,7 @@ import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.RbacObjectNotFoundException;
 import org.apache.archiva.redback.rest.api.MessageKeys;
+import org.apache.archiva.redback.rest.api.Util;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.Role;
@@ -426,13 +427,16 @@ public class DefaultRoleService extends BaseRedbackService
     }
 
     @Override
-    public PagedResult<UserInfo> getRoleUsers( String roleId, String searchTerm, Integer offset, Integer limit, List<String> orderBy, String order )  throws RedbackServiceException
+    public PagedResult<UserInfo> getRoleUsers( String roleId, String recurse,
+                                               String searchTerm, Integer offset, Integer limit, List<String> orderBy, String order )  throws RedbackServiceException
     {
         boolean ascending = isAscending( order );
+        boolean recursePresent = Util.isFlagSet( uriInfo, "recurse" );
+        boolean parentsOnly = "parentsOnly".equals( recurse );
         try
         {
             org.apache.archiva.redback.rbac.Role rbacRole = rbacManager.getRoleById( roleId );
-            List<User> rawUsers = getAssignedRedbackUsersRecursive( rbacRole );
+            List<User> rawUsers = recursePresent ? getAssignedRedbackUsersRecursive( rbacRole, parentsOnly ) : getAssignedRedbackUsers( rbacRole );
             return getUserInfoPagedResult( rawUsers, searchTerm, offset, limit, orderBy, ascending );
         }
         catch ( RbacObjectNotFoundException e )

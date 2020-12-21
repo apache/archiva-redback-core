@@ -362,6 +362,26 @@ public interface RoleService
     RoleInfo deleteRoleAssignment( @PathParam( "roleId" ) String roleId, @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
+    /**
+     * This returns the list of assigned users to a given role. The flag "recurse" is a query parameter.
+     * If the query parameter exists and is not set to 'false', or '0', it will recurse all parent roles and return a list of users
+     * assigned to the current role and the parent roles up to the root.
+     * If the query parameter does not exist or is set to 'false' or '0', it will return only the users assigned directly
+     * to the given role.
+     *
+     * @param roleId the role identifier, for which the assigned users are returned
+     * @param recurse if the parameter does not exist or is set to 'false' or '0', only directly assigned users are returned.
+     *                If the parameter value is set to 'parentsOnly', the users assigned to all parent roles up to the root excluding the
+     *                given role are returned.
+     *                Otherwise all users assigned to the given role and all parent roles up to the root are returned.
+     * @param searchTerm the substring query term to search for in the user ids and names
+     * @param offset the offset index in the user list for paging
+     * @param limit the maximum number of users returned
+     * @param orderBy the order attributes for ordering
+     * @param order the order direction 'asc' (ascending), or 'desc' (descending)
+     * @return the list of user objects
+     * @throws RedbackServiceException
+     */
     @Path("{roleId}/user")
     @GET
     @Produces({APPLICATION_JSON})
@@ -372,7 +392,11 @@ public interface RoleService
             @Parameter(name = "offset", description = "The offset of the first element returned"),
             @Parameter(name = "limit", description = "Maximum number of items to return in the response"),
             @Parameter(name = "orderBy", description = "List of attribute used for sorting (user_id, fullName, email, created"),
-            @Parameter(name = "order", description = "The sort order. Either ascending (asc) or descending (desc)")
+            @Parameter(name = "order", description = "The sort order. Either ascending (asc) or descending (desc)"),
+            @Parameter(name = "recurse", description = "If not present, or set to 'false' or '0', only users assigned directly to this role are returned."+
+            " If present and set to 'parentsOnly', the list of users assigned to all parents of the given role up to the root."+
+                " If present and set to any other value than 'parentsOnly', 'false' or '0', the users assigned to this role or any parent role in the hierarchy"+
+                " up to the root are returned.")
         },
         security = {
             @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
@@ -388,11 +412,13 @@ public interface RoleService
         }
     )
     PagedResult<UserInfo> getRoleUsers(@PathParam( "roleId" ) String roleId,
+                                       @QueryParam("recurse") String recurse,
                                        @QueryParam("q") @DefaultValue( "" ) String searchTerm,
                                        @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
                                        @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Integer limit,
                                        @QueryParam( "orderBy") @DefaultValue( "id" ) List<String> orderBy,
-                                       @QueryParam("order") @DefaultValue( "asc" ) String order) throws RedbackServiceException;
+                                       @QueryParam("order") @DefaultValue( "asc" ) String order
+                                       ) throws RedbackServiceException;
 
     /**
      * Updates a role. Attributes that are empty or null will be ignored.

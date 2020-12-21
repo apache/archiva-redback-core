@@ -4,7 +4,7 @@
     <useClassPathOnly />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="org.apache.archiva.redback.rest.services.v2.*" />
+        <option name="PATTERN" value="org.apache.archiva.redback.rest.api.services.v2.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
