@@ -58,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -446,6 +447,34 @@ public class DefaultRoleService extends BaseRedbackService
         catch ( RbacManagerException e )
         {
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
+        }
+    }
+
+    @Override
+    public PagedResult<UserInfo> getUnassignedUsers( String roleId, String recurse, String searchTerm, Integer offset, Integer limit, List<String> orderBy, String order ) throws RedbackServiceException
+    {
+        boolean ascending = isAscending( order );
+        boolean recursePresent = Util.isFlagSet( uriInfo, "recurse" );
+        boolean parentsOnly = "parentsOnly".equals( recurse );
+        try
+        {
+            org.apache.archiva.redback.rbac.Role rbacRole = rbacManager.getRoleById( roleId );
+            final Set<String> assignedUsers = (recursePresent ? getAssignedRedbackUsersRecursive( rbacRole, parentsOnly ) : getAssignedRedbackUsers( rbacRole ))
+                .stream( ).map( user -> user.getId()  ).collect( Collectors.toSet());
+            List<? extends User> rawUsers = userManager.getUsers( ascending ).stream( ).filter( user -> !assignedUsers.contains( user.getId( ) ) ).collect( Collectors.toList( ) );
+            return getUserInfoPagedResult( rawUsers, searchTerm, offset, limit, orderBy, ascending );
+        }
+        catch ( RbacObjectNotFoundException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_NOT_FOUND, e.getMessage( ) ), 404 );
+        }
+        catch ( RbacManagerException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
+        }
+        catch ( UserManagerException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USERMANAGER_FAIL, e.getMessage( ) ) );
         }
     }
 

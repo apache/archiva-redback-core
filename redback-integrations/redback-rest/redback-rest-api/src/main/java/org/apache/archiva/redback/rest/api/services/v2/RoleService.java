@@ -420,6 +420,46 @@ public interface RoleService
                                        @QueryParam("order") @DefaultValue( "asc" ) String order
                                        ) throws RedbackServiceException;
 
+
+    @Path("{roleId}/unassigned")
+    @GET
+    @Produces({APPLICATION_JSON})
+    @RedbackAuthorization(permissions = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION)
+    @Operation( summary = "Returns the users not assigned to the given role",
+        parameters = {
+            @Parameter(name = "q", description = "Search term"),
+            @Parameter(name = "offset", description = "The offset of the first element returned"),
+            @Parameter(name = "limit", description = "Maximum number of items to return in the response"),
+            @Parameter(name = "orderBy", description = "List of attribute used for sorting (user_id, fullName, email, created"),
+            @Parameter(name = "order", description = "The sort order. Either ascending (asc) or descending (desc)"),
+            @Parameter(name = "recurse", description = "If not present, or set to 'false' or '0', only users assigned directly to this role are returned."+
+                " If present and set to 'parentsOnly', the list of users assigned to all parents of the given role up to the root."+
+                " If present and set to any other value than 'parentsOnly', 'false' or '0', the users assigned to this role or any parent role in the hierarchy"+
+                " up to the root are returned.")
+        },
+        security = {
+            @SecurityRequirement( name = RedbackRoleConstants.USER_MANAGEMENT_RBAC_ADMIN_OPERATION )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "If the users could be retrieved"
+            ),
+            @ApiResponse( responseCode = "404", description = "Role instance does not exist",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) ),
+            @ApiResponse( responseCode = "403", description = "The authenticated user has not the permission for role assignment.",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class )) )
+        }
+    )
+    PagedResult<UserInfo> getUnassignedUsers(@PathParam( "roleId" ) String roleId,
+                                       @QueryParam("recurse") String recurse,
+                                       @QueryParam("q") @DefaultValue( "" ) String searchTerm,
+                                       @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
+                                       @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Integer limit,
+                                       @QueryParam( "orderBy") @DefaultValue( "id" ) List<String> orderBy,
+                                       @QueryParam("order") @DefaultValue( "asc" ) String order
+    ) throws RedbackServiceException;
+
+
     /**
      * Updates a role. Attributes that are empty or null will be ignored.
      *

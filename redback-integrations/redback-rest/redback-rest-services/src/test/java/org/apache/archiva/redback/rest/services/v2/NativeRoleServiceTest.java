@@ -501,7 +501,6 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             Response result = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .get( "archiva-global-repository-observer/user" )
-                .prettyPeek()
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull(result);
             PagedResult<UserInfo> userResult = result.getBody( ).jsonPath( ).getObject( "", PagedResult.class );
@@ -518,6 +517,49 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         }
 
     }
+
+    @Test
+    void getUnAssignedUsersNonRecursive( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor " );
+        jsonAsMap.put( "password", "pAssw0rD" );
+
+        try
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "archiva-global-repository-observer/user/aragorn" )
+                .then( ).statusCode( 200 );
+            Response result = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "archiva-global-repository-observer/unassigned" )
+                .prettyPeek()
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull(result);
+            PagedResult<UserInfo> userResult = result.getBody( ).jsonPath( ).getObject( "", PagedResult.class );
+            assertNotNull( userResult );
+            assertEquals( 2, userResult.getPagination( ).getTotalCount( ) );
+            List<UserInfo> users = result.getBody( ).jsonPath( ).getList( "data", UserInfo.class );
+            assertFalse( users.stream( ).filter(user -> "aragorn".equals(user.getUserId())).findAny().isPresent() );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .delete( "aragorn" ).then( ).statusCode( 200 );
+        }
+
+    }
+
 
     @Test
     void getAssignedUsersRecursive( )
@@ -561,6 +603,50 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
         }
 
     }
+
+    @Test
+    void getUnAssignedUsersRecursive( )
+    {
+        String token = getAdminToken( );
+        Map<String, Object> jsonAsMap = new HashMap<>( );
+        jsonAsMap.put( "user_id", "aragorn" );
+        jsonAsMap.put( "email", "aragorn@lordoftherings.org" );
+        jsonAsMap.put( "full_name", "Aragorn King of Gondor " );
+        jsonAsMap.put( "password", "pAssw0rD" );
+
+        try
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .body( jsonAsMap )
+                .when( )
+                .post( )
+                .then( ).statusCode( 201 );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "archiva-global-repository-observer/user/aragorn" )
+                .then( ).statusCode( 200 );
+            Response result = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .param( "recurse" )
+                .get( "archiva-global-repository-observer/unassigned" )
+                .prettyPeek()
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull(result);
+            PagedResult<UserInfo> userResult = result.getBody( ).jsonPath( ).getObject( "", PagedResult.class );
+            assertNotNull( userResult );
+            assertEquals( 1, userResult.getPagination( ).getTotalCount( ) );
+            List<UserInfo> users = result.getBody( ).jsonPath( ).getList( "data", UserInfo.class );
+            assertTrue( "guest".equals( users.get( 0 ).getUserId( ) ) );
+        }
+        finally
+        {
+            given( ).spec( getRequestSpec( token, getUserServicePath( ) ) ).contentType( JSON )
+                .when( )
+                .delete( "aragorn" ).then( ).statusCode( 200 );
+        }
+
+    }
+
 
     @Test
     void getAssignedUsersRecursiveParentsOnly( )

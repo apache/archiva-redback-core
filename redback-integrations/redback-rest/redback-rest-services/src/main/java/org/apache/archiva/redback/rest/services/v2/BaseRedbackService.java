@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -153,7 +154,11 @@ public class BaseRedbackService
     {
         try
         {
-            return rbacManager.getUserAssignmentsForRoles( recurseRoles( rbacRole ).map( role -> role.getId( ) ).filter(roleId -> ((!parentsOnly) || ( !rbacRole.getId().equals(roleId)))).collect( Collectors.toList( ) ) )
+            List<String> roles = recurseRoles( rbacRole ).map( role -> role.getId( ) ).filter( roleId -> ( ( !parentsOnly ) || ( !rbacRole.getId( ).equals( roleId ) ) ) ).collect( Collectors.toList( ) );
+            if (roles.size()==0) {
+                return Collections.emptyList( );
+            }
+            return rbacManager.getUserAssignmentsForRoles( roles )
                 .stream( ).map( assignment -> getRedbackUser( assignment.getPrincipal( ) ) ).collect( Collectors.toList( ) );
         }
         catch ( RuntimeException e )
@@ -235,6 +240,7 @@ public class BaseRedbackService
     {
         Predicate<User> filter = USER_QUERY_HELPER.getQueryFilter( q );
         long size = rawUsers.stream( ).filter( filter ).count( );
+        System.out.println( "Total " + size );
         List<UserInfo> users = rawUsers.stream( )
             .filter( filter )
             .sorted( USER_QUERY_HELPER.getComparator( orderBy, ascending ) ).skip( offset ).limit( limit )
