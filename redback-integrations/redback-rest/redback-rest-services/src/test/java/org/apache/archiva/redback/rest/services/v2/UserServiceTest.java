@@ -420,7 +420,7 @@ public class UserServiceTest
 
             // assertTrue( service.validateUserFromKey( key ).isSuccess( ) );
 
-            assertTrue( service.resetPassword(u.getUserId() ).isSuccess( ) );
+            assertEquals(200, service.resetPassword(u.getUserId() ).getStatus() );
 
             emailMessages = assertService.getEmailMessageSended( );
             assertEquals( 2, emailMessages.size( ) );

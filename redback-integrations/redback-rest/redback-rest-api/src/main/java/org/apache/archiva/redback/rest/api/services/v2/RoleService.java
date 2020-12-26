@@ -54,7 +54,12 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
 
 /**
+ *
+ * Service interface for role management.
+ *
  * @author Olivier Lamy
+ * @author Martin Stockhammer
+ * @since 3.0
  */
 @Path( "/roles" )
 @Tag(name = "v2")

@@ -25,7 +25,6 @@ import org.apache.archiva.redback.common.ldap.connection.LdapException;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapper;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapperConfiguration;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
-import org.apache.archiva.redback.rest.api.model.Group;
 import org.apache.archiva.redback.rest.api.model.LdapGroupMapping;
 import org.apache.archiva.redback.rest.api.model.LdapGroupMappingUpdateRequest;
 import org.apache.archiva.redback.rest.api.model.StringList;
@@ -43,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @deprecated Use new API version {@link org.apache.archiva.redback.rest.services.v2.DefaultGroupService}

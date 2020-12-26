@@ -39,8 +39,11 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 /**
+ *
+ * @deprecated Use the new v2 service {@link org.apache.archiva.redback.rest.api.services.v2.RoleService}
  * @author Olivier Lamy
  */
+@Deprecated
 @Path( "/roleManagementService/" )
 public interface RoleManagementService
 {

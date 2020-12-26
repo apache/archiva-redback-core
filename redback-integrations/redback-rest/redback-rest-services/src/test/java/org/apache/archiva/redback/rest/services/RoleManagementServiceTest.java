@@ -46,7 +46,6 @@ public class RoleManagementServiceTest
 {
 
 
-    @Ignore
     @Test
     public void roleExist()
         throws Exception

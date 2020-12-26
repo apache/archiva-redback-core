@@ -28,6 +28,7 @@ import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.model.v2.VerificationStatus;
 import org.apache.archiva.redback.rest.services.mock.EmailMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -1072,7 +1073,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .post( "aragorn/cache/clear" )
                 .then( ).statusCode( 200 ).extract( ).response( );
 
-            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
         }
         finally
         {
@@ -1631,6 +1631,85 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
         }
         finally
         {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "bilbo" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void changePassword()
+    {
+        String adminToken = getAdminToken( );
+
+        Map<String, Object> userMap = new HashMap<>( );
+        userMap.put( "user_id", "bilbo" );
+        userMap.put( "email", "bilbo@lordoftherings.org" );
+        userMap.put( "full_name", "Bilbo Beutlin" );
+        userMap.put( "validated", true );
+        userMap.put( "password", "pAssw0rD" );
+        userMap.put( "confirm_password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( userMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try {
+            Map<String, String> passwordChange = new HashMap<>( );
+            passwordChange.put( "user_id", "bilbo" );
+            passwordChange.put( "current_password", "pAssw0rD" );
+            passwordChange.put( "new_password", "pAsXXXw4Qz66D" );
+            passwordChange.put( "new_password_confirmation", "pAsXXXw4Qz66D" );
+            String userToken = getUserToken( "bilbo", "pAssw0rD" );
+            given( ).spec( getRequestSpec( userToken ) ).contentType( JSON )
+                .body( passwordChange )
+                .when( )
+                .post( "me/password/update" )
+                .then( ).statusCode( 200 );
+            userToken = getUserToken( "bilbo", "pAsXXXw4Qz66D" );
+            assertNotNull( userToken );
+
+        } finally {
+            given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+                .delete( "bilbo" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
+    @Test
+    void changePasswordUnauthenticated()
+    {
+        String adminToken = getAdminToken( );
+
+        Map<String, Object> userMap = new HashMap<>( );
+        userMap.put( "user_id", "bilbo" );
+        userMap.put( "email", "bilbo@lordoftherings.org" );
+        userMap.put( "full_name", "Bilbo Beutlin" );
+        userMap.put( "validated", true );
+        userMap.put( "password", "pAssw0rD" );
+        userMap.put( "confirm_password", "pAssw0rD" );
+        given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
+            .body( userMap )
+            .when( )
+            .post( )
+            .then( ).statusCode( 201 );
+        try {
+            Map<String, String> passwordChange = new HashMap<>( );
+            passwordChange.put( "user_id", "bilbo" );
+            passwordChange.put( "current_password", "pAssw0rD" );
+            passwordChange.put( "new_password", "pAsXXXw4Qz66D" );
+            passwordChange.put( "new_password_confirmation", "pAsXXXw4Qz66D" );
+            String userToken = getUserToken( "bilbo", "pAssw0rD" );
+            assertFalse( StringUtils.isEmpty( userToken ) );
+            given( ).spec( getRequestSpec(  ) ).contentType( JSON )
+                .body( passwordChange )
+                .when( )
+                .post( "bilbo/password/update" )
+                .then( ).statusCode( 200 );
+            userToken = getUserToken( "bilbo", "pAsXXXw4Qz66D" );
+            assertFalse( StringUtils.isEmpty( userToken ) );
+
+        } finally {
             given( ).spec( getRequestSpec( adminToken ) ).contentType( JSON )
                 .delete( "bilbo" )
                 .then( ).statusCode( 200 );

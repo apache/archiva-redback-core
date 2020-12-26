@@ -38,19 +38,20 @@ import org.apache.archiva.redback.policy.AccountLockedException;
 import org.apache.archiva.redback.policy.MustChangePasswordException;
 import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.apache.archiva.redback.policy.PasswordRuleViolationException;
+import org.apache.archiva.redback.policy.PasswordRuleViolations;
 import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.rbac.UserAssignment;
 import org.apache.archiva.redback.rest.api.MessageKeys;
-import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.v2.Application;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.v2.BaseRoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.Operation;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
+import org.apache.archiva.redback.rest.api.model.v2.PasswordChange;
 import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.v2.RegistrationKey;
@@ -95,7 +96,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -103,7 +103,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -503,7 +502,7 @@ public class DefaultUserService extends BaseRedbackService
     }
 
     @Override
-    public ActionStatus removeFromCache( String userId )
+    public Response removeFromCache( String userId )
         throws RedbackServiceException
     {
         if ( userAssignmentsCache != null )
@@ -529,7 +528,7 @@ public class DefaultUserService extends BaseRedbackService
             }
         }
 
-        return ActionStatus.SUCCESS;
+        return Response.ok( ).build( );
     }
 
     @Override
@@ -620,7 +619,7 @@ public class DefaultUserService extends BaseRedbackService
     }
 
     @Override
-    public ActionStatus resetPassword( String userId )
+    public Response resetPassword( String userId )
         throws RedbackServiceException
     {
         String username = userId;
@@ -660,7 +659,7 @@ public class DefaultUserService extends BaseRedbackService
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USERMANAGER_FAIL, e.getMessage( ) ), 400 );
         }
 
-        return ActionStatus.SUCCESS;
+        return Response.ok( ).build( );
     }
 
     @Override
@@ -697,7 +696,7 @@ public class DefaultUserService extends BaseRedbackService
             if ( userManager.userExists( user.getUserId( ) ) )
             {
                 throw new RedbackServiceException(
-                    new ErrorMessage( "user.already.exists", new String[]{user.getUserId( )} ) );
+                    ErrorMessage.of( MessageKeys.ERR_USER_EXISTS, user.getUserId() ));
             }
 
             u = userManager.createUser( user.getUserId( ), user.getFullName( ), user.getEmail( ) );
@@ -971,6 +970,104 @@ public class DefaultUserService extends BaseRedbackService
         {
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_RBACMANAGER_FAIL, e.getMessage( ) ) );
         }
+    }
+
+    @Override
+    public Response changePasswordUnauthenticated( String userId, PasswordChange passwordChange ) throws RedbackServiceException
+    {
+        changeUserPassword( userId, passwordChange );
+        return Response.ok( ).build( );
+    }
+
+    @Override
+    public Response changePassword( PasswordChange passwordChange ) throws RedbackServiceException
+    {
+        RedbackPrincipal principal = getPrincipal( );
+        if ( principal == null )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_AUTH_UNAUTHORIZED_REQUEST ), 401 );
+        }
+        String userId = principal.getUser( ).getUsername( );
+        changeUserPassword( userId, passwordChange );
+        return Response.ok( ).build( );
+    }
+
+    private List<ErrorMessage> getPasswordViolationMessages( PasswordRuleViolationException e )
+    {
+        PasswordRuleViolations violations = e.getViolations( );
+        List<ErrorMessage> errorMessages = new ArrayList<>( violations.getViolations( ).size( ) );
+        if ( violations != null )
+        {
+            for ( String violation : violations.getLocalizedViolations( ) )
+            {
+                errorMessages.add( new ErrorMessage( violation ) );
+            }
+        }
+        return errorMessages;
+    }
+
+    private void changeUserPassword(final String userId, final PasswordChange passwordChange) throws RedbackServiceException
+    {
+        if ( StringUtils.isEmpty( passwordChange.getCurrentPassword() ) )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_PASSWORDCHANGE_CURRENT_EMPTY ), 400 );
+        }
+        if ( passwordChange.getUserId( ) == null || ( !passwordChange.getUserId( ).equals( userId ) ) )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USER_ID_INVALID ), 403 );
+        }
+
+        if ( StringUtils.isEmpty( passwordChange.getNewPassword() ) )
+        {
+            throw new RedbackServiceException( ErrorMessage.of(MessageKeys.ERR_PASSWORDCHANGE_NEW_EMPTY), 400 );
+        }
+        if ( StringUtils.isEmpty( passwordChange.getNewPasswordConfirmation() ) )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_PASSWORDCHANGE_CONFIRMATION_EMPTY ),
+                400 );
+        }
+        if ( !StringUtils.equals( passwordChange.getNewPassword(), passwordChange.getNewPasswordConfirmation() ) )
+        {
+            throw new RedbackServiceException(ErrorMessage.of( MessageKeys.ERR_PASSWORDCHANGE_BAD_CONFIRMATION ),
+                403 );
+        }
+
+        try
+        {
+            org.apache.archiva.redback.users.User u = securitySystem.getUserManager().findUser( userId );
+
+            String previousEncodedPassword = u.getEncodedPassword();
+
+            // check oldPassword with the current one
+
+            PasswordEncoder encoder = securitySystem.getPolicy().getPasswordEncoder();
+
+            if ( !encoder.isPasswordValid( previousEncodedPassword, passwordChange.getCurrentPassword() ) )
+            {
+
+                throw new RedbackServiceException( MessageKeys.ERR_AUTH_INVALID_CREDENTIALS,
+                    401 );
+            }
+
+            u.setPassword( passwordChange.getNewPassword() );
+            securitySystem.getUserManager().updateUser( u );
+        }
+        catch ( UserNotFoundException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USER_NOT_FOUND ),
+                400 );
+        }
+        catch ( UserManagerException e )
+        {
+            log.info( "UserManagerException: {}", e.getMessage() );
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_USERMANAGER_FAIL, e.getMessage() ) );
+        }
+        catch ( PasswordRuleViolationException e )
+        {
+            throw new RedbackServiceException( getPasswordViolationMessages( e ), 401 );
+        }
+
+
     }
 
     private Stream<Role> flattenRole( Role role )

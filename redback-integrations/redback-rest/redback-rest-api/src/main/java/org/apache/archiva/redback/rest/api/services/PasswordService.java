@@ -28,9 +28,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 /**
+ * @deprecated Use the new V2 password service {@link org.apache.archiva.redback.rest.api.services.v2.PasswordService}
  * @author Olivier Lamy
  * @since 1.4
  */
+@Deprecated
 @Path( "/passwordService/" )
 public interface PasswordService
 {

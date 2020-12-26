@@ -65,9 +65,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * @deprecated Use the new V2 version {@link org.apache.archiva.redback.rest.services.v2.DefaultRoleService}
  * @author Olivier Lamy
  * @since 1.3
  */
+@Deprecated
 @Service("roleManagementService#rest")
 public class DefaultRoleManagementService
     implements RoleManagementService

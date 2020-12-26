@@ -43,6 +43,14 @@ public interface MessageKeys
     String ERR_USER_NOT_FOUND = "rb.user.not_found";
     String ERR_USER_BAD_PASSWORD = "rb.user.bad.password";
     String ERR_PASSWORD_VIOLATION = "rb.user.password_violation";
+    String ERR_PASSWORDCHANGE_CURRENT_EMPTY = "rb.user.passwordchange.current_empty";
+    String ERR_PASSWORDCHANGE_KEY_EMPTY = "rb.user.passwordchange.key_empty";
+    String ERR_PASSWORDCHANGE_NEW_EMPTY = "rb.user.passwordchange.new_empty";
+    String ERR_PASSWORDCHANGE_CONFIRMATION_EMPTY = "rb.user.passwordchange.confirmation_empty";
+    String ERR_PASSWORDCHANGE_BAD_CONFIRMATION = "rb.user.passwordchange.bad_confirmation";
+    String ERR_PASSWORDCHANGE_BAD_KEY = "rb.user.passwordchange.bad_key";
+    String ERR_PASSWORDCHANGE_USER_NOT_FOUND = "rb.user.passwordchange.bad_key";
+
 
     String ERR_LDAP_GENERIC = "rb.ldap.error";
     String ERR_ROLE_MAPPING = "rb.role.mapping.error";

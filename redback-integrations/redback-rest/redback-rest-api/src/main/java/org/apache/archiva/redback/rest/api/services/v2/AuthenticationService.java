@@ -31,7 +31,6 @@ import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRefreshRequest;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
 import org.apache.archiva.redback.rest.api.model.v2.TokenResponse;
-import org.apache.archiva.redback.rest.api.model.User;
 import org.apache.archiva.redback.rest.api.model.v2.UserInfo;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 
@@ -45,8 +44,9 @@ import javax.ws.rs.core.MediaType;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
- * Version 2 of authentication service
+ * Authentication service
  *
+ * @author Martin Stockhammer
  * @since 3.0
  */
 @Path( "/auth" )

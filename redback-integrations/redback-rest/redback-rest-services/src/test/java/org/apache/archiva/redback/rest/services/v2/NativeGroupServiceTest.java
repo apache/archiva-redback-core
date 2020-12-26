@@ -19,11 +19,10 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import io.restassured.filter.log.UrlDecoder;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.rest.api.Constants;
-import org.apache.archiva.redback.rest.api.model.Group;
+import org.apache.archiva.redback.rest.api.model.v2.Group;
 import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.services.BaseSetup;
 import org.apache.archiva.redback.rest.services.LdapInfo;
@@ -32,7 +31,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -399,7 +397,6 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
                 .post( "/mappings" )
                 .then( ).statusCode( 201 ).extract( ).response( );
             assertNotNull( response );
-            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
             assertNotNull( response.getHeader( "Location" ) );
 
             assertTrue( UrlDecoder.urlDecode( response.getHeader( "Location" ), Charset.forName( "UTF-8" ), false ).endsWith( "/mappings/ldap group" ) );
@@ -426,7 +423,6 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
                 .post( "/mappings" )
                 .then( ).statusCode( 201 ).extract( ).response( );
             assertNotNull( response );
-            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
             response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .get( "/mappings" )
@@ -480,7 +476,6 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
                 .put( "/mappings/archiva-admin" )
                 .then( )
                 .statusCode( 200 ).extract( ).response( );
-            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
         } finally {
             // Put it back
             List<String> list = Arrays.asList( "System Administrator" );
@@ -506,7 +501,6 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
                 .put( "/mappings/archiva-admin" )
                 .then( )
                 .statusCode( 200 ).extract( ).response( );
-            assertTrue( response.getBody( ).jsonPath( ).getBoolean( "success" ) );
 
             response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )

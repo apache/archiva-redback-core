@@ -47,9 +47,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * @deprecated Use the new V2 version {@link org.apache.archiva.redback.rest.services.v2.DefaultAuthenticationService}
  * @author Olivier Lamy
  * @since 1.4
  */
+@Deprecated
 @Service("passwordService#rest")
 public class DefaultPasswordService
     implements PasswordService

@@ -34,9 +34,11 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * @deprecated There is no replacement
  * @author Olivier Lamy
  * @since 1.4
  */
+@Deprecated
 @Service( "utilServices#rest" )
 public class DefaultUtilServices
     implements UtilServices

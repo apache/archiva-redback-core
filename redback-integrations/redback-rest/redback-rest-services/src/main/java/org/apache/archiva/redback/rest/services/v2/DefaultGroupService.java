@@ -27,9 +27,8 @@ import org.apache.archiva.redback.common.ldap.role.LdapGroup;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapper;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapperConfiguration;
 import org.apache.archiva.redback.rest.api.MessageKeys;
-import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
-import org.apache.archiva.redback.rest.api.model.Group;
+import org.apache.archiva.redback.rest.api.model.v2.Group;
 import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
@@ -182,7 +181,7 @@ public class DefaultGroupService
     }
 
     @Override
-    public ActionStatus addGroupMapping( GroupMapping ldapGroupMapping, UriInfo uriInfo)
+    public Response addGroupMapping( GroupMapping ldapGroupMapping, UriInfo uriInfo)
         throws RedbackServiceException
     {
         try
@@ -194,13 +193,13 @@ public class DefaultGroupService
             {
                 response.setHeader( "Location", uriInfo.getAbsolutePathBuilder( ).path( ldapGroupMapping.getGroupName( ) ).build( ).toString( ) );
             }
+            return Response.status( 201 ).build( );
         }
         catch ( MappingException e )
         {
             log.error( e.getMessage(), e );
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_MAPPING, e.getMessage( ) ) );
         }
-        return ActionStatus.SUCCESS;
     }
 
     @Override
@@ -220,7 +219,7 @@ public class DefaultGroupService
     }
 
     @Override
-    public ActionStatus updateGroupMapping( String groupName, List<String> roles ) throws RedbackServiceException
+    public Response updateGroupMapping( String groupName, List<String> roles ) throws RedbackServiceException
     {
         try
         {
@@ -234,7 +233,7 @@ public class DefaultGroupService
         {
             ldapRoleMapperConfiguration.updateLdapMapping( groupName,
                 roles );
-            return ActionStatus.SUCCESS;
+            return Response.ok( ).build( );
         }
         catch ( MappingException e )
         {

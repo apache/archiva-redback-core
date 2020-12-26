@@ -29,7 +29,7 @@ import org.apache.archiva.redback.authorization.RedbackAuthorization;
 import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants;
 import org.apache.archiva.redback.rest.api.Constants;
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
-import org.apache.archiva.redback.rest.api.model.Group;
+import org.apache.archiva.redback.rest.api.model.v2.Group;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
@@ -46,12 +46,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 /**
  * @author Olivier Lamy
- * @since 2.1
+ * @author Martin Stockhammer
+ * @since 3.0
  */
 @Path( "/groups" )
 @Tag(name = "v2")
@@ -103,7 +105,7 @@ public interface GroupService
             @ApiResponse( responseCode = "405", description = "Invalid input" )
         }
     )
-    ActionStatus addGroupMapping( @Parameter( description = "The data of the group mapping", required = true )
+    Response addGroupMapping( @Parameter( description = "The data of the group mapping", required = true )
                                       GroupMapping groupMapping, @Context UriInfo uriInfo )
         throws RedbackServiceException;
 
@@ -129,11 +131,11 @@ public interface GroupService
     @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
     @Operation( summary = "Updates a group mapping",
         responses = {
-            @ApiResponse( description = "If the update was successful" ),
+            @ApiResponse( responseCode = "200", description = "If the update was successful" ),
             @ApiResponse( responseCode = "404", description = "Group mapping not found" )
         }
     )
-    ActionStatus updateGroupMapping( @Parameter( description = "The group name", required = true )
+    Response updateGroupMapping( @Parameter( description = "The group name", required = true )
                                          @PathParam( "group" ) String groupName,
                                      @Parameter( description = "The updated role list of the group mapping", required = true )
                                          List<String> roles )

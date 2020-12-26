@@ -33,6 +33,7 @@ import org.apache.archiva.redback.integration.security.role.RedbackRoleConstants
 import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.Application;
 import org.apache.archiva.redback.rest.api.model.RedbackRestError;
+import org.apache.archiva.redback.rest.api.model.v2.PasswordChange;
 import org.apache.archiva.redback.rest.api.model.v2.RoleTree;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
@@ -58,6 +59,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.List;
 
@@ -65,6 +67,9 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
 import static org.apache.archiva.redback.users.UserManager.GUEST_USERNAME;
 
+/**
+ * Service interface for user management
+ */
 @Path( "/users" )
 @Tag(name = "v2")
 @Tag(name = "v2/Users")
@@ -426,7 +431,7 @@ public interface UserService
                 content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  )
         }
     )
-    ActionStatus removeFromCache( @PathParam( "userId" ) String userId )
+    Response removeFromCache( @PathParam( "userId" ) String userId )
         throws RedbackServiceException;
 
     /**
@@ -469,7 +474,7 @@ public interface UserService
                 content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
         }
     )
-    ActionStatus resetPassword( @PathParam( "userId" )String userId )
+    Response resetPassword( @PathParam( "userId" )String userId )
         throws RedbackServiceException;
 
     /**
@@ -652,5 +657,45 @@ public interface UserService
     )
     RoleTree getRoleTree( @PathParam( "userId" ) String username )
         throws RedbackServiceException;
+
+
+    @Path( "me/password/update" )
+    @POST
+    @Consumes({APPLICATION_JSON})
+    @RedbackAuthorization( noRestriction = true, noPermission = true )
+    @Operation( summary = "Changes a user password",
+        security = {
+            @SecurityRequirement( name = "Authenticated" )
+        },
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "The password change was successful"
+            ),
+            @ApiResponse( responseCode = "401", description = "User is not logged in",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
+            @ApiResponse( responseCode = "400", description = "Provided data is not valid",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
+            @ApiResponse( responseCode = "403", description = "If the given user_id does not match",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  )
+        }
+    )
+    Response changePassword( PasswordChange passwordChange ) throws RedbackServiceException;
+
+    @Path( "{userId}/password/update" )
+    @POST
+    @Consumes({APPLICATION_JSON})
+    @RedbackAuthorization( noRestriction = true, noPermission = true )
+    @Operation( summary = "Changes a user password",
+        responses = {
+            @ApiResponse( responseCode = "200",
+                description = "The password change was successful"
+            ),
+            @ApiResponse( responseCode = "400", description = "Provided data is not valid",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  ),
+            @ApiResponse( responseCode = "403", description = "If the given user_id does not match",
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = RedbackRestError.class ))  )
+        }
+    )
+    Response changePasswordUnauthenticated( @PathParam( "userId" ) String userId,  PasswordChange passwordChange ) throws RedbackServiceException;
 
 }
