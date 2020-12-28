@@ -998,9 +998,9 @@ public class DefaultUserService extends BaseRedbackService
         List<ErrorMessage> errorMessages = new ArrayList<>( violations.getViolations( ).size( ) );
         if ( violations != null )
         {
-            for ( String violation : violations.getLocalizedViolations( ) )
+            for ( PasswordRuleViolations.MessageReference violation : violations.getViolations() )
             {
-                errorMessages.add( new ErrorMessage( violation ) );
+                errorMessages.add( new ErrorMessage( violation.getKey(), violation.getArgs() ) );
             }
         }
         return errorMessages;
