@@ -57,9 +57,6 @@ public enum GrantType
     @Override
     public String toString( )
     {
-        final StringBuilder sb = new StringBuilder( "GrantType{" );
-        sb.append( "label='" ).append( label ).append( '\'' );
-        sb.append( '}' );
-        return sb.toString( );
+        return this.label;
     }
 }
