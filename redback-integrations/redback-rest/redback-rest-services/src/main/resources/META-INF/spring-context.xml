@@ -61,9 +61,12 @@
 
 
   <!-- CXF OpenApiFeature -->
-  <bean id="openApiFeature" class="org.apache.cxf.jaxrs.openapi.OpenApiFeature">
-    <property name="scanKnownConfigLocations" value="true"/>
-    <!-- customize some of the properties -->
+  <bean id="redbackOpenApiFeature" class="org.apache.cxf.jaxrs.openapi.OpenApiFeature">
+    <property name="scanKnownConfigLocations" value="false"/>
+    <property name="configLocation" value="redback/openapi-configuration.yaml"/>
+    <property name="scan" value="false"/>
+    <property name="useContextBasedConfig" value="true"/>
+    <!-- <property name="scannerClass" value="io.swagger.v3.jaxrs2.integration.JaxrsApplicationScanner"/> -->
   </bean>
 
   <jaxrs:server name="redbackServices" address="/redbackServices">
@@ -89,7 +92,7 @@
     </jaxrs:providers>
    </jaxrs:server>
 
-  <jaxrs:server address="/v2/redback">
+  <jaxrs:server name="v2.redback" address="/v2/redback">
     <jaxrs:serviceBeans>
       <ref bean="v2.userService#rest"/>
       <ref bean="v2.authenticationService#rest"/>
@@ -109,7 +112,7 @@
       <ref bean="threadLocalUserCleaner#rest"/>
     </jaxrs:providers>
     <jaxrs:features>
-      <ref bean="openApiFeature" />
+      <ref bean="redbackOpenApiFeature" />
     </jaxrs:features>
   </jaxrs:server>
 
