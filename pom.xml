@@ -342,6 +342,11 @@
         <version>${commons.logging.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.archiva.components</groupId>
+        <artifactId>archiva-components-rest-util</artifactId>
+        <version>${archiva.comp.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.archiva.components.cache</groupId>
         <artifactId>archiva-components-spring-cache-api</artifactId>
         <version>${archiva.comp.version}</version>

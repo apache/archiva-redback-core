@@ -19,10 +19,10 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
-import org.apache.archiva.redback.rest.api.model.GrantType;
+import org.apache.archiva.components.rest.model.PagedResult;
+import org.apache.archiva.redback.rest.api.model.v2.GrantType;
 import org.apache.archiva.redback.rest.api.model.v2.Operation;
 import org.apache.archiva.redback.rest.api.model.v2.SelfUserData;
-import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
 import org.apache.archiva.redback.rest.api.model.v2.TokenRequest;
@@ -124,7 +124,7 @@ public class UserServiceTest
     {
         String adminHeader = getAdminAuthzHeader( );
         UserService userService = getUserService( adminHeader );
-        PagedResult<org.apache.archiva.redback.rest.api.model.v2.UserInfo> users = userService.getUsers( "", 0, Integer.MAX_VALUE, Collections.emptyList(), "asc" );
+        PagedResult<UserInfo> users = userService.getUsers( "", 0, Integer.MAX_VALUE, Collections.emptyList(), "asc" );
         assertNotNull( users );
         assertFalse( users.getData().isEmpty( ) );
     }

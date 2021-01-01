@@ -18,6 +18,7 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
+import org.apache.archiva.components.rest.model.PagedResult;
 import org.apache.archiva.redback.common.ldap.MappingException;
 import org.apache.archiva.redback.common.ldap.ObjectNotFoundException;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnection;
@@ -30,7 +31,6 @@ import org.apache.archiva.redback.rest.api.MessageKeys;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.v2.Group;
 import org.apache.archiva.redback.rest.api.model.v2.GroupMapping;
-import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.services.RedbackServiceException;
 import org.apache.archiva.redback.rest.api.services.v2.GroupService;
 import org.slf4j.Logger;

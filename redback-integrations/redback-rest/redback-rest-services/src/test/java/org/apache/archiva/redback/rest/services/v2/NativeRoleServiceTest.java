@@ -19,10 +19,8 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import io.restassured.response.Response;
-import io.restassured.response.ResponseBodyExtractionOptions;
-import org.apache.archiva.redback.rest.api.model.User;
+import org.apache.archiva.components.rest.model.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.BaseUserInfo;
-import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.RoleTemplate;
@@ -44,7 +42,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;

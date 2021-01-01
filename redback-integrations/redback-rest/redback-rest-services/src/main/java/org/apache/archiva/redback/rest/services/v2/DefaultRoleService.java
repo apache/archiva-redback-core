@@ -18,13 +18,14 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
+import org.apache.archiva.components.rest.model.PagedResult;
+import org.apache.archiva.components.rest.util.QueryHelper;
+import org.apache.archiva.components.rest.util.RestUtil;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.RbacObjectNotFoundException;
 import org.apache.archiva.redback.rest.api.MessageKeys;
-import org.apache.archiva.redback.rest.api.Util;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
-import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.Role;
 import org.apache.archiva.redback.rest.api.model.v2.RoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.RoleTemplate;
@@ -432,7 +433,7 @@ public class DefaultRoleService extends BaseRedbackService
                                                String searchTerm, Integer offset, Integer limit, List<String> orderBy, String order )  throws RedbackServiceException
     {
         boolean ascending = isAscending( order );
-        boolean recursePresent = Util.isFlagSet( uriInfo, "recurse" );
+        boolean recursePresent = RestUtil.isFlagSet( uriInfo, "recurse" );
         boolean parentsOnly = "parentsOnly".equals( recurse );
         try
         {
@@ -454,7 +455,7 @@ public class DefaultRoleService extends BaseRedbackService
     public PagedResult<UserInfo> getUnassignedUsers( String roleId, String recurse, String searchTerm, Integer offset, Integer limit, List<String> orderBy, String order ) throws RedbackServiceException
     {
         boolean ascending = isAscending( order );
-        boolean recursePresent = Util.isFlagSet( uriInfo, "recurse" );
+        boolean recursePresent = RestUtil.isFlagSet( uriInfo, "recurse" );
         boolean parentsOnly = "parentsOnly".equals( recurse );
         try
         {

@@ -32,7 +32,8 @@
 
   <properties>
     <site.staging.base>${project.parent.parent.parent.basedir}</site.staging.base>
-    <enunciate.docsDir>${project.build.outputDirectory}/rest-docs-redback-rest-api</enunciate.docsDir>
+    <openapi.config.file>${project.basedir}/src/main/resources/redback/openapi-configuration.yaml</openapi.config.file>
+    <openapi.prefix>redback</openapi.prefix>
   </properties>
 
   <dependencies>
@@ -52,7 +53,10 @@
       <groupId>org.apache.archiva.redback</groupId>
       <artifactId>redback-rbac-model</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.archiva.components</groupId>
+      <artifactId>archiva-components-rest-util</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>jakarta.ws.rs</groupId>

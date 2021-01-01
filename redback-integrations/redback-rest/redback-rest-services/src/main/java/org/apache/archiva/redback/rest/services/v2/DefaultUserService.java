@@ -21,6 +21,7 @@ package org.apache.archiva.redback.rest.services.v2;
 
 import net.sf.ehcache.CacheManager;
 import org.apache.archiva.components.cache.Cache;
+import org.apache.archiva.components.rest.model.PagedResult;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.Token;
 import org.apache.archiva.redback.authentication.TokenBasedAuthenticationDataSource;
@@ -50,7 +51,6 @@ import org.apache.archiva.redback.rest.api.model.v2.Application;
 import org.apache.archiva.redback.rest.api.model.v2.AvailabilityStatus;
 import org.apache.archiva.redback.rest.api.model.v2.BaseRoleInfo;
 import org.apache.archiva.redback.rest.api.model.v2.Operation;
-import org.apache.archiva.redback.rest.api.model.v2.PagedResult;
 import org.apache.archiva.redback.rest.api.model.v2.PasswordChange;
 import org.apache.archiva.redback.rest.api.model.v2.Permission;
 import org.apache.archiva.redback.rest.api.model.v2.PingResult;
