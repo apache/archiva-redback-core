@@ -112,7 +112,7 @@ public interface UserService
             @Parameter(name = "q", description = "Search term"),
             @Parameter(name = "offset", description = "The offset of the first element returned"),
             @Parameter(name = "limit", description = "Maximum number of items to return in the response"),
-            @Parameter(name = "orderBy", description = "List of attribute used for sorting (user_id, fullName, email, created"),
+            @Parameter(name = "orderBy", description = "List of attribute used for sorting (user_id, fullName, email, created)"),
             @Parameter(name = "order", description = "The sort order. Either ascending (asc) or descending (desc)")
         },
         security = {
