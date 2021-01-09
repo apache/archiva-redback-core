@@ -346,7 +346,7 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
     {
         String token = getAdminToken( );
         Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
-            .when( ).get( "archiva-system-administrator" ).prettyPeek( ).then( ).statusCode( 200 ).extract( ).response( );
+            .when( ).get( "archiva-system-administrator" ).then( ).statusCode( 200 ).extract( ).response( );
         assertNotNull( response );
         RoleInfo roleInfo = response.getBody( ).jsonPath( ).getObject( "", RoleInfo.class );
         assertNotNull( roleInfo );
@@ -539,7 +539,6 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             Response result = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .get( "archiva-global-repository-observer/unassigned" )
-                .prettyPeek()
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull(result);
             PagedResult<UserInfo> userResult = result.getBody( ).jsonPath( ).getObject( "", PagedResult.class );
@@ -583,7 +582,6 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .when( )
                 .param( "recurse")
                 .get( "archiva-global-repository-observer/user" )
-                .prettyPeek()
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull(result);
             PagedResult<UserInfo> userResult = result.getBody( ).jsonPath( ).getObject( "", PagedResult.class );
@@ -626,7 +624,6 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .when( )
                 .param( "recurse" )
                 .get( "archiva-global-repository-observer/unassigned" )
-                .prettyPeek()
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull(result);
             PagedResult<UserInfo> userResult = result.getBody( ).jsonPath( ).getObject( "", PagedResult.class );
@@ -670,7 +667,6 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .when( )
                 .param( "recurse","parentsOnly")
                 .get( "archiva-global-repository-observer/user" )
-                .prettyPeek()
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull(result);
             PagedResult<UserInfo> userResult = result.getBody( ).jsonPath( ).getObject( "", PagedResult.class );

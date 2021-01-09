@@ -449,7 +449,7 @@ public class DefaultUserService extends BaseRedbackService
         throws RedbackServiceException
     {
         RedbackPrincipal principal = getPrincipal( );
-        if ( principal == null )
+        if ( principal == null || principal.getUser()==null )
         {
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_AUTH_UNAUTHORIZED_REQUEST ), 401 );
         }
