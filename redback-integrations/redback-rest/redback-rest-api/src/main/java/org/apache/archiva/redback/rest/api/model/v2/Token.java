@@ -18,6 +18,7 @@ package org.apache.archiva.redback.rest.api.model.v2;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -76,6 +77,7 @@ public class Token
         return token;
     }
 
+    @Schema(description = "The key stored in this token.")
     public String getKey( )
     {
         return key;
@@ -86,6 +88,7 @@ public class Token
         this.key = key;
     }
 
+    @Schema(description = "Time, when the token was created")
     public OffsetDateTime getCreated( )
     {
         return created;
@@ -100,6 +103,8 @@ public class Token
     {
         this.created = created;
     }
+
+    @Schema(description = "Time, when the token expires.")
     public OffsetDateTime getExpires( )
     {
         return expires;
@@ -115,6 +120,7 @@ public class Token
         this.expires = expires;
     }
 
+    @Schema(description = "The principal, this token identifies")
     public String getPrincipal( )
     {
         return principal;
@@ -125,6 +131,7 @@ public class Token
         this.principal = principal;
     }
 
+    @Schema(description = "The purpose of this token")
     public String getPurpose( )
     {
         return purpose;

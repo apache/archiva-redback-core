@@ -18,6 +18,8 @@ package org.apache.archiva.redback.rest.api.model.v2;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
@@ -26,6 +28,7 @@ import java.io.Serializable;
  * @since 2.0
  */
 @XmlRootElement( name = "userRegistrationRequest" )
+@Schema(name="UserRegistrationRequest",description = "Registration request for a new user.")
 public class UserRegistrationRequest
     implements Serializable
 {
@@ -45,6 +48,7 @@ public class UserRegistrationRequest
         this.applicationUrl = applicationUrl;
     }
 
+    @Schema(name="user", description = "Information about the new user that wants to be registered.")
     public User getUser()
     {
         return user;
@@ -55,6 +59,7 @@ public class UserRegistrationRequest
         this.user = user;
     }
 
+    @Schema(name="application_url",description = "The URL of the application, used to verify the request.")
     public String getApplicationUrl()
     {
         return applicationUrl;

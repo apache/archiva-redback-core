@@ -60,7 +60,7 @@ public class Group implements Serializable
         this.name = name;
     }
 
-    @Schema(description = "The unique name of the group. Depends on the backend repository, e.g. the LDAP DN.")
+    @Schema(name="unique_name", description = "The unique name of the group. Depends on the backend repository, e.g. the LDAP DN.")
     public String getUniqueName( )
     {
         return uniqueName;
@@ -82,7 +82,7 @@ public class Group implements Serializable
         this.description = description;
     }
 
-    @Schema(description = "The list of members. The format of the member strings depends on the backend repository, e.g. for LDAP these may be the member DNs")
+    @Schema(name="member_list", description = "The list of members. The format of the member strings depends on the backend repository, e.g. for LDAP these may be the member DNs")
     public List<String> getMemberList( )
     {
         return memberList;

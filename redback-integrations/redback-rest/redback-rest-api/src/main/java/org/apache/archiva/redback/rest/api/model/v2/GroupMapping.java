@@ -49,7 +49,7 @@ public class GroupMapping implements Serializable
         this.roles = roles;
     }
 
-    @Schema(description = "The name of the mapped group")
+    @Schema(name="group_name", description = "The name of the mapped group")
     public String getGroupName( )
     {
         return groupName;
@@ -60,7 +60,7 @@ public class GroupMapping implements Serializable
         this.groupName = groupName;
     }
 
-    @Schema(description = "The unique name of the mapped group. Dependent on the used repository backend.")
+    @Schema(name="unique_group_name", description = "The unique name of the mapped group. Dependent on the used repository backend.")
     public String getUniqueGroupName( )
     {
         return uniqueGroupName;
@@ -71,7 +71,7 @@ public class GroupMapping implements Serializable
         this.uniqueGroupName = uniqueGroupName;
     }
 
-    @Schema(description = "The list of role names mapped to this group")
+    @Schema(description = "The list of role ids mapped to this group")
     public List<String> getRoles( )
     {
         return roles;

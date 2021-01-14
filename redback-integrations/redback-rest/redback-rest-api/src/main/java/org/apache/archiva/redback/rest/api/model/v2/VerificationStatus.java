@@ -51,7 +51,7 @@ public class VerificationStatus
         this.success = success;
     }
 
-    @Schema(name="accessToken", description = "The access token that is used for registration")
+    @Schema(name="access_token", description = "The access token that is used for registration")
     public String getAccessToken( )
     {
         return accessToken;

@@ -128,7 +128,7 @@ public class BaseRoleInfo implements Serializable
         this.id = id;
     }
 
-    @Schema(description = "The model this role is derived from")
+    @Schema(name="model_id", description = "The model this role is derived from")
     public String getModelId( )
     {
         return modelId;
@@ -150,7 +150,7 @@ public class BaseRoleInfo implements Serializable
         this.resource = resource;
     }
 
-    @Schema(description = "True, if this is a instance of a role template")
+    @Schema(name="template_instance", description = "True, if this is a instance of a role template")
     public boolean isTemplateInstance( )
     {
         return isTemplateInstance;
@@ -223,7 +223,7 @@ public class BaseRoleInfo implements Serializable
         return sb.toString( );
     }
 
-    @Schema(description = "Application id, where this role belongs to. This is only filled by certain REST methods.")
+    @Schema(name="application_id", description = "Application id, where this role belongs to. This is only filled by certain REST methods.")
     public String getApplicationId( )
     {
         return applicationId;

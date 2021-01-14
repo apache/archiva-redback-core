@@ -120,7 +120,7 @@ public class UserInfo extends BaseUserInfo
     }
 
 
-    @Schema( description = "The full name of the user" )
+    @Schema( name="full_name", description = "The full name of the user" )
     public String getFullName( )
     {
         return fullName;
@@ -164,7 +164,7 @@ public class UserInfo extends BaseUserInfo
         this.locked = isLocked;
     }
 
-    @Schema( description = "True, if user has to change his password" )
+    @Schema( name="password_change_required", description = "True, if user has to change his password" )
     public boolean isPasswordChangeRequired( )
     {
         return passwordChangeRequired;
@@ -186,7 +186,7 @@ public class UserInfo extends BaseUserInfo
         this.permanent = permanent;
     }
 
-    @Schema(description = "The date and time, when the account was first created.")
+    @Schema(name="timestamp_account_creation", description = "The date and time, when the account was first created.")
     public OffsetDateTime getTimestampAccountCreation()
     {
         return timestampAccountCreation;
@@ -202,7 +202,7 @@ public class UserInfo extends BaseUserInfo
         this.timestampAccountCreation = OffsetDateTime.ofInstant( timestampAccountCreation, ZoneId.systemDefault() );
     }
 
-    @Schema(description = "Date and time of the last successful login")
+    @Schema(name="timestamp_last_login", description = "Date and time of the last successful login")
     public OffsetDateTime getTimestampLastLogin()
     {
         return timestampLastLogin;
@@ -218,7 +218,7 @@ public class UserInfo extends BaseUserInfo
         this.timestampLastLogin = OffsetDateTime.ofInstant( timestampLastLogin, ZoneId.systemDefault( ) );
     }
 
-    @Schema(description = "Date and time of the last password change")
+    @Schema(name="timestamp_last_password_change", description = "Date and time of the last password change")
     public OffsetDateTime getTimestampLastPasswordChange()
     {
         return timestampLastPasswordChange;
@@ -234,7 +234,7 @@ public class UserInfo extends BaseUserInfo
         this.timestampLastPasswordChange = OffsetDateTime.ofInstant( timestampLastPasswordChange, ZoneId.systemDefault() );
     }
 
-    @Schema(description = "True, if this is user has readonly access")
+    @Schema(name="read_only", description = "True, if this is user has readonly access")
     public boolean isReadOnly()
     {
         return readOnly;
@@ -245,7 +245,7 @@ public class UserInfo extends BaseUserInfo
         this.readOnly = readOnly;
     }
 
-    @Schema( description = "Id of the usermanager, where this user is registered")
+    @Schema( name="user_manager_id", description = "Id of the usermanager, where this user is registered")
     public String getUserManagerId()
     {
         return userManagerId;
@@ -256,7 +256,7 @@ public class UserInfo extends BaseUserInfo
         this.userManagerId = userManagerId;
     }
 
-    @Schema( description = "Current validation token of this user")
+    @Schema( name="validation_token", description = "Current validation token of this user")
     public String getValidationToken() {
         return validationToken;
     }

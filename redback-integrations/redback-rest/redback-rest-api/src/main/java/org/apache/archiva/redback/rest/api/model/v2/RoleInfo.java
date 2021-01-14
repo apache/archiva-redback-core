@@ -82,7 +82,7 @@ public class RoleInfo extends BaseRoleInfo
         return super.getChildren( );
     }
 
-    @Schema( description = "List of names of children roles")
+    @Schema( name="child_role_ids", description = "List of names of children roles")
     public List<String> getChildRoleIds()
     {
         return childRoleIds;
@@ -104,7 +104,7 @@ public class RoleInfo extends BaseRoleInfo
         this.permissions = permissions;
     }
 
-    @Schema(description = "List of names of roles that are parents of this role.")
+    @Schema(name="parent_role_ids", description = "List of names of roles that are parents of this role.")
     public List<String> getParentRoleIds()
     {
         return parentRoleIds;

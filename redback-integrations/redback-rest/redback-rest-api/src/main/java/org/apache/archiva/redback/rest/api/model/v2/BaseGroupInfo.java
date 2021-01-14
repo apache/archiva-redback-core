@@ -45,7 +45,7 @@ public class BaseGroupInfo implements Serializable
         this.groupName = groupName;
     }
 
-    @Schema(description = "The name of the group")
+    @Schema(name="group_name", description = "The name of the group")
     public String getGroupName( )
     {
         return groupName;

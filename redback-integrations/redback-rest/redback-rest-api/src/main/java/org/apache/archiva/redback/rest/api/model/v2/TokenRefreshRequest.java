@@ -47,7 +47,7 @@ public class TokenRefreshRequest implements Serializable
     }
 
     @XmlElement( name = "grant_type", required = true)
-    @Schema(description = "The grant type for requesting the token. 'refresh_token' for token refresh")
+    @Schema(name="grant_type", description = "The grant type for requesting the token. 'refresh_token' for token refresh")
     public GrantType getGrantType( )
     {
         return grantType;
@@ -59,7 +59,7 @@ public class TokenRefreshRequest implements Serializable
     }
 
     @XmlElement( name = "refresh_token" )
-    @Schema(description = "The refresh token that is validated before generating the new access token")
+    @Schema(name="refresh_token", description = "The refresh token that is validated before generating the new access token")
     public String getRefreshToken( )
     {
         return refreshToken;

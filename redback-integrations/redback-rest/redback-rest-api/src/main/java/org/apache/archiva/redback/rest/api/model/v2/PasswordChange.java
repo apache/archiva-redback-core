@@ -38,7 +38,7 @@ public class PasswordChange implements Serializable
     String newPassword;
     String newPasswordConfirmation;
 
-    @Schema(description = "The current password of the logged in user, or a initial registration key")
+    @Schema(name="current_password", description = "The current password of the logged in user, or a initial registration key")
     public String getCurrentPassword( )
     {
         return currentPassword;
@@ -50,7 +50,7 @@ public class PasswordChange implements Serializable
     }
 
 
-    @Schema(description = "The User Id for the user to change the password. Must match the current logged in user.")
+    @Schema(name="user_id", description = "The User Id for the user to change the password. Must match the current logged in user.")
     public String getUserId( )
     {
         return userId;
@@ -61,7 +61,7 @@ public class PasswordChange implements Serializable
         this.userId = userId;
     }
 
-    @Schema(description = "The new password to set")
+    @Schema(name="new_password", description = "The new password to set")
     public String getNewPassword( )
     {
         return newPassword;
@@ -72,7 +72,7 @@ public class PasswordChange implements Serializable
         this.newPassword = newPassword;
     }
 
-    @Schema(description = "The new password to set as confirmation that it is typed correctly")
+    @Schema(name="new_password_confirmation", description = "The new password to set as confirmation that it is typed correctly")
     public String getNewPasswordConfirmation( )
     {
         return newPasswordConfirmation;

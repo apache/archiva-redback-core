@@ -138,7 +138,7 @@ public class User
         this.userId = userId;
     }
 
-    @Schema( description = "The full name of the user" )
+    @Schema( name="full_name", description = "The full name of the user" )
     public String getFullName( )
     {
         return fullName;
@@ -193,7 +193,7 @@ public class User
         this.password = password;
     }
 
-    @Schema(description = "True, if user has to change password")
+    @Schema(name="password_change_required", description = "True, if user has to change password")
     public boolean isPasswordChangeRequired()
     {
         return passwordChangeRequired;
@@ -204,6 +204,7 @@ public class User
         this.passwordChangeRequired = passwordChangeRequired;
     }
 
+    @Schema(name="confirm_password",description = "The password confirmation, must be identical to the password.")
     public String getConfirmPassword()
     {
         return confirmPassword;
@@ -214,6 +215,7 @@ public class User
         this.confirmPassword = confirmPassword;
     }
 
+    @Schema(name="timestamp_account_creation",description = "The time, when the account was created")
     public OffsetDateTime getTimestampAccountCreation()
     {
         return timestampAccountCreation;
@@ -229,6 +231,7 @@ public class User
         this.timestampAccountCreation = OffsetDateTime.ofInstant( timestampAccountCreation, ZoneId.systemDefault() );
     }
 
+    @Schema(name="timestamp_last_login",description = "The time of the last user login (password based login).")
     public OffsetDateTime getTimestampLastLogin()
     {
         return timestampLastLogin;
@@ -244,6 +247,7 @@ public class User
         this.timestampLastLogin = OffsetDateTime.ofInstant( timestampLastLogin, ZoneId.systemDefault( ) );
     }
 
+    @Schema(name="timestamp_last_password_change",description = "The time of the last password change of this account.")
     public OffsetDateTime getTimestampLastPasswordChange()
     {
         return timestampLastPasswordChange;
@@ -259,6 +263,7 @@ public class User
         this.timestampLastPasswordChange = OffsetDateTime.ofInstant( timestampLastPasswordChange, ZoneId.systemDefault() );
     }
 
+    @Schema(name="current_password",description = "The current password")
     public String getCurrentPassword()
     {
         return currentPassword;
@@ -269,6 +274,7 @@ public class User
         this.currentPassword = currentPassword;
     }
 
+    @Schema(name="assigned_roles",description = "List of role ids assigned to this user")
     public List<String> getAssignedRoles()
     {
         return assignedRoles;
@@ -279,6 +285,7 @@ public class User
         this.assignedRoles = assignedRoles;
     }
 
+    @Schema(name="validation_token",description = "The token for request validation.")
     public String getValidationToken() {
         return validationToken;
     }

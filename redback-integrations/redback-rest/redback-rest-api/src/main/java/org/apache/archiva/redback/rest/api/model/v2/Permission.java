@@ -111,6 +111,7 @@ public class Permission
         return sb.toString();
     }
 
+    @Schema(name="description_key",description = "The language key for the description")
     public String getDescriptionKey( )
     {
         return descriptionKey;

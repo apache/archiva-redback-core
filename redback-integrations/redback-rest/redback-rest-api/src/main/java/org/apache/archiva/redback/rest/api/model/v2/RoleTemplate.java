@@ -83,7 +83,7 @@ public class RoleTemplate implements Serializable
         this.description = description;
     }
 
-    @Schema(description = "Identifier of the application this template is part of")
+    @Schema(name="application_id", description = "Identifier of the application this template is part of")
     public String getApplicationId( )
     {
         return applicationId;

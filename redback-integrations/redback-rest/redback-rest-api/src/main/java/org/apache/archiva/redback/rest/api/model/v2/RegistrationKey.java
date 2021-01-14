@@ -18,6 +18,8 @@ package org.apache.archiva.redback.rest.api.model.v2;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
@@ -43,6 +45,7 @@ public class RegistrationKey
         this.emailValidationRequired = emailValidationRequired;
     }
 
+    @Schema(description = "The key sent after registration, which is used to verify")
     public String getKey()
     {
         return key;
@@ -53,6 +56,7 @@ public class RegistrationKey
         this.key = key;
     }
 
+    @Schema(name="email_validation_required",description = "If true, email validation is required for registration.")
     public boolean isEmailValidationRequired( )
     {
         return emailValidationRequired;

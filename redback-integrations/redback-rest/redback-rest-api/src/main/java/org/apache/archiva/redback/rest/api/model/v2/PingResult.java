@@ -53,7 +53,7 @@ public class PingResult
         this.success = success;
     }
 
-    @Schema( description = "The time, when the request arrived on the server" )
+    @Schema( name="request_time", description = "The time, when the request arrived on the server" )
     public OffsetDateTime getRequestTime( )
     {
         return requestTime;

@@ -19,6 +19,8 @@ package org.apache.archiva.redback.rest.api.model.v2;
  * under the License.
  */
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -33,6 +35,7 @@ public class SelfUserData
     private String password;
     private String currentPassword;
 
+    @Schema(name="email",description = "The email of the user.")
     public String getEmail( )
     {
         return email;
@@ -43,6 +46,7 @@ public class SelfUserData
         this.email = email;
     }
 
+    @Schema(name="full_name", description = "The full or display name of the user.")
     public String getFullName( )
     {
         return fullName;
@@ -53,6 +57,7 @@ public class SelfUserData
         this.fullName = fullName;
     }
 
+    @Schema(description = "New user password")
     public String getPassword( )
     {
         return password;
@@ -63,6 +68,7 @@ public class SelfUserData
         this.password = password;
     }
 
+    @Schema(name="current_password",description = "The current user password.")
     public String getCurrentPassword( )
     {
         return currentPassword;

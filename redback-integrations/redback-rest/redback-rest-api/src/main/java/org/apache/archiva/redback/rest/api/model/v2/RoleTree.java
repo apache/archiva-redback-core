@@ -36,7 +36,7 @@ public class RoleTree implements Serializable
     Map<String, Application> applications;
     List<BaseRoleInfo> rootRoles;
 
-    @Schema(description = "The user id for which the assigned flags are set on the roles.")
+    @Schema(name="user_id", description = "The user id for which the assigned flags are set on the roles.")
     public String getUserId( )
     {
         return userId;
@@ -59,7 +59,7 @@ public class RoleTree implements Serializable
     }
 
 
-    @Schema(description = "The list of roles directly assigned to this application. Roles may contain children roles.")
+    @Schema(name="root_roles", description = "The list of roles directly assigned to this application. Roles may contain children roles.")
     public List<BaseRoleInfo> getRootRoles( )
     {
         return rootRoles;

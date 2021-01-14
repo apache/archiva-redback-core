@@ -76,7 +76,7 @@ public class Application
         this.description = description;
     }
 
-    @Schema(description = "May be a longer explanation, of the application purpose and its defined roles.")
+    @Schema(name="long_description", description = "May be a longer explanation, of the application purpose and its defined roles.")
     public String getLongDescription()
     {
         return longDescription;

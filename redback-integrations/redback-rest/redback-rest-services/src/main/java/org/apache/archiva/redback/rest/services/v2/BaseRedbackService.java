@@ -241,7 +241,6 @@ public class BaseRedbackService
     {
         Predicate<User> filter = USER_QUERY_HELPER.getQueryFilter( q );
         long size = rawUsers.stream( ).filter( filter ).count( );
-        System.out.println( "Total " + size );
         List<UserInfo> users = rawUsers.stream( )
             .filter( filter )
             .sorted( USER_QUERY_HELPER.getComparator( orderBy, ascending ) ).skip( offset ).limit( limit )
