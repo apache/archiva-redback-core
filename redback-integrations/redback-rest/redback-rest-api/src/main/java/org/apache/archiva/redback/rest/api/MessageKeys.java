@@ -79,4 +79,5 @@ public interface MessageKeys
     String ERR_REGISTRATION_USER_VALIDATED = "rb.registration.user.validated";
     String ERR_REGISTRATION_ROLE_ASSIGNMENT_FAILED = "rb.registration.role.assignment.failed";
 
+    String ERR_INVALID_PAGING_RESULT_ERROR = "rb.paging_result.invalid";
 }

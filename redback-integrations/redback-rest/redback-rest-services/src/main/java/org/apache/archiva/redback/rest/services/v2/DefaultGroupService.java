@@ -56,7 +56,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -73,7 +75,7 @@ public class DefaultGroupService
 {
     private static final Logger log = LoggerFactory.getLogger( DefaultGroupService.class );
 
-    private static final String[] DEFAULT_SEARCH_FIELDS = {"name", "uniqueName"};
+    private static final String[] DEFAULT_SEARCH_FIELDS = {"name"};
     private static final Map<String, BiPredicate<String, LdapGroup>> FILTER_MAP = new HashMap<>( );
     private static final Map<String, Comparator<LdapGroup>> ORDER_MAP = new HashMap<>( );
     private static final QueryHelper<LdapGroup> QUERY_HELPER;
@@ -130,9 +132,16 @@ public class DefaultGroupService
     {
         try(LdapConnection ldapConnection = this.ldapConnectionFactory.getConnection())
         {
+            boolean isAscending = QUERY_HELPER.isAscending( order );
             DirContext context = ldapConnection.getDirContext();
+            Predicate<LdapGroup> filter = QUERY_HELPER.getQueryFilter( searchTerm );
+            Comparator<LdapGroup> comparator = QUERY_HELPER.getComparator( orderBy, isAscending );
             List<LdapGroup> groups = ldapRoleMapper.getAllGroupObjects( context );
-            return PagedResult.of( groups.size( ), offset, limit, groups.stream( ).skip( offset ).limit( limit ).map( DefaultGroupService::getGroupFromLdap ).collect( Collectors.toList( ) ) );
+            int totalCount = Math.toIntExact( groups.stream( ).filter( filter ).count( ) );
+            List<Group> result = groups.stream( ).filter( filter ).sorted( comparator ).skip( offset ).limit( limit )
+            .map(DefaultGroupService::getGroupFromLdap)
+            .collect( Collectors.toList());
+            return PagedResult.of( totalCount, offset, limit, result );
         }
         catch ( NamingException e )
         {
@@ -141,6 +150,9 @@ public class DefaultGroupService
         } catch (MappingException e) {
             log.error( "Mapping Error {}", e.getMessage(), e );
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_MAPPING, e.getMessage( ) ) );
+        } catch (ArithmeticException e) {
+            log.error( "Could not convert total count to integer:  {}", e.getMessage( ) );
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_INVALID_PAGING_RESULT_ERROR ) );
         }
     }
 
@@ -288,7 +300,7 @@ public class DefaultGroupService
         {
             try
             {
-                ldapRoleMapperConfiguration.addLdapMapping( groupName, Arrays.asList( groupName) );
+                ldapRoleMapperConfiguration.addLdapMapping( groupName, Arrays.asList( roleId) );
                 return Response.ok( ).build( );
             }
             catch ( MappingException mappingException )

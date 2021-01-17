@@ -83,7 +83,7 @@ public interface GroupService
     PagedResult<Group> getGroups( @QueryParam("q") @DefaultValue( "" ) String searchTerm,
                                   @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
                                   @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Integer limit,
-                                  @QueryParam( "orderBy") @DefaultValue( "id" ) List<String> orderBy,
+                                  @QueryParam( "orderBy") @DefaultValue( "name" ) List<String> orderBy,
                                   @QueryParam("order") @DefaultValue( "asc" ) String order)
         throws RedbackServiceException;
 

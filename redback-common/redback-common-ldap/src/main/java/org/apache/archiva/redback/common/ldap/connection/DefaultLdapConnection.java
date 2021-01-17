@@ -19,6 +19,7 @@ package org.apache.archiva.redback.common.ldap.connection;
  * under the License.
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,10 @@ public class DefaultLdapConnection
         throws LdapException
     {
         this.config = config;
+
+        if( config.getBaseDn() == null ) {
+            throw new LdapException( "Invalid BaseDn in the configuration." );
+        }
 
         LdapName baseDn = new LdapName( config.getBaseDn().getRdns() );
 
