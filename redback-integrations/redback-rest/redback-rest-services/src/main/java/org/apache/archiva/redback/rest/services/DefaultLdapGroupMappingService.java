@@ -172,7 +172,14 @@ public class DefaultLdapGroupMappingService
     {
         if ( ldapConnection != null )
         {
-            ldapConnection.close();
+            try
+            {
+                ldapConnection.close();
+            }
+            catch ( NamingException e )
+            {
+                log.error( "Could not close connection: {}", e.getMessage( ), e );
+            }
         }
     }
 

@@ -316,7 +316,7 @@ public class GroupServiceTest
         {
             GroupService service = getGroupService( authorizationHeader );
 
-            List<String> allGroups = service.getGroups(  0 , Integer.MAX_VALUE ).getData( ).stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
+            List<String> allGroups = service.getGroups(  "", 0 , Integer.MAX_VALUE, Arrays.asList( "name" ), "asc" ).getData( ).stream( ).map( group -> group.getName( ) ).collect( Collectors.toList( ) );
 
             assertNotNull( allGroups );
             assertEquals( 3, allGroups.size( ) );

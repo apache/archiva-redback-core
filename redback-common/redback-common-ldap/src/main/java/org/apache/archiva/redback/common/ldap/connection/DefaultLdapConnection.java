@@ -27,10 +27,12 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.naming.spi.NamingManager;
 
 /**
@@ -50,6 +52,8 @@ public class DefaultLdapConnection
     private DirContext context;
 
     private List<Rdn> baseDnRdns;
+
+    private AtomicBoolean open = new AtomicBoolean( false );
 
     public DefaultLdapConnection( LdapConnectionConfiguration config, Rdn subRdn )
         throws LdapException
@@ -79,6 +83,7 @@ public class DefaultLdapConnection
         try
         {
             context = (DirContext) NamingManager.getInitialContext( e );
+            this.open.set( true );
         }
         catch ( NamingException ex )
         {
@@ -108,6 +113,7 @@ public class DefaultLdapConnection
         try
         {
             context = (DirContext) NamingManager.getInitialContext( e );
+            this.open.set( true );
         }
         catch ( NamingException ex )
         {
@@ -225,22 +231,28 @@ public class DefaultLdapConnection
     }
 
     @Override
-    public void close()
+    public void close() throws NamingException
     {
-        try
+        if (this.open.compareAndSet( true, false ))
         {
-            if ( context != null )
+            try
             {
-                context.close();
+                if ( context != null )
+                {
+                    context.close( );
+                }
             }
-        }
-        catch ( NamingException ex )
-        {
-            log.info( "skip error closing ldap connection {}", ex.getMessage() );
-        }
-        finally
-        {
-            context = null;
+            catch ( NamingException ex )
+            {
+                log.info( "skip error closing ldap connection {}", ex.getMessage( ) );
+                throw ex;
+            }
+            finally
+            {
+                this.context = null;
+            }
+        } else {
+            log.warn( "Connection already closed "+this.baseDnRdns );
         }
     }
 
@@ -263,6 +275,11 @@ public class DefaultLdapConnection
     @Override
     public DirContext getDirContext()
     {
-        return context;
+        if (this.open.get())
+        {
+            return context;
+        } else {
+            throw new RuntimeException( "Connection closed " + this.getBaseDnRdns( ) );
+        }
     }
 }

@@ -49,6 +49,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
+import static org.apache.archiva.redback.rest.api.Constants.DEFAULT_PAGE_LIMIT;
+
 /**
  * @author Olivier Lamy
  * @author Martin Stockhammer
@@ -66,12 +68,23 @@ public interface GroupService
     @Produces( {MediaType.APPLICATION_JSON} )
     @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
     @Operation( summary = "Get list of group objects",
+        parameters = {
+            @Parameter(name = "q", description = "Search term"),
+            @Parameter(name = "offset", description = "The offset of the first element returned"),
+            @Parameter(name = "limit", description = "Maximum number of items to return in the response"),
+            @Parameter(name = "orderBy", description = "List of attribute used for sorting (id, name, description, assignable)"),
+            @Parameter(name = "order", description = "The sort order. Either ascending (asc) or descending (desc)")
+        },
+
         responses = {
             @ApiResponse( description = "List of group objects. The number of returned results depend on the pagination parameters offset and limit." )
         }
     )
-    PagedResult<Group> getGroups( @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
-                                  @QueryParam( "limit" ) @DefaultValue( value = Constants.DEFAULT_PAGE_LIMIT ) Integer limit)
+    PagedResult<Group> getGroups( @QueryParam("q") @DefaultValue( "" ) String searchTerm,
+                                  @QueryParam( "offset" ) @DefaultValue( "0" ) Integer offset,
+                                  @QueryParam( "limit" ) @DefaultValue( value = DEFAULT_PAGE_LIMIT ) Integer limit,
+                                  @QueryParam( "orderBy") @DefaultValue( "id" ) List<String> orderBy,
+                                  @QueryParam("order") @DefaultValue( "asc" ) String order)
         throws RedbackServiceException;
 
 
@@ -109,6 +122,20 @@ public interface GroupService
         throws RedbackServiceException;
 
     @Path( "mappings/{group}" )
+    @GET
+    @Produces( {MediaType.APPLICATION_JSON} )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
+    @Operation( summary = "Returns the list of roles of a given group mapping",
+        responses = {
+            @ApiResponse( responseCode = "200", description = "If the list could be returned" ),
+            @ApiResponse( responseCode = "404", description = "Group mapping not found" )
+        }
+    )
+    List<String> getGroupMapping( @Parameter( description = "The group name", required = true )
+                             @PathParam( "group" ) String group )
+        throws RedbackServiceException;
+
+    @Path( "mappings/{group}" )
     @DELETE
     @Consumes( {MediaType.APPLICATION_JSON} )
     @Produces( {MediaType.APPLICATION_JSON} )
@@ -140,5 +167,20 @@ public interface GroupService
                                          List<String> roles )
         throws RedbackServiceException;
 
-
+    @Path( "mappings/{group}/roles/{roleId}" )
+    @PUT
+    @Consumes( {MediaType.APPLICATION_JSON} )
+    @Produces( {MediaType.APPLICATION_JSON} )
+    @RedbackAuthorization( permissions = RedbackRoleConstants.CONFIGURATION_EDIT_OPERATION )
+    @Operation( summary = "Adds a role to a given group mapping.",
+        responses = {
+            @ApiResponse( responseCode = "200", description = "If the update was successful" ),
+        }
+    )
+    Response addRolesToGroupMapping( @Parameter( description = "The group name", required = true )
+                                 @PathParam( "group" ) String groupName,
+                                 @PathParam( "roleId" )
+                                 @Parameter( description = "The id of the role to add to the mapping", required = true )
+                                     String roleId )
+        throws RedbackServiceException;
 }

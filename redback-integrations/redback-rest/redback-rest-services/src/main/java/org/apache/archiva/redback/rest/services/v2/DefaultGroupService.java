@@ -19,6 +19,7 @@ package org.apache.archiva.redback.rest.services.v2;
  */
 
 import org.apache.archiva.components.rest.model.PagedResult;
+import org.apache.archiva.components.rest.util.QueryHelper;
 import org.apache.archiva.redback.common.ldap.MappingException;
 import org.apache.archiva.redback.common.ldap.ObjectNotFoundException;
 import org.apache.archiva.redback.common.ldap.connection.LdapConnection;
@@ -27,6 +28,7 @@ import org.apache.archiva.redback.common.ldap.connection.LdapException;
 import org.apache.archiva.redback.common.ldap.role.LdapGroup;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapper;
 import org.apache.archiva.redback.common.ldap.role.LdapRoleMapperConfiguration;
+import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.rest.api.MessageKeys;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.v2.Group;
@@ -47,9 +49,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 /**
@@ -65,7 +71,29 @@ import java.util.stream.Collectors;
 public class DefaultGroupService
     implements GroupService
 {
-    private final Logger log = LoggerFactory.getLogger( getClass() );
+    private static final Logger log = LoggerFactory.getLogger( DefaultGroupService.class );
+
+    private static final String[] DEFAULT_SEARCH_FIELDS = {"name", "uniqueName"};
+    private static final Map<String, BiPredicate<String, LdapGroup>> FILTER_MAP = new HashMap<>( );
+    private static final Map<String, Comparator<LdapGroup>> ORDER_MAP = new HashMap<>( );
+    private static final QueryHelper<LdapGroup> QUERY_HELPER;
+
+    static
+    {
+
+        QUERY_HELPER = new QueryHelper<>( FILTER_MAP, ORDER_MAP, DEFAULT_SEARCH_FIELDS );
+        QUERY_HELPER.addStringFilter( "name", LdapGroup::getName );
+        QUERY_HELPER.addStringFilter( "uniqueName", LdapGroup::getDn );
+        QUERY_HELPER.addStringFilter( "description", LdapGroup::getDescription );
+
+        // The simple Comparator.comparing(attribute) is not null safe
+        // As there are attributes that may have a null value, we have to use a comparator with nullsLast(naturalOrder)
+        // and the wrapping Comparator.nullsLast(Comparator.comparing(attribute)) does not work, because the attribute is not checked by the nullsLast-Comparator
+        QUERY_HELPER.addNullsafeFieldComparator( "name", LdapGroup::getName );
+        QUERY_HELPER.addNullsafeFieldComparator( "uniqueName", LdapGroup::getDn );
+        QUERY_HELPER.addNullsafeFieldComparator( "description", LdapGroup::getDescription );
+    }
+
 
     @Context  //injected response proxy supporting multiple threads
     private HttpServletResponse response;
@@ -98,31 +126,21 @@ public class DefaultGroupService
     }
 
     @Override
-    public PagedResult<Group> getGroups( Integer offset, Integer limit ) throws RedbackServiceException
+    public PagedResult<Group> getGroups( String searchTerm, Integer offset, Integer limit, List<String> orderBy, String order ) throws RedbackServiceException
     {
-        LdapConnection ldapConnection = null;
-
-        DirContext context = null;
-
-        try
+        try(LdapConnection ldapConnection = this.ldapConnectionFactory.getConnection())
         {
-            ldapConnection = ldapConnectionFactory.getConnection();
-            context = ldapConnection.getDirContext();
+            DirContext context = ldapConnection.getDirContext();
             List<LdapGroup> groups = ldapRoleMapper.getAllGroupObjects( context );
             return PagedResult.of( groups.size( ), offset, limit, groups.stream( ).skip( offset ).limit( limit ).map( DefaultGroupService::getGroupFromLdap ).collect( Collectors.toList( ) ) );
         }
-        catch ( LdapException  e )
+        catch ( NamingException e )
         {
             log.error( "LDAP Error {}", e.getMessage(), e );
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_LDAP_GENERIC ) );
         } catch (MappingException e) {
             log.error( "Mapping Error {}", e.getMessage(), e );
             throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_MAPPING, e.getMessage( ) ) );
-        }
-        finally
-        {
-            closeContext( context );
-            closeLdapConnection( ldapConnection );
         }
     }
 
@@ -242,6 +260,66 @@ public class DefaultGroupService
         }
     }
 
+    @Override
+    public List<String> getGroupMapping( String groupName ) throws RedbackServiceException
+    {
+        Collection<String> mapping;
+        try
+        {
+            mapping = ldapRoleMapperConfiguration.getLdapGroupMapping( groupName );
+            return new ArrayList<>( mapping );
+        }
+        catch ( MappingException e )
+        {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_MAPPING_NOT_FOUND ), 404 );
+        }
+    }
+
+
+    @Override
+    public Response addRolesToGroupMapping( String groupName, String roleId ) throws RedbackServiceException
+    {
+        Collection<String> mapping;
+        try
+        {
+            mapping = ldapRoleMapperConfiguration.getLdapGroupMapping( groupName );
+        }
+        catch ( MappingException e )
+        {
+            try
+            {
+                ldapRoleMapperConfiguration.addLdapMapping( groupName, Arrays.asList( groupName) );
+                return Response.ok( ).build( );
+            }
+            catch ( MappingException mappingException )
+            {
+                log.error( "Could not update mapping {}", e.getMessage( ) );
+                throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_MAPPING, e.getMessage( ) ) );
+            }
+        }
+        if (mapping!=null)
+        {
+            try
+            {
+                ArrayList<String> newList = new ArrayList<>( mapping );
+                if (!newList.contains( roleId )) {
+                    newList.add( roleId );
+                    ldapRoleMapperConfiguration.updateLdapMapping( groupName,
+                        newList );
+                }
+                return Response.ok( ).build( );
+            }
+            catch ( MappingException e )
+            {
+                log.error( "Could not update mapping {}", e.getMessage( ) );
+                throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_MAPPING, e.getMessage( ) ) );
+            }
+        } else {
+            throw new RedbackServiceException( ErrorMessage.of( MessageKeys.ERR_ROLE_MAPPING_NOT_FOUND ), 404 );
+        }
+
+    }
+
     //------------------
     // utils
     //------------------
@@ -250,7 +328,14 @@ public class DefaultGroupService
     {
         if ( ldapConnection != null )
         {
-            ldapConnection.close();
+            try
+            {
+                ldapConnection.close();
+            }
+            catch ( NamingException e )
+            {
+                log.error( "Could not close LDAP connection {}", e.getMessage( ) );
+            }
         }
     }
 

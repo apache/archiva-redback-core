@@ -19,6 +19,7 @@ package org.apache.archiva.redback.common.ldap.connection;
  * under the License.
  */
 
+import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.Rdn;
 import java.util.Hashtable;
@@ -27,12 +28,13 @@ import java.util.List;
 /**
  * @author Olivier Lamy
  */
-public interface LdapConnection
+public interface LdapConnection extends AutoCloseable
 {
     Hashtable<Object, Object> getEnvironment()
         throws LdapException;
 
-    void close();
+    @Override
+    void close() throws NamingException;
 
     LdapConnectionConfiguration getConfiguration();
 

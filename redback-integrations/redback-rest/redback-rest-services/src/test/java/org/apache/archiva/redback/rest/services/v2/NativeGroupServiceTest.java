@@ -529,4 +529,40 @@ public class NativeGroupServiceTest extends AbstractNativeRestServices
         }
     }
 
+    @Test
+    void addRoleToGroupMapping() {
+        String token = getAdminToken( );
+        try
+        {
+            List<String> list = Arrays.asList( "System Administrator", "role1", "role2", "role3" );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .body(list)
+                .put( "/mappings/archiva-admin" )
+                .then( )
+                .statusCode( 200 ).extract( ).response( );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .put( "/mappings/archiva-admin/roles/roletest004" )
+                .then( )
+                .statusCode( 200 ).extract( ).response( );
+            Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .when( )
+                .get( "/mappings/archiva-admin" )
+                .then( ).statusCode( 200 ).extract( ).response( );
+            assertNotNull( response );
+            List<String> resultList = response.getBody( ).jsonPath( ).getList( "", String.class );
+            assertEquals( 5, resultList.size( ) );
+            assertTrue( resultList.contains( "roletest004" ) );
+        } finally {
+            // Put it back
+            List<String> list = Arrays.asList( "System Administrator" );
+            given( ).spec( getRequestSpec( token ) ).contentType( JSON )
+                .body( list )
+                .when( )
+                .put( "/mappings/archiva-admin" )
+                .then( ).statusCode( 200 );
+        }
+    }
+
 }
