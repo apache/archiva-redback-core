@@ -49,7 +49,9 @@ public @interface RedbackAuthorization
      * The resource is used to restrict access by using information from
      * the method parameters or call environment.
      * Resource annotations have to be in line with the defined permissions.
-     * @return the redback ressource karma needed
+     * Parameters have to be given in the form <code>{parameterName}</code> and are extracted from the URIInfo (path- and
+     * query-parameters)
+     * @return the redback resource karma needed
      */
     String resource() default ( "" );
 
@@ -65,7 +67,7 @@ public @interface RedbackAuthorization
     boolean noRestriction() default false;
 
     /**
-     * @return if this service need only authentication and not special karma
+     * @return True, if this service need only authentication and not special karma
      */
     boolean noPermission() default false;
 }

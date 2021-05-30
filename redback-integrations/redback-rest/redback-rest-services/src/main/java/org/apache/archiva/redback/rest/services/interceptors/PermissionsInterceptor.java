@@ -66,6 +66,9 @@ public class PermissionsInterceptor
     @Named( value = "httpAuthenticator#basic" )
     private HttpBasicAuthentication httpAuthenticator;
 
+    private static final String DEFAULT_AUTHENTICATION_REALM = "archiva";
+    private String authenticationRealm = DEFAULT_AUTHENTICATION_REALM;
+
     @Context
     private ResourceInfo resourceInfo;
 
@@ -172,7 +175,9 @@ public class PermissionsInterceptor
                         return;
                     } else {
                         log.debug( "Path {} is protected and needs authentication. User not authenticated.", requestPath );
-                        containerRequestContext.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() );
+                        containerRequestContext.abortWith( Response.status( Response.Status.UNAUTHORIZED )
+                            .header( "WWW-Authenticate", "Bearer realm=\""+getAuthenticationRealm()+"\"" )
+                            .build() );
                         return;
                     }
                 }
@@ -204,4 +209,13 @@ public class PermissionsInterceptor
     }
 
 
+    public String getAuthenticationRealm( )
+    {
+        return authenticationRealm;
+    }
+
+    public void setAuthenticationRealm( String authenticationRealm )
+    {
+        this.authenticationRealm = authenticationRealm;
+    }
 }
