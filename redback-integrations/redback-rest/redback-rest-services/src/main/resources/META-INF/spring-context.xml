@@ -29,11 +29,11 @@
            http://cxf.apache.org/jaxrs
            http://cxf.apache.org/schemas/jaxrs.xsd">
 
-  <import resource="classpath:META-INF/cxf/cxf.xml"/>
+  <import resource="classpath*:META-INF/cxf/cxf.xml"/>
   <!--
   <import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml"/>
   -->
-  <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+  <import resource="classpath*:META-INF/cxf/cxf-servlet.xml"/>
 
   <context:annotation-config />
   <context:component-scan
@@ -97,8 +97,6 @@
       <ref bean="v2.userService#rest"/>
       <ref bean="v2.authenticationService#rest"/>
       <ref bean="v2.roleService#rest"/>
-      <ref bean="utilServices#rest"/>
-      <ref bean="passwordService#rest"/>
       <ref bean="v2.groupService#rest"/>
     </jaxrs:serviceBeans>
 
