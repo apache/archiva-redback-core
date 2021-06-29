@@ -32,7 +32,8 @@ public class Digest
 {
     public static String md5Hex( String data )
     {
-        MessageDigest digest = getDigest( "MD5" );
+        
+        MessageDigest digest = getDigest( "SHA-512" );
         return Hex.encode( digest.digest( data.getBytes() ) );
     }
 
