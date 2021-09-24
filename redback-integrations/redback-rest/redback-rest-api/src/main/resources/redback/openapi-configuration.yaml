@@ -26,11 +26,15 @@ openAPI:
       description: Authentication operations for Login and token refresh
     - name: v2/Groups
       description: Group operations
+    - name: v2/Users
+      description: User operations
+    - name: v2/Roles
+      description: Managing of roles
     - name: v1
       description: Version 1 REST API (deprecated)
 
   info:
-    version: '3.0'
+    version: '3.0.0'
     title: Apache Archiva Redback REST API
     description: 'This is the Apache Archiva Redback REST API documentation'
     termsOfService: https://archiva.apache.org
@@ -39,4 +43,4 @@ openAPI:
       url: https://archiva.apache.org/index.html
     license:
       name: Apache 2.0
-      url: http://www.apache.org/licenses/LICENSE-2.0.html
+      url: https://www.apache.org/licenses/LICENSE-2.0.html

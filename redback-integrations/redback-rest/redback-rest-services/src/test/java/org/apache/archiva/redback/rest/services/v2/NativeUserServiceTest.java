@@ -419,8 +419,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .when( )
                 .redirects( ).follow( false ) // Rest assured default is following the 303 redirect
                 .post( )
-                .prettyPeek( )
-                .peek( )
                 .then( ).statusCode( 303 ).extract( ).response( );
             assertTrue( response.getHeader( "Location" ).endsWith( "/aragorn" ) );
         }
@@ -567,7 +565,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .body( jsonAsMap )
                 .when( )
                 .put( "aragorn" )
-                .prettyPeek( )
                 .then( ).statusCode( 422 ).extract( ).response( );
             assertNotNull( response );
             assertEquals( "user.password.violation.reuse", response.body( ).jsonPath( ).get( "error_messages[0].error_key" ) );
@@ -1336,7 +1333,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .get( "aragorn/operations" )
-                .prettyPeek( )
                 .then( ).statusCode( 200 ).extract( ).response( );
             List<Operation> result = response.getBody( ).jsonPath( ).getList( "", Operation.class );
             assertNotNull( result );
@@ -1376,7 +1372,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .get( "admin/operations" )
-                .prettyPeek( )
                 .then( ).statusCode( 403 );
         }
         finally
@@ -1446,7 +1441,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( )
                 .get( "me/operations" )
-                .prettyPeek( )
                 .then( ).statusCode( 200 ).extract( ).response( );
             List<Operation> result = response.getBody( ).jsonPath( ).getList( "", Operation.class );
             assertNotNull( result );
@@ -1550,7 +1544,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
             assertNotNull( response );
             jsonPath = response.getBody( ).jsonPath( );
             roleList = jsonPath.getList( "", RoleInfo.class );
-            jsonPath.prettyPrint( );
             assertEquals( 4, roleList.size( ) );
             assertTrue( roleList.stream( ).filter( role -> "system-administrator".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
             assertTrue( roleList.stream( ).filter( role -> "archiva-global-repository-manager".equals( role.getId( ) ) ).findAny( ).isPresent( ) );
@@ -1612,7 +1605,6 @@ public class NativeUserServiceTest extends AbstractNativeRestServices
                 .get( "admin/roletree" )
                 .then( ).statusCode( 200 ).extract( ).response( );
             assertNotNull( response );
-            System.out.println( response.getBody( ).prettyPrint( ) );
             jsonPath = response.getBody( ).jsonPath( );
             assertTrue( jsonPath.getMap( "applications" ).containsKey( "System" ) );
             assertTrue( jsonPath.getMap( "applications" ).containsKey( "Archiva" ) );

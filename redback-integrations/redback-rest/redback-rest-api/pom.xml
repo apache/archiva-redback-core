@@ -96,6 +96,7 @@
             <exclude>target/generated</exclude>
             <exclude>src/main/resources/templates/*</exclude>
             <exclude>src/main/resources/openapi-codegen-ignore</exclude>
+            <exclude>src/main/resources/redback/openapi-configuration.yaml</exclude>
           </excludes>
         </configuration>
       </plugin>

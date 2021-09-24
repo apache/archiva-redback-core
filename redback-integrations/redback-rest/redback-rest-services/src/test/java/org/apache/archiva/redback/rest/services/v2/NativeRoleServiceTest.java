@@ -253,7 +253,6 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
             List<RoleInfo> userData = response.body( ).jsonPath( ).getList( "data", RoleInfo.class );
             assertNotNull( userData );
-            response.getBody( ).jsonPath( ).prettyPrint( );
             assertEquals( 10, userData.size( ) );
             assertEquals( Integer.valueOf( 1 ), response.body( ).jsonPath( ).get( "pagination.offset" ) );
             assertEquals( Integer.valueOf( 10 ), response.body( ).jsonPath( ).get( "pagination.limit" ) );
@@ -292,7 +291,6 @@ public class NativeRoleServiceTest extends AbstractNativeRestServices
             params.put( "order", "desc" );
             Response response = given( ).spec( getRequestSpec( token ) ).contentType( JSON )
                 .when( ).params( params ).get( ).then( ).statusCode( 200 ).extract( ).response( );
-            response.getBody( ).jsonPath( ).prettyPrint( );
             List<RoleInfo> userData = response.body( ).jsonPath( ).getList( "data", RoleInfo.class );
             assertNotNull( userData );
             // admin user has toto@toto.org as email so is after aragorn
