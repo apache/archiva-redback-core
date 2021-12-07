@@ -41,7 +41,7 @@ pipeline {
     agent { label "${LABEL}" }
     // Build should also start, if parent has been built successfully
     triggers { 
-        upstream(upstreamProjects: 'Archiva/Archiva-TLP-Gitbox/archiva-parent/master', threshold: hudson.model.Result.SUCCESS) 
+        upstream(upstreamProjects: 'Archiva/Archiva-TLP-Gitbox/archiva-parent/master,Archiva/Archiva-TLP-Gitbox/archiva-components/master', threshold: hudson.model.Result.SUCCESS) 
     }
 
     options {
