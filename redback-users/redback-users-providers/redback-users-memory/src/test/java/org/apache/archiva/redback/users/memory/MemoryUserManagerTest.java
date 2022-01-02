@@ -1,4 +1,4 @@
-package org.apache.archiva.redback.users;
+package org.apache.archiva.redback.users.memory;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -10,7 +10,6 @@ package org.apache.archiva.redback.users;
  * with the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,6 +18,7 @@ package org.apache.archiva.redback.users;
  * under the License.
  */
 
+import org.apache.archiva.redback.users.UserManager;
 import org.apache.archiva.redback.users.memory.MemoryUserManager;
 import org.apache.archiva.redback.users.provider.test.AbstractUserManagerTestCase;
 import org.junit.Before;
