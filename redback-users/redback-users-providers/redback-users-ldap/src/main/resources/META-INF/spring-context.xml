@@ -34,6 +34,8 @@
   <!-- REDBACK-289/MRM-1488 -->
   <!-- Cache for LDAP users. Data is refreshed every 3 mins. -->
   <bean name="cache#ldapUser" class="org.apache.archiva.components.cache.ehcache.EhcacheCache">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="org.apache.archiva.redback.common.ldap.user.LdapUser"/>
     <property name="diskExpiryThreadIntervalSeconds" value="180"/>
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>
@@ -47,6 +49,8 @@
 
   <!-- Cache for users' LDAP userDn. Data is refreshed every 3 mins. -->
   <bean name="cache#ldapUserDn" class="org.apache.archiva.components.cache.ehcache.EhcacheCache">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="java.lang.String"/>
     <property name="diskExpiryThreadIntervalSeconds" value="180"/>
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>

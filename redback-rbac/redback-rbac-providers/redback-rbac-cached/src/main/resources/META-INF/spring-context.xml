@@ -33,6 +33,8 @@
 
   <bean name="cache#operations" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
       init-method="initialize">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="org.apache.archiva.redback.rbac.Operation" />
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>
     <property name="maxElementsInMemory" value="1000"/>
@@ -44,6 +46,8 @@
 
   <bean name="cache#permissions" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
       init-method="initialize">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="org.apache.archiva.redback.rbac.Permission" />
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>
     <property name="maxElementsInMemory" value="1000"/>
@@ -55,6 +59,8 @@
 
   <bean name="cache#resources" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
       init-method="initialize">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="org.apache.archiva.redback.rbac.Resource" />
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>
     <property name="maxElementsInMemory" value="1000"/>
@@ -66,6 +72,8 @@
 
   <bean name="cache#roles" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
       init-method="initialize">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="org.apache.archiva.redback.rbac.Role" />
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>
     <property name="maxElementsInMemory" value="1000"/>
@@ -77,6 +85,8 @@
 
   <bean name="cache#rolesById" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
         init-method="initialize">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="org.apache.archiva.redback.rbac.Role" />
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>
     <property name="maxElementsInMemory" value="1000"/>
@@ -88,6 +98,8 @@
 
   <bean name="cache#effectiveRoleSet" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
       init-method="initialize">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="java.util.HashSet" />
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>
     <property name="maxElementsInMemory" value="1000"/>
@@ -103,6 +115,8 @@
 
   <bean name="cache#userAssignments" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
       init-method="initialize">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="org.apache.archiva.redback.rbac.UserAssignment" />
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>
     <property name="maxElementsInMemory" value="1000"/>
@@ -114,6 +128,8 @@
 
   <bean name="cache#userPermissions" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
       init-method="initialize">
+    <constructor-arg index="0" value="java.lang.String"/>
+    <constructor-arg index="1" value="java.util.HashMap" />
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>
     <property name="maxElementsInMemory" value="1000"/>

@@ -18,6 +18,7 @@ package org.apache.archiva.redback.rbac;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -36,7 +37,7 @@ import java.util.List;
  * @author Martin Stockhammer <martin_s@apache.org>
  *
  */
-public interface Role
+public interface Role extends Serializable
 {
 
     /**

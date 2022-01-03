@@ -16,6 +16,8 @@ package org.apache.archiva.redback.rbac;
  * limitations under the License.
  */
 
+import java.io.Serializable;
+
 /**
  * Resource
  *
@@ -37,7 +39,7 @@ package org.apache.archiva.redback.rbac;
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  *
  */
-public interface Resource
+public interface Resource extends Serializable
 {
     /**
      * Resource identifier refering to all objects.

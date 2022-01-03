@@ -16,6 +16,8 @@ package org.apache.archiva.redback.rbac;
  * limitations under the License.
  */
 
+import java.io.Serializable;
+
 /**
  * Permission
  *
@@ -28,7 +30,7 @@ package org.apache.archiva.redback.rbac;
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  *
  */
-public interface Permission
+public interface Permission extends Serializable
 {
 
     /**

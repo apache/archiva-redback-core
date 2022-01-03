@@ -1,5 +1,6 @@
 package org.apache.archiva.redback.rbac;
 
+import java.io.Serializable;
 import java.util.List;
 
 /*
@@ -29,7 +30,7 @@ import java.util.List;
  *
  * TODO expand on javadoc
  */
-public interface UserAssignment
+public interface UserAssignment extends Serializable
 {
 
     

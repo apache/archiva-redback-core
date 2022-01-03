@@ -473,7 +473,7 @@ public class DefaultRoleManagementService
         try
         {
             org.apache.archiva.redback.rbac.Role rbacRole = rbacManager.getRole( roleName );
-            rbacRole.setDescription( description );
+            rbacRole.setDescription( description == null ? "" : description);
             rbacManager.saveRole( rbacRole );
         }
         catch ( RbacManagerException e )

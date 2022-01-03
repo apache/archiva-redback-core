@@ -19,6 +19,7 @@ package org.apache.archiva.redback.keys;
  * under the License.
  */
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -29,7 +30,7 @@ import java.util.Date;
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  *
  */
-public interface AuthenticationKey
+public interface AuthenticationKey extends Serializable
 {
     Date getDateCreated();
 

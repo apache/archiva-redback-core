@@ -33,6 +33,8 @@
 
   <bean name="cache#users" class="org.apache.archiva.components.cache.ehcache.EhcacheCache"
       init-method="initialize">
+    <constructor-arg index="0" value="java.lang.String" />
+    <constructor-arg index="1" value="org.apache.archiva.redback.users.User" />
     <property name="diskPersistent" value="false"/>
     <property name="eternal" value="false"/>
     <property name="maxElementsInMemory" value="1000"/>
