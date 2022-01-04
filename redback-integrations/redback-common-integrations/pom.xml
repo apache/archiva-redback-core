@@ -221,11 +221,6 @@
       <artifactId>redback-keys-cached</artifactId>
       <scope>test</scope>
     </dependency>    
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <scope>test</scope>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.archiva.redback</groupId>
