@@ -673,7 +673,7 @@
       <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
-        <version>1.7.1</version>
+        <version>${assertj.version}</version>
       </dependency>
       <dependency>
         <groupId>org.freemarker</groupId>
