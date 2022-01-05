@@ -17,7 +17,6 @@ package org.apache.archiva.redback.tests;
  */
 
 import junit.framework.TestCase;
-import net.sf.ehcache.CacheManager;
 import org.apache.archiva.redback.rbac.Operation;
 import org.apache.archiva.redback.rbac.Permission;
 import org.apache.archiva.redback.rbac.RBACManager;
@@ -146,10 +145,10 @@ public abstract class AbstractRbacManagerTestCase
         {
             assertEventCount();
         }
-        assertEquals( addedRoleNameCount, eventTracker.addedRoleNames.size() );
-        assertEquals( removedRoleNameCount, eventTracker.removedRoleNames.size() );
-        assertEquals( addedPermissionNames, eventTracker.addedPermissionNames.size() );
-        assertEquals( removedPermissionNames, eventTracker.removedPermissionNames.size() );
+        assertEquals( "Wrong number of added roles", addedRoleNameCount, eventTracker.addedRoleNames.size() );
+        assertEquals( "Wrong number of removed roles", removedRoleNameCount, eventTracker.removedRoleNames.size() );
+        assertEquals( "Wrong number of added permissions", addedPermissionNames, eventTracker.addedPermissionNames.size() );
+        assertEquals( "Wrong number of removed permissions", removedPermissionNames, eventTracker.removedPermissionNames.size() );
         if ( freshness )
         {
             assertTrue( eventTracker.lastDbFreshness.booleanValue() );
@@ -169,7 +168,7 @@ public abstract class AbstractRbacManagerTestCase
 
         Role added = rbacManager.saveRole( role );
 
-        assertEquals( 1, rbacManager.getAllRoles().size() );
+        assertEquals("Wrong number of roles in the rbac manager", 1, rbacManager.getAllRoles().size() );
 
         assertNotNull( added );
 
@@ -842,7 +841,7 @@ public abstract class AbstractRbacManagerTestCase
     public void testGetAssignedPermissionsDeep()
         throws RbacManagerException
     {
-        this.clearCache();
+
         assertNotNull( rbacManager );
         rbacManager.eraseDatabase();
         rbacDefaults.createDefaults();
@@ -1008,11 +1007,4 @@ public abstract class AbstractRbacManagerTestCase
         // do nothing
     }
 
-    protected void clearCache()
-    {
-        for ( String cacheName : CacheManager.getInstance().getCacheNames() )
-        {
-            CacheManager.getInstance().getCache( cacheName ).removeAll();
-        }
-    }
 }

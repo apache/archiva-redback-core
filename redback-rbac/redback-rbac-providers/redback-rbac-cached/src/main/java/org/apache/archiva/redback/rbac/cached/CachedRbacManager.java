@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Collection;
@@ -187,8 +188,7 @@ public class CachedRbacManager
         }
         finally
         {
-            // FIXME cleanup
-            //EhcacheUtils.clearAllCaches( log() );
+            clearCache();
         }
     }
 
@@ -548,6 +548,11 @@ public class CachedRbacManager
             ( (RBACManagerListener) this.rbacImpl ).rbacInit( freshdb );
         }
         // lookup all Cache and clear all ?
+        clearCache( );
+    }
+
+    public void clearCache( )
+    {
         this.resourcesCache.clear();
         this.operationsCache.clear();
         this.permissionsCache.clear();
@@ -1053,5 +1058,10 @@ public class CachedRbacManager
     public boolean isReadOnly()
     {
         return false;
+    }
+
+    @PreDestroy
+    void shutdown() {
+        clearCache( );
     }
 }

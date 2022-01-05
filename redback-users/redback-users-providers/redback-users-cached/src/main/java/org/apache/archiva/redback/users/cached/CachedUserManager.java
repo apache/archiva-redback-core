@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
@@ -357,5 +358,17 @@ public class CachedUserManager
     public String getDescriptionKey()
     {
         return "archiva.redback.usermanager.cached";
+    }
+
+    /**
+     * Clears the users cache
+     */
+    public void clearCache() {
+        usersCache.clear( );
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        this.clearCache( );
     }
 }

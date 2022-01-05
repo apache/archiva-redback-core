@@ -19,7 +19,6 @@ package org.apache.archiva.redback.role;
  * under the License.
  */
 
-import net.sf.ehcache.CacheManager;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.junit.Before;
 
@@ -47,7 +46,6 @@ public class RoleManagerTest
     public void setUp()
         throws Exception
     {
-        CacheManager.getInstance().clearAll();
         super.setUp();
 
         rbacManager = rbacManagerMemory;

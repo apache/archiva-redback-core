@@ -19,7 +19,6 @@ package org.apache.archiva.redback.rest.services.v2;
  * under the License.
  */
 
-import net.sf.ehcache.CacheManager;
 import org.apache.archiva.components.cache.Cache;
 import org.apache.archiva.components.rest.model.PagedResult;
 import org.apache.archiva.redback.authentication.AuthenticationException;
@@ -516,16 +515,6 @@ public class DefaultUserService extends BaseRedbackService
         if ( usersCache != null )
         {
             usersCache.remove( userId );
-        }
-
-        CacheManager cacheManager = CacheManager.getInstance( );
-        String[] caches = cacheManager.getCacheNames( );
-        for ( String cacheName : caches )
-        {
-            if ( StringUtils.startsWith( cacheName, "org.apache.archiva.redback.rbac.jdo" ) )
-            {
-                cacheManager.getCache( cacheName ).removeAll( );
-            }
         }
 
         return Response.ok( ).build( );

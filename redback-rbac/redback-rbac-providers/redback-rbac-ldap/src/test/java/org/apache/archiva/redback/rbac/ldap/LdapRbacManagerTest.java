@@ -22,7 +22,10 @@ package org.apache.archiva.redback.rbac.ldap;
 import org.apache.archiva.components.apacheds.ApacheDs;
 import org.apache.archiva.redback.policy.PasswordEncoder;
 import org.apache.archiva.redback.policy.encoders.SHA1PasswordEncoder;
+import org.apache.archiva.redback.rbac.RbacManagerException;
+import org.apache.archiva.redback.rbac.RbacPermanentException;
 import org.apache.archiva.redback.rbac.Role;
+import org.apache.archiva.redback.rbac.memory.MemoryRole;
 import org.apache.archiva.redback.tests.AbstractRbacManagerTestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -76,7 +79,6 @@ public class LdapRbacManagerTest
         throws Exception
     {
         super.setUp();
-        this.clearCache();
         setRbacManager( rbacManager );
 
         assertTrue( getRbacManager() instanceof LdapRbacManager );
@@ -263,11 +265,20 @@ public class LdapRbacManagerTest
     public void testStoreInitialization()
         throws Exception
     {
-        this.clearCache();
         for ( Role role : rbacManager.getAllRoles() )
         {
-            rbacManager.removeRole( role );
+            try
+            {
+                log.info( "permanent: {}, {}", role.isPermanent( ), role.getClass( ).getName( ) );
+                // Workaround to avoid exception because of permanent role.
+                MemoryRole rRole = new MemoryRole( );
+                rRole.setName( role.getName( ) );
+                rbacManager.removeRole( rRole );
+            } catch ( RbacPermanentException ex ) {
+                // Ignore this
+            }
         }
+        log.info( "Roles {}", rbacManager.getAllRoles( ).size( ) );
         eventTracker.clear();
         super.testStoreInitialization();
     }

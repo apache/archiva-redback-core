@@ -19,7 +19,6 @@ package org.apache.archiva.redback.keys.cached;
  * under the License.
  */
 
-import net.sf.ehcache.CacheManager;
 import org.apache.archiva.redback.keys.KeyManager;
 import org.apache.archiva.redback.keys.KeyManagerTestCase;
 import org.junit.Before;
@@ -55,7 +54,6 @@ public class CachedKeyManagerTest
     protected void tearDown()
         throws Exception
     {
-        CacheManager.getInstance().removeAllCaches();
         super.tearDown();
     }
 }

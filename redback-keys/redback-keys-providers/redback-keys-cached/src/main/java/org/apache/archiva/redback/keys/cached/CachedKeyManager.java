@@ -27,6 +27,7 @@ import org.apache.archiva.redback.keys.KeyManagerException;
 import org.apache.archiva.redback.keys.KeyNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
@@ -148,5 +149,14 @@ public class CachedKeyManager
     public void setKeysCache( Cache<String, AuthenticationKey> keysCache )
     {
         this.keysCache = keysCache;
+    }
+
+    public void clearCache() {
+        keysCache.clear();
+    }
+
+    @PreDestroy
+    void shutdown() {
+        clearCache( );
     }
 }

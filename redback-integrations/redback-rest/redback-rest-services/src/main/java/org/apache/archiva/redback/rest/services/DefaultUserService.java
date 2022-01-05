@@ -19,7 +19,6 @@ package org.apache.archiva.redback.rest.services;
  * under the License.
  */
 
-import net.sf.ehcache.CacheManager;
 import org.apache.archiva.components.cache.Cache;
 import org.apache.archiva.redback.authentication.AuthenticationException;
 import org.apache.archiva.redback.authentication.TokenBasedAuthenticationDataSource;
@@ -39,7 +38,6 @@ import org.apache.archiva.redback.policy.UserSecurityPolicy;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.rbac.RbacManagerException;
 import org.apache.archiva.redback.rbac.UserAssignment;
-import org.apache.archiva.redback.rest.api.model.ActionStatus;
 import org.apache.archiva.redback.rest.api.model.ErrorMessage;
 import org.apache.archiva.redback.rest.api.model.Operation;
 import org.apache.archiva.redback.rest.api.model.Permission;
@@ -421,16 +419,6 @@ public class DefaultUserService
         if ( usersCache != null )
         {
             usersCache.remove( userName );
-        }
-
-        CacheManager cacheManager = CacheManager.getInstance();
-        String[] caches = cacheManager.getCacheNames();
-        for ( String cacheName : caches )
-        {
-            if ( StringUtils.startsWith( cacheName, "org.apache.archiva.redback.rbac.jdo" ) )
-            {
-                cacheManager.getCache( cacheName ).removeAll();
-            }
         }
 
         return -1;

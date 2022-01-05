@@ -19,10 +19,7 @@ package org.apache.archiva.redback.users.cached;
  * under the License.
  */
 
-import net.sf.ehcache.CacheManager;
-
 import org.apache.archiva.redback.users.UserManager;
-import org.apache.archiva.redback.users.cached.CachedUserManager;
 import org.apache.archiva.redback.users.provider.test.AbstractUserManagerTestCase;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -63,9 +60,5 @@ public class CachedUserManagerTest
         super.tearDown();
     }
 
-    @AfterClass
-    public static void cleanCache()
-    {
-        CacheManager.getInstance().removeAllCaches();
-    }
+
 }

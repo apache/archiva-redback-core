@@ -20,7 +20,6 @@ package org.apache.archiva.redback.integration.mail;
  */
 
 import junit.framework.TestCase;
-import net.sf.ehcache.CacheManager;
 import org.apache.archiva.redback.keys.AuthenticationKey;
 import org.apache.archiva.redback.keys.KeyManager;
 import org.apache.archiva.redback.keys.KeyManagerException;
@@ -68,7 +67,6 @@ public class MailGeneratorTest
     public void setUp()
         throws Exception
     {
-        CacheManager.getInstance().clearAll();
         super.setUp();
 
         

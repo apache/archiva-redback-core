@@ -28,6 +28,6 @@
        default-lazy-init="true">
 
   <context:annotation-config />
-  <context:component-scan base-package="org.apache.archiva.redback.common.ldap,org.apache.archiva.redback.common.ldap.connection"/>
+  <context:component-scan base-package="org.apache.archiva.redback.common.ldap,org.apache.archiva.redback.common.ldap.connection,org.apache.archiva.redback.common.ldap.role"/>
  
 </beans>

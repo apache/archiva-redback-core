@@ -107,7 +107,6 @@ public class JpaRbacManagerTest
     public void testLargeApplicationInit()
         throws RbacManagerException
     {
-        this.clearCache();
         super.testLargeApplicationInit();
     }
 
@@ -115,7 +114,6 @@ public class JpaRbacManagerTest
     public void testGetRolesDeep()
         throws RbacManagerException
     {
-        this.clearCache();
         super.testGetRolesDeep();
     }
 
@@ -124,7 +122,6 @@ public class JpaRbacManagerTest
     public void testStoreInitialization()
         throws Exception
     {
-        this.clearCache();
         rbacManager.eraseDatabase();
         eventTracker.rbacInit( true );
         super.testStoreInitialization();

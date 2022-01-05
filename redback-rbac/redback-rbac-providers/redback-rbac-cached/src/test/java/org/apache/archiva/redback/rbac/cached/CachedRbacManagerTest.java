@@ -19,16 +19,14 @@ package org.apache.archiva.redback.rbac.cached;
  * under the License.
  */
 
-import net.sf.ehcache.CacheManager;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.tests.AbstractRbacManagerTestCase;
+import org.junit.After;
 import org.junit.Before;
+import org.springframework.test.annotation.DirtiesContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.springframework.test.annotation.DirtiesContext;
 
 @DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
 public class CachedRbacManagerTest
@@ -59,7 +57,6 @@ public class CachedRbacManagerTest
         throws Exception
     {
         super.setUp();
-        CacheManager.getInstance().clearAll();
         setRbacManager( rbacManager );
 
         assertTrue( getRbacManager() instanceof CachedRbacManager );       
@@ -76,7 +73,6 @@ public class CachedRbacManagerTest
     public void testStoreInitialization()
         throws Exception
     {
-        CacheManager.getInstance().clearAll();
         rbacManager.eraseDatabase();
         super.testStoreInitialization();
     }          
