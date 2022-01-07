@@ -27,8 +27,8 @@ import org.apache.archiva.redback.rbac.Permission;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 /**
  * DefaultPermissionEvaluator:

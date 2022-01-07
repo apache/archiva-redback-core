@@ -18,10 +18,10 @@ package org.apache.archiva.redback.rest.services.mock;
  * under the License.
  */
 
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.internet.MimeMessage;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.mail.Address;
+import jakarta.mail.Message;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

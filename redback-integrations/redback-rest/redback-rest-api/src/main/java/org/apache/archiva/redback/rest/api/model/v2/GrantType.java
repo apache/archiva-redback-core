@@ -18,7 +18,7 @@ package org.apache.archiva.redback.rest.api.model.v2;
  * under the License.
  */
 
-import javax.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlEnumValue;
 
 public enum GrantType
 {

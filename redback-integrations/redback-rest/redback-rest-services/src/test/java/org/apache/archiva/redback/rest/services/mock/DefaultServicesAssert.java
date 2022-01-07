@@ -18,8 +18,8 @@ package org.apache.archiva.redback.rest.services.mock;
  * under the License.
  */
 
-import javax.inject.Inject;
-import javax.mail.internet.MimeMessage;
+import jakarta.inject.Inject;
+import jakarta.mail.internet.MimeMessage;
 import java.util.ArrayList;
 import java.util.List;
 

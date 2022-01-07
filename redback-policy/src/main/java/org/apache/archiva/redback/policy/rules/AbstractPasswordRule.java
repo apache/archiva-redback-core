@@ -19,8 +19,8 @@ package org.apache.archiva.redback.policy.rules;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.policy.PasswordRule;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 /**
  * AbstractPasswordRule

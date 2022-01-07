@@ -19,6 +19,12 @@ package org.apache.archiva.redback.integration.mail;
  * under the License.
  */
 
+import jakarta.mail.Address;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import org.apache.archiva.redback.configuration.UserConfiguration;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.apache.archiva.redback.keys.AuthenticationKey;
@@ -31,14 +37,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -118,7 +118,7 @@ public class MailerImpl
 
             message.setFrom( from );
 
-            List<Address> tos = new ArrayList<Address>();
+            List<Address> tos = new ArrayList<>( );
 
             for ( String mailbox : recipients )
             {

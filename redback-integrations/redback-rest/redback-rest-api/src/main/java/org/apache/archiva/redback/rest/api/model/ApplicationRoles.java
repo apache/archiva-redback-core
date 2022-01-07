@@ -18,7 +18,7 @@ package org.apache.archiva.redback.rest.api.model;
  * under the License.
  */
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Collection;
 

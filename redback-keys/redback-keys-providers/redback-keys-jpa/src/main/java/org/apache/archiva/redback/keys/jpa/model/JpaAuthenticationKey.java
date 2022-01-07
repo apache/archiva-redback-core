@@ -18,9 +18,9 @@ package org.apache.archiva.redback.keys.jpa.model;
 
 import org.apache.archiva.redback.keys.AuthenticationKey;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.util.Date;
 
 /**
@@ -30,7 +30,7 @@ import java.util.Date;
  *
  * @author <a href="mailto:martin_s@apache.org">Martin Stockhammer</a>
  */
-@javax.persistence.Entity
+@jakarta.persistence.Entity
 @Table(name="JDOAUTHENTICATIONKEY")
 public class JpaAuthenticationKey implements AuthenticationKey {
 

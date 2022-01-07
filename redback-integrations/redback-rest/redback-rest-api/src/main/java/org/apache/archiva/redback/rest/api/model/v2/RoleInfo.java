@@ -22,8 +22,8 @@ package org.apache.archiva.redback.rest.api.model.v2;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.archiva.redback.rbac.Role;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

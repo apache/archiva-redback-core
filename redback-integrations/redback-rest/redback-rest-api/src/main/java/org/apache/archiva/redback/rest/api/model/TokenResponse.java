@@ -19,10 +19,10 @@ package org.apache.archiva.redback.rest.api.model;
  */
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.apache.archiva.redback.authentication.Token;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;

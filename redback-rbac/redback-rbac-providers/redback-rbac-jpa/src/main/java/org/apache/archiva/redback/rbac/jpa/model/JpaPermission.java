@@ -24,7 +24,7 @@ import org.apache.archiva.redback.rbac.Permission;
 import org.apache.archiva.redback.rbac.Resource;
 import org.apache.archiva.redback.rbac.jpa.JpaRbacManager;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 
 /**

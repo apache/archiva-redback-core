@@ -22,7 +22,7 @@ package org.apache.archiva.redback.rest.services.interceptors;
 import org.apache.archiva.redback.system.SecuritySession;
 import org.apache.archiva.redback.users.User;
 
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.UriInfo;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,7 +33,7 @@ import java.util.Set;
  *
  * @since 3.0
  */
-public class RedbackSecurityContext implements javax.ws.rs.core.SecurityContext
+public class RedbackSecurityContext implements jakarta.ws.rs.core.SecurityContext
 {
     SecuritySession securitySession;
     RedbackPrincipal principal;

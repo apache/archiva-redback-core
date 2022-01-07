@@ -24,8 +24,8 @@ import org.apache.archiva.redback.tests.AbstractRbacManagerPerformanceTestCase;
 import org.junit.After;
 import org.junit.Before;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 /**
  * CachedRbacManagerPerformanceTest 

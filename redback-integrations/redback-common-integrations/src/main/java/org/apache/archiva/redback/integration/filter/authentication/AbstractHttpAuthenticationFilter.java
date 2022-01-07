@@ -21,8 +21,8 @@ package org.apache.archiva.redback.integration.filter.authentication;
 
 import org.apache.archiva.redback.integration.filter.SpringServletFilter;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
 
 /**
  * AbstractHttpAuthenticationFilter

@@ -22,8 +22,8 @@ package org.apache.archiva.redback.role;
 import org.apache.archiva.redback.rbac.RBACManager;
 import org.junit.Before;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 /**
  * RoleManagerTest:

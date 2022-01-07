@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.archiva.redback</groupId>
     <artifactId>redback-authentication-providers</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>redback-authentication-users</artifactId>
@@ -76,6 +76,16 @@
       <scope>runtime</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>org.eclipse.persistence.jpa</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>

@@ -23,7 +23,7 @@ import org.apache.archiva.redback.users.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 /**
  * Basic Password Rule, Checks for non-empty passwords that have at least {@link #setMinimumCount(int)} of

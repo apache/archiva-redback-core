@@ -17,9 +17,9 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemalocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
   <persistence-unit name="redback-jpa">
-    <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>org.apache.archiva.redback.users.jpa.model.JpaUser</class>
     <class>org.apache.archiva.redback.rbac.jpa.model.JpaOperation</class>
     <class>org.apache.archiva.redback.rbac.jpa.model.JpaResource</class>
@@ -28,10 +28,21 @@
     <class>org.apache.archiva.redback.rbac.jpa.model.JpaUserAssignment</class>
     <class>org.apache.archiva.redback.keys.jpa.model.JpaAuthenticationKey</class>
     <properties>
+
+      <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create" />
+
       <property name="openjpa.ConnectionURL" value="jdbc:hsqldb:mem:redback_database"/>
+      <property name="jakarta.persistence.jdbc.url" value="jdbc:hsqldb:mem:redback_database"/>
+
       <property name="openjpa.ConnectionDriverName" value="org.hsqldb.jdbcDriver"/>
+      <property name="jakarta.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
+
       <property name="openjpa.ConnectionUserName" value="sa"/>
+      <property name="jakarta.persistence.jdbc.user" value="sa"/>
+
       <property name="openjpa.ConnectionPassword" value=""/>
+      <property name="jakarta.persistence.jdbc.password" value=""/>
+
       <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
       <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)" />
       <property name="openjpa.jdbc.MappingDefaults"
@@ -39,6 +50,7 @@
       <property name="openjpa.Log" value="slf4j"/>
       <property name="openjpa.jdbc.DBDictionary" value="(disableSchemaFactoryColumnTypeErrors=true,BitTypeName=CHAR(1),BooleanTypeName=CHAR(1),BooleanRepresentation=STRING_YN)"/>
 
+      <property name="eclipselink.weaving" value="false"/>
     </properties>
   </persistence-unit>
 </persistence>

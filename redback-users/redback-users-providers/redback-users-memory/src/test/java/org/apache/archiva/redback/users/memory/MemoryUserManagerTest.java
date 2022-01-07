@@ -23,8 +23,8 @@ import org.apache.archiva.redback.users.memory.MemoryUserManager;
 import org.apache.archiva.redback.users.provider.test.AbstractUserManagerTestCase;
 import org.junit.Before;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 /**
  * {@link MemoryUserManager} test:

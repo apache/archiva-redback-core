@@ -23,8 +23,8 @@ import org.apache.archiva.redback.rbac.RBACManager;
 import org.apache.archiva.redback.tests.AbstractRbacManagerTestCase;
 import org.junit.Before;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.springframework.test.annotation.DirtiesContext;
 
 /**

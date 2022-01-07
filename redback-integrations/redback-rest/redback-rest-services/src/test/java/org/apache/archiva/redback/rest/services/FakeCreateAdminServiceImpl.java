@@ -25,8 +25,8 @@ import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.archiva.redback.role.RoleManager;
 import org.apache.archiva.redback.users.UserManager;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 /**
  * @author Olivier Lamy

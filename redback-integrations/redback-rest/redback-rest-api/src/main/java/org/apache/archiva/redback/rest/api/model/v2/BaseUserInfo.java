@@ -18,7 +18,7 @@ package org.apache.archiva.redback.rest.api.model.v2;/*
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 import java.io.Serializable;
 
 /**

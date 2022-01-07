@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,9 +60,12 @@ public class JpaRole extends AbstractRole implements Serializable {
     @OrderColumn(name="INTEGER_IDX", nullable = false)
     @JoinTable(
             name="SECURITY_ROLE_PERMISSION_MAP",
-            joinColumns={ @JoinColumn(name="NAME_OID", referencedColumnName="NAME", nullable = false) },
+            joinColumns={
+                @JoinColumn(name="NAME_OID", referencedColumnName="NAME", nullable = false),
+                @JoinColumn(name="ID_OID", referencedColumnName="ID", nullable = false)
+            },
             inverseJoinColumns = {
-                    @JoinColumn(name="NAME_EID",referencedColumnName = "NAME")
+                @JoinColumn(name="NAME_EID",referencedColumnName = "NAME")
             }
     )
     List<JpaPermission> permissions = new ArrayList<JpaPermission>();
@@ -73,7 +76,8 @@ public class JpaRole extends AbstractRole implements Serializable {
     @CollectionTable(
             name="SECURITY_ROLE_CHILDROLE_MAP",
             joinColumns = {
-                    @JoinColumn(name="NAME_OID",referencedColumnName = "NAME", nullable = false)
+                @JoinColumn(name="NAME_OID",referencedColumnName = "NAME", nullable = false),
+                @JoinColumn(name="ID_OID",referencedColumnName = "ID", nullable = false)
             }
     )
     List<String> childRoleNames = new ArrayList<String>();
@@ -84,7 +88,8 @@ public class JpaRole extends AbstractRole implements Serializable {
     @CollectionTable(
         name="SECURITY_ROLE_CHILDROLE_ID_MAP",
         joinColumns = {
-            @JoinColumn(name="ID_OID",referencedColumnName = "ID", nullable = false)
+            @JoinColumn(name="ID_OID",referencedColumnName = "ID", nullable = false),
+            @JoinColumn(name="NAME_OID", referencedColumnName = "NAME", nullable = false)
         }
     )
     List<String> childRoleIds = new ArrayList<String>();

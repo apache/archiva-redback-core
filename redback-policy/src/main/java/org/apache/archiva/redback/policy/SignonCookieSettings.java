@@ -19,11 +19,9 @@ package org.apache.archiva.redback.policy;
  * under the License.
  */
 
+import jakarta.annotation.PostConstruct;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
-import org.apache.archiva.redback.policy.AbstractCookieSettings;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
 
 /**
  * SignonCookieSettings

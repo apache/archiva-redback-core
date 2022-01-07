@@ -27,9 +27,9 @@ import org.apache.archiva.redback.users.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import java.util.Date;

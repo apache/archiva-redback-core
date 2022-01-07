@@ -25,8 +25,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
 public class CachedRbacManagerTest

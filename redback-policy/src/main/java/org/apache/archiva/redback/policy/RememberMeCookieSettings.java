@@ -22,7 +22,7 @@ package org.apache.archiva.redback.policy;
 import org.apache.archiva.redback.configuration.UserConfigurationKeys;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 /**
  * RememberMeCookieSettings

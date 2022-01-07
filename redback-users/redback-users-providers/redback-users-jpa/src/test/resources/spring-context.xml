@@ -55,14 +55,24 @@
     <property name="persistenceXmlLocation" value="classpath:META-INF/persistence-hsqldb.xml" />
     <property name="jpaPropertyMap">
       <map>
-        <entry key="openjpa.ConnectionURL" value="jdbc:hsqldb:mem:redback_database" />
-        <entry key="openjpa.ConnectionDriverName" value="org.hsqldb.jdbcDriver" />
-        <entry key="openjpa.ConnectionUserName" value="sa" />
-        <entry key="openjpa.ConnectionPassword" value="" />
+        <entry key="openjpa.ConnectionURL" value="jdbc:hsqldb:mem:redback_database"/>
+        <entry key="jakarta.persistence.jdbc.url" value="jdbc:hsqldb:mem:redback_database"/>
+
+        <entry key="openjpa.ConnectionDriverName" value="org.hsqldb.jdbcDriver"/>
+        <entry key="jakarta.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
+
+        <entry key="openjpa.ConnectionUserName" value="sa"/>
+        <entry key="jakarta.persistence.jdbc.user" value="sa"/>
+
+        <entry key="openjpa.ConnectionPassword" value=""/>
+        <entry key="jakarta.persistence.jdbc.password" value=""/>
+
         <entry key="openjpa.Log" value="slf4j" />
         <entry key="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)" />
         <entry key="openjpa.jdbc.MappingDefaults"
                   value="ForeignKeyDeleteAction=restrict,JoinForeignKeyDeleteAction=restrict"/>
+
+        <entry key="eclipselink.weaving" value="false"/>
       </map>
     </property>
 

@@ -23,8 +23,8 @@ import org.apache.archiva.redback.common.ldap.user.LdapUser;
 import org.apache.archiva.components.cache.Cache;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 /**
  * DefaultLdapCacheService

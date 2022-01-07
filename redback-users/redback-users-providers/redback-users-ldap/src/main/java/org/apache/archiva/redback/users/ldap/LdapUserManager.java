@@ -41,9 +41,9 @@ import org.apache.archiva.redback.users.ldap.ctl.LdapControllerException;
 import org.apache.archiva.redback.users.ldap.service.LdapCacheService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import java.util.ArrayList;

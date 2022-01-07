@@ -20,7 +20,7 @@ package org.apache.archiva.redback.rest.api.model;
 
 import org.apache.archiva.redback.keys.AuthenticationKey;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Martin Stockhammer <martin_s@apache.org>

@@ -23,7 +23,7 @@ import org.apache.archiva.redback.users.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.Iterator;
 
 /**

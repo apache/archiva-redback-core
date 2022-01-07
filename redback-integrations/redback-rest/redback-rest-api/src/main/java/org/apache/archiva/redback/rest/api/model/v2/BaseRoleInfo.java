@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.archiva.redback.rbac.Role;
 import org.apache.archiva.redback.role.model.ModelRole;
 
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

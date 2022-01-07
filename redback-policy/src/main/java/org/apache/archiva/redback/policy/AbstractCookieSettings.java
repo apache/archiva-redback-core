@@ -19,8 +19,8 @@ package org.apache.archiva.redback.policy;
  * under the License.
  */
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.archiva.redback.configuration.UserConfiguration;
 
