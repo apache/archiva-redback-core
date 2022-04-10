@@ -19,7 +19,8 @@ name: Release Drafter
 on:
   push:
     branches:
-      - archiva-2.x
+      - master
+      - redback-2.6.x
 jobs:
   update_release_draft:
     runs-on: ubuntu-latest
