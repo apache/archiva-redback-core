@@ -72,6 +72,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -372,6 +373,27 @@ public class DefaultUserService
     public Boolean updateUser( User user )
         throws RedbackServiceException
     {
+
+        // check username == one in the session
+        RedbackRequestInformation redbackRequestInformation = RedbackAuthenticationThreadLocal.get();
+        if ( redbackRequestInformation == null || redbackRequestInformation.getUser() == null )
+        {
+            log.warn( "RedbackRequestInformation from ThreadLocal is null" );
+            throw new RedbackServiceException( new ErrorMessage( "you must be logged to update your profile" ),
+                    Response.Status.FORBIDDEN.getStatusCode() );
+        }
+        if ( user == null )
+        {
+            throw new RedbackServiceException( new ErrorMessage( "user parameter is mandatory" ),
+                    Response.Status.BAD_REQUEST.getStatusCode() );
+        }
+        if ( !StringUtils.equals( redbackRequestInformation.getUser().getUsername(), user.getUsername() )
+            && !StringUtils.equals( redbackRequestInformation.getUser().getUsername(), RedbackRoleConstants.ADMINISTRATOR_ACCOUNT_NAME) )
+        {
+            throw new RedbackServiceException( new ErrorMessage( "you can update only your profile" ),
+                    Response.Status.FORBIDDEN.getStatusCode() );
+        }
+
         try
         {
             org.apache.archiva.redback.users.User rawUser = userManager.findUser( user.getUsername(), false );
@@ -587,7 +609,7 @@ public class DefaultUserService
                 applicationUrl = getBaseUrl();
             }
 
-            mailer.sendPasswordResetEmail( Arrays.asList( user.getEmail() ), authkey, applicationUrl );
+            mailer.sendPasswordResetEmail( Collections.singletonList( user.getEmail() ), authkey, applicationUrl );
             log.info( "password reset request for username {}", username );
         }
         catch ( UserNotFoundException e )
@@ -679,7 +701,7 @@ public class DefaultUserService
 
                 log.debug( "register user {} with email {} and app url {}", u.getUsername(), u.getEmail(), baseUrl );
 
-                mailer.sendAccountValidationEmail( Arrays.asList( u.getEmail() ), authkey, baseUrl );
+                mailer.sendAccountValidationEmail( Collections.singletonList( u.getEmail() ), authkey, baseUrl );
 
                 securityPolicy.setEnabled( false );
                 userManager.addUser( u );

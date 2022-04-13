@@ -94,8 +94,6 @@ public class RoleManagementServiceTest
             catch ( ForbiddenException e )
             {
                 assertEquals( 403, e.getResponse().getStatus() );
-
-
             }
 
             // assign the role and retry

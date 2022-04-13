@@ -27,46 +27,46 @@ package org.apache.archiva.redback.integration.security.role;
  */
 public interface RedbackRoleConstants
 {
-    public static final String ADMINISTRATOR_ACCOUNT_NAME = "admin";
+    String ADMINISTRATOR_ACCOUNT_NAME = "admin";
 
     // roles
-    public static final String SYSTEM_ADMINISTRATOR_ROLE = "System Administrator";
+    String SYSTEM_ADMINISTRATOR_ROLE = "System Administrator";
 
-    public static final String USER_ADMINISTRATOR_ROLE = "User Administrator";
+    String USER_ADMINISTRATOR_ROLE = "User Administrator";
 
-    public static final String REGISTERED_USER_ROLE = "Registered User";
+    String REGISTERED_USER_ROLE = "Registered User";
 
     /**
      * @since 1.4
      */
-    public static final String REGISTERED_USER_ROLE_ID = "registered-user";
+    String REGISTERED_USER_ROLE_ID = "registered-user";
 
-    public static final String GUEST_ROLE = "Guest";
+    String GUEST_ROLE = "Guest";
 
     // guest access operation
-    public static final String GUEST_ACCESS_OPERATION = "guest-access";
+    String GUEST_ACCESS_OPERATION = "guest-access";
 
     // operations against configuration
-    public static final String CONFIGURATION_EDIT_OPERATION = "configuration-edit";
+    String CONFIGURATION_EDIT_OPERATION = "configuration-edit";
 
     // operations against user
-    public static final String USER_MANAGEMENT_USER_CREATE_OPERATION = "user-management-user-create";
+    String USER_MANAGEMENT_USER_CREATE_OPERATION = "user-management-user-create";
 
-    public static final String USER_MANAGEMENT_USER_EDIT_OPERATION = "user-management-user-edit";
+    String USER_MANAGEMENT_USER_EDIT_OPERATION = "user-management-user-edit";
 
-    public static final String USER_MANAGEMENT_USER_ROLE_OPERATION = "user-management-user-role";
+    String USER_MANAGEMENT_USER_ROLE_OPERATION = "user-management-user-role";
 
-    public static final String USER_MANAGEMENT_USER_DELETE_OPERATION = "user-management-user-delete";
+    String USER_MANAGEMENT_USER_DELETE_OPERATION = "user-management-user-delete";
 
-    public static final String USER_MANAGEMENT_USER_LIST_OPERATION = "user-management-user-list";
+    String USER_MANAGEMENT_USER_LIST_OPERATION = "user-management-user-list";
 
     // operations against user assignment.
-    public static final String USER_MANAGEMENT_ROLE_GRANT_OPERATION = "user-management-role-grant";
+    String USER_MANAGEMENT_ROLE_GRANT_OPERATION = "user-management-role-grant";
 
-    public static final String USER_MANAGEMENT_ROLE_DROP_OPERATION = "user-management-role-drop";
+    String USER_MANAGEMENT_ROLE_DROP_OPERATION = "user-management-role-drop";
 
     // operations against rbac objects.
-    public static final String USER_MANAGEMENT_RBAC_ADMIN_OPERATION = "user-management-rbac-admin";
+    String USER_MANAGEMENT_RBAC_ADMIN_OPERATION = "user-management-rbac-admin";
 
-    public static final String USER_MANAGEMENT_MANAGE_DATA = "user-management-manage-data";
+    String USER_MANAGEMENT_MANAGE_DATA = "user-management-manage-data";
 }
