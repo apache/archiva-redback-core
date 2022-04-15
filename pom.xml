@@ -325,7 +325,7 @@
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-interpolation</artifactId>
-        <version>1.9</version>
+        <version>1.26</version>
       </dependency>
       <dependency>
         <groupId>org.apache.archiva.redback.components.cache</groupId>
