@@ -16,4 +16,4 @@
 # under the License.
 
 _extends: archiva-parent
-tag-template: redback-2.6.x-$NEXT_MINOR_VERSION
+tag-template: redback-$NEXT_MAJOR_VERSION-$NEXT_MINOR_VERSION
