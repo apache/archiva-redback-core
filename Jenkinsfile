@@ -59,10 +59,10 @@ pipeline {
                 script{
                     if (env.NONAPACHEORG_RUN != 'y' && ( env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'redback-2.6.x' ) )
                     {
-                        asfStandardBuild.mavenBuild( buildJdk, "clean deploy -U -fae -T${THREADS}", mavenVersion,
+                        asfStandardBuild.mavenBuild( buildJdk, "clean deploy -U -fae -T${params.THREADS}", mavenVersion,
                                                      defaultPublishers )
                     } else {
-                        asfStandardBuild.mavenBuild( buildJdk, "clean install -U -fae -T${THREADS}", mavenVersion,
+                        asfStandardBuild.mavenBuild( buildJdk, "clean install -U -fae -T${params.THREADS}", mavenVersion,
                                                      defaultPublishers )
                     }
                 }
