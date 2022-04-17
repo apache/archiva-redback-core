@@ -94,6 +94,7 @@
 
 
     <jjwt.version>0.11.2</jjwt.version>
+    <surefire.redirectTestOutputToFile>true</surefire.redirectTestOutputToFile>
 
   </properties>
 
@@ -426,6 +427,14 @@
         <artifactId>jul-to-slf4j</artifactId>
         <version>${slf4j.version}</version>
         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-bom</artifactId>
+        <version>${jetty.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
 
       <dependency>
@@ -966,7 +975,7 @@
         <configuration>
           <argLine>-Xmx256m -Xms256m</argLine>
           <runOrder>alphabetical</runOrder>
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
         </configuration>
       </plugin>
       <plugin>
