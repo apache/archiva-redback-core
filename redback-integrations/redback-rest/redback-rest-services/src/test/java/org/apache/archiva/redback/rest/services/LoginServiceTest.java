@@ -30,9 +30,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 /**
  * @author Olivier Lamy
  */
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration(
-        locations = { "classpath:/spring-context.xml" } )
+@RunWith(SpringJUnit4ClassRunner.class )
+@ContextConfiguration(locations = { "classpath:/spring-context.xml" } )
 public class LoginServiceTest
     extends AbstractRestServicesTest
 {

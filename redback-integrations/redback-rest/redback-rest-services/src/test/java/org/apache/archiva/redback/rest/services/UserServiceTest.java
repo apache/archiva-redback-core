@@ -45,7 +45,7 @@ import java.util.List;
 /**
  * @author Olivier Lamy
  */
-@RunWith( SpringJUnit4ClassRunner.class )
+@RunWith(SpringJUnit4ClassRunner.class )
 @ContextConfiguration(
         locations = { "classpath:/spring-context.xml" } )
 public class UserServiceTest

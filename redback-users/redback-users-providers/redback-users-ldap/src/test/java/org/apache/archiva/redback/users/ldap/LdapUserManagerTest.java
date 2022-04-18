@@ -147,21 +147,13 @@ public class LdapUserManagerTest
     {
         assertNotNull( connectionFactory );
 
-        LdapConnection connection = null;
-
-        try
+        try (LdapConnection connection = connectionFactory.getConnection())
         {
-            connection = connectionFactory.getConnection();
-
             assertNotNull( connection );
 
             DirContext context = connection.getDirContext();
 
             assertNotNull( context );
-        }
-        finally
-        {
-            connection.close();
         }
     }
 
@@ -169,22 +161,14 @@ public class LdapUserManagerTest
     public void testDirectUsersExistence()
         throws Exception
     {
-        LdapConnection connection = null;
-
-        try
+        try (LdapConnection connection = connectionFactory.getConnection())
         {
-            connection = connectionFactory.getConnection();
 
             DirContext context = connection.getDirContext();
 
             assertExist( context, createDn( "jesse" ), "cn", "jesse" );
             assertExist( context, createDn( "joakim" ), "cn", "joakim" );
         }
-        finally
-        {
-            connection.close();
-        }
-
     }
 
     @Test

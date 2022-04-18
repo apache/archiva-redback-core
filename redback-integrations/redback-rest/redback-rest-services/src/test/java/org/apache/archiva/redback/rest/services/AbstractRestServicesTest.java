@@ -30,13 +30,11 @@ import org.apache.archiva.redback.rest.api.services.LoginService;
 import org.apache.archiva.redback.rest.api.services.RoleManagementService;
 import org.apache.archiva.redback.rest.api.services.UserService;
 import org.apache.archiva.redback.rest.api.services.v2.AuthenticationService;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.servlet.CXFServlet;
-import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.session.SessionHandler;
@@ -44,27 +42,22 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
 
 import javax.ws.rs.core.MediaType;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Olivier Lamy
  */
-@RunWith(JUnit4.class)
 public abstract class AbstractRestServicesTest
     extends TestCase
 {
     protected Logger log = LoggerFactory.getLogger( getClass() );
 
-    private static AtomicReference<Server> server = new AtomicReference<>();
-    private static AtomicReference<ServerConnector> serverConnector = new AtomicReference<>();
+    protected Server server;
 
     public String authorizationHeader = getAdminAuthzHeader();
 
@@ -73,16 +66,14 @@ public abstract class AbstractRestServicesTest
      * @return
      */
     public Server getServer() {
-        return this.server.get();
+        return server;
     }
 
     public int getServerPort() {
-        ServerConnector connector = serverConnector.get();
-        if (connector!=null) {
-            return connector.getLocalPort();
-        } else {
-            return 0;
+        if (this.server == null || !this.server.isRunning()) {
+            throw new IllegalStateException("Server has not been started");
         }
+        return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
 
     JacksonJaxbJsonProvider getJsonProvider() {
@@ -91,14 +82,6 @@ public abstract class AbstractRestServicesTest
         mapper.registerModule( new JavaTimeModule( ) );
         provider.setMapper( mapper );
         return provider;
-    }
-
-    /**
-     * Returns true, if the server does exist and is running.
-     * @return true, if server does exist and is running.
-     */
-    public boolean isServerRunning() {
-        return this.server.get() != null && this.server.get().isRunning();
     }
 
     /**
@@ -137,21 +120,18 @@ public abstract class AbstractRestServicesTest
         throws Exception
     {
         log.info("Starting server");
-        Server myServer = new Server();
-        this.server.set(myServer);
-        this.serverConnector.set(new ServerConnector( myServer, new HttpConnectionFactory()));
-        myServer.addConnector(serverConnector.get());
+        this.server = new Server(0);
 
         ServletHolder servletHolder = new ServletHolder( new CXFServlet() );
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setResourceBase( SystemUtils.JAVA_IO_TMPDIR );
-        context.setSessionHandler( new SessionHandler(  ) );
+        context.setSessionHandler( new SessionHandler() );
         context.addServlet( servletHolder, "/" + getRestServicesPath() + "/*" );
         context.setInitParameter( "contextConfigLocation", getSpringConfigLocation() );
         context.addEventListener(new ContextLoaderListener());
 
-        getServer().setHandler( context );
-        getServer().start();
+        this.server.setHandler( context );
+        this.server.start();
 
         if (log.isDebugEnabled())
         {
@@ -187,11 +167,7 @@ public abstract class AbstractRestServicesTest
     public void stopServer()
         throws Exception
     {
-        if ( getServer() != null )
-        {
-            log.info("Stopping server");
-            getServer().stop();
-        }
+        this.server.stop();
     }
 
     protected UserService getUserService()
