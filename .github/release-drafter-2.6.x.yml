@@ -16,7 +16,7 @@
 # under the License.
 
 _extends: archiva-parent
-tag-template: redback-3.x
+tag-template: redback-2.6.x
 name-template: 2.6.x
 filter-by-commitish: true
 commitish: redback-2.6.x
