@@ -16,7 +16,7 @@
 # under the License.
 
 _extends: archiva-parent:.github/release-drafter.yml
-tag-template: redback-2.6.x
-name-template: 2.6.x
+tag-template: redback-$NEXT_PATCH_VERSION
+name-template: 2.6.$PATCH
 filter-by-commitish: true
 commitish: redback-2.6.x
