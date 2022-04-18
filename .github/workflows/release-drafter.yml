@@ -19,7 +19,6 @@ name: Release Drafter
 on:
   push:
     branches:
-      - master
       - redback-2.6.x
 jobs:
   update_release_draft:
