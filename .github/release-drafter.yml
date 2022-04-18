@@ -17,5 +17,6 @@
 
 _extends: archiva-parent
 tag-template: redback-2.6.x-$NEXT_MINOR_VERSION
+name-template: 2.6.x
 filter-by-commitish: true
 commitish: redback-2.6.x
