@@ -17,3 +17,5 @@
 
 _extends: archiva-parent
 tag-template: redback-3.x
+filter-by-commitish: true
+commitish: master
