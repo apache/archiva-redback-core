@@ -49,7 +49,7 @@ pipeline {
     options {
         disableConcurrentBuilds()
         durabilityHint('PERFORMANCE_OPTIMIZED')
-        buildDiscarder(logRotator(numToKeepStr: '7', artifactNumToKeepStr: '5'))
+        buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '2'))
         timeout(time: 120, unit: 'MINUTES')
     }
 
