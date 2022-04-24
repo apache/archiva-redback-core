@@ -41,13 +41,13 @@ pipeline {
     agent { label "${LABEL}" }
     // Build should also start, if parent has been built successfully
     triggers { 
-        upstream(upstreamProjects: 'Archiva/Archiva-TLP-Gitbox/archiva-parent/master,Archiva/Archiva-TLP-Gitbox/archiva-components/master', threshold: hudson.model.Result.SUCCESS) 
+        upstream(upstreamProjects: 'Archiva/archiva-projects/archiva-parent/master,Archiva/archiva-projects/archiva-components/master', threshold: hudson.model.Result.SUCCESS)
     }
 
     options {
         disableConcurrentBuilds()
         durabilityHint('PERFORMANCE_OPTIMIZED')
-        buildDiscarder(logRotator(numToKeepStr: '7', artifactNumToKeepStr: '5'))
+        buildDiscarder(logRotator(numToKeepStr: '7', artifactNumToKeepStr: '2'))
         timeout(time: 120, unit: 'MINUTES')
     }
 
