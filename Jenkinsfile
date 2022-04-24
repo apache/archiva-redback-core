@@ -44,7 +44,7 @@ pipeline {
         upstream(upstreamProjects: 'Archiva-TLP-Gitbox/archiva-parent/archiva-2.x', threshold: hudson.model.Result.SUCCESS) 
     }
     parameters {
-        string(name: 'THREADS', defaultValue: '1', description: 'Number of threads for the mvn build (-T option). Must be a integer value>0.')
+        string(name: 'THREADS', defaultValue: '2', description: 'Number of threads for the mvn build (-T option). Must be a integer value>0.')
     }
     options {
         disableConcurrentBuilds()
