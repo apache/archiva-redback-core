@@ -39,10 +39,6 @@ def defaultPublishers = [artifactsPublisher(disabled: false), junitPublisher(ign
 
 pipeline {
     agent { label "${LABEL}" }
-    // Build should also start, if parent has been built successfully
-//     triggers {
-//         upstream(upstreamProjects: 'Archiva-TLP-Gitbox/archiva-parent/archiva-2.x', threshold: hudson.model.Result.SUCCESS)
-//     }
     parameters {
         string(name: 'THREADS', defaultValue: '2', description: 'Number of threads for the mvn build (-T option). Must be a integer value>0.')
     }
