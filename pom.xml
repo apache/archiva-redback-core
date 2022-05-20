@@ -325,7 +325,7 @@
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-interpolation</artifactId>
-        <version>1.9</version>
+        <version>1.26</version>
       </dependency>
       <dependency>
         <groupId>org.apache.archiva.redback.components.cache</groupId>
@@ -573,7 +573,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>13.0.1</version>
+        <version>23.0</version>
       </dependency>
       <!--
       using apacheds client api rather than com.sun.jndi.ldap
