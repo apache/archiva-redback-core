@@ -105,7 +105,7 @@
     <jakarta.servlet.version>4.0.4</jakarta.servlet.version>
     <jakarta.mail.version>1.6.5</jakarta.mail.version>
     <jakarta.persistence.version>2.2.3</jakarta.persistence.version>
-    <jakarta.xml.bind.version>2.3.3</jakarta.xml.bind.version>
+    <jakarta.xml.bind.version>3.0.0</jakarta.xml.bind.version>
     <jakarta.inject.version>1.0</jakarta.inject.version>
     <jakarta.annotation.version>1.3.5</jakarta.annotation.version>
     <jakarta.transaction.version>1.3.3</jakarta.transaction.version>
