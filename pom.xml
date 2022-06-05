@@ -92,7 +92,44 @@
     <!-- The git repository, where the site content is placed -->
     <siteRepositoryUrl>scm:git:https://gitbox.apache.org/repos/asf/archiva-web-content.git</siteRepositoryUrl>
 
+    <jetty.version>9.4.43.v20210629</jetty.version>
+    <slf4j.version>1.7.32</slf4j.version>
+    <log4j.version>2.17.1</log4j.version>
+    <ehcache.version>3.9.9</ehcache.version>
+    <spring.version>5.3.19</spring.version>
+    <cxf.version>3.3.11</cxf.version>
+    <jackson.version>2.11.0</jackson.version>
+    <hsqldb.version>2.5.0</hsqldb.version>
+    <openjpa.version>3.1.1</openjpa.version>
 
+    <jakarta.servlet.version>4.0.4</jakarta.servlet.version>
+    <jakarta.mail.version>1.6.5</jakarta.mail.version>
+    <jakarta.persistence.version>2.2.3</jakarta.persistence.version>
+    <jakarta.xml.bind.version>2.3.3</jakarta.xml.bind.version>
+    <jakarta.inject.version>1.0</jakarta.inject.version>
+    <jakarta.annotation.version>1.3.5</jakarta.annotation.version>
+    <jakarta.transaction.version>1.3.3</jakarta.transaction.version>
+    <jakarta.ws.rs.version>2.1.6</jakarta.ws.rs.version>
+
+    <!-- apache commons -->
+    <commons.lang3.version>3.12.0</commons.lang3.version>
+    <commons.codec.version>1.15</commons.codec.version>
+    <commons.configuration.version>2.7</commons.configuration.version>
+    <commons.io.version>2.11.0</commons.io.version>
+    <commons.beanutils.version>1.9.4</commons.beanutils.version>
+    <commons.collections.version>4.4</commons.collections.version>
+    <commons.logging.version>1.2</commons.logging.version>
+    <commons.collections.3.version>3.2.2</commons.collections.3.version>
+
+    <!-- junit -->
+    <junit.platform.version>1.5.2</junit.platform.version>
+    <junit.jupiter.version>5.5.2</junit.jupiter.version>
+    <assertj.version>3.22.0</assertj.version>
+
+    <mockito.version>3.4.0</mockito.version>
+    <rest-assured.version>4.3.1</rest-assured.version>
+
+    <io.swagger.version>2.1.10</io.swagger.version>
     <jjwt.version>0.11.2</jjwt.version>
     <surefire.redirectTestOutputToFile>true</surefire.redirectTestOutputToFile>
 
