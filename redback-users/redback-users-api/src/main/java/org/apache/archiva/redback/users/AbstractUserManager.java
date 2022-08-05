@@ -19,13 +19,12 @@ package org.apache.archiva.redback.users;
  * under the License.
  */
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 
 /**
  * AbstractUserManager
@@ -37,7 +36,7 @@ public abstract class AbstractUserManager
 {
     protected Logger log = LoggerFactory.getLogger( getClass() );
 
-    private List<UserManagerListener> listeners = new ArrayList<UserManagerListener>();
+    private final List<UserManagerListener> listeners = new CopyOnWriteArrayList<>();
 
     public void addUserManagerListener( UserManagerListener listener )
     {

@@ -761,31 +761,26 @@
         <groupId>jakarta.annotation</groupId>
         <artifactId>jakarta.annotation-api</artifactId>
         <version>${jakarta.annotation.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>jakarta.inject</groupId>
         <artifactId>jakarta.inject-api</artifactId>
         <version>${jakarta.inject.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>jakarta.servlet</groupId>
         <artifactId>jakarta.servlet-api</artifactId>
         <version>${jakarta.servlet.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>jakarta.persistence</groupId>
-      <artifactId>jakarta.persistence-api</artifactId>
+        <artifactId>jakarta.persistence-api</artifactId>
         <version>${jakarta.persistence.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>jakarta.transaction</groupId>
-      <artifactId>jakarta.transaction-api</artifactId>
+        <artifactId>jakarta.transaction-api</artifactId>
         <version>${jakarta.transaction.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>jakarta.ws.rs</groupId>
@@ -1200,8 +1195,8 @@
         <inherited>false</inherited>
         <configuration>
           <notimestamp>true</notimestamp>
-          <javadocVersion>${javaFullVersion}</javadocVersion>
-          <source>${compiler.source}</source>
+          <javadocVersion>${maven.compiler.release}</javadocVersion>
+          <source>${maven.compiler.release}</source>
           <doclint>none</doclint>
           <detectLinks>true</detectLinks>
           <detectJavaApiLink>true</detectJavaApiLink>
