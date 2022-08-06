@@ -28,9 +28,9 @@
  * Only the war and zip artifacts are archived in the jenkins build archive.
  */
 LABEL = 'ubuntu'
-buildJdk = 'jdk_1.8_latest'
-buildJdk11 = 'jdk_11_latest'
-mavenVersion = 'maven_3.8.5'
+buildJdk = 'jdk_11_latest'
+buildJdk17 = 'jdk_17_latest'
+mavenVersion = 'maven_3.8.6'
 
 def defaultPublishers = [artifactsPublisher(disabled: false), junitPublisher(ignoreAttachments: false, disabled: false),
                          findbugsPublisher(disabled: true), openTasksPublisher(disabled: true),
@@ -52,7 +52,7 @@ pipeline {
     }
 
     stages {
-        stage( 'JDK8' ) {
+        stage( 'JDK11' ) {
             steps {
                 script{
                     if (env.NONAPACHEORG_RUN != 'y' && env.BRANCH_NAME == 'master')
@@ -66,10 +66,10 @@ pipeline {
                 }
             }
         }
-        stage('JDK11') {
+        stage('JDK17') {
             steps {
                 script {
-                    asfStandardBuild.mavenBuild(buildJdk11,"clean install -U -fae -T3",mavenVersion,[])
+                    asfStandardBuild.mavenBuild(buildJdk17,"clean install -U -fae -T3",mavenVersion,[])
                 }
             }
         }
