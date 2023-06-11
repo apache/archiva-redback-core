@@ -34,16 +34,6 @@ import javax.ws.rs.core.MediaType;
 public interface LoginService
 {
 
-    @Path( "addAuthenticationKey" )
-    @GET
-    @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )
-    @RedbackAuthorization( noRestriction = true )
-    String addAuthenticationKey( @QueryParam( "providerKey" ) String providedKey,
-                                 @QueryParam( "principal" ) String principal, @QueryParam( "purpose" ) String purpose,
-                                 @QueryParam( "expirationMinutes" ) int expirationMinutes )
-        throws RedbackServiceException;
-
-
     @Path( "ping" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN } )

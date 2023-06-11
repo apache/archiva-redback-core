@@ -88,41 +88,6 @@ public class DefaultLoginService
         this.httpAuthenticator = httpAuthenticator;
     }
 
-
-    public String addAuthenticationKey( String providedKey, String principal, String purpose, int expirationMinutes )
-        throws RedbackServiceException
-    {
-        KeyManager keyManager = securitySystem.getKeyManager();
-        AuthenticationKey key;
-
-        if ( keyManager instanceof MemoryKeyManager )
-        {
-            key = new MemoryAuthenticationKey();
-        }
-        else
-        {
-            key = new JdoAuthenticationKey();
-        }
-
-        key.setKey( providedKey );
-        key.setForPrincipal( principal );
-        key.setPurpose( purpose );
-
-        Calendar now = getNowGMT();
-        key.setDateCreated( now.getTime() );
-
-        if ( expirationMinutes >= 0 )
-        {
-            Calendar expiration = getNowGMT();
-            expiration.add( Calendar.MINUTE, expirationMinutes );
-            key.setDateExpires( expiration.getTime() );
-        }
-
-        keyManager.addKey( key );
-
-        return key.getKey();
-    }
-
     public Boolean ping()
         throws RedbackServiceException
     {
