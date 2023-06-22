@@ -71,7 +71,7 @@
   </distributionManagement>
 
   <properties>
-    <springVersion>4.2.1.RELEASE</springVersion>
+    <springVersion>5.3.22</springVersion>
     <slf4jVersion>1.7.32</slf4jVersion>
     <log4j2Version>2.17.2</log4j2Version>
 
