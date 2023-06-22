@@ -635,7 +635,7 @@ public class DefaultUserService
 
         if (Boolean.getBoolean(UserConfiguration.USER_REGISTRATION_DISABLE_KEY))
         {
-            throw new RedbackServiceException( new ErrorMessage("Registration Disabled"));
+            throw new RedbackServiceException( new ErrorMessage("Registration Disabled"), Response.Status.METHOD_NOT_ALLOWED.getStatusCode());
         }
 
         User user = userRegistrationRequest.getUser();
