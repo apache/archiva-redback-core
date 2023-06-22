@@ -31,6 +31,8 @@ import java.util.List;
 public interface UserConfiguration
 {
 
+    String USER_REGISTRATION_DISABLE_KEY = UserConfiguration.class.getName() + "USER_REGISTRATION_DISABLE_KEY";
+
     void initialize()
         throws UserConfigurationException;
 

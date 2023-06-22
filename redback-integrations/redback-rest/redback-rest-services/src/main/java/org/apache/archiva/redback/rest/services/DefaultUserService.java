@@ -70,7 +70,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -633,6 +632,12 @@ public class DefaultUserService
     public RegistrationKey registerUser( UserRegistrationRequest userRegistrationRequest )
         throws RedbackServiceException
     {
+
+        if (Boolean.getBoolean(UserConfiguration.USER_REGISTRATION_DISABLE_KEY))
+        {
+            throw new RedbackServiceException( new ErrorMessage("Registration Disabled"));
+        }
+
         User user = userRegistrationRequest.getUser();
         if ( user == null )
         {

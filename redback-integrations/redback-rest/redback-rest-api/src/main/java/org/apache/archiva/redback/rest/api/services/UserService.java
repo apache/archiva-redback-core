@@ -41,6 +41,7 @@ import java.util.List;
 @Path( "/userService/" )
 public interface UserService
 {
+
     @Path( "getUser/{userName}" )
     @GET
     @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML } )
